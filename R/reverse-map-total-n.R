@@ -6,7 +6,8 @@
 #'
 #' @param data Data frame with the `"scrutiny_map_total_n"` class.
 #'
-#' @return The reconstructed tibble.
+#' @return A tibble with the reported columns, such as `x1`, `x2`, and `n`,
+#'   one row per case.
 #'
 #' @export
 #'
@@ -32,10 +33,10 @@ reverse_map_total_n <- function(data) {
   }
 
   # The group sizes come in pairs: consecutive rows of the same case and
-  # direction, one step from the halves of the total each way, so with the same
-  # absolute `n_change`. All pairs of a case add up to the same total. Rows that
-  # were removed or reordered break this, and taking the first two rows of a
-  # case used to pair up group sizes from different steps without a word:
+  # direction with the same absolute `n_change`. All pairs of a case add up to
+  # the same total. Removed or reordered rows break this, and taking the first
+  # two rows of a case would then silently pair group sizes from different
+  # steps:
   first <- seq(1L, by = 2L, length.out = nrow(data) %/% 2L)
   second <- first + 1L
   sums <- data$n[first] + data$n[second]
@@ -55,10 +56,8 @@ reverse_map_total_n <- function(data) {
     )
   }
 
-  # Take the first pair of rows of each original-`n` block. The two group sizes
-  # in any such pair add up to the reported total, whatever the dispersion step
-  # that led to them; the total used to be rebuilt as twice the second group
-  # size, which only held for a first step of `0`:
+  # The two group sizes in any pair add up to the reported total, so the first
+  # pair of each case will do:
   data_reduced <- data |>
     dplyr::group_by(case) |>
     dplyr::slice(1:2) |>

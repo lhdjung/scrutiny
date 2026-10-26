@@ -53,16 +53,17 @@ A function such as these:\tabular{lll}{
 
 The settings of \code{.fun}, i.e., its arguments after \code{...}, such as
 \code{rounding}, are arguments of this function as well, with the same
-defaults. Its \code{...} pass any other arguments on to \code{.fun}, which is
-only of use for a \code{.fun} without \code{...} of its own.
+defaults. So are its helper arguments, such as \code{items_averaged}. Its \code{...}
+pass any other arguments on to \code{.fun}, which is only of use for a \code{.fun}
+without \code{...} of its own.
 }
 \description{
 \code{function_map_total_n()} creates a total-n mapper from a basic
-mapper such as \code{\link[=grim_map]{grim_map()}}: a function for the case where two groups'
-statistics are reported with their total sample size but without the group
-sizes, as \code{\link[=grim_map_total_n]{grim_map_total_n()}} is. It uses \code{\link[=disperse_total]{disperse_total()}} to
-create pairs of hypothetical group sizes that add up to the total, and
-tests the reported statistics against each pair.
+mapper such as \code{\link[=grim_map]{grim_map()}}: a function for two groups whose statistics
+are reported with the total sample size but without the group sizes, as
+\code{\link[=grim_map_total_n]{grim_map_total_n()}} is. It uses \code{\link[=disperse_total]{disperse_total()}} to create pairs of
+hypothetical group sizes that add up to the total, and tests the reported
+statistics against each pair.
 
 See \code{vignette("consistency-tests-in-depth")}, section \emph{Total-n mapper}.
 }

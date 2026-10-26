@@ -28,7 +28,7 @@ keep them (\code{1.40} is \code{1.4}).}
 respondent's score: 1 for a single item or the percentage of participants
 with some answer, 4 for the mean of a four-item scale, 10 for the average
 percent correct on a ten-question test. Not the number of scale points.
-There is no default.}
+No default.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
 100 and the decimal count is increased by 2. Default is \code{FALSE}.}
@@ -69,13 +69,9 @@ The function is vectorized, but \code{\link[=grim_map]{grim_map()}} is more conv
 testing many cases.
 }
 \details{
-\code{digits_x} must be specified because a numeric value does not
-retain trailing zeros: \code{1.40} is stored as \code{1.4}. State the number of
-decimal places that \code{x} was reported with.
-
-\code{items_averaged} must be specified because a mean over several items is a
-mean of more values, which changes the test. It replaces \code{items}, whose
-default of 1 let multi-item scales pass unnoticed.
+\code{items_averaged} must be specified because a mean over several
+items is a mean of more values, which changes the test. A default of 1
+would let multi-item scales pass unnoticed.
 
 \code{x}, \code{n}, \code{digits_x}, and \code{items_averaged} are vectorized and recycled to a
 common length by the tidyverse rules: an argument has length 1 or the

@@ -63,7 +63,7 @@ The tibble has the class \code{scrutiny_debit_map}, which is recognized by
 }
 \description{
 \code{debit_map()} applies \code{\link[=debit]{debit()}} to every row of a data frame
-with means, sample standard deviations, and sample sizes of binary data.
+with means, standard deviations, and sample sizes of binary data.
 
 Call \code{\link[=audit]{audit()}} on the output for summary statistics and
 \code{\link[=debit_plot]{debit_plot()}} to visualize it.

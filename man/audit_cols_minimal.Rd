@@ -17,7 +17,7 @@ Call \code{audit_cols_minimal()} within an \code{\link[=audit]{audit()}} method 
 the output of a consistency test mapper such as \code{\link[=grim_map]{grim_map()}}. It returns
 a tibble with the three columns every such method must have:
 \enumerate{
-\item \code{incons_cases}: the number of rows where the result column is \code{FALSE}.
+\item \code{incons_cases}: the number of rows where \code{consistency} is \code{FALSE}.
 A case the test could not decide is \code{NA} there and not counted.
 \item \code{all_cases}: the number of rows, including undecidable ones.
 \item \code{incons_rate}: \code{incons_cases / all_cases}.

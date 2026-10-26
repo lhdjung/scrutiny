@@ -112,10 +112,8 @@ round_ties_zero <- function(x, digits = 0L) {
 
 # Ties to the even number ----------------------------------------------------
 
-# This one has no `round_up()`/`round_down()` spelling: parity is not a
-# direction, so no combination of a threshold and `symmetric` produces it. It is
-# `base::round()` itself, wrapped only so that the family can be called by one
-# set of names.
+# Parity is not a direction, so no threshold and `symmetric` produce this. It
+# wraps `base::round()` only to complete the family.
 
 #' @rdname rounding-ties
 #' @export

@@ -1,5 +1,4 @@
-# Single-case function; not exported but used as a basis for the vectorized
-# `add_up_to()` as well as within `add_up_to_map()`:
+# Single-case function behind `add_up_to()` and `add_up_to_map()`.
 add_up_to_scalar <- function(summands, total) {
   # `total` first: `add_up_to()` wraps `summands` in a list before handing a
   # call with a missing `total` down here, and the error should be about that:

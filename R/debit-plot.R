@@ -34,10 +34,10 @@
 #' @param data Data frame returned by [`debit_map()`].
 #' @param show_labels Logical. Should the value sets be labeled with
 #'   "mean; SD"? Default is `TRUE`.
-#' @param show_full_scale Logical. Should the whole DEBIT line be shown,
-#'   regardless of the data? Default is `TRUE`.
-#' @param show_theme_other Logical. Should the theme be adjusted to the plot?
-#'   Default is `TRUE`.
+#' @param show_full_scale Logical. If `TRUE`, the x-axis spans the whole DEBIT
+#'   line, from 0 to 1, regardless of the data. Default is `TRUE`.
+#' @param show_theme_other Logical. If `TRUE`, minor grid lines are removed and
+#'   y-axis ticks are added. Default is `TRUE`.
 #'
 #' @include debit-map.R restore-zeros.R utils.R
 #'
@@ -78,9 +78,8 @@ debit_plot <- function(
     )
   }
 
-  # The formula decides what the plot shows. `debit_map()` and the mappers built
-  # on it always record it, and the record survives the same dplyr verbs as the
-  # class, so data with the class but no formula were given the class by hand:
+  # The formula decides what the plot shows. The record survives the same dplyr
+  # verbs as the class, so data with the class but no formula got it by hand:
   formula <- scrutiny_args(data)$formula
   if (!is.character(formula) || !formula %in% c("exact", "mean_n")) {
     abort_in_export(
@@ -91,7 +90,7 @@ debit_plot <- function(
     )
   }
 
-  # Recorded with `formula`. Both lines are drawn under `"sd_sample_or_pop"`:
+  # Both lines are drawn under `"sd_sample_or_pop"`:
   sd_meaning <- scrutiny_args(data)$sd_meaning
   sd_meanings <- if (sd_meaning == "sd_sample_or_pop") {
     c("sd_sample", "sd_pop")
@@ -117,9 +116,8 @@ debit_plot <- function(
     "sum_upper"
   )
 
-  # A zero-row mapper output has no bound columns (nothing to read their
-  # shape off), and the axis ranges below cannot be derived from no values. It
-  # comes first so that the message blames the rows, not the columns:
+  # Zero-row mapper output has no bound columns, so check rows first, and the
+  # message blames the rows, not the columns:
   if (nrow(data) == 0L) {
     abort_in_export(
       "`data` has no rows, so there is nothing to plot.",
@@ -148,7 +146,7 @@ debit_plot <- function(
     data[cols_rec] <- rec[cols_rec]
   }
 
-  # Subsetting used to fail with a vctrs error if a column was missing:
+  # Name the missing columns rather than let subsetting fail with a vctrs error:
   check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")
 
   is_complete <- stats::complete.cases(data[cols_needed])
@@ -275,7 +273,6 @@ debit_plot <- function(
   p <- p +
     ggplot2::geom_point(size = 1.5)
 
-  # Rectangles that should cross the consistency line:
   p <- p +
     ggplot2::geom_rect(
       ggplot2::aes(
@@ -289,9 +286,7 @@ debit_plot <- function(
       inherit.aes = FALSE
     )
 
-  # Scale specifications (optional, default is `TRUE`): The y-axis has some room
-  # beyond the outermost rectangles. This used to be the outer tiles' offset
-  # from the rectangles:
+  # Room on the y-axis beyond the outermost rectangles:
   sd_margin <- 0.025
 
   if (show_full_scale) {
@@ -299,7 +294,7 @@ debit_plot <- function(
       ggplot2::scale_x_continuous(
         breaks = seq(0, 1, 0.1),
         limits = c(0, 1)
-      ) + # might or might not change: , limits = c(0, 1)
+      ) +
       ggplot2::scale_y_continuous(
         breaks = seq(0, (max(sd_upper) + sd_margin), 0.05)
       ) +
@@ -387,7 +382,6 @@ debit_plot <- function(
     }
   }
 
-  # Text labels (optional, default is `TRUE`):
   if (show_labels) {
     rlang::check_installed("ggrepel", "for the labels in `debit_plot()`.")
     p <- p +
@@ -402,14 +396,12 @@ debit_plot <- function(
       )
   }
 
-  # Axis labels:
   p <- p +
     ggplot2::labs(
       x = "Mean",
       y = if (sd_meaning == "se") "Standard error" else "Standard deviation"
     )
 
-  # Other theme specifications (optional, default is `TRUE`):
   if (show_theme_other) {
     p <- p +
       ggplot2::theme(
@@ -418,10 +410,8 @@ debit_plot <- function(
       )
   }
 
-  # Return the plot -- returned, not printed, like `grim_plot_grid()`'s.
-  # Auto-printing draws it at the console anyway, whereas an explicit `print()`
-  # here drew a canvas whenever the result was assigned or added to. Nor are
-  # warnings suppressed: rows that can't be drawn are reported above.
+  # Returned, not printed: `print()` would draw whenever the result is
+  # assigned or added to.
   p
 }
 

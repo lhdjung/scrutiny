@@ -42,6 +42,8 @@ Logical (length 1). If \code{x} contains \code{NA}:
 the kind of sequence in question, and \code{FALSE} if none would.
 }
 
+A missing \code{from} is handled the same way.
+
 See \code{vignette("devtools")}, section \emph{NA handling}.
 }
 \description{

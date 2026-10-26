@@ -40,14 +40,13 @@ utils::globalVariables(c(
   "x_upper",
   "na_count",
   "fun_name",
-  # Added after rewriting the function factories using `rlang::new_function()`:
+  # Used in the bodies that the function factories build:
   "!!",
   "!!!",
   "constant",
   "include_consistent",
   "n_min",
   "n_max",
-  # Added for `write_code_col_key_result()`:
   "!!<-"
 ))
 
@@ -79,8 +78,7 @@ call_on <- function(x, f) {
 
 #' Mark a string as wrong
 #'
-#' @param x Object that should have been a string (it isn't; that's why the
-#'   function is called.)
+#' @param x Object that should have been a string.
 #'
 #' @return String.
 #'
@@ -96,7 +94,7 @@ wrong_spec_string <- function(x) {
 
 #' Write "an" or "a", depending on the next word
 #'
-#' @param x String. A string value that ends on a vowel letter returns `"an"`;
+#' @param x String. A string that starts with a lowercase vowel returns `"an"`;
 #'   else, it returns `"a"`.
 #'
 #' @return String.
@@ -113,9 +111,8 @@ an_a <- function(x) {
 
 #' Prefix an object's type with "an" or "a"
 #'
-#' This uses `an_a()` to prepend the type of `x` with "an" or "a". Because the
-#' function meant to be used in messages, it replaces "double" by "double
-#' (numeric value)" and "character" by "string".
+#' For messages. Writes `"factor"` for a factor, `"double (numeric value)"`
+#' for a double, and `"string"` for a character vector.
 #'
 #' @param x Any object.
 #'
@@ -140,24 +137,14 @@ an_a_type <- function(x) {
 
 #' Check whether numbers are whole
 #'
-#' @description For each element of a numeric vector, `is_whole_number()` checks
-#'   whether that element is a whole number.
-#'
-#'   This is not the same as the integer data type, so doubles and integers are
-#'   tested the same way. See the note in `?integer`. To test if R itself
-#'   considers a vector integer-like, use `rlang::is_integerish()` instead.
+#' @description Tests each element of `x` for being a whole number, whatever
+#'   its type. Adapted from `is.wholenumber()` in the examples of `?integer`.
 #'
 #' @param x Numeric.
-#' @param tolerance Numeric. Any difference between `x` and the whole number
-#'   nearest to it that is less than `tolerance` (in the absolute value) will be
-#'   ignored. The default is close to `1 / (10 ^ 8)`. This avoids errors due to
-#'   spurious precision in floating-point arithmetic.
+#' @param tolerance Numeric. Differences from the nearest whole number below
+#'   this are ignored. Default is about `1.5e-8`.
 #'
 #' @return Logical vector of the same length as `x`.
-#'
-#' @details This function was adapted (with naming modifications) from the
-#'   examples of `?integer`, where a very similar function is called
-#'   `is.wholenumber()`.
 #'
 #' @author R Core Team, Lukas Jung
 #'
@@ -172,9 +159,9 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 #' Refuse too many candidate sums for GRIMMER
 #'
 #' @description `grimmer_scalar()` loops over every integer sum the reported
-#'   mean admits. There are about `n * items_averaged / 10^digits_x` of them, so
-#'   a huge `n` (e.g., a typo) would keep the loop running for a very long time.
-#'   The limit is far above any published summary statistic.
+#'   mean admits, about `n * items_averaged / 10^digits_x` of them, so a huge
+#'   `n` (e.g., a typo) would run for a very long time. The limit is far above
+#'   any published summary statistic.
 #'
 #' @param bounds Numeric (length 2). The `c(lower, upper)` of the sums.
 #' @param n,digits_x Numeric (length 1). For the message.
@@ -202,51 +189,37 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 #'   about the integer sum behind a reported mean, GRIMMER about that sum and
 #'   the integer sum of squares behind a reported SD, DEBIT about a count of
 #'   ones among `n` binary values. A sample size or item count that is not a
-#'   positive whole number describes no such data set, so there is nothing for
-#'   the test to be consistent or inconsistent *with*.
-#'
-#'   Before scrutiny 1.0.0 these inputs produced verdicts. `grim(x = 5.19, n =
-#'   20.5, digits_x = 2)` was `FALSE`, `grimmer(..., items = 1.5)` was `TRUE`,
-#'   and `debit(x = 0.5, sd = 0.5, n = -5, ...)` was `FALSE` -- none of them a
-#'   verdict about anything. `NA` says what is actually the case: the test
-#'   cannot decide.
+#'   positive whole number describes no such data set, so the test returns
+#'   `NA`.
 #'
 #' @param n Numeric (length 1). The reported sample size.
 #' @param items_averaged Numeric (length 1). The number of items composing `x`.
 #'   DEBIT has no such argument and leaves it at the default.
-#' @param min_n Numeric (length 1). The smallest `n` the test can work with.
-#'   `1` for GRIM: the mean of a single value is that value. `2` for GRIMMER
-#'   and DEBIT, which reconstruct a *sample* SD and so divide by `n - 1`. At `n
-#'   = 1` that is a division by zero, and both tests used to reach a verdict
-#'   through it -- GRIMMER a `NaN` that `na.rm = TRUE` swallowed, DEBIT an
-#'   `Inf` that compared as "above the upper bound".
+#' @param min_n Numeric (length 1). The smallest `n` the test can work with:
+#'   `1` for GRIM, since the mean of a single value is that value; for GRIMMER
+#'   and DEBIT, `sd_min_n(sd_meaning)`, since a sample SD divides by `n - 1`.
 #'
 #' @return Logical vector, recycled to the length of the longer of `n` and
 #'   `items_averaged`: `TRUE` where the test can decide the case, `FALSE` where
-#'   it cannot. Never `NA` -- a missing `n` or `items_averaged` is itself
-#'   undecidable, which is what every test already reports for it. The
-#'   `*_scalar()` functions call this on single values; `grim_probability()` on
-#'   columns.
+#'   it cannot. Never `NA`: a missing `n` or `items_averaged` is undecidable.
+#'   The `*_scalar()` functions call this on single values,
+#'   `grim_probability()` on columns.
 #'
 #' @noRd
 is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
   # `is.finite()` is `FALSE` for `NA`, `NaN`, and the infinities, and `FALSE &
-  # NA` is `FALSE`, so the result is never missing however the comparisons
-  # further right turn out -- the guards absorb the missing values rather than
-  # preventing them, since `&` evaluates both sides.
+  # NA` is `FALSE`, so the result is never missing: the guards absorb missing
+  # values, since `&` evaluates both sides.
   #
-  # The whole-number tests are `is_whole_number()` written out; this runs once
-  # per row, and the two calls would cost more than every comparison here put
-  # together. `WHOLE_NUMBER_TOLERANCE` is the constant that function uses, so
-  # the two cannot drift; change one and change this copy and the one in
-  # `check_newly_numeric()` with it.
+  # The whole-number tests are `is_whole_number()` written out, because this
+  # runs once per row and the calls would cost more than all the comparisons.
+  # Keep them in step with that function and with `check_newly_numeric()`.
   #
-  # The condition appears twice below, once with `&&` and once with `&`, and the
-  # two have to be kept exact. `&&` neither allocates nor evaluates what it does
-  # not need, making the scalar version some 1.8 times faster -- and that is the
-  # one the `*_scalar()` functions reach once per row. `grim_probability()`
-  # needs the column version. A test in test-utils.R runs both over the same
-  # grid and requires them to agree.
+  # The condition appears twice, with `&&` and with `&`, and the two must stay
+  # identical. `&&` neither allocates nor evaluates what it does not need, so
+  # the scalar version, which the `*_scalar()` functions reach once per row, is
+  # some 1.8 times faster. `grim_probability()` needs the column version. A
+  # test in test-utils.R requires both to agree over a grid.
   if (length(n) == 1L && length(items_averaged) == 1L && length(min_n) == 1L) {
     return(
       is.finite(n) &&
@@ -268,11 +241,11 @@ is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
 
 
 # The number that the sum of squared deviations is divided by to give the
-# square of the reported value under one `sd_meaning` other than
-# `"sd_sample_or_pop"`: the variance's denominator, times `n` for an SE, the
-# sample SD divided by `sqrt(n)`. And the smallest `n` that an `sd_meaning` can
-# work with: a sample SD divides by `n - 1`, so it needs two values, a
-# population SD only one.
+# square of the reported value, under any `sd_meaning` but `"sd_sample_or_pop"`.
+# For an SE, the sample SD divided by `sqrt(n)`, that is `n * (n - 1)`.
+#
+# `sd_min_n()` is the smallest `n` an `sd_meaning` can work with: a sample SD
+# divides by `n - 1`, so it needs two values, a population SD only one.
 sd_denominator <- function(n, sd_meaning) {
   switch(sd_meaning, sd_pop = n, se = n * (n - 1), n - 1)
 }
@@ -284,16 +257,10 @@ sd_min_n <- function(sd_meaning) {
 
 #' Coerce a sample-size column to integer, but only if that is lossless
 #'
-#' @description A sample size is always a whole number, so mappers store the `n`
-#'   column as integer: it is the more faithful representation, and it displays
-#'   without a decimal point.
-#'
-#'   The coercion has to be conditional, though. `as.integer()` turns anything
-#'   beyond `.Machine$integer.max` into `NA` with nothing but a base-R warning,
-#'   and an `NA` in `n` next to a non-`NA` verdict is self-contradictory output:
-#'   the verdict was computed from the real value before the coercion destroyed
-#'   it. So the coercion is skipped whenever any value is fractional or too
-#'   large, and the column stays double.
+#' @description Mappers store the `n` column as integer, since a sample size is
+#'   a whole number. The coercion is skipped if any value is fractional or
+#'   beyond `.Machine$integer.max`, which `as.integer()` would turn into `NA`
+#'   next to a verdict computed from the real value.
 #'
 #' @param n Numeric vector; the `n` column.
 #'
@@ -315,10 +282,8 @@ as_integer_if_lossless <- function(n) {
 
 #' Bring a `digits_*` argument to one value per row
 #'
-#' A `digits_*` argument may be a single number, in which case every value in
-#' the column was reported with that many decimal places; or one number per row
-#' of `data`, for columns where the number of decimal places varies. Mappers
-#' pass the result on to their `*_scalar()` function row by row.
+#' A `digits_*` argument is either a single number or one number per row of
+#' `data`, for columns where the number of decimal places varies.
 #'
 #' @param digits The `digits_x` or `digits_sd` argument, as given by the user.
 #' @param n_rows Number of rows in `data`.
@@ -360,25 +325,22 @@ check_newly_numeric <- function(
   digits,
   caller_type = c("basic", "mapper", "sequence_mapper")
 ) {
-  # Inlined rather than left to `is_whole_number()`: this runs once per key
-  # value per row, and the call alone cost more than the whole check below it.
+  # The whole-number test below is inlined rather than left to
+  # `is_whole_number()`: this runs once per key value per row, and the call
+  # would cost more than the whole check.
   if (length(digits) != 1L || !(is.numeric(digits) || is.na(digits))) {
     name <- deparse(substitute(digits))
     error_digits_flawed(digits, name)
   }
 
   # A missing number of decimal places makes the case undecidable, like a
-  # missing `x`: the tests return `NA` for it, and a per-row `digits_*` in a
-  # mapper can be `NA` for some rows without failing the whole call. It used to
-  # reach the `if ()` below and fail there with base R's message.
+  # missing `x`, so a per-row `digits_*` can be `NA` for some rows:
   if (is.na(digits)) {
     return(invisible(NULL))
   }
 
   # A double holds 15 significant decimal digits. Beyond that, the tests stop
-  # being exact: `grim(5.25, 4, digits_x = 20, items_averaged = 1)` was `FALSE`,
-  # and a GRIMMER-consistent SD failed at 16. Up to 308, the greatest power of
-  # ten a double can hold, the tests used to return such verdicts:
+  # being exact and would return wrong verdicts:
   if (
     !is.finite(digits) ||
       digits < 0 ||
@@ -390,12 +352,11 @@ check_newly_numeric <- function(
   }
 
   # Can `x` be written with `digits` decimal places? `round()` answers that some
-  # 200 times faster than `decimal_places_scalar()`'s regular expressions, once
-  # the most expensive part of a mapper call (#92). But it is one-sided --
-  # `0.1 + 0.2` prints as `"0.3"` without being that double -- so whatever it
-  # leaves undecided is counted after all. `is.na(x)` must come first, or the
-  # `if ()` would fail on an `NA`. An infinity passes here (`round()` returns it
-  # unchanged), which is right: the tests report it as undecidable.
+  # 200 times faster than `decimal_places_scalar()` (#92), but only one way:
+  # `0.1 + 0.2` prints as `"0.3"` without being that double, so whatever it
+  # leaves undecided is counted after all. Keep it one-sided; a tolerance would
+  # disagree with the count above about 15 significant digits. An infinity
+  # passes, which is right: the tests report it as undecidable.
   if (
     is.na(x) ||
       (is.numeric(x) &&
@@ -406,25 +367,18 @@ check_newly_numeric <- function(
 
   caller_type <- rlang::arg_match(caller_type)
 
-  # The function the user called, e.g. `grim_map()` rather than the
-  # `grim_scalar()` that `purrr::pmap()` led here from. Errors are attributed to
-  # its frame so that they say "Error in `grim_map()`":
+  # The function the user called, e.g. `grim_map()` rather than
+  # `grim_scalar()`, so that errors say "Error in `grim_map()`":
   caller_name <- name_last_export()
   caller_frame <- sys.frame(index_last_export())
 
-  # Is that function a mapper, such as `grim_map()`? Mappers operate on data
-  # frames, so their messages should talk about columns, not arguments.
+  # A mapper's messages talk about columns, not arguments:
   caller_is_mapper <- grepl("_map", caller_name)
 
-  # Record the names of the key argument passed down here (likely the mean or
-  # SD) and the calling function
   name_x <- deparse(substitute(x))
   name_fn <- paste0("scrutiny::", caller_name)
 
   if (!is.numeric(x)) {
-    # If the user called a mapper function, the error message should talk about
-    # columns because mappers operate on data frames. Otherwise, it should
-    # mention arguments.
     msg_what <- if (caller_is_mapper) {
       I(paste0("Using string `", name_x, "` columns in `", name_fn, "()`"))
     } else {
@@ -449,8 +403,7 @@ check_newly_numeric <- function(
     )
   }
 
-  # In the remaining case, `digits_*` is not large enough for the number of
-  # decimal places that already exist in `x`
+  # `digits_*` is too small for the decimal places in `x`:
   name_digits_arg <- paste0("digits_", name_x)
   digits_in_x <- decimal_places_scalar(x)
 
@@ -466,19 +419,10 @@ check_newly_numeric <- function(
 
 #' Error if a `digits_*` argument is missing
 #'
-#' Since scrutiny 1.0.0, key arguments of functions related to consistency tests
-#' -- `grim*()`, `grimmer*`, and `debit*()` -- that were previously strings no
-#' longer are. These arguments are `x` and `sd` (for GRIM functions, only `x`).
-#'
-#' Instead, the number of decimal places of the respective statistics is
-#' conveyed through the new integer arguments `digits_x` and `digits_sd`. As
-#' most users will not be familiar with them initially, they will inevitably
-#' encounter errors when they call the functions in question without specifying
-#' the new arguments.
-#'
-#' In these cases, `error_digits_missing()` is called to give a more helpful and
-#' bespoke error message than the generic `argument "digits_x" is missing, with
-#' no default`. In scrutiny code, the usage pattern should always be:
+#' `x` and `sd` are numeric, so their decimal places are given by `digits_x`
+#' and `digits_sd`, which have no defaults. `error_digits_missing()` explains
+#' this better than R's generic `argument "digits_x" is missing, with no
+#' default`, to users who are used to string input. Always use it like this:
 #'
 #' ```
 #' if (missing(digits_x)) {
@@ -486,17 +430,17 @@ check_newly_numeric <- function(
 #' }
 #' ```
 #'
-#' @param x
+#' @param x The key argument whose `digits_*` argument is missing.
 #'
-#' @returns No return value; will throw an error.
+#' @returns No return value; throws an error.
 #'
 #' @noRd
 error_digits_missing <- function(x) {
   name_x <- deparse(substitute(x))
   name_digits_arg <- paste0("digits_", name_x)
 
-  # The example below should show the call the user actually made, e.g.
-  # `debit()` rather than the `debit_scalar()` that led here:
+  # The example shows the function the user called, e.g. `debit()` rather than
+  # `debit_scalar()`:
   name_fn <- name_last_export()
 
   # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
@@ -530,8 +474,7 @@ error_digits_missing <- function(x) {
     part_digits_sd <- NULL
   }
 
-  # If the user called a mapper function (such as `grim_map()`), the example
-  # should construct a data frame rather than accepting the value directly
+  # A mapper's example builds a data frame:
   if (grepl("_map", name_fn)) {
     part_tibble_open <- "tibble::tibble("
     part_tibble_close <- ")"
@@ -583,10 +526,9 @@ error_digits_missing <- function(x) {
 
 #' Error if `items_averaged` is missing
 #'
-#' `items_averaged` replaced `items` in scrutiny 1.0.0, which defaulted to 1.
-#' That default let multi-item scales go untested as single items, and the name
-#' was mistaken for the number of scale points. Like `digits_x`, the argument
-#' has no default, so every call states the assumption. Usage pattern:
+#' Like `digits_x`, `items_averaged` has no default, so that every call states
+#' the assumption: a default of 1 would let multi-item scales pass as single
+#' items. Usage pattern:
 #'
 #' ```
 #' if (missing(items_averaged)) {
@@ -594,7 +536,7 @@ error_digits_missing <- function(x) {
 #' }
 #' ```
 #'
-#' @returns No return value; will throw an error.
+#' @returns No return value; throws an error.
 #'
 #' @noRd
 error_items_missing <- function() {
@@ -621,10 +563,8 @@ error_items_missing <- function() {
 #' `add_class()` is pipeable, unlike the replacement function it wraps.
 #'
 #' @param x Some object. In scrutiny, always a tibble.
-#' @param new_class String. One or more classes that will be added to the
-#'   `class(x)` attribute. They are prepended before the classes of `x`, so that
-#'   subclasses that are added later take precedence over existing -- and more
-#'   generic -- base classes.
+#' @param new_class String. One or more classes, prepended to `class(x)` so
+#'   that they take precedence over the existing, more generic ones.
 #'
 #' @return `x` but with new classes.
 #'
@@ -636,25 +576,17 @@ add_class <- function(x, new_class) {
 
 #' Check whether lengths are congruent
 #'
-#' `check_lengths_congruent()` is called within a function `f()` and takes a
-#' list of arguments to `f()` supplied by the user (`var_list`). It checks if
-#' two or more of those arguments have lengths that are greater than 1.
-#'
-#' If at least two of these lengths are also different from each other and the
-#' `error` argument is `TRUE` (the default), the function will throw a precisely
-#' informative error. If they have the same > 1 length and the `warn` argument
-#' is `TRUE` (the default), there will be an informative warning.
-#'
-#' The only dependencies of this function are {rlang} and {cli}. As these are
-#' tidyverse backend packages that most users have installed already, the
-#' function might conceivably be used more widely.
+#' `check_lengths_congruent()` takes a list of a function's arguments. If two
+#' or more of them have different lengths greater than 1, it throws an error.
+#' If they have the same length greater than 1, it warns that their values get
+#' paired.
 #'
 #' @param var_list List of variables that were passed to the enclosing function
 #'   as arguments.
 #' @param error Logical (length 1). Should an error be thrown if lengths are not
 #'   congruent? Default is `TRUE`.
 #' @param warn Logical (length 1). If no error is thrown, should a warning be
-#'   issued if appropriate (see description)? Default is `TRUE`.
+#'   issued if appropriate? Default is `TRUE`.
 #'
 #' @return No return value; might throw error or warning.
 #'
@@ -663,12 +595,10 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
   var_lengths <- lengths(var_list)
   var_list_gt1 <- var_list[var_lengths > 1L]
 
-  # Condition of checking for error and warning:
   if (length(var_list_gt1) > 1L) {
-    # Capturing the argument names is by far the most expensive thing here --
-    # some thirty times everything else put together -- and only this branch
-    # needs them. `reround()` calls this once per candidate sum inside GRIMMER's
-    # loop, so it must not happen unconditionally.
+    # Capturing the argument names costs some thirty times everything else here,
+    # and only this branch needs them. `reround()` calls this every time, so it
+    # must not happen unconditionally.
     #
     # `substitute()` rather than `enexprs()`: `lengths()` above has forced the
     # promise, and `enexprs()` then returns the *values*, losing the names.
@@ -678,19 +608,13 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
     var_names_gt1 <- var_names[var_lengths > 1L]
     vnames_gt1_all <- var_names_gt1 # for the warning
 
-    # Two arguments of the same length are congruent, so only one of each
-    # distinct length needs to reach the error condition below. Deduplicate
-    # among the lengths greater than 1, not among all of them: indexing the
-    # shorter `var_list_gt1` with `duplicated(var_lengths)` misaligned them, so
-    # two length-2 arguments counted as two distinct lengths and raised an error
-    # about having to be the same length, which they already were.
+    # Only one argument of each distinct length needs to reach the error
+    # condition. Deduplicate among the lengths greater than 1, so that the
+    # index lines up with `var_list_gt1`:
     length_dup <- duplicated(var_lengths[var_lengths > 1L])
     var_list_gt1 <- var_list_gt1[!length_dup]
     var_names_gt1 <- var_names_gt1[!length_dup]
 
-    # Error condition, checking if there is more than one element of `var_list`
-    # with a unique length greater than one (the duplicated lengths were
-    # filtered out from `var_list_gt1` right above):
     if (error && (length(var_list_gt1) > 1L)) {
       x <- var_list_gt1[[1L]]
       y <- var_list_gt1[[2L]]
@@ -706,7 +630,6 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
         "*" = "`{y_name}` has length {length(y)}."
       )
 
-      # Append-to-error-message condition:
       if (length(residues_names) > 0L) {
         residues_names <- paste0("`", residues_names, "`")
         msg_error <- append(
@@ -715,13 +638,10 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
         )
       }
 
-      # Throw error:
       abort_in_export(msg_error)
     }
 
-    # Warning condition, triggered if more than one element of `var_list` has
-    # length > 1, it's the same length for all (hence no error), and the `warn`
-    # argument is `TRUE` (the default):
+    # Same length greater than 1 for all of them:
     if (warn) {
       x_name <- vnames_gt1_all[[1L]]
       y_name <- vnames_gt1_all[[2L]]
@@ -744,7 +664,6 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 
       vnames_gt1_all <- paste0("`", vnames_gt1_all, "`")
 
-      # Throw warning:
       cli::cli_warn(c(
         "Values of {vnames_gt1_all} get paired.",
         "!" = "Are you sure that{msg_example} each `{x_name}` value \\
@@ -765,6 +684,7 @@ check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
 #'
 #' @param x Vector.
 #' @param l Numeric. Length that `x` should have.
+#' @param allow_null Logical. If `TRUE`, `x` may also be `NULL`.
 #'
 #' @return No return value; might throw error.
 #'
@@ -793,19 +713,18 @@ check_length <- function(x, l, allow_null = FALSE) {
 
 #' Check type
 #'
-#' Much the same as `check_length()`, but for object types rather than lengths.
-#' An object `x` must have one of the types in `t`, or else there will be an
-#' informative error.
+#' Like `check_length()`, but for types: `x` must have one of the types in `t`.
+#' A factor always fails.
 #'
 #' @param x Vector.
-#' @param t Numeric. Type that `x` should have.
+#' @param t String. Types that `x` may have.
 #'
 #' @return No return value; might throw error.
 #'
 #' @noRd
 check_type <- function(x, t) {
   # A factor's type is `"integer"`, but its values are level codes, not the
-  # numbers it shows. `n = factor(28)` used to pass and fail in base R:
+  # numbers it shows:
   if (is.factor(x) || !any(typeof(x) == t)) {
     msg_name <- deparse(substitute(x))
     if (length(t) == 1L) {
@@ -824,12 +743,10 @@ check_type <- function(x, t) {
 
 #' Check class
 #'
-#' Much the same as `check_length()` or `check_type()`, but for classes. An
-#' object `x` must have one of the types in `t`, or else there will be an
-#' informative error.
+#' Like `check_type()`, but for classes: `x` must inherit from `cl`.
 #'
 #' @param x Vector.
-#' @param cl Numeric. Class that `x` should have.
+#' @param cl String. Class that `x` should have.
 #'
 #' @return No return value; might throw error.
 #'
@@ -848,14 +765,11 @@ check_class <- function(x, cl) {
 
 #' Coerce a user-supplied data frame to a tibble
 #'
-#' Any data frame is admitted, as from `read.csv()` or a PDF table extractor,
-#' and returned as a tibble; anything else is an error. A tibble has no row
-#' names, so character row names would be dropped in silence -- study labels,
-#' say. They are kept as a `rowname` column instead. Integer row names, as left
-#' by `data[rows, ]`, are row numbers, not labels, and are dropped.
+#' Any data frame is returned as a tibble; anything else is an error. Character
+#' row names, such as study labels, are kept as a `rowname` column, since a
+#' tibble has none. Integer row names, as left by `data[rows, ]`, are dropped.
 #'
-#' Note: This assumes the name of the argument in the user-called function is
-#' `data`.
+#' Assumes that the argument of the user-called function is named `data`.
 #'
 #' @param data A user-supplied data frame.
 #'
@@ -901,35 +815,19 @@ as_tibble_input <- function(data) {
 
 #' Check that a number of decimal places is usable
 #'
-#' @description `check_digits_whole()` is called from `reround()`, the general
-#'   interface that every rounding method goes through.
+#' @description Called from `reround()` and `unround()`. A fractional `digits`
+#'   scales `x` by a non-power of ten, so the result sits on no decimal grid,
+#'   while [`base::round()`] rounds `digits` itself: the methods would disagree.
 #'
-#'   A number of decimal places is a whole number by definition. A fractional
-#'   one scales `x` by a non-power of ten -- `10^1.5` is about 31.6 -- so the
-#'   result sits on no decimal grid at all: `reround(1.25, digits = 1.5,
-#'   rounding = "up")` used to be `1.264911`. Worse, `rounding = "even"` was
-#'   unaffected, since [`base::round()`] rounds `digits` to a whole number
-#'   before using it, so scrutiny's own methods disagreed with each other on the
-#'   same input.
+#'   The `round_*()` primitives don't repeat the check because they run once
+#'   per candidate value. Even in `reround()`, it is a hot path, so the check
+#'   makes one pass over `digits` and touches `cli` only on failure. The
+#'   whole-number test is inlined for the same reason as in
+#'   `check_newly_numeric()`.
 #'
-#'   The check is not repeated in the `round_*()` primitives, which run once per
-#'   candidate value inside GRIMMER's loop over sums of squares, multiplied by
-#'   the rows of a mapper call. `reround()` is one level up from that: it is
-#'   called once per candidate sum, not once per candidate value, and it is the
-#'   one place every rounding path goes through. That is still a hot enough spot
-#'   that the check returns on its first pass over `digits` and touches `cli`
-#'   only when something is actually wrong.
-#'
-#'   The whole-number test is inlined against `WHOLE_NUMBER_TOLERANCE` rather
-#'   than calling `is_whole_number()`, as `check_newly_numeric()` does and for
-#'   the same reason.
-#'
-#'   A missing `digits` passes, so that it propagates to an `NA` result the way
-#'   a missing `x` does -- including a plain logical `NA`, as in
-#'   `check_newly_numeric()`. An infinite one does not: it is not a decimal
-#'   level, and `10^Inf` would take every value to `NaN`. Nor does one beyond
-#'   308 in either direction, for the same reason: `10^309` is already `Inf`,
-#'   and `10^-400` is `0`.
+#'   A missing `digits`, including a logical `NA`, passes and propagates to an
+#'   `NA` result. An infinite one, or one beyond 308 in either direction, fails:
+#'   `10^digits` would be `Inf` or `0`.
 #'
 #' @param digits The `digits` argument of the calling function.
 #' @param name String (length 1). Name of that argument, for errors.
@@ -945,10 +843,8 @@ check_digits_whole <- function(digits, name = "digits") {
     )
   }
 
-  # The normal and cheap case: one pass over `digits`, no allocation beyond it,
-  # and no `cli` fn calls. `NaN` is caught by `is.na()` and passes with the
-  # other missing values. 308 is the greatest power of ten a double can hold, so
-  # `10^digits` is finite and non-zero within it:
+  # The cheap, normal case. `NaN` passes with the other missing values. 308 is
+  # the greatest power of ten a double can hold:
   ok <-
     is.na(digits) |
     (abs(digits) <= 308 &
@@ -958,9 +854,8 @@ check_digits_whole <- function(digits, name = "digits") {
     return(NULL)
   }
 
-  # Failure path, where the cost no longer matters. A value fails for not being
-  # whole, or else for being out of range; the first reason is reported first.
-  # An infinity is not whole, and fails the second test only as `NA`:
+  # Failure path. Not being whole is reported first; an infinity counts as not
+  # whole:
   offenders <- digits[!ok]
   not_whole <- offenders[
     !is.finite(offenders) |
@@ -990,23 +885,14 @@ check_digits_whole <- function(digits, name = "digits") {
 
 #' Check that a rounding threshold is usable
 #'
-#' @description `check_threshold_valid()` is called within curly braces inside
-#'   of the switch statement in `reconstruct_rounded_numbers_scalar()`, and from
-#'   `rounding_offsets()`, if `rounding` includes `"_from"` and therefore
-#'   depends on `threshold`.
+#' @description Called by `round_up_from()`, `round_down_from()`, and, for the
+#'   `"*_from"` methods, by `reround()` and `rounding_offsets()`.
 #'
 #'   A threshold is the point within a step at which rounding switches
 #'   direction, so it has to lie strictly inside the step: at `0` or `10`, one
-#'   of the two directions can never be taken, which silently turns the method
-#'   into `"ceiling"`-like or `"floor"`-like behavior.
-#'
-#'   Before scrutiny 1.0.0, the check here was a different one: it threw an
-#'   error if `threshold` was `5`, on the theory that a threshold of `5` must be
-#'   the argument's default value showing through, and that the user meant to
-#'   specify something else. That conflated "unspecified" with "specified as 5"
-#'   -- any caller computing a threshold and passing it on failed spuriously at
-#'   exactly the most common value -- and `"up_from"` with a threshold of `5` is
-#'   simply `"up"`, which is a correct answer rather than an error.
+#'   direction can never be taken, which silently turns the method into
+#'   `"ceiling"` or `"floor"`. A threshold of `5` is valid: `"up_from"` is then
+#'   `"up"`.
 #'
 #' @param threshold The `threshold` argument of the calling function.
 #'
@@ -1041,9 +927,8 @@ check_threshold_valid <- function(threshold) {
 
 #' Split into groups
 #'
-#' Split up a vector `x` into groups that each consist of a number of elements
-#' equal to `group_size` -- or, if the division has a remainder, the final group
-#' will have fewer elements, and the function will issue an informative warning.
+#' Split a vector `x` into groups of `group_size` elements. If there is a
+#' remainder, the last group is smaller, with a warning.
 #'
 #' @param x Vector.
 #' @param group_size Number of elements in each resulting group (except,
@@ -1124,17 +1009,16 @@ commas_and <- function(x) {
 }
 
 
-#' Check that no element of a numeric vector is negative
+#' Check that numbers are positive or non-negative
 #'
-#' Throws error if any element of `x` is less than 0.
+#' `check_positive()` errors if any element of `x` is 0 or less,
+#' `check_non_negative()` if any is less than 0. Missing values pass.
 #'
 #' @param x Numeric.
 #'
 #' @return No return value; might throw error.
 #'
 #' @noRd
-# Like `check_non_negative()` below, but zero is an error, too. Missing values
-# pass, as `which()` drops them:
 check_positive <- function(x) {
   offenders <- x[which(x <= 0)]
   if (length(offenders) > 0L) {
@@ -1148,7 +1032,6 @@ check_positive <- function(x) {
 
 
 check_non_negative <- function(x) {
-  # `which()` drops `NA`, which is not negative; `check_positive()` does the same:
   offenders <- x[which(x < 0)]
 
   if (length(offenders) > 0L) {
@@ -1186,18 +1069,12 @@ is_even <- function(x) {
 
 #' Check for length-1 sample size in dispersion functions
 #'
-#' @description Only used within `disperse()` and `disperse_total()`. In these
-#'   functions, the `n` argument must be length 1. This is in contrast to
-#'   `disperse2()` where it must be length 2, so a length-2 `n` will trigger
-#'   an error message that specifically points to `disperse2()`.
-#'
-#'   All `n` values with a length other than 1 will trigger an error that refers
-#'   the user to `?disperse()`.
+#' @description For `disperse()` and `disperse_total()`, where `n` must have
+#'   length 1. A length-2 `n` gets a hint to `disperse2()`.
 #'
 #' @param n Argument from `disperse()` or `disperse_total()` by the same name.
 #' @param msg_single String (length 1). Error message specific to the calling
-#'   function, i.e., `disperse()` or `disperse_total()`: Their reasons for
-#'   requiring a length-1 `n` differ from each other.
+#'   function.
 #'
 #' @return No return value; might throw an error.
 #'
@@ -1222,8 +1099,8 @@ check_length_disperse_n <- function(n, msg_single) {
 
 #' Check if a vector is numeric or coercible to numeric
 #'
-#' `check_type_numeric_like()` throws an informative error if `is_numeric_like()`
-#'   returns `FALSE`. This means it tolerates `NA`, not just `TRUE.`
+#' `check_type_numeric_like()` throws an error if `is_numeric_like()` returns
+#' `FALSE`, so it tolerates `NA`.
 #'
 #' @param x Object to be tested.
 #'
@@ -1268,14 +1145,8 @@ check_type_numeric_like <- function(x) {
 #'   steps, and each step is one unit of `by`. The reported value is therefore
 #'   `value - diff_var * by`, exactly, for every row of the group.
 #'
-#'   This replaces an earlier version that inferred the reported value from the
-#'   *shape* of the sequence -- the midpoint of its gap, or its median if it had
-#'   no gap. That inference is only valid when the sequence is complete. When
-#'   `out_min` or `out_max` truncated one side of it, the gap disappeared along
-#'   with the values below it, the median branch fired, and a plausible but wrong
-#'   value was returned: `grim_map_seq()` on a reported mean of `-2.51` came back
-#'   from `reverse_map_seq()` as `-2.48`, and `audit_seq()` then re-tested that
-#'   and reported the opposite verdict.
+#'   The shape of the sequence, such as the midpoint of its gap, is no guide:
+#'   `out_min` or `out_max` may have truncated one side of it.
 #'
 #' @param x Numeric. The dispersed values of one `(case, var)` group.
 #' @param diff_var Numeric. The `diff_var` column of the same group, in steps.
@@ -1288,12 +1159,10 @@ check_type_numeric_like <- function(x) {
 #'
 #' @noRd
 index_case_from_diff <- function(x, diff_var, by = NULL) {
-  # Without a step size from the caller, the sequence supplies it: the values
-  # are `diff_var` steps of `by` away from the reported one, so two of them are
-  # as many steps apart as their `diff_var` values. Not the smallest gap
-  # between two values, which is several steps wide if the dispersion skips
-  # some, as `dispersion = c(2, 4, 6)` or the reported value itself do. A
-  # single-value sequence has nothing to go on:
+  # Without a step size from the caller, the sequence supplies it: two values
+  # are as many steps apart as their `diff_var` values. Not the smallest gap,
+  # which is several steps wide if the dispersion skips some, as
+  # `dispersion = c(2, 4, 6)` does:
   if (is.null(by)) {
     if (length(unique(diff_var)) < 2L) {
       abort_in_export(
@@ -1307,16 +1176,14 @@ index_case_from_diff <- function(x, diff_var, by = NULL) {
       (diff_var[[index_max]] - diff_var[[index_min]])
   }
 
-  # Rounding to the decimal level of the step undoes the representation error
-  # in the multiplication, exactly as `seq_disperse()` does when it builds the
-  # sequence in the first place:
+  # Rounding to the decimal level of the step undoes representation error, as
+  # in `seq_disperse()`:
   digits <- max(decimal_places_scalar(by), 0L)
   candidates <- round(x - (diff_var * by), digits)
 
-  # Every row of the group describes the same reported value from a different
-  # offset, so they must all agree. If they don't, the output was not produced
-  # by a linear dispersion around one value, and there is no reported value to
-  # recover -- better to say so than to return one of the candidates:
+  # Every row of the group describes the same reported value, so they must all
+  # agree. If they don't, the output was not produced by a linear dispersion
+  # around one value:
   if (!all(dplyr::near(candidates, candidates[[1L]]))) {
     abort_in_export(
       "Can't recover the reported value: the dispersed values disagree \\
@@ -1346,25 +1213,19 @@ index_central <- function(x) {
 
 #' Transformation helper for `split_by_parens()`
 #'
-#' @description Only called within `split_by_parens()`, and only if the latter
-#'   function's `transform` argument is set to `TRUE`.
-#'
-#'   `transform_split_parens()` pivots the data into a longer format. It lumps
-#'   values from all original columns into two new columns named after the two
-#'   split-column endings (`"x"` and `"sd"` by default), but preserves the
-#'   information about their origin by storing it in a `.origin` column.
+#' @description Called by `split_by_parens(transform = TRUE)`. Stacks the
+#'   values of all split columns into two columns named after the endings
+#'   (`"x"` and `"sd"` by default), recording their origin in `.origin`.
 #'
 #'   The split columns are looked up by their exact names, `{origin}_{end1}` and
-#'   `{origin}_{end2}`. Matching them by pattern instead, as with
-#'   `contains("_sd")`, also caught an original column such as `exp_sd`, and the
-#'   two sides were then joined by position, which paired values from different
-#'   columns.
+#'   `{origin}_{end2}`. A pattern like `contains("_sd")` would also catch an
+#'   original column such as `exp_sd`.
 #'
 #' @param data Data frame created as an intermediate product within
 #'   `split_by_parens()`.
 #' @param origins String. Names of the original columns that were split.
 #' @param end1,end2 String. Endings of the split column names.
-
+#'
 #' @return Tibble with these columns:
 #' - `.origin`: Names of the original columns of the data frame that
 #'   `split_by_parens()` took as an input.
@@ -1376,8 +1237,6 @@ transform_split_parens <- function(data, origins, end1, end2) {
   stack_cols <- function(end) {
     unlist(data[paste0(origins, "_", end)], use.names = FALSE)
   }
-  # The columns are stacked in their order in `data`, which used to be
-  # rearranged alphabetically:
   tibble::tibble(
     .origin = rep(origins, each = nrow(data)),
     !!end1 := stack_cols(end1),
@@ -1396,24 +1255,22 @@ class_name_test <- function(name_test, suffix) {
 
 #' Select columns before `"consistency"`
 #'
-#' Useful helper for selecting all "tested" columns in the sense of
-#' `vignette("consistency-tests-in-depth")`; i.e., those columns that factored
-#' into a consistency test applied by a mapper function like `grim_map()`.
+#' Selects the "tested" columns in the sense of
+#' `vignette("consistency-tests-in-depth")`: those that went into the test.
 #'
-#' @param data Data frame resulting from a consistency test mapper function,
-#'   such as `grim_map()`.
-#' @param before String (length 1). Name of the first column that will not be
-#'   selected. Default is `"consistency"`, which should hardly be changed.
+#' @param data Data frame returned by a mapper such as `grim_map()`.
+#' @param before String (length 1). Name of the first column not to select.
+#'   Default is `"consistency"`.
 #'
-#' @return Data frame with a number of columns equal to $k - 1$, where $k$ is
-#'   the index of `before` in `data`.
+#' @return Data frame with the columns before `before`, except `digits_*`
+#'   columns.
 #'
 #' @noRd
 select_tested_cols <- function(data, before = "consistency") {
   index_last_tested_col <- match(before, colnames(data)) - 1L
   cols <- data[1L:index_last_tested_col]
-  # Exclude digits_* columns: they are metadata added by *_map_seq() and must
-  # not be treated as key test variables (e.g. by reverse_map_seq()):
+  # `digits_*` columns are metadata, not key test variables, e.g. for
+  # `reverse_map_seq()`:
   cols[!grepl("^digits_", colnames(cols))]
 }
 
@@ -1448,9 +1305,8 @@ wrap_in_quotes <- function(x) {
 
 #' Wrap into quotation marks if string, else in backticks
 #'
-#' For error messages and similar. Like `wrap_in_quotes_if_string()` except a
-#' non-string `x` is wrapped into backticks (rather than being returned
-#' unchanged).
+#' For error messages and similar. `NULL` and missing strings get backticks,
+#' too.
 #'
 #' @param x Any object.
 #'
@@ -1471,17 +1327,11 @@ wrap_in_quotes_or_backticks <- function(x) {
 
 #' Test numbers for near-equality, other objects for identity
 #'
-#' When testing for equality, strict equality as assessed by `identical()` would
-#' be asking too much from numeric values, so `dplyr::near()` is used if both
-#' `x` and `y` are numeric. `identical()` is used otherwise.
+#' Uses `all(dplyr::near(x, y))` if both are numeric, `identical()` otherwise.
 #'
 #' @param x,y Two objects to be compared.
 #'
 #' @return Logical (length 1).
-#'
-#' @details Since `near()` is vectorized and `identical()` is not, their results
-#'   are not on par with each other, so `near()` must be wrapped in `all()`,
-#'   which makes sure that there are no differences beyond the tolerance.
 #'
 #' @noRd
 about_equal <- function(x, y) {
@@ -1542,11 +1392,9 @@ rounding_constituents <- function(rounding) {
 
 
 # `rounding`, `threshold`, and `symmetric` describe one rounding procedure, so
-# each must be a single value; only `x` is a vector. `reround()` calls this
-# before dispatching and `rounding_offsets()` before deriving the bounds, which
-# between them covers every path a consistency test can take. `unround()` is the
-# exception: it is documented as vectorized over `rounding` and recycles all
-# four arguments before calling `rounding_offsets()` per element.
+# each must be a single value. `reround()` and `rounding_offsets()` call this,
+# which covers every path a consistency test can take. `unround()`, vectorized
+# over `rounding`, calls `rounding_offsets()` once per element.
 
 check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
   if (
@@ -1565,13 +1413,9 @@ check_rounding_spec_singular <- function(rounding, threshold, symmetric) {
     )
   }
 
-  # The types matter as much as the lengths. `resolve_ties_rounding()` indexes
-  # `TIES_METHODS` by `rounding`, and a list indexed by a number or a `TRUE`
-  # returns an element by *position*: `rounding = 2` silently meant
-  # `"ties_down"`, and `rounding = TRUE` meant `"ties_up"`, so a typo produced a
-  # verdict under a method the caller never named. A missing string, and a
-  # `symmetric` that is `NA` or not logical at all, failed further down in an
-  # `if ()` with base R's message and no hint of which argument was at fault.
+  # `resolve_ties_rounding()` indexes `TIES_METHODS` by `rounding`, and a number
+  # or `TRUE` would pick an element by position, i.e., a method the caller
+  # never named:
   if (!is.character(rounding) || is.na(rounding)) {
     abort_in_export(
       "`rounding` must be a string.",
@@ -1596,12 +1440,11 @@ resolve_ties_rounding <- function(rounding, symmetric) {
     return(list(rounding = rounding, symmetric = symmetric))
   }
 
-  # A `"ties_*"` string already fixes the tie direction in both signs, so
-  # `symmetric` has nothing left to say. Rejecting it keeps the name
-  # authoritative just as ignoring it did, and it names the string the caller
-  # meant -- where ignoring silently dropped half of the request:
-  # `reround(-2.5, 0, "ties_up", symmetric = TRUE)` was `-2`, but `-3` when
-  # spelled `rounding = "up"`, and a mapper carried that to a verdict.
+  # A `"ties_*"` string already fixes the tie direction in both signs. Ignoring
+  # `symmetric` would silently drop half of the request:
+  # `reround(-2.5, 0, "ties_up", symmetric = TRUE)` would be `-2`, but `-3`
+  # when spelled `rounding = "up"`. So it is an error naming the string the
+  # caller meant.
   #
   # The test is on the value, not on `missing()`: every mapper passes
   # `symmetric` down explicitly, so its default is the only thing that can mean
@@ -1635,9 +1478,9 @@ resolve_ties_rounding <- function(rounding, symmetric) {
 
 # Give `value` -- typically derived from `abs(x)` -- the sign of `x`, so that
 # rounding a negative number mirrors the rounding of its absolute value. Zero
-# and positive values keep `value`; `NA` and `NaN` pass through. Written out
-# rather than via `dplyr::if_else()` because the callers are the package's
-# innermost primitives, run once per candidate value inside GRIMMER's loop.
+# and positive values keep `value`; `NA` and `NaN` pass through. Arithmetic
+# rather than `dplyr::if_else()` because the callers are the package's
+# innermost rounding primitives.
 
 restore_sign <- function(value, x) {
   value * (1 - 2 * (x < 0))
@@ -1646,20 +1489,14 @@ restore_sign <- function(value, x) {
 
 #' Conventional summary statistics for `audit()` methods
 #'
-#' @description `audit_summary_stats()` takes a tidyselect spec and uses it to
-#'   compute statistics like mean, SD, and median by column.
-#'
-#'   This is used in many `audit()` methods, such as those following up on
-#'   `duplicate_*()` functions, as well as on `audit_seq()` and
-#'   `audit_total_n()`. (The latter two have their own `audit()` methods to
-#'   summarize their results even further.)
+#' @description `audit_summary_stats()` computes statistics like mean, SD, and
+#'   median for each selected column. Used in many `audit()` methods.
 #'
 #' @param data Data frame.
 #' @param selection Tidyselect specification to select the columns from `data`
 #'   to operate on. It is spliced into `dplyr::across()`.
-#' @param total Logical. Should there be a `.total` row that summarizes across
-#'   all values in `data`, regardless of their original columns? If `TRUE`,
-#'   `.total` will be the last row of the output tibble. Default is `FALSE`.
+#' @param total Logical. If `TRUE`, a last row, `.total`, summarizes all
+#'   selected values regardless of their columns. Default is `FALSE`.
 #'
 #' @return Tibble with summary statistics.
 #'
@@ -1695,10 +1532,8 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
     na_rate = function(x) if (length(x) == 0L) NA_real_ else mean(is.na(x))
   )
 
-  # Summarize every selected column by every function in `stats`, then pivot the
-  # one wide row into one row per column of `data`. The separator is a carriage
-  # return so that `names_sep` can't be confused by an underscore in a column
-  # name or in a function name (`na_count`).
+  # The separator is a carriage return so that `names_sep` can't be confused by
+  # an underscore in a column name or in a function name (`na_count`):
   out <- data |>
     dplyr::summarise(dplyr::across(
       .cols = c(!!!selection),
@@ -1711,8 +1546,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
       names_sep = "\r"
     )
 
-  # The `.total` row summarizes all selected values at once, ignoring the
-  # columns they came from:
   if (total) {
     values_all <- data |>
       dplyr::select(c(!!!selection)) |>
@@ -1736,11 +1569,6 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #'   is not bounded at all. `out_min` and `out_max` are single arguments applied
 #'   to every variable in turn, so `"auto"` has to mean something different for
 #'   each of them.
-#'
-#'   Up to scrutiny 1.0.0, `"auto"` meant one decimal unit above zero, whatever
-#'   the variable was. That is right for `n` and wrong for the rest: it silently
-#'   removed the entire lower half of the dispersion of a negative mean, and it
-#'   put `0` -- a legal mean, SD, and proportion -- out of reach everywhere.
 #'
 #'   A variable with no declared bounds keeps a floor of 1 if it is `n`, and is
 #'   treated as unbounded otherwise.
@@ -1766,8 +1594,7 @@ resolve_var_bounds <- function(
   bounds <- var_bounds[[var]]
 
   # A bound that depends on a setting, such as the least `n` for an
-  # `sd_meaning`. `check_var_bounds()` skipped it at creation, so it is checked
-  # now:
+  # `sd_meaning`, can only be checked now:
   if (is.function(bounds)) {
     bounds <- bounds(args)
     check_var_bounds(rlang::set_names(list(bounds), var))
@@ -1843,13 +1670,9 @@ check_var_bounds <- function(var_bounds) {
 
 #' Check for linearly increasing dispersion in sequence mapper output
 #'
-#' @description This throws an error if a data frame returned by a sequence
-#'   mapper (i.e., a function such as `grim_map_seq()`) was computed with the
-#'   `dispersion` argument of that sequence mapper specified as anything other
-#'   than a linearly increasing sequence.
-#'
-#'   For example, the default `1:5` is linearly increasing, but `5:1` and `c(3,
-#'   7, 2)` are not.
+#' @description Errors if a sequence mapper's output, e.g. from
+#'   `grim_map_seq()`, was computed with a `dispersion` that is not linearly
+#'   increasing. The default `1:5` is, but `5:1` and `c(3, 7, 2)` are not.
 #'
 #' @param data Data frame returned by a function made by `function_map_seq()`.
 #' @param name_fun String (length 1). Name of the calling function.
@@ -1876,40 +1699,30 @@ check_dispersion_linear <- function(data, name_fun) {
 
 #' Generate code to process the `"consistency"` column
 #'
-#' @description Call `write_code_col_key_result()` within a function factory
-#'   such as `function_map()`. It returns an expression to be unquoted at the
-#'   end of the factory-made function's body using ``!!!`()`.
+#' @description Called within a function factory such as `function_map()`. It
+#'   returns an expression to be unquoted with ``!!!`()` at the end of the
+#'   manufactured function's body. That code processes the `"consistency"`
+#'   column of the output, `out`:
 #'
-#'   This will insert code into the body that may process the `"consistency"`
-#'   column of the output data frame, `out`, in one or both of these two ways:
-#'
-#'   - If the `name_key_result` argument is not the default `"consistency"`, the
-#'   column will be renamed accordingly. This makes sense when applying tests
-#'   that are not consistency tests. (As of now, these other procedures also
-#'   need to return logical values.)
-#'   - If the column is still a list, it is transformed into a logical vector
-#'   using `unlist()`.
+#'   - If `name_key_result` is not `"consistency"`, the column is renamed, as
+#'   for tests that are not consistency tests. They must still return logical
+#'   values.
+#'   - If the column is a list, it is `unlist()`ed into a logical vector.
 #'
 #' @param name_key_result String (length 1). The `.name_key_result` argument of
 #'   the function factory, passed to the present function.
-#' @param name_data Expression. It must contain the name of the data frame
-#'   operated on. To construct it, use `rlang::expr()`.
+#' @param name_data Expression with the name of the data frame operated on,
+#'   made with `rlang::expr()`.
+#' @param out Unused. Keeps R CMD check from reporting `out` as an undefined
+#'   global variable.
 #' @param rename Logical (length 1). Should the code rename a `"consistency"`
-#'   column to `name_key_result`? `TRUE` in `function_map()`, which is where the
-#'   column is created. `FALSE` in the seq and total-n factories: these build on
-#'   a basic mapper's output, so the column arrives already carrying its final
-#'   name, and only the `unlist()` half of the generated code is wanted.
+#'   column to `name_key_result`? `TRUE` in `function_map()`, which creates the
+#'   column. `FALSE` in the seq and total-n factories, whose input already has
+#'   the final name.
 #'
 #' @return Expression.
 #'
 #' @noRd
-
-# ❯ checking R code for possible problems ... NOTE
-# write_code_col_key_result: no visible binding for global variable ‘out’
-# write_code_col_key_result: no visible global function definition for
-# ‘!!<-’
-# Undefined global functions or variables:
-#   !!<- out
 
 write_code_col_key_result <- function(
   name_key_result = "consistency",
@@ -1917,8 +1730,6 @@ write_code_col_key_result <- function(
   out = NULL,
   rename = TRUE
 ) {
-  # Enable renaming the `"consistency"` column for binary procedures that are
-  # not consistency tests:
   code_rename <- if (!rename || name_key_result == "consistency") {
     NULL
   } else {
@@ -1928,20 +1739,15 @@ write_code_col_key_result <- function(
     })
   }
 
-  # Prepare defused expressions that are more simple to splice into the code
-  # further below:
   data_dollar_result <- paste0(name_data, "$", name_key_result)
   condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
 
-  # Convert the strings to expressions:
   condition_not_list <- rlang::parse_expr(condition_not_list)
   data_dollar_result <- rlang::parse_expr(data_dollar_result)
 
-  # Generate code to process the (possibly renamed) key result column:
   rlang::expr({
     `!!!`(code_rename)
 
-    # Use the pre-computed condition expression
     if (`!!`(condition_not_list)) {
       return(`!!`(name_data))
     }

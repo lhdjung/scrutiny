@@ -27,8 +27,9 @@ grim_total(
 )
 }
 \arguments{
-\item{x}{Numeric. The mean or percentage. Only its number of decimal
-places matters; the argument exists for compatibility with \code{\link[=grim]{grim()}}.}
+\item{x}{Numeric. The mean or percentage. Its value only matters if it is
+missing or infinite, which makes the result \code{NA}; the argument mirrors
+\code{\link[=grim]{grim()}}.}
 
 \item{n}{Integer. The sample size.}
 
@@ -41,13 +42,13 @@ keep them (\code{1.40} is \code{1.4}).}
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage, which adds 2 to the
 decimal count. Default is \code{FALSE}.}
 
-\item{rounding, threshold}{Only in \code{grim_probability()} and \code{grim_total()}.
-The rounding method and, for the \code{"*_from"} methods, its threshold, as in
-\code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and \code{5}. The count depends on the
-method: \code{"up_or_down"} accepts a mean on a tie in both directions, and
-\code{"ceiling_or_floor"} admits a range two steps wide. \code{"even"} counts a tie
-on either bound as consistent, like \code{"up_or_down"}, although
-\code{\link[base:Round]{base::round()}} may round it the other way; see \code{\link[=unround]{unround()}}.
+\item{rounding, threshold}{The rounding method and, for the \code{"*_from"}
+methods, its threshold, as in \code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and
+\code{5}. The count depends on the method: \code{"up_or_down"} accepts a mean on a
+tie in both directions, and \code{"ceiling_or_floor"} admits a range two steps
+wide. \code{"even"} counts a tie on either bound as consistent, like
+\code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round it the other way;
+see \code{\link[=unround]{unround()}}.
 \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{
@@ -64,7 +65,9 @@ given sample size and number of decimal places:
 with \code{digits_x} decimal places that is otherwise random is
 GRIM-inconsistent with \code{n}. It is the \code{probability} column of
 \code{\link[=grim_map]{grim_map()}}.
-\item \code{grim_total()} returns the number of such inconsistent values per unit.
+\item \code{grim_total()} returns the number of such inconsistent values between
+two whole numbers, out of \code{10^digits_x} (\code{10^(digits_x + 2)} with
+\code{percent = TRUE}).
 }
 
 See \code{vignette("grim")}, section \emph{GRIM statistics}.

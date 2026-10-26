@@ -49,17 +49,17 @@ the factory-made function should reject.}
 units of the last decimal place. Default is \code{1:5}.}
 
 \item{.out_min, .out_max}{Limits on the dispersed values. A number applies to
-every dispersed variable, and \code{NULL} removes the limit. Both default to
+every dispersed variable, and \code{NULL} removes the limit. Default is
 \code{"auto"}, which takes the limit from \code{.var_bounds}.}
 
 \item{.var_bounds}{Named list, or \code{NULL} (the default). Each element is named
 after a variable in \code{.reported} and is a numeric vector of its least and
 greatest possible value, with \code{NA} for an unbounded side, such as \code{list(n = c(1, NA), sd = c(0, NA))}. A variable not named here is unbounded, except
-for \code{n}, which always has a minimum of 1. An element may also be a
-function that returns such a vector from the settings that \code{.fun}
-recorded for its call, as a named list such as \code{list(sd_meaning = "sd_sample")}, for a bound that depends on a setting. The bounds only limit
-the dispersion, so that the test never receives an impossible value such as
-a sample size of 0. They have no bearing on consistency.}
+for \code{n}, which always has a minimum of 1. For a bound that depends on a
+setting, an element may also be a function that takes the settings \code{.fun}
+recorded for its call, as a named list such as \code{list(sd_meaning = "sd_sample")}, and returns such a vector. The bounds only keep impossible
+values, such as a sample size of 0, from being tested. They have no
+bearing on consistency.}
 
 \item{.include_reported}{Logical. Should the reported values themselves be
 part of the sequences? Default is \code{FALSE}.}
@@ -80,13 +80,14 @@ A function such as these:\tabular{lll}{
 
 The settings of \code{.fun}, i.e., its arguments after \code{...}, such as
 \code{rounding}, are arguments of this function as well, with the same
-defaults. Its \code{...} pass any other arguments on to \code{.fun}, which is
-only of use for a \code{.fun} without \code{...} of its own.
+defaults. So are its helper arguments, such as \code{items_averaged}. Its \code{...}
+pass any other arguments on to \code{.fun}, which is only of use for a \code{.fun}
+without \code{...} of its own.
 }
 \description{
 \code{function_map_seq()} creates a sequence mapper from a basic
 mapper such as \code{\link[=grim_map]{grim_map()}}: a function that varies the reported values
-a few steps up and down and re-tests each resulting value set, as
+a few steps up and down and tests each resulting value set, as
 \code{\link[=grim_map_seq]{grim_map_seq()}} does. By default, only inconsistent value sets are
 dispersed.
 
@@ -119,6 +120,6 @@ name as prefix, as in \code{scrutiny_grim_map_seq}.
 grim_map_seq <- function_map_seq(
   .fun = grim_map,
   .reported = c("x", "n"),
-  .name_test = "GRIM",
+  .name_test = "GRIM"
 )
 }

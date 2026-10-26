@@ -1,5 +1,4 @@
-# Single-case function; not exported but used as a basis for the vectorized
-# `is_percentage_of()` as well as within `is_percentage_of_map()`:
+# Single-case function behind `is_percentage_of()` and `is_percentage_of_map()`.
 is_percentage_of_scalar <- function(
   absolute,
   percentage,
@@ -89,9 +88,9 @@ is_percentage_of_scalar <- function(
 #' @inheritParams grim
 #'
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
-#'   and `NA` if the case cannot be decided: if a value is missing, if
-#'   `absolute` is not a non-negative whole number, or if `n` is not a positive
-#'   whole number.
+#'   and `NA` if the case cannot be decided: if a value is missing or infinite,
+#'   if `absolute` is not a non-negative whole number, or if `n` is not a
+#'   positive whole number.
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
 #'

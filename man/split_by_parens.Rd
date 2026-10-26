@@ -39,7 +39,8 @@ or a length-2 vector of custom separators, matched literally.}
 produces. Defaults are \code{"x"} and \code{"sd"}.}
 }
 \value{
-Data frame.
+An ungrouped data frame, a tibble if \code{data} is one or if
+\code{transform} is \code{TRUE}.
 }
 \description{
 Summary statistics are often reported like \code{"2.65 (0.27)"}.

@@ -1,15 +1,11 @@
 # Shared by `reround_to_fraction()` and `reround_to_fraction_level()`. The
 # `"auto"` option for `digits` is the same as in `janitor::round_to_fraction()`.
-# It has to be resolved before the whole-number check, which is numeric:
-# `is.infinite("auto")` is `FALSE`, so the string went straight into
-# `is_whole_number()` and failed there with "non-numeric argument to
-# mathematical function".
+# It is resolved before the whole-number check, which only takes numbers.
 resolve_digits_fraction <- function(digits, denominator) {
   if (identical(digits, "auto")) {
     digits <- ceiling(log10(denominator)) + 1L
   }
 
-  # A string other than `"auto"` used to fail in `is.finite()`:
   if (!is.numeric(digits) && !(is.logical(digits) && all(is.na(digits)))) {
     abort_in_export(
       "!" = "`digits` must be whole numbers or \"auto\".",
@@ -92,38 +88,21 @@ reround_to_fraction <- function(
 ) {
   # Checks ---
 
-  # If any two arguments called right below are length > 1, they need to have
-  # the same length. Otherwise, the call will fail. But even so, there will be a
-  # warning that values will get paired:
-  # A string used to fail in base R arithmetic. A logical `NA`, as in a column
-  # with no values, is missing all the same:
+  # A logical `NA`, as in a column with no values, is missing all the same:
   if (!is.null(x) && !(is.logical(x) && all(is.na(x)))) {
     check_type(x, c("double", "integer"))
   }
-  check_lengths_congruent(list(x, denominator, digits))
 
-  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
-  # describe one rounding procedure, and `reround()` requires each of them to
-  # have length 1, so including them here produced a warning about values
-  # "getting paired" for arguments that cannot be paired at all -- immediately
-  # followed by an error from `reround()` saying so.
+  # Not `rounding`, `threshold`, and `symmetric`: `reround()` requires them to
+  # have length 1.
+  check_lengths_congruent(list(x, denominator, digits))
 
   check_denominator(denominator)
 
-  # The compound methods used to be expanded into their two constituents here,
-  # because `reround()` took a vector of procedures and paired them with `x`.
-  # It no longer does -- it takes one procedure and applies it to all of `x` --
-  # and it has handled the compound strings itself all along, returning the two
-  # results per input value interleaved. Expanding them here now errors, and
-  # never did work for an `x` longer than 1 anyway: a length-2 `rounding` and a
-  # longer `x` failed the length-congruence check that `reround()` used to run.
-
   digits <- resolve_digits_fraction(digits, denominator)
 
-  # Recycle the three to a common length, as the check above allows. Left to
-  # itself, `x * denominator` recycled only those two, and `digits` was then
-  # spread over the result, so the extra values of a longer `digits` were
-  # silently dropped.
+  # Recycle all three explicitly: `x * denominator` would recycle only those
+  # two, and the extra values of a longer `digits` would be dropped.
   lengths_in <- lengths(list(x, denominator, digits))
   n_out <- if (any(lengths_in == 0L)) 0L else max(lengths_in)
   x <- rep_len(x, n_out)
@@ -132,7 +111,6 @@ reround_to_fraction <- function(
 
   # Main part ---
 
-  # Calculate the key result, going by the denominator:
   out <- reround(
     x = x * denominator,
     digits = 0L,
@@ -143,17 +121,10 @@ reround_to_fraction <- function(
   # A compound method returns two values per input value, interleaved:
   out <- out / rep(denominator, each = length(rounding_constituents(rounding)))
 
-  # Round all resulting values for which a number of digits has been specified
-  # to that number of digits. This also proceeds as in `round_to_fraction()`,
-  # except for the rounding function and its arguments.
-  #
-  # Two things complicate it. A compound rounding method leaves two values per
-  # input value in `out`, interleaved, so `digits` -- which has one value per
-  # input value -- has to be spread over them to line up. And each of the two
-  # branches has to stay on its own procedure here, so that the value rounded up
-  # in the step above goes on being rounded up and the one rounded down goes on
-  # being rounded down. Re-applying the compound method itself would instead
-  # double the values a second time.
+  # Round to `digits` where it is finite, as in `round_to_fraction()`. Under a
+  # compound method, `out` holds two interleaved values per input, so `digits`
+  # is spread over them, and each branch keeps its own procedure: re-applying
+  # the compound method would double the values a second time.
   if (!all(is.infinite(digits))) {
     procedures <- rounding_constituents(rounding)
     n_branches <- length(procedures)
@@ -194,37 +165,21 @@ reround_to_fraction_level <- function(
 ) {
   # Checks ---
 
-  # If any two arguments called right below are length > 1, they need to have
-  # the same length. Otherwise, the call will fail. But even so, there will be a
-  # warning that values will get paired:
-  # A string used to fail in base R arithmetic. A logical `NA`, as in a column
-  # with no values, is missing all the same:
+  # A logical `NA`, as in a column with no values, is missing all the same:
   if (!is.null(x) && !(is.logical(x) && all(is.na(x)))) {
     check_type(x, c("double", "integer"))
   }
-  check_lengths_congruent(list(x, denominator, digits))
 
-  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
-  # describe one rounding procedure, and `reround()` requires each of them to
-  # have length 1, so including them here produced a warning about values
-  # "getting paired" for arguments that cannot be paired at all -- immediately
-  # followed by an error from `reround()` saying so.
+  # Not `rounding`, `threshold`, and `symmetric`: `reround()` requires them to
+  # have length 1.
+  check_lengths_congruent(list(x, denominator, digits))
 
   check_denominator(denominator)
 
   digits <- resolve_digits_fraction(digits, denominator)
 
-  # The compound methods used to be expanded into their two constituents here,
-  # because `reround()` took a vector of procedures and paired them with `x`.
-  # It no longer does -- it takes one procedure and applies it to all of `x` --
-  # and it has handled the compound strings itself all along, returning the two
-  # results per input value interleaved. Expanding them here now errors, and
-  # never did work for an `x` longer than 1 anyway: a length-2 `rounding` and a
-  # longer `x` failed the length-congruence check that `reround()` used to run.
-
   # Main part ---
 
-  # Calculate the key result, going by the denominator:
   out <- reround(
     x = x * denominator,
     digits = digits,
@@ -233,8 +188,7 @@ reround_to_fraction_level <- function(
     symmetric = symmetric
   )
 
-  # Divide by the denominator, then return the result. A compound method
-  # returns two values per input value, interleaved:
+  # A compound method returns two values per input value, interleaved:
   out / rep(denominator, each = length(rounding_constituents(rounding)))
 }
 

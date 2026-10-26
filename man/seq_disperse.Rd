@@ -37,8 +37,8 @@ unit of the last decimal place of \code{from}. A number does not keep trailing
 zeros, so \code{5.30} steps by \code{0.1}: give \code{by = 0.01}, or \code{from} as the string
 \code{"5.30"}.}
 
-\item{dispersion, .dispersion}{Numeric. The steps up and down from \code{from}.
-Default is \code{1:5}.}
+\item{dispersion, .dispersion}{Numeric. Whole numbers of steps up and down
+from \code{from}. Default is \code{1:5}.}
 
 \item{offset_from, .offset_from}{Integer. Moves the starting point by that
 many steps. Default is \code{0}.}
@@ -67,7 +67,8 @@ from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
 \item \code{seq_disperse()} returns a numeric vector, which is integer if \code{from}
 is an integer and the steps are whole numbers. With \code{track_diff_var =   TRUE}, it returns a list of that vector and an integer vector of steps.
 \item \code{seq_disperse_df()} returns a tibble with the sequence in the \code{x}
-column, plus any columns added via the dots.
+column, the steps in \code{diff_var} if requested, and any columns added via
+the dots.
 }
 }
 \description{

@@ -60,12 +60,9 @@ duplicate_count <- function(
 
   x_was_named <- rlang::is_named(x)
 
-  # Bring `x` into a long format with one row per value and the name of its
-  # location. The names of an atomic vector are its locations, so they go
-  # straight into the `name` column. `tibble::as_tibble()` would otherwise put
-  # all of its values into one column named `value`, and each of them would be
-  # located there. Other inputs are converted to a data frame if needed
-  # (`x_was_named` will also be checked further below), and pivoted:
+  # Long format: one row per value and the name of its location. The names of
+  # a named atomic vector are its locations; `tibble::as_tibble()` would put all
+  # its values into one column named `value` instead:
   if (x_was_named && is.atomic(x)) {
     names_orig <- unique(names(x))
     x <- tibble::tibble(
@@ -123,16 +120,12 @@ duplicate_count <- function(
     dplyr::arrange(dplyr::desc(.data$frequency)) |>
     add_class("scrutiny_dup_count")
 
-  # All code below is about the `locations` and `locations_n` columns, but they
-  # are only meant for data frames and other named vectors. If the `x` input was
-  # not named, there is nothing more to do:
+  # Unnamed input has no locations:
   if (!x_was_named) {
     return(out)
   }
 
-  # In the original `x` input data frame, count the columns in which each unique
-  # value appears. Store the names of those columns, and sort them by their
-  # order of appearance in the input data frame:
+  # Location names in their order in `x`:
   x$name <- as.character(x$name)
   locations <- vector("list", nrow(out))
   locations_n <- integer(nrow(out))
@@ -142,9 +135,6 @@ duplicate_count <- function(
     locations_n[i] <- length(locations[[i]])
   }
 
-  # By default (`locations_type == "character"`), collapse each list element --
-  # i.e., each vector of location names -- into a string. The user may specify
-  # `locations_type` to remain a list:
   if (locations_type == "character") {
     locations <- vapply(
       locations,

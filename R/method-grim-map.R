@@ -2,39 +2,27 @@
 #' @export
 
 audit.scrutiny_grim_map <- function(data, ...) {
-  # Compute the summary values of interest ---
-
-  # 1. the number of GRIM-inconsistent cases;
-  # 2. the total number of cases;
-  # 3. the proportion of GRIM-inconsistent cases:
   check_cols_needed(data, c("consistency", "probability"))
   out <- audit_cols_minimal(data)
 
-  # 4. the average of GRIM probabilities. `na.rm` for the same reason that
-  # `audit_cols_minimal()` counts inconsistencies with it: a case the test could
-  # not decide -- a missing `n`, say -- has no probability either, and one such
-  # row used to turn this average, and `incons_to_prob` below, into `NA` for the
-  # whole table:
+  # An undecidable case has no probability either, and must not turn the whole
+  # summary into `NA`:
   mean_grim_prob <- data |>
     dplyr::summarise(mean_grim_prob = mean(.data$probability, na.rm = TRUE)) |>
     as.numeric()
 
-  # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
-  # GRIM probabilities. Both must be taken over the same, decidable cases:
+  # Both rates must be taken over the same, decidable cases:
   decidable <- !is.na(data$consistency) & !is.na(data$probability)
   incons_to_prob <-
     mean(!data$consistency[decidable]) / mean(data$probability[decidable])
 
-  # 6. the number of GRIM-testable cases:
   testable_cases <- data |>
     dplyr::filter(.data$probability > 0) |>
     nrow()
 
-  # 7. the proportion of GRIM-testable cases:
   all_cases <- out[[2L]]
   testable_rate <- testable_cases / all_cases
 
-  # Finally, collect all of these values in a resulting tibble --
   tibble::new_tibble(
     x = list(
       incons_cases = out$incons_cases,

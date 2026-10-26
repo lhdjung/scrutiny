@@ -7,38 +7,31 @@
 
 # Translation of variable names -------------------------------------------
 
-# original           --> scrutiny
-# ********               ********
+# original               --> scrutiny
+# ********                   ********
 #
-# aGrimmer           --> grimmer_scalar
-# mean               --> x
-# SD                 --> sd
-# decimals_mean      --> digits_x
-# decimals_SD        --> digits_sd
-# realmean           --> x_real    (computed per candidate sum inside loop)
-# realsum            --> s         (loop variable over consistent_sums)
-# effective_n        --> n_items
-# Lsigma             --> sd_lower
-# Usigma             --> sd_upper
-# Lowerbound         --> sum_squares_lower
-# Upperbound         --> sum_squares_upper
-# Possible_Integers  --> integers_possible
-# Predicted_Variance --> var_predicted
-# Predicted_SD       --> sd_predicted
-# Matches_Oddness    --> matches_parity
-# FirstTest          --> pass_test1 (evaluated per candidate sum inside loop)
-# Matches_SD         --> matches_sd (to which a `pass_test2` object was added)
-# Third_Test         --> pass_test3 (evaluated per candidate sum inside loop)
+# aGrimmer               --> grimmer_scalar
+# mean                   --> x
+# SD                     --> sd
+# decimals_mean          --> digits_x
+# decimals_SD            --> digits_sd
+# realsum                --> s (candidate sum, loop variable)
+# effective_n            --> n_items
+# Lsigma, Usigma         --> sd_bounds$lower, sd_bounds$upper
+# Lowerbound, Upperbound --> sum_squares (from `sum_squares_range()`)
+# FirstTest              --> pass_test1
+# Matches_Oddness        --> pass_test3
+# Matches_SD             --> (test 2, not run; see `grimmer_candidate()`)
 
 # Implementation ----------------------------------------------------------
 
 # The SD's rounding bounds as exact integer numerators over a common
-# denominator, the same way `sum_range()` derives the mean's bounds, plus the
-# `(n - 1) * sd^2 * items_averaged^2` part of the sum of squares at each bound,
-# with `n` in place of `n - 1` for a population SD, and `n * (n - 1)` for an SE,
-# whose bounds these are then: it was the SE that was rounded. That part does
-# not depend on the candidate sum, so it is computed once, here. `NULL` if the
-# bounds are undefined, i.e. for a missing SD. Shared with `grimmer_explain()`.
+# denominator, as `sum_range()` derives the mean's, plus the
+# `(n - 1) * sd^2 * items_averaged^2` part of the sum of squares at each bound
+# (`n` for a population SD; `n * (n - 1)` for an SE, whose bounds these then
+# are, since the SE was rounded). That part does not depend on the candidate
+# sum, so it is computed once, here. `NULL` for a missing SD. Shared with
+# `grimmer_explain()`.
 
 grimmer_sd_bounds <- function(
   sd,
@@ -89,8 +82,9 @@ grimmer_sd_bounds <- function(
 
 
 # GRIMMER's tests for a single candidate sum `s`. Returns the range of whole
-# sums of squares that the SD admits and whether `s` passes each test. `grimmer_explain()` reports these very values, so it cannot
-# contradict the verdict.
+# sums of squares that the SD admits and whether `s` passes each test.
+# `grimmer_explain()` reports these very values, so it cannot contradict the
+# verdict.
 
 grimmer_candidate <- function(
   s,
@@ -133,9 +127,8 @@ grimmer_candidate <- function(
 
   # TEST 2 of Allard (2018) rounds each admissible sum of squares back to an SD
   # and compares it to the reported one. Test 1 implies it: the bounds are the
-  # exact inverse of that rounding, so every integer between them passes. It
-  # used to be run anyway, with a floating-point tolerance that could only ever
-  # lose matches, so it is not run at all.
+  # exact inverse of that rounding, so every integer between them passes.
+  # Running it with a floating-point tolerance could only lose matches.
 
   # TEST 3: The sum of squares of whole numbers has the parity of their sum
   # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
@@ -228,9 +221,8 @@ grimmer_scalar <- function(
     return(grimmer_sd_sample_or_pop(sample, test_type("sd_pop"), show_reason))
   }
 
-  # Undecidable. Caught before the GRIM test below, whose `NA` result the branch
-  # on `pass_grim` could not handle. A missing decimal count is a missing value
-  # like any other: no rounding bounds follow from it.
+  # Undecidable. A missing decimal count is a missing value like any other: no
+  # rounding bounds follow from it.
   if (
     is.na(x) || is.na(sd) || is.na(n) || is.na(digits_x) || is.na(digits_sd)
   ) {
@@ -282,9 +274,7 @@ grimmer_scalar <- function(
     symmetric = symmetric
   )
 
-  # The guards above rule out every case where this happens today, so it is
-  # belt and braces -- but it must precede the branch below, which would fail
-  # on an `NA`:
+  # The guards above rule this out, but the branch below would fail on an `NA`:
   if (is.na(pass_grim)) {
     if (show_reason) {
       return(list(NA, "GRIM undecidable"))
@@ -483,10 +473,10 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
-#'   value is missing or infinite, if `items_averaged` is not a positive whole
-#'   number, or if `n` is not a positive whole number. A sample SD divides by
-#'   `n - 1`, so under the default `sd_meaning = "sd_sample"`, and under
-#'   `"se"`, `n` must also be greater than `1`.
+#'   value is missing or infinite, or if `n` or `items_averaged` is not a
+#'   positive whole number. A sample SD divides by `n - 1`, so under
+#'   `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also be at
+#'   least 2.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
@@ -531,8 +521,8 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
 #'   items_averaged = 2
 #' )
 
-# Vectorized version. The signature mirrors `grimmer_scalar()`'s minus
-# `show_reason`; see `map_value_sets()`:
+# The signature mirrors `grimmer_scalar()`'s minus `show_reason`; see
+# `map_value_sets()`.
 grimmer <- function(
   x,
   sd,

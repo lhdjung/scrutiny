@@ -7,8 +7,7 @@ check_length_parens_sep <- function(sep) {
       "x" = "It has length {length(sep)}: {wrap_in_backticks(sep)}."
     )
   }
-  # A missing value used to fail in `stringr`, and an empty string matches
-  # nothing:
+  # A missing value would fail in stringr, and an empty string matches nothing:
   if (!is.character(sep) || anyNA(sep) || !all(nzchar(sep))) {
     abort_in_export(
       "!" = "`sep` must be a keyword or two strings.",
@@ -20,17 +19,12 @@ check_length_parens_sep <- function(sep) {
 
 #' Match the `sep` keyword to actual separators
 #'
-#' @description `translate_length1_sep_keywords()` is called within
-#'   `split_by_parens()` to replace the legal keywords `"parens"`, `"brackets"`,
-#'   or `"braces"` to the characters they describe.
+#' @description `translate_length1_sep_keywords()` replaces the keywords
+#'   `"parens"`, `"brackets"`, or `"braces"` with the characters they describe.
+#'   A length-2 `sep` is returned as it is. Anything else is an error.
 #'
-#'   A length-2 `sep` object is returned as it is because it is meant to contain
-#'   actual (custom) separators, not a keyword. If `sep` is neither length 2 nor
-#'   any of the keywords from above, an error is thrown.
-#'
-#'   The separators are returned as the literal characters, not as regular
-#'   expressions: they are matched with `stringr::fixed()`, so a custom `sep`
-#'   such as `c("|", "|")` means the characters themselves.
+#'   The separators are literal characters, not regular expressions: they are
+#'   matched with `stringr::fixed()`.
 #'
 #' @param sep String (length 1 or 2).
 #'
@@ -83,10 +77,8 @@ warn_wrong_columns_selected <- function(
 }
 
 
-# This one is only used within `split_by_parens()`:
 message_sep_if_cols_excluded <- function(sep) {
-  # Translating first covers the legacy spellings such as `"("` as well, which
-  # used to fall through every branch and leave the message unfinished:
+  # Translating first also covers spellings such as `"("`:
   seps <- translate_length1_sep_keywords(sep)
   name_seps <- switch(
     paste0(seps, collapse = ""),
@@ -106,10 +98,9 @@ message_sep_if_cols_excluded <- function(sep) {
 # Split each string at its first opening separator, and the second part at its
 # first closing separator. Returns a character matrix with two columns: the part
 # before the opening separator, and the part between the two. Each string is
-# split on its own, so that a string with more or fewer separators than the
-# others can't shift parts into another string's row, as the former
-# `unlist()`-and-rechunk approach did. A string without an opening separator has
-# `""` as its second part, and a missing one has `NA` as its first.
+# split on its own, so that one with more or fewer separators can't shift parts
+# into another string's row. A string without an opening separator has `""` as
+# its second part, and a missing one has `NA` as its first.
 proto_split_parens <- function(string, sep = "parens") {
   sep <- translate_length1_sep_keywords(sep)
   out <- stringr::str_split_fixed(string, stringr::fixed(sep[1L]), n = 2L)
@@ -139,7 +130,8 @@ proto_split_parens <- function(string, sep = "parens") {
 #'
 #' @return String vector as long as `string`, with surrounding whitespace
 #'   removed. If a string has no opening separator, `before_parens()` returns
-#'   all of it and `inside_parens()` returns `NA`.
+#'   all of it and `inside_parens()` returns `NA`, as it does for empty
+#'   separators.
 #'
 #' @name parens-extractors
 #'

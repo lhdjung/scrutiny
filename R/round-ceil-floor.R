@@ -48,7 +48,7 @@
 #' round_anti_trunc(x = -8.421, digits = 2)
 
 # The functions below nudge the shifted value by `ROUNDING_TOLERANCE` (see
-# utils.R) before rounding it, so that floating-point representation error
+# aaa.R) before rounding it, so that floating-point representation error
 # cannot move a number a whole step.
 
 # Always round up ------------------------------------------------------------
@@ -81,12 +81,9 @@ round_floor <- function(x, digits = 0L) {
 round_trunc <- function(x, digits = 0L) {
   p10 <- 10^digits
 
-  # For symmetry between positive and negative numbers, use the absolute value.
-  # Truncation rounds toward zero, so the tolerance is added, just as in
+  # On `abs(x)`, truncation is flooring, so the tolerance is added as in
   # `round_floor()`:
   core <- trunc(abs(x) * p10 + ROUNDING_TOLERANCE) / p10
-
-  # If `x` is negative, its truncated version should be negative or zero:
   restore_sign(core, x)
 }
 
@@ -97,23 +94,12 @@ round_trunc <- function(x, digits = 0L) {
 #' @export
 
 anti_trunc <- function(x) {
-  # For symmetry between positive and negative numbers, use the absolute value.
-  # The tolerance is subtracted, just as in `round_ceiling()`: an `x` which is
-  # only just above a whole number by representation error should still count as
-  # that number rather than be taken a whole step further out.
+  # The tolerance is subtracted as in `round_ceiling()`, so a value just above
+  # a whole number by representation error counts as that number. A value on
+  # the grid stays put and zero stays zero, as in Excel's `ROUNDUP()`, Java's
+  # `RoundingMode.UP`, and Python's `decimal.ROUND_UP`; `rounding_offsets()`
+  # encodes the same reading.
   core <- ceiling(abs(x) - ROUNDING_TOLERANCE)
-
-  # Up to scrutiny 1.0.0 this was `trunc(abs(x)) + 1`, which moves a value one
-  # step away from zero even when it already sits on a whole number, so
-  # `anti_trunc(3)` was 4 and `anti_trunc(0)` was 1. (A comment here claimed the
-  # two formulas were equivalent; they agree everywhere except on whole numbers,
-  # which is precisely where the choice lies.) No software rounds that way.
-  # Excel's and Google Sheets' `ROUNDUP()`, Java's `RoundingMode.UP`, and
-  # Python's `decimal.ROUND_UP` all round away from zero in the weaker sense
-  # implemented here, where a value on the rounding grid stays put and zero
-  # stays zero. `rounding_offsets()` encodes the same reading.
-
-  # If `x` is negative, its "anti-truncated" version should also be negative:
   restore_sign(core, x)
 }
 

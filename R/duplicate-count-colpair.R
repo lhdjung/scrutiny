@@ -1,12 +1,13 @@
 #' Count duplicate values by column pair
 #'
 #' `duplicate_count_colpair()` counts, for every pair of columns in a data
-#' frame, the values that occur in both. Results are ordered by that count.
+#' frame, the values that occur in both. Results are ordered by that count,
+#' in descending order.
 #'
 #' @param data Data frame with at least two columns.
 #' @param ignore Optionally, a vector of values not to count.
-#' @param show_rates Logical. If `TRUE` (the default), add `rate_x` and
-#'   `rate_y`; see *Value*. `FALSE` is faster.
+#' @param show_rates Logical. If `TRUE` (the default), add `total_x`,
+#'   `total_y`, `rate_x`, and `rate_y`; see *Value*. `FALSE` is faster.
 #'
 #' @return A tibble with these columns:
 #' - `x`, `y`: a pair of columns of `data`, one pair per row.
@@ -73,9 +74,8 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     ncol() |>
     seq_len() |>
     vapply(
-      # For each element of `x`, this function counts how many are also found in
-      # `y`. `%in%` and `==` coerce mixed types the same way, so this matches
-      # the element-wise comparison it replaced, without the quadratic scan:
+      # How many elements of `x` are also found in `y`. `%in%` coerces mixed
+      # types the same way as `==`, but without a quadratic scan:
       function(i) {
         sum(values[[pairs[1L, i]]] %in% values[[pairs[2L, i]]])
       },

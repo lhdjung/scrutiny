@@ -24,7 +24,8 @@
 #'
 #' @include utils.R before-inside-parens.R
 #'
-#' @return Data frame.
+#' @return An ungrouped data frame, a tibble if `data` is one or if
+#'   `transform` is `TRUE`.
 #'
 #' @seealso
 #'  - [`before_parens()`] and [`inside_parens()`] for the two parts of a
@@ -87,20 +88,16 @@ split_by_parens <- function(
   end1 = "x",
   end2 = "sd"
 ) {
-  # Since `sep` will be passed through the dots of `dplyr::across()`, which may
-  # lead to issues with the timing of evaluation, its evaluation is forced here:
+  # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
   force(sep)
 
-  # Grouping plays no role here: the function works on whole columns, which
-  # grouping only gets in the way of (`dplyr::select()` re-adds the grouping
-  # columns, and `across()` runs per group). The output is ungrouped:
+  # The function works on whole columns; with groups, `dplyr::select()` would
+  # re-add the grouping columns, and `across()` would run per group:
   data <- dplyr::ungroup(data)
 
-  # Determine which columns have suitable values with regards to the `sep`
-  # elements and capture their names. A column qualifies if every non-missing
-  # value has an opening `sep` element followed by a closing one. With no rows
-  # at all, nothing speaks against splitting a character column, and splitting
-  # it gives the output the same shape as for any other data:
+  # A column qualifies if every non-missing value has an opening `sep` element
+  # followed by a closing one. With no rows, a character column qualifies, so
+  # that the output has the same shape as for any other data:
   data_is_empty <- nrow(data) == 0L
   names_of_cols_with_seps <- data |>
     dplyr::select(
@@ -121,20 +118,15 @@ split_by_parens <- function(
     ) |>
     colnames()
 
-  # By default, take care that only those columns which contain the `sep`
-  # elements will be operated on:
   if (check_sep) {
     selection2 <- rlang::expr(all_of(names_of_cols_with_seps))
   } else {
     selection2 <- rlang::expr(dplyr::everything())
   }
 
-  # Compute a named integer vector of index locations (within `data`) of the
-  # columns that will be split:
   cols_to_select <- rlang::expr({{ cols }} & !!selection2)
   cols_to_select <- tidyselect::eval_select(cols_to_select, data)
 
-  # Prepare the endings of the split column names:
   endings <- rep(c(end1, end2), times = length(cols_to_select))
 
   # `dplyr::across()` would silently overwrite a column of the same name, so
@@ -159,9 +151,6 @@ split_by_parens <- function(
     )
   }
 
-  # Apply the extractor functions `before_parens()` and `inside_parens()` to all
-  # selected columns from `data` (see above), going by `sep`, which is
-  # `"parens"` by default and will thus look for parentheses:
   out <- data |>
     dplyr::mutate(
       dplyr::across(
@@ -176,34 +165,26 @@ split_by_parens <- function(
     ) |>
     suppressWarnings()
 
-  # The output is meant to have the same class as the input. Since `out` is not
-  # a tibble, coerce it to a tibble if and only if `data` is:
+  # Keep the class of the input:
   if (tibble::is_tibble(data)) {
     out <- tibble::as_tibble(out)
   }
 
-  # Select all "neutral" columns: those that were not selected above. They will
-  # be added to `out` in the end unless it's transformed.
+  # Columns not split, added back at the end unless `transform` is `TRUE`:
   names_data <- colnames(data)
   names_neutral_cols <- names_data[!names_data %in% names(cols_to_select)]
   neutral_cols <- data |>
     dplyr::select(all_of(names_neutral_cols))
 
-  # By default, the original columns are dropped. If the user disabled this by
-  # setting `keep` to `TRUE`, `transform` can't also be `TRUE` because this
-  # would likely lead to incommensurable data frame dimensions:
   if (!keep) {
     names_original <- names_data[!names_data %in% names_neutral_cols]
     out <- out |>
       dplyr::select(!all_of(names_original))
   }
 
-  # Check if any columns from `data` don't contain the `sep` elements. If so,
-  # the way this was handled above depends on `check_sep`: They were either
-  # excluded from splitting (`TRUE`, the default) or they were included and
-  # split in a way that was likely not intended. In both cases, the user is
-  # warned appropriately:
-  # Only the columns that `cols` selected are worth a warning, as in
+  # Warn about selected columns without the `sep` elements: depending on
+  # `check_sep`, they were either skipped or split in a way likely not
+  # intended. Only the columns that `cols` selected are worth a warning, as in
   # `decimal_places_df()`:
   names_selected <- names(tidyselect::eval_select(
     rlang::expr({{ cols }}),
@@ -225,18 +206,14 @@ split_by_parens <- function(
     warn_wrong_columns_selected(names_wrong_cols, msg_exclusion, msg_reason)
   }
 
-  # Without a special transformation, nothing is left to do except for appending
-  # those columns that were never split to the output:
   if (!transform) {
     out <- out |>
       dplyr::mutate({{ neutral_cols }})
     return(out)
   }
 
-  # Pivot the output to a longer format beforehand using a specified internal
-  # helper function from the utils.R file. Since this changes the format, it
-  # only works if no columns were left unsplit. If there are any, an error is
-  # thrown:
+  # The longer format has no place for columns left unsplit, or for the
+  # original columns:
   if (keep) {
     abort_in_export("!" = "`keep` and `transform` can't both be `TRUE`.")
   } else if (length(names_neutral_cols) > 0L) {

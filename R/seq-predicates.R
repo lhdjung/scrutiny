@@ -1,5 +1,4 @@
-# Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
-# `summarize_*()` functions:
+# Helpers for the sequence predicates below:
 
 is_seq_ascending_basic <- function(x) {
   all(diff(x) > 0)
@@ -21,21 +20,19 @@ is_seq_basic <- function(
   from = NULL
 ) {
   if (!is.null(test_special) && test_special == "dispersed") {
-    # Without the `force()` call, the function may return `FALSE` early, even if
-    # `from` was not supplied:
+    # Forced first so that a missing `from` errors rather than being skipped by
+    # an early `FALSE`:
     force(from)
 
-    # A dispersed sequence requires one central value, so the number of elements
-    # in `x` must be odd:
+    # A dispersed sequence has one central value:
     if (is_even(length(x))) {
       return(FALSE)
     }
 
-    # `from` is compared to values of `x` below, so it has to be a number, as
-    # `x` is made one right after this:
     if (!is_numeric_like(from)) {
       return(FALSE)
     }
+
     # A factor by its label, not its level code, as `x` below:
     if (is.factor(from)) {
       from <- as.character(from)
@@ -54,9 +51,8 @@ is_seq_basic <- function(
     return(FALSE)
   }
 
-  # Everything below is arithmetic on `x`. A string vector is admitted by the
-  # check above but failed in `diff()`, and a factor was silently tested by its
-  # integer codes, so `factor(c(1, 2, 4))` was a linear sequence:
+  # Everything below is arithmetic on `x`. A factor is read by its labels, not
+  # its integer codes:
   if (!is.numeric(x)) {
     if (is.factor(x)) {
       x <- as.character(x)
@@ -73,24 +69,18 @@ is_seq_basic <- function(
   }
 
   if (anyNA(x)) {
-    # Save the unmodified `x` for a test that is conducted if `x` contains one
-    # or more `NA` elements:
     x_orig <- x
 
     not_na <- which(!is.na(x))
 
-    # Remove all `NA` values from the start and the end of `x` because `NA`s at
-    # these particular locations cannot disprove that `x` is the kind of
-    # sequence of interest. (They do mean that it cannot be proven, so the
-    # function will return either `NA` or `FALSE`, depending on other factors.)
+    # Leading and trailing `NA`s cannot disprove that `x` is the kind of
+    # sequence in question, only keep it from being proven:
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
-    # The question `vignette("devtools")` states for missing values: are the
-    # known values consistent with each other, given their index positions? For
-    # linearity, that is whether every pair of neighboring known values implies
-    # the same step per index. The gaps used to be bridged at a step of one
-    # decimal unit instead, whatever the known values said, so
-    # `c(1, NA, 5, 7)` -- linear at a step of 2 -- was `FALSE`.
+    # As in `vignette("devtools")`: are the known values consistent with each
+    # other, given their positions? For linearity, every pair of neighboring
+    # known values must imply the same step per index, so `c(1, NA, 5, 7)` can
+    # be linear:
     known <- which(!is.na(x))
 
     if (test_linear) {
@@ -101,13 +91,10 @@ is_seq_basic <- function(
     }
 
     # The special tests, too, ask whether the known values already rule the
-    # sequence out. They used to return `NA` early whenever fewer than three
-    # values were known, and, for dispersion, whenever the central value was, so
-    # `c(2, NA, 1)` might have been ascending and `c(1, 2, NA, 4, 5)` might have
-    # been dispersed around `99`. A dispersed sequence has each pair of values
-    # at mirrored positions centered on `from`, which a pair with both values
-    # known can disprove; the central value is its own mirror image.
-    # Monotonicity is disproven by the known values alone, gaps and all:
+    # sequence out. Monotonicity is disproven by the known values alone. A
+    # dispersed sequence has each mirrored pair of values centered on `from`,
+    # which a fully known pair can disprove; the central value is its own
+    # mirror image:
     if (!is.null(test_special)) {
       pass_test_special <- switch(
         test_special,
@@ -126,20 +113,17 @@ is_seq_basic <- function(
     return(NA)
   }
 
-  # If desired, test `x` for linearity. The steps are compared with their signs,
-  # so a zigzag like `c(1, 2, 1)` is not linear; their absolute values used to
-  # be compared, which made it so:
+  # Steps are compared with their signs, so a zigzag like `c(1, 2, 1)` is not
+  # linear:
   if (test_linear) {
-    # An infinity makes a step `Inf - Inf`, which is `NaN`; that used to fail
-    # in `if ()` with "missing value where TRUE/FALSE needed". No such step is
-    # equal to any other, hence `isTRUE()`, here and in the other tests:
+    # An infinity makes a step `Inf - Inf`, which is `NaN` and equal to no
+    # other step, hence `isTRUE()`, here and in the other tests:
     steps <- diff(x)
     if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
       return(FALSE)
     }
   }
 
-  # Interface for the special variant functions:
   if (!is.null(test_special)) {
     pass_test_special <- switch(
       test_special,
@@ -183,6 +167,8 @@ is_seq_basic <- function(
 #'   - `NA` if all elements are `NA`.
 #'   - Otherwise, `NA` if some values substituted for the `NA`s would make `x`
 #'   the kind of sequence in question, and `FALSE` if none would.
+#'
+#'   A missing `from` is handled the same way.
 #'
 #'   See `vignette("devtools")`, section *NA handling*.
 #'
@@ -263,10 +249,10 @@ is_seq_dispersed <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_length(from, 1L)
-  # A missing center leaves the question open, like a missing value in `x`,
-  # unless `x` rules out every center. A dispersed sequence is centered on each
-  # mirrored pair of its values, so the first known such center is the only
-  # candidate:
+
+  # A missing center leaves the question open unless `x` rules out every
+  # center. A dispersed sequence is centered on each mirrored pair of its
+  # values, so the first known such center is the only candidate:
   if (is.na(from)) {
     x_num <- if (is.factor(x)) as.character(x) else x
     x_num <- suppressWarnings(as.numeric(x_num))
@@ -301,9 +287,6 @@ is_seq_dispersed_basic <- function(
     return(FALSE)
   }
 
-  # `is_seq_basic()` has made both of these numeric by the time it calls this.
-  # (A string `from` used to be assigned to `x` here by mistake, so the call
-  # failed with "non-numeric argument to binary operator".)
   x <- as.numeric(x)
   from <- as.numeric(from)
 

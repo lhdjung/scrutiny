@@ -10,7 +10,8 @@ reverse_map_total_n(data)
 \item{data}{Data frame with the \code{"scrutiny_map_total_n"} class.}
 }
 \value{
-The reconstructed tibble.
+A tibble with the reported columns, such as \code{x1}, \code{x2}, and \code{n},
+one row per case.
 }
 \description{
 \code{reverse_map_total_n()} takes the output of a function made by

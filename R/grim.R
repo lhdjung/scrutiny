@@ -1,5 +1,4 @@
-# Single-case function; not exported but used as a basis for the vectorized
-# `grim()` as well as within `grim_map()`:
+# Single-case function behind `grim()` and `grim_map()`.
 grim_scalar <- function(
   x,
   n,
@@ -11,8 +10,8 @@ grim_scalar <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  # `percent` describes the call as a whole. A missing value or a vector used
-  # to fail in `if ()` with base R's message:
+  # Checked here so that a missing value or a vector fails with a clear message,
+  # not with `if ()`'s:
   if (!isTRUE(percent) && !isFALSE(percent)) {
     abort_in_export(
       "`percent` must be `TRUE` or `FALSE`.",
@@ -20,7 +19,7 @@ grim_scalar <- function(
     )
   }
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
-  # numbers used to make the verdict an unexplained `NA`.
+  # numbers would make the verdict an unexplained `NA`.
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))
   }
@@ -39,8 +38,7 @@ grim_scalar <- function(
 
   check_newly_numeric(x, digits_x)
 
-  # The `percent` argument allows for easy conversion of percentages to decimal
-  # numbers. `x` itself stays on the reported scale for the `show_rec` values:
+  # `x` itself stays on the reported scale for the `show_rec` values:
   x_num <- x
   if (percent) {
     x_num <- x_num / 100
@@ -48,13 +46,11 @@ grim_scalar <- function(
   }
 
   # GRIM asks which integer sums of `n * items_averaged` integer values have a
-  # mean that would be reported as `x`. A fractional or non-positive `n` or
-  # `items_averaged` describes no such data set, so the case is undecidable
-  # rather than inconsistent. So is an infinite `x`: no data set has an infinite
-  # mean, and it has no decimal places to be reported with -- left to
-  # `sum_range()` it would make the range infinitely wide, i.e. consistent with
-  # everything. And so is a missing `digits_x`: without the decimal count there
-  # are no rounding bounds to derive.
+  # mean that would be reported as `x`. Undecidable rather than inconsistent:
+  # a fractional or non-positive `n` or `items_averaged`, which describes no
+  # such data set; an infinite `x`, which would make `sum_range()` infinitely
+  # wide, i.e., consistent with everything; and a missing `digits_x`, which
+  # leaves no rounding bounds to derive.
   if (
     !is_decidable_n_items(n, items_averaged) ||
       is.infinite(x_num) ||
@@ -66,7 +62,6 @@ grim_scalar <- function(
     return(list(NA, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
   }
 
-  # Prepare further objects for reconstructing the original values:
   n_items <- as.numeric(n) * items_averaged
   rec_sum <- x_num * n_items
 
@@ -101,22 +96,19 @@ grim_scalar <- function(
   denom <- 10^(digits_x + 1L)
   rec_sum_num <- round(x_num * denom) * n_items
 
-  # These are read against `x`, so they are returned on its scale -- percentages
-  # if `x` is one, like `grim_values()` and `grim_closest()`. `rec_sum`,
-  # `sum_lower`, and `sum_upper` are not converted: they are sums of the
-  # underlying data, which `percent` does not change. The factor multiplies the
-  # integer sum rather than the quotient, keeping the granule the result of a
-  # single division; converting afterwards would round twice.
+  # On the scale of `x`, like `grim_values()` and `grim_closest()`. The sums are
+  # not converted: `percent` does not change the underlying data. The factor
+  # multiplies the integer sum, not the quotient, so the granule is the result
+  # of a single division; converting afterwards would round twice.
   scale_x <- if (percent) 100 else 1
   rec_x_upper <- ceiling(rec_sum_num / denom) * scale_x / n_items
   rec_x_lower <- floor(rec_sum_num / denom) * scale_x / n_items
 
   # The same six values for every rounding method. `sum_lower` and `sum_upper`
   # are the numbers that decided `consistency` above, so the display cannot
-  # contradict the verdict -- which a separately derived, granule-based one did.
-  # An empty range means an inconsistent value set, and it is then empty by
-  # exactly one, the two bounds straddling `rec_sum`. So the gap is no measure
-  # of how far off a value set is; `x` against `rec_x_lower`/`rec_x_upper` is.
+  # contradict the verdict. An empty range is empty by exactly one, the bounds
+  # straddling `rec_sum`, so the gap does not measure how far off a value set
+  # is; `x` against `rec_x_lower` and `rec_x_upper` does.
   list(
     consistency,
     rec_sum,
@@ -143,13 +135,9 @@ grim_scalar <- function(
 #'   The function is vectorized, but [`grim_map()`] is more convenient for
 #'   testing many cases.
 #'
-#' @details `digits_x` must be specified because a numeric value does not
-#'   retain trailing zeros: `1.40` is stored as `1.4`. State the number of
-#'   decimal places that `x` was reported with.
-#'
-#'   `items_averaged` must be specified because a mean over several items is a
-#'   mean of more values, which changes the test. It replaces `items`, whose
-#'   default of 1 let multi-item scales pass unnoticed.
+#' @details `items_averaged` must be specified because a mean over several
+#'   items is a mean of more values, which changes the test. A default of 1
+#'   would let multi-item scales pass unnoticed.
 #'
 #'   `x`, `n`, `digits_x`, and `items_averaged` are vectorized and recycled to a
 #'   common length by the tidyverse rules: an argument has length 1 or the
@@ -164,7 +152,7 @@ grim_scalar <- function(
 #'   respondent's score: 1 for a single item or the percentage of participants
 #'   with some answer, 4 for the mean of a four-item scale, 10 for the average
 #'   percent correct on a ten-question test. Not the number of scale points.
-#'   There is no default.
+#'   No default.
 #' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
@@ -213,8 +201,8 @@ grim_scalar <- function(
 #' # With percentages instead of means -- here, 71%:
 #' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
 
-# Vectorized version. The signature mirrors `grim_scalar()`'s minus `show_rec`;
-# see `map_value_sets()`:
+# The signature mirrors `grim_scalar()`'s minus `show_rec`; see
+# `map_value_sets()`.
 grim <- function(
   x,
   n,

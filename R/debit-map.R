@@ -1,7 +1,7 @@
 #' Apply DEBIT to many cases
 #'
 #' @description `debit_map()` applies [`debit()`] to every row of a data frame
-#'   with means, sample standard deviations, and sample sizes of binary data.
+#'   with means, standard deviations, and sample sizes of binary data.
 #'
 #'   Call [`audit()`] on the output for summary statistics and
 #'   [`debit_plot()`] to visualize it.

@@ -16,8 +16,8 @@
 #' @param n Numeric. In `disperse()`, half of an even total. In `disperse2()`,
 #'   the two consecutive numbers closest to half of an odd total, such as
 #'   `c(25, 26)` for 51. In `disperse_total()`, the total itself.
-#' @param dispersion Numeric. Steps up and down from `n` (or, in
-#'   `disperse_total()`, from half of `n`). Default is `0:5`.
+#' @param dispersion Numeric. Non-negative whole numbers of steps up and down
+#'   from `n` (or, in `disperse_total()`, from half of `n`). Default is `0:5`.
 #' @param n_min Numeric. Minimal group size. Default is `1L`.
 #' @param n_max Numeric. Maximal group size. Default is `NULL`, no maximum.
 #' @param constant Optionally, a length-2 vector, or a list of such vectors
@@ -89,12 +89,7 @@ disperse <- function(
   }
   check_non_negative(dispersion)
 
-  # `dispersion` counts whole units away from `n`, and `n` is a group size. A
-  # fractional step has no meaning here, and it used to be accepted and then
-  # quietly mangled: `n` moved by the fractional amount while `n_change` was
-  # truncated toward zero by the `as.integer()` at the end of this function, so
-  # `disperse(n = 10, dispersion = c(0.5, 1.5))` reported changes of 0 and 1 for
-  # values of 9.5 and 8.5.
+  # A group has a whole number of members, so a fractional step means nothing:
   if (!all(is_whole_number(dispersion))) {
     offenders <- dispersion[!is_whole_number(dispersion)]
     abort_in_export(
@@ -107,9 +102,6 @@ disperse <- function(
   }
 
   # Main part ---
-
-  # (Note: The checks below count towards to the main part because they may lead
-  # to input transformations.)
 
   if (!is.null(n_min)) {
     check_limit_n(n_min, "n_min")
@@ -158,8 +150,7 @@ disperse <- function(
 
     if (is.list(constant)) {
       # Elements without a name, which may be all of them, are named
-      # `constant1`, `constant2`, etc. A partly named list used to fail with
-      # "attempt to use zero-length variable name":
+      # `constant1`, `constant2`, etc.:
       names_constant <- names(constant)
       if (is.null(names_constant)) {
         names_constant <- rep("", length(constant))
@@ -178,17 +169,9 @@ disperse <- function(
       dplyr::mutate(constant, .after = "n_change")
   }
 
-  # A sample size is a whole number, and the mappers that these tibbles feed
-  # into store it as integer for that reason. The dispersion helpers returned
-  # doubles, so `n` changed type on the way in and back out again -- and a
-  # column that prints as `20` in one function and `20.0` in the next is the
-  # kind of difference that only shows up in a comparison. `disperse2()` and
-  # `disperse_total()` build on this function and inherit the coercion.
-  #
-  # It is conditional for the same reason as in the mappers: `as.integer()`
-  # turns anything past `.Machine$integer.max` into `NA`. A half-integer `n`,
-  # which `disperse2()` passes in, also keeps the column double -- although
-  # `disperse2()` corrects the halves before returning.
+  # Integer, like `n` in the mappers these tibbles feed into. Only if lossless,
+  # because `as.integer()` turns anything past `.Machine$integer.max` into `NA`.
+  # The half-integers that `disperse2()` passes in stay double here:
   out$n <- as_integer_if_lossless(out$n)
   out$n_change <- as_integer_if_lossless(out$n_change)
   out
@@ -221,10 +204,9 @@ disperse2 <- function(
 
   # Main part ---
 
-  # Take the mean of the two `n` values and disperse from there. The limits
-  # apply to the group sizes, which are half a unit further out than the
-  # values dispersed from the midpoint; a fractional `n_min` used to let a pair
-  # through that broke it:
+  # Disperse from the mean of the two `n` values. The limits apply to the group
+  # sizes, which are half a unit further out than the values dispersed from the
+  # midpoint:
   check_limit_n(n_min, "n_min")
   check_limit_n(n_max, "n_max")
   out <- disperse(
@@ -235,20 +217,12 @@ disperse2 <- function(
     n_max = if (!is.null(n_max)) n_max - 0.5
   )
 
-  # Increase or decrease the dispersed values so that the lower values (odd
-  # rows) decrease from the first of the two `n` values, the higher values (even
-  # rows) increase from the second one, and both interleaved sequences proceed
-  # by increments of 1. `rep_len()` also covers the case where `n_min` or
-  # `n_max` left no pairs at all; the row locations used to be computed by
-  # `seq(1, 0, by = 2)` there, which failed with "wrong sign in 'by' argument":
+  # Odd rows go down from the first `n` value, even rows up from the second.
+  # `rep_len()` also covers the case where the limits left no pairs at all:
   out$n <- out$n + rep_len(c(-0.5, 0.5), nrow(out))
 
-  # `disperse()` dispersed from a half-integer, so it left `n` as a double.
-  # Adding and subtracting the halves above lands every value back on a whole
-  # number, which is what the column should say it holds:
+  # Every value is a whole number again:
   out$n <- as_integer_if_lossless(out$n)
-
-  # Return the resulting tibble:
   out
 }
 
@@ -273,10 +247,7 @@ disperse_total <- function(
     to be a *single*, total sample size."
   )
 
-  # A total sample size is a whole number. Anything else used to be split into
-  # halves of halves without a word -- `disperse_total(7.5)` returned group
-  # sizes of 3.25 and 4.25 -- because the even-or-odd branch below is only
-  # exhaustive for whole numbers:
+  # The even-or-odd branch below is only exhaustive for whole numbers:
   if (is.na(n) || !is_whole_number(n) || n < 0) {
     abort_in_export(
       "`n` must be a non-negative whole number.",
@@ -289,8 +260,6 @@ disperse_total <- function(
 
   n_half <- n / 2
 
-  # Test if `n` is even, then call the appropriate function. If `n` is even,
-  # call `disperse()`; if `n` is odd, call `disperse2()`:
   if (is_even(n)) {
     disperse(
       n = n_half,
@@ -300,7 +269,6 @@ disperse_total <- function(
       constant = constant
     )
   } else {
-    # Determine the two whole numbers closest to half of the odd `n`:
     disperse2(
       n = c(n_half - 0.5, n_half + 0.5),
       dispersion = dispersion,
@@ -312,7 +280,6 @@ disperse_total <- function(
 }
 
 
-# A missing limit used to pass the length check and turn every pair into `NA`.
 # `disperse2()` checks the limits before shifting them, so that the message
 # shows what the user gave:
 check_limit_n <- function(limit, name) {

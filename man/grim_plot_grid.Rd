@@ -18,7 +18,8 @@ grim_plot_grid(
 )
 }
 \arguments{
-\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}} or \code{\link[=grimmer_map]{grimmer_map()}}.}
+\item{data}{Data frame returned by \code{\link[=grim_map]{grim_map()}} or \code{\link[=grimmer_map]{grimmer_map()}},
+or by their \verb{*_seq()} and \verb{*_total_n()} variants.}
 
 \item{show_data}{Logical. If \code{FALSE}, only the raster is drawn. Default is
 \code{TRUE}.}

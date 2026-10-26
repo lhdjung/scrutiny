@@ -16,6 +16,8 @@
 #'   from the row's `consistency` value, the row must have been changed after
 #'   testing, and `explain_map()` throws an error.
 #'
+#'   DEBIT explanations cover `formula = "exact"` only.
+#'
 #' @param data Data frame returned by one of the mappers named above.
 #'
 #' @return `data` with an `explanation` column, a string per row.

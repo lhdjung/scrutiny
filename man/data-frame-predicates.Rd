@@ -24,10 +24,9 @@ Logical (length 1).
 }
 \description{
 \itemize{
-\item \code{is_map_df()} tests whether an object was returned by a scrutiny-style
-mapper function of any tier: a basic mapper such as \code{\link[=grim_map]{grim_map()}} or one
-made by \code{\link[=function_map]{function_map()}}, or a function made by \code{\link[=function_map_seq]{function_map_seq()}} or
-\code{\link[=function_map_total_n]{function_map_total_n()}}.
+\item \code{is_map_df()} tests whether an object is the output of a mapper of any
+tier, i.e., of a function made by \code{\link[=function_map]{function_map()}}, \code{\link[=function_map_seq]{function_map_seq()}},
+or \code{\link[=function_map_total_n]{function_map_total_n()}}, such as \code{\link[=grim_map]{grim_map()}}.
 \item \code{is_map_basic_df()}, \code{is_map_seq_df()}, and \code{is_map_total_n_df()} test
 for one tier each.
 }

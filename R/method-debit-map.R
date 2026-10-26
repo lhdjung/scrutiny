@@ -2,25 +2,16 @@
 #' @export
 
 audit.scrutiny_debit_map <- function(data, ...) {
-  # Compute the summary values of interest --
-
-  # 1. the number of DEBIT-inconsistent cases;
-  # 2. the total number of cases;
-  # 3. the proportion of DEBIT-inconsistent cases:
   check_cols_needed(data, c("consistency", "x", "sd", "n"))
   out <- audit_cols_minimal(data)
 
-  # 4. the mean `x` value. `na.rm` as in `audit_cols_minimal()`: a missing value
-  # makes a case undecidable, and it should not also erase the summary of the
-  # cases that could be decided.
+  # A missing value makes a case undecidable; it should not also erase the
+  # summary of the cases that could be decided:
   mean_x <- mean(data$x, na.rm = TRUE)
 
-  # 5. the mean `sd` value:
   mean_sd <- mean(data$sd, na.rm = TRUE)
 
-  # 6. the number of distinct `n` values, a missing one not being a value:
   distinct_n <- dplyr::n_distinct(data$n, na.rm = TRUE)
 
-  # Finally, collect all of these values in a resulting tibble --
   tibble::tibble(out, mean_x, mean_sd, distinct_n)
 }

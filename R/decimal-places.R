@@ -10,9 +10,9 @@
 #'
 #' @details The function counts the run of digits after the first `sep`,
 #'   after trimming whitespace and applying any exponent: `"5.30%"` has two
-#'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing values,
-#'   the string `"NA"`, and strings that [`as.numeric()`] reads as an infinity
-#'   or `NaN` have `NA` decimal places.
+#'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing and
+#'   non-finite values have `NA` decimal places, as do the string `"NA"` and
+#'   strings that [`as.numeric()`] reads as an infinity or `NaN`.
 #'
 #'   Numeric values with more than 15 significant digits cannot be counted
 #'   accurately; enter such numbers as strings.
@@ -44,12 +44,9 @@
 decimal_places <- function(x, sep = ".") {
   sep <- sep_literal(sep)
 
-  # `NaN` and the infinities have no decimal places, and `NaN` is a missing value
-  # everywhere else in the package. A numeric vector is decided by `is.finite()`.
-  # A character vector can only be matched against the tokens: `as.numeric()`
-  # would also swallow strings like `"5.30%"`, whose two decimal places are the
-  # documented answer. The values decided here are blanked out, so that nothing
-  # below has to deal with a missing value:
+  # Strings are matched against the tokens rather than run through
+  # `as.numeric()`, which would also reject strings like `"5.30%"`. Values
+  # decided here are blanked out so that nothing below meets a missing value:
   if (is.numeric(x)) {
     non_finite <- !is.finite(x)
     x <- number_to_string(x)
@@ -61,12 +58,9 @@ decimal_places <- function(x, sep = ".") {
   }
   x[non_finite] <- ""
 
-  # Scientific notation moves the decimal point, so the digits after `sep` are
-  # not the decimal places of the number: `1e-05` has five of them and none
-  # after a point, `1.5e3` has none and one after the point. (A number is
-  # written out in full by `number_to_string()`, so this is about strings.)
-  # The exponent is split off here and applied to the count below. One beyond
-  # the integer range is `NA`, and so is the count:
+  # An exponent moves the decimal point (`"1e-05"` has five decimal places,
+  # `"1.5e3"` none), so it is split off and applied to the count below. One
+  # beyond the integer range makes the count `NA`:
   pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
   has_exponent <- pos_exponent > 0L
   exponent <- integer(length(x))
@@ -80,10 +74,9 @@ decimal_places <- function(x, sep = ".") {
     pos_exponent[has_exponent] - 1L
   )
 
-  # Only the run of digits immediately after the first separator counts, not
-  # every character after it: `"5.30%"` has two decimal places, `"1.2.3"` one,
-  # and `"1..5"` none. Same steps as in `decimal_places_scalar()`; a generated
-  # corpus in `test-decimal-places.R` holds the two together:
+  # Only the digit run right after the first separator counts: `"1.2.3"` has
+  # one decimal place. `decimal_places_scalar()` takes the same steps, and a
+  # generated corpus in test-decimal-places.R holds the two together:
   pos_sep <- regexpr(sep, x, fixed = TRUE)
   mantissa <- substring(x, pos_sep + nchar(sep))
   mantissa[pos_sep < 0L] <- ""
@@ -91,23 +84,18 @@ decimal_places <- function(x, sep = ".") {
     regexpr(pattern = "^[0-9]*") |>
     attr("match.length")
 
-  # A positive exponent can only cancel decimal places, never create negative
-  # ones:
   out <- pmax(out - exponent, 0L)
   out[non_finite] <- NA_integer_
   out
 }
 
 
-# `as.character()` writes a number with up to 15 significant digits, and in
-# scientific notation when that is shorter: `100000` becomes `"1e+05"`, and
-# `0.0001` becomes `"1e-04"`. Such a number is written out in full here, so that
-# its digits can be counted and compared to other spellings of the number. Near
-# the ends of the double range, `as.character()` can also use all 15 digits
-# where far fewer stand for the same number -- `1e-300` became
-# `"9.99999999999999e-301"`, with 315 decimal places -- so the fewest digits
-# that convert back to the same number are searched for. Only scientific
-# notation is affected, so the common case costs one fixed-string match:
+# `as.character()` uses scientific notation when it is shorter (`100000` is
+# `"1e+05"`), so such numbers are written out in full here, to be counted and
+# compared to other spellings. Near the ends of the double range it can use all
+# 15 digits where fewer stand for the same number (`1e-300` gives
+# `"9.99999999999999e-301"`), so the fewest digits that round-trip are searched
+# for. The common case costs one fixed-string match:
 number_to_string <- function(x) {
   out <- as.character(x)
   for (i in grep("e", out, fixed = TRUE)) {
@@ -144,16 +132,12 @@ value_to_string <- function(x) {
 }
 
 
-# Faster, single-case (scalar) function to be used as a helper within other
-# single-case functions. Not exported; it has to agree with `decimal_places()`,
-# which test-decimal-places.R checks:
+# Faster version of `decimal_places()` for a single value, used inside other
+# single-case functions. It must agree with `decimal_places()`, which a
+# generated corpus in test-decimal-places.R checks.
 decimal_places_scalar <- function(x, sep = ".") {
-  # The three ways of having no decimal places to count -- a missing value, an
-  # infinity, and the strings that spell one, `"NA"` among them. Branching on `is.character()`
-  # keeps a numeric value from paying for a check only a string can fail, and
-  # from being trimmed: only a string the user typed can carry whitespace.
-  # `decimal_places()` must agree with this; a generated corpus in
-  # test-decimal-places.R holds the two together.
+  # Branching on `is.character()` spares a number the token check and the
+  # trimming, which only a string can need:
   if (is.character(x)) {
     x <- trim_space(x)
     if (is.na(x) || x == "NA" || is_non_finite_token(x)) {
@@ -163,15 +147,11 @@ decimal_places_scalar <- function(x, sep = ".") {
     x <- number_to_string(x)
     sep <- "."
   } else {
-    # `is.finite()` is `FALSE` for `NA` and `NaN` as well as the infinities:
     return(NA_integer_)
   }
 
-  # See the comment in `decimal_places()`: an exponent shifts the decimal point,
-  # so it is split off before the digits after `sep` are counted. That makes
-  # `decimal_places_scalar(1e-04)` 4 rather than 0, keeping `seq_disperse()` and
-  # friends on the intended decimal level. Almost no value has an exponent, so
-  # a fixed-string search spares most of them the regular expression:
+  # See `decimal_places()` on exponents. Almost no value has one, so a
+  # fixed-string search spares most of them the regular expression:
   pos_exponent <- -1L
   if (grepl("e", x, fixed = TRUE) || grepl("E", x, fixed = TRUE)) {
     pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
@@ -186,9 +166,6 @@ decimal_places_scalar <- function(x, sep = ".") {
     x <- substr(x, 1L, pos_exponent - 1L)
   }
 
-  # Only the digit run right after the *first* separator counts, as in
-  # `decimal_places()`. The separator is a literal string, so it is found
-  # without a regular expression:
   sep <- sep_literal(sep)
   pos_sep <- regexpr(sep, x, fixed = TRUE)
 
@@ -247,9 +224,10 @@ decimal_places_df <- function(
   sep = "."
 ) {
   sep_literal_value <- sep_literal(sep)
-  # Grouping plays no role here: the function works on whole columns, which
-  # grouping only gets in the way of (`dplyr::select()` re-adds the grouping
-  # columns, and `across()` runs per group). The output is ungrouped:
+
+  # The function works on whole columns, and grouping would get in the way:
+  # `dplyr::select()` re-adds the grouping columns, and `across()` runs per
+  # group. The output is ungrouped:
   data <- dplyr::ungroup(data)
   quo_cols <- rlang::enquo(cols)
   names_selected <- quo_cols |>
@@ -291,12 +269,10 @@ decimal_places_df <- function(
 }
 
 
-# `sep` and its relatives in `restore_zeros()` are literal strings. They used to
-# be regular expressions, documented as substrings, so `sep = "."` matched any
-# character. An escaped character from those days, such as the former default
-# `"\\."` or `"\\,"`, is still read as that character.
+# `sep` and its relatives in `restore_zeros()` are literal strings. An escaped
+# character such as `"\\."`, valid when they were regular expressions, is read
+# as that character.
 sep_literal <- function(sep) {
-  # A missing value or a non-string used to fail in `regexpr()`:
   if (!is.character(sep) || length(sep) != 1L || is.na(sep)) {
     name <- deparse(substitute(sep))
     abort_in_export(
@@ -309,7 +285,7 @@ sep_literal <- function(sep) {
 
 
 # `decimal_places()` and `decimal_places_scalar()` read strings through these
-# two, so that they cannot drift apart on which strings they count.
+# two, so that they cannot drift apart.
 #
 # `\s` is ASCII whitespace, `"\v"` and `"\f"` included. `\p{Z}` adds Unicode
 # spaces such as the no-break space, common in tables copied from PDFs.

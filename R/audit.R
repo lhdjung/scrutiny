@@ -182,17 +182,14 @@ audit_seq <- function(data) {
 
   check_dispersion_linear(data, "audit_seq")
 
-  # `function_map_seq()` records the name of the key result column, which is
-  # `"consistency"` unless the mapper was created with a different
-  # `.name_key_result`. Output that has lost the attribute falls back to that,
-  # and every mapper that keeps the default name is unaffected:
+  # The key result column is `"consistency"` unless the mapper was created with
+  # a different `.name_key_result`, which `function_map_seq()` records:
   meta <- attr(data, "scrutiny", exact = TRUE)
   name_key_result <- meta$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
   }
 
-  # The dispersed variables, as recorded in the settings:
   var_names <- meta$settings$value[[match("var", meta$settings$setting)]]
 
   # With no inconsistent case, there is nothing to count hits in, but the
@@ -235,17 +232,14 @@ audit_seq <- function(data) {
     var_names <- unique(data$var)
   }
 
-  # Define some helper functions to be mapped below:
   index_hit_distance <- function(df, var_order = var_names) {
-    # Splitting by a factor keeps the groups in the order of `var` rather than
-    # the alphabetical one, and it keeps an empty group for a variable that has
-    # no rows in this case because `out_min` or `out_max` clipped its whole
-    # dispersion. Such a group counts as zero hits, like one whose rows are all
-    # inconsistent. Without it, the columns of later variables shifted left:
+    # Splitting by a factor keeps the groups in the order of `var`, and keeps
+    # an empty group, counted as zero hits, for a variable whose dispersion
+    # `out_min` or `out_max` clipped away in this case. Without it, the columns
+    # of later variables would shift left:
     df |>
       split(factor(df$var, levels = var_order)) |>
-      # `which()` for the same reason as in the `dplyr::filter()` call above,
-      # which drops undecidable cases rather than counting them as hits:
+      # `which()` drops undecidable cases rather than counting them as hits:
       purrr::map(function(x) x[which(x[[name_key_result]]), ]$diff_var)
   }
 
@@ -257,7 +251,6 @@ audit_seq <- function(data) {
     }
   }
 
-  # Prepare endings of the `diff_*` columns:
   fun_names <- c("", "_up", "_down")
   fun_names <- rep(fun_names, length(var_names))
 
@@ -299,11 +292,9 @@ audit_seq <- function(data) {
 
   data_rev <- reverse_map_seq(data)
 
-  # The verdicts of the reported value sets come from the sequence mapper's
-  # initial test, recorded on its output for every row of the input data; `case`
-  # is the row number. Reconstructed data used to be tested again here, which
-  # meant finding the mapper by the name in a class string and replaying the
-  # call's arguments, and a dropped argument could flip `consistency`:
+  # The verdicts of the reported value sets, recorded by the sequence mapper's
+  # initial test for every input row; `case` is the row number. Re-testing
+  # reconstructed data instead would need the mapper and all its arguments:
   results_reported <- meta$results_reported
   if (is.null(results_reported)) {
     abort_in_export(

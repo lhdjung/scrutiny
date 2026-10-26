@@ -22,10 +22,10 @@ function_map(
 }
 \arguments{
 \item{.fun}{Single-case function to apply to each row. It must return a
-single logical value, or, if \code{.col_names} is specified, a list of values
+single logical value or, if \code{.col_names} is specified, a list of values
 with the key result first.}
 
-\item{.reported}{String. Names of the arguments of \code{.fun} that contain the
+\item{.reported}{String. Names of the arguments of \code{.fun} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
 be \code{NULL} if \code{.reported_variadic} is specified.}
 
@@ -39,27 +39,26 @@ result column. Default is \code{"consistency"}.}
 output. Default is \code{NULL}; see \emph{Details} for the class that is always
 added.}
 
-\item{.args_disabled}{Optionally, names of arguments of \code{.fun} that the
-factory-made function should not have. Specifying one of them is an error.}
+\item{.args_disabled}{Optionally, names of arguments of \code{.fun} that the new
+function should not have. Specifying one of them is an error.}
 
 \item{.args_by_row}{Optionally, names of arguments of \code{.fun} that may vary
-by row, such as \code{"digits_x"}. The factory-made function accepts a single
-value or one per row of \code{data} for each, and returns them as columns.}
+by row, such as \code{"digits_x"}. The new function takes a single value or one
+per row of \code{data} for each, and returns them as columns.}
 
-\item{.args_fixed}{Optionally, a named list of values for arguments of
-\code{.fun} that the factory-made function always passes on and does not have
-itself, such as \code{list(show_reason = TRUE)}. Specifying one of them is an
-error.}
+\item{.args_fixed}{Optionally, a named list of values that are always passed
+to \code{.fun}, such as \code{list(show_reason = TRUE)}. The new function has no
+arguments for them; specifying one is an error.}
 
 \item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also be
 given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
 returned after the key columns if it was given, as a column or as an
 argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 
-\item{.col_names}{Optionally, the names of the columns that the values
-returned by \code{.fun} unpack into when it returns a list, as with
-\code{show_rec = TRUE}. The first name must be \code{.name_key_result}. If \code{data}
-has no rows, only the key result column is created.}
+\item{.col_names}{Optionally, names of the columns that a list returned by
+\code{.fun} unpacks into, as with \code{show_rec = TRUE}. The first name must be
+\code{.name_key_result}. If \code{data} has no rows, only the key result column is
+created.}
 
 \item{.cols_derived}{Optionally, a named list of functions that compute
 further columns from the same per-row input, such as
@@ -67,10 +66,9 @@ further columns from the same per-row input, such as
 has formals for. The columns follow the key result column.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of
-\code{.fun} that takes the values of one row as a vector. The factory-made
-function then has an argument by that name that selects any number of
-columns with tidyselect syntax, so that the caller decides how many columns
-are tested. It has no default. See \emph{Details}.}
+\code{.fun} that takes the values of one row as a vector. The new function gets
+an argument by that name, without a default, that selects any number of
+columns with tidyselect syntax. See \emph{Details}.}
 
 \item{...}{These dots must be empty.}
 }
@@ -78,36 +76,36 @@ are tested. It has no default. See \emph{Details}.}
 A function with these arguments:
 \itemize{
 \item \code{data}: a data frame with the key columns. Other columns are permitted.
-\item One argument per \code{.reported} value, for passing the name of a column of
-\code{data} that contains that value under another name.
+\item The \code{.args_by_row} arguments, such as \code{digits_x}.
 \item If \code{.reported_variadic} was given, an argument by that name.
-\item The arguments of \code{.fun}, with the same defaults; see \emph{Details}.
-\item \code{...}, passed on to \code{.fun}.
+\item One argument per \code{.reported} value, for naming a column of \code{data} that
+holds that value under another name.
+\item \code{...}: must be empty. Every argument after it must be named in full.
+\item The other arguments of \code{.fun}, with the same defaults; see \emph{Details}.
 }
 }
 \description{
-\code{function_map()} creates a basic mapper function for a
-consistency test: a function that applies a single-case test such as
-\code{grim_scalar()} to every row of a data frame, as \code{\link[=grim_map]{grim_map()}},
-\code{\link[=grimmer_map]{grimmer_map()}}, and \code{\link[=debit_map]{debit_map()}} do. All three are made by it.
+\code{function_map()} creates a basic mapper: a function that
+applies a single-case test such as \code{grim_scalar()} to every row of a data
+frame. \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, and \code{\link[=debit_map]{debit_map()}} are made by
+it.
 
 See \code{vignette("consistency-tests-in-depth")}, section \emph{Creating basic
 mappers with \code{function_map()}}.
 }
 \details{
-The factory-made function has an argument for every argument of
-\code{.fun} that is not named in \code{.reported}, \code{.reported_variadic}, or
-\code{.args_disabled}, with the same default.
+The new function has an argument for every argument of \code{.fun} that
+is not named in \code{.reported}, \code{.reported_variadic}, \code{.args_disabled}, or
+\code{.args_fixed}, with the same default.
 
 \code{.reported_variadic} is for a test whose number of key columns depends on
 the data, such as whether the values in any number of columns add up to
-the value in one other column. \code{.fun} takes those values as a single
-vector, and the factory-made function selects the columns with
-tidyselect; see \emph{Examples}. The selection must not be empty and must not
-include a column that already has a role in the test. The selected
-columns are returned as themselves. Such a mapper cannot be wrapped by
-\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}, which derive their
-arguments from \code{.reported}.
+the value in another one. \code{.fun} takes those values as a single vector,
+and the new function selects the columns with tidyselect; see \emph{Examples}.
+The selection must not be empty and must not include a column that already
+has a role in the test. The selected columns are returned as themselves.
+Such a mapper cannot be wrapped by \code{\link[=function_map_seq]{function_map_seq()}} or
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which derive their arguments from \code{.reported}.
 
 The output has the class \code{"scrutiny_{tolower(.name_test)}_map"}, e.g.,
 \code{"scrutiny_grim_map"}, in addition to any \code{.name_class}. The arguments that
@@ -116,11 +114,12 @@ see \code{\link[=scrutiny_meta]{scrutiny_meta()}}.
 }
 \section{Value returned by the factory-made function}{
  A tibble with the
-\code{.reported_variadic} columns, the \code{.reported} columns, the \code{.args_by_row}
-columns, and \code{consistency}, a logical column that is \code{TRUE} if the values
-to its left are consistent and \code{FALSE} if they are not. Any \code{.cols_derived}
-columns, any \code{.col_names} columns, and the other columns of \code{data} follow,
-in that order.
+\code{.reported_variadic} columns, the \code{.reported} columns, the helper columns
+that were given, the \code{.args_by_row} columns, and the key result column
+(\code{consistency} by default), which is \code{TRUE} for consistent value sets and
+\code{FALSE} for inconsistent ones. Any \code{.cols_derived} columns, any
+\code{.col_names} columns, and the other columns of \code{data} follow, in that
+order.
 }
 
 \examples{

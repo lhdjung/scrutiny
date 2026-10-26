@@ -88,8 +88,8 @@ sd_binary_mean_n <- function(mean, n) {
 
 
 # The sample SD from the population variance. With `n` below 2 there is no
-# sample SD, and the formula used to return `Inf` or `NaN` with the warning
-# suppressed:
+# sample SD; the formula would give `Inf` or `NaN`, so the warning is
+# suppressed and the result set to `NA`:
 sd_binary_sample <- function(n, variance) {
   out <- suppressWarnings(sqrt((n / (n - 1)) * variance))
   # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
@@ -99,8 +99,8 @@ sd_binary_sample <- function(n, variance) {
 }
 
 
-# A count of 0s or 1s can't be negative, nor exceed the sample size. These used
-# to give `NaN` without a word:
+# A count of 0s or 1s can't be negative, nor exceed the sample size. The
+# formulas would silently give `NaN`:
 check_binary_count <- function(group, n = NULL) {
   name <- deparse(substitute(group))
   wrong <- group < 0 | (if (!is.null(n)) group > n else FALSE)

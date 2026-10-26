@@ -47,7 +47,8 @@ keep them (\code{1.40} is \code{1.4}).}
 \item For \code{grim_values()}, a list of numeric vectors, one per value set. A
 vector is empty if the value set is inconsistent, and \code{NA} if it cannot
 be decided.
-\item For \code{grim_closest()}, a numeric vector as long as the inputs.
+\item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
+where a value set cannot be decided.
 }
 }
 \description{

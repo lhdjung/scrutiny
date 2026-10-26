@@ -21,7 +21,7 @@ A tibble (data frame).
 \description{
 A fictional dataset with means and standard deviations from a binary
 distribution related to flying pigs. It can be used to demonstrate the
-functionality of \code{debit_map()} and functions building up on it.
+functionality of \code{debit_map()} and functions built on it.
 }
 \seealso{
 \code{\link{pigs1}} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing

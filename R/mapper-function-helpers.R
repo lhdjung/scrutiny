@@ -2,13 +2,12 @@
 
 #' Split a list of per-row results into columns
 #'
-#' A `*_scalar()` function that has been asked to show its reconstructed values
-#' returns one list per row. `split_result_cols()` turns a list of such lists
-#' into a named list of columns, ready to be used as tibble columns.
+#' A `*_scalar()` function told to show its reconstructed values returns one
+#' list per row. `split_result_cols()` turns a list of such lists into a named
+#' list of columns.
 #'
-#' It collects each result across rows before unlisting, so a logical column
-#' stays logical even if the row next to it is a string. Unlisting row-wise
-#' would coerce every value in a row to the most general type among them.
+#' It unlists each result across rows, not each row across results, so that a
+#' logical column stays logical even if a value next to it is a string.
 #'
 #' @param results List of lists; one inner list per row, all of the same length
 #'   as `col_names`.
@@ -72,11 +71,9 @@ check_consistency_not_in_colnames <- function(
   # it, so a column of that name would be lost, too:
   names_taken <- intersect(c(name_key_result, "consistency"), colnames(data))
   if (length(names_taken) > 0L) {
-    # If `data` carries a scrutiny mapper class, name the mapper that most
-    # likely produced it. The most specific tier wins: a `*_map_seq()` output
-    # also inherits the basic `*_map` class, but it was the sequence mapper that
-    # the user called. Generic infrastructure classes such as
-    # `"scrutiny_map_seq"` carry no function name and are filtered out.
+    # Name the mapper that most likely produced `data`. The most specific tier
+    # wins: `*_map_seq()` output also has the basic `*_map` class. Generic
+    # classes such as `"scrutiny_map_seq"` name no function and are dropped:
     dc <- class(data)
     class_basic <- dc[stringr::str_detect(dc, "_map$")]
     class_seq <- dc[stringr::str_detect(dc, "_map_seq$")]
@@ -91,7 +88,7 @@ check_consistency_not_in_colnames <- function(
     fun_name_all <- class_best |>
       stringr::str_remove("^scrutiny_") |>
       call_on(\(x) x[!x %in% c("map_seq", "map_total_n")])
-    # Guard against multiple matches, which have no single function to name:
+    # Several matches have no single function to name:
     if (length(fun_name_all) != 1L) {
       fun_name_all <- character(0L)
     }
@@ -102,8 +99,6 @@ check_consistency_not_in_colnames <- function(
     } else {
       msg_special <- ""
     }
-    # Without a function name, the message simply omits it. (It used to render
-    # an empty name as "`()`".)
     msg_fun_name <- if (length(fun_name_all) == 1L) {
       paste0(", `", fun_name_all, "()`,")
     } else {
@@ -122,12 +117,11 @@ check_consistency_not_in_colnames <- function(
 
 #' Check that a mapper's input has the right column names
 #'
-#' @description `check_mapper_input_colnames()` is called within consistency
-#'   test mapper functions. It errors if `data` lacks a key column, or if it
-#'   already has a column named like the result column (`"consistency"` by
-#'   default).
+#' @description `check_mapper_input_colnames()` is called within mappers. It
+#'   errors if `data` lacks a key column, or if it already has a column named
+#'   like the key result column (`"consistency"` by default).
 #'
-#' @param data Data frame. Input to the mapper function.
+#' @param data Data frame. Input to the mapper.
 #' @param reported String. Names of the key columns that `data` must have,
 #'   such as `c("x", "n")` for `grim_map()`.
 #' @param name_test String (length 1). Plain-text name of the test, such as
@@ -156,16 +150,10 @@ check_mapper_input_colnames <- function(
 
 #' Check that a mapper returned the key result column that was expected
 #'
-#' @description The seq and total-n factories build on a basic mapper's output,
-#'   and they read its test results off a column they know only by name. That
-#'   name is each factory's `.name_key_result`, so the two have to agree: a
-#'   mapper created with `.name_key_result = "verdict"` must be wrapped by a
-#'   sequence mapper created the same way.
-#'
-#'   When they disagree, the column lookup returns `NULL` and fails much later
-#'   with an error from base R that says nothing about the cause. This check
-#'   turns that into a message naming both the column that is missing and the
-#'   argument that decides it.
+#' @description The seq and total-n factories read a basic mapper's test
+#'   results off the column named by their own `.name_key_result`, so both must
+#'   have been created with the same value. Otherwise, the column lookup returns
+#'   `NULL` and fails much later with an unhelpful error from base R.
 #'
 #' @param data Data frame returned by the basic mapper, `fun()`.
 #' @param name_key_result String (length 1). The expected column name.
@@ -207,8 +195,8 @@ check_cols_needed <- function(data, cols, ...) {
 #'   itself tested but enters the test, such as `items_averaged` in
 #'   [`grim_map()`]. It can be given either as a column of `data` or as an
 #'   argument of the same name. `manage_helper_col()` checks that the two
-#'   don't disagree if both are given, and by default (`affix = TRUE`) adds
-#'   the argument's value to `data` as a column if `data` has none.
+#'   don't disagree if both are given and, by default, adds the argument's
+#'   value to `data` as a column if `data` has none.
 #'
 #'   Mappers made by [`function_map()`] call it for every `.cols_helper`
 #'   argument. Call it yourself in a handwritten mapper, once per helper
@@ -229,25 +217,19 @@ check_cols_needed <- function(data, cols, ...) {
 #' @export
 
 manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
-  # Retrieve the variable's name:
   var_name <- deparse(substitute(var_arg))
 
-  # Throw error if the argument in question was specified in a way that
-  # contradicts `data`:
+  # Without a default, a missing argument is for the test function to report:
   has_default <- !missing(default)
   if (!has_default && missing(var_arg)) {
     return(data)
   }
 
   if (any(var_name == colnames(data))) {
-    # Determine whether or not the argument in question was specified by the
-    # user; i.e., whether it's different from the default. For numeric values,
-    # strict equality as tested by `identical()` would be asking too much, so
-    # `all(dplyr::near())` is used instead. This works via a helper from
-    # utils.R, which is also the source of all the other helpers here. With no
-    # default, the argument was given, as checked above. An argument that
-    # agrees with the column is no contradiction -- a mapper's output is tested
-    # again with the same arguments, say -- so the column is simply kept:
+    # Without a default, the argument was given, as checked above.
+    # `about_equal()` because `identical()` is too strict for numbers. An
+    # argument that agrees with the column, as when a mapper's output is tested
+    # again, is no contradiction, and the column is kept:
     arg_given <- !has_default || !about_equal(var_arg, default)
     # Only a single value or one per row can agree; `rep_len()` would cut
     # off or recycle any other length into agreement:
@@ -272,8 +254,6 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       )
     }
   } else if (affix) {
-    # If a column by that name is not yet present in `data`, supply it from the
-    # respective argument:
     data <- data |>
       dplyr::mutate({{ var_name }} := var_arg)
   }

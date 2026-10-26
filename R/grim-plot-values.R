@@ -1,18 +1,13 @@
 # The comb behind `grim_plot_values()` and `grimmer_plot_values()`: every value
 # a report could take within a window, drawn as a tooth -- short and pale where
-# no sample can produce it, tall and colored where one can. The point is made by
-# the ratio of ink to gaps, so the values that are ruled out have to be drawn
-# too; a figure showing only the attainable values would look like an ordinary,
-# unremarkable scale.
+# no sample can produce it, tall and colored where one can. Unattainable values
+# are drawn too because the ratio of ink to gaps makes the point; attainable
+# values alone would look like an ordinary scale.
 #
-# The marker for the reported value -- arrow, label, and the strip behind the
-# teeth -- takes `color_reported`, and the label says the verdict outright. The
-# callers pass the marker's color already resolved by the verdict: a consistent
-# value points at a tall tooth in the tooth's own color, so the figure and the
-# verdict cannot be read apart. An inconsistent value gets the nearest tall
-# tooth on either side labeled with its value, since "not this one" begs the
-# question of which ones instead. `label_value` formats a value the way the
-# caller reports it, with its decimal places and any `%`.
+# The callers resolve `color_reported` by the verdict, so a consistent value is
+# marked in its tooth's own color. An inconsistent value gets the nearest tall
+# tooth on either side labeled, since "not this one" begs the question of which
+# ones instead. `label_value` formats a value the way the caller reports it.
 
 plot_comb <- function(
   values,
@@ -55,18 +50,14 @@ plot_comb <- function(
   xlim <- range(values) + c(-1, 1) * span * 0.067
   ylim <- c(0, 1.04)
 
-  # The marker for the reported value and, if it is inconsistent, labels for the
-  # nearest attainable value below and above it, set outward far enough to clear
-  # the marker's own label. An elbow connects each to the top of its tooth:
-  # down, across, and down again.
+  # The marker and, if the value is inconsistent, labels for the nearest
+  # attainable values, each connected to its tooth by an elbow.
   #
-  # Text and the arrowhead have a physical size, so in data units their extent
-  # depends on the size the plot is drawn at, and no fixed data positions keep
-  # them apart. The marker is therefore one grob whose positions are grid units:
-  # npc for where a value is, `strwidth`, `char`, and `lines` for how far apart
-  # things must be. Grid resolves them when the plot is drawn, at whatever size
-  # that is. Heights are counted in `lines` up from the top of the teeth, and
-  # the top margin is sized from the same count.
+  # Text and the arrowhead have a physical size, so no fixed data positions keep
+  # them apart at every plot size. The marker is therefore one grob in grid
+  # units: npc for where a value is, `strwidth`, `char`, and `lines` for spacing.
+  # Heights are counted in `lines` up from the top of the teeth, and the top
+  # margin is sized from the same count.
   attainable <- values[possible]
   neighbors <- if (consistent) {
     numeric(0)
@@ -253,9 +244,7 @@ comb_values <- function(from, to, digits) {
 
 
 # `n` and `items_averaged` are needed for the window before the test itself gets
-# to reject them, and an undecidable case has nothing to draw. The length checks
-# stay in the plot functions themselves, so that the error names the function
-# the user called.
+# to reject them, and an undecidable case has nothing to draw.
 check_decidable_n_items <- function(n, items_averaged, min_n) {
   if (!is_decidable_n_items(n, items_averaged, min_n = min_n)) {
     abort_in_export(
@@ -269,11 +258,9 @@ check_decidable_n_items <- function(n, items_averaged, min_n) {
 }
 
 
-# The window around the reported value is built from it and from its decimal
-# count, so a value that is missing or infinite, or a decimal count that is not
-# a single non-negative whole number, has nothing to draw -- and would fail in
-# `seq()` with an error that names neither argument. An SD can't be negative
-# either. `name` is the argument's name: `"x"` or `"sd"`.
+# The window is built from the value and its decimal count; bad ones would fail
+# in `seq()` with an error that names neither argument. `name` is `"x"` or
+# `"sd"`.
 check_comb_value <- function(value, digits, name) {
   name_digits <- paste0("digits_", name)
   if (!is.finite(value)) {
@@ -307,17 +294,15 @@ check_comb_value <- function(value, digits, name) {
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `grim_plot_values()` draws the GRIM test for a single value set.
-#'   The plot is a comb. Each tooth is a mean (or percentage) that could have
-#'   been reported with `digits_x` decimal places, between the whole number at
-#'   or below `x` and the next one up. Teeth for means that a sample of size
-#'   `n` can have are tall. The reported value is
-#'   marked above the comb and labeled with its verdict. If it is inconsistent,
-#'   the nearest attainable values on either side are labeled.
+#'   `grim_plot_values()` draws the GRIM test for a single value set as a
+#'   comb. Each tooth is a mean (or percentage) that could have been reported
+#'   with `digits_x` decimal places. Teeth for means that a sample of size `n`
+#'   can have are tall. The reported value is marked above the comb and
+#'   labeled with its verdict. If it is inconsistent, the nearest attainable
+#'   values on either side are labeled.
 #'
-#'   [`grim_plot_grid()`] shows many results at once; this function shows one test
-#'   in detail, for teaching or for explaining a verdict. [`grim_values()`]
-#'   returns the attainable values as numbers.
+#'   [`grim_plot_grid()`] shows many results at once; this function explains
+#'   one. [`grim_values()`] returns the attainable values as numbers.
 #'
 #' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
@@ -330,7 +315,8 @@ check_comb_value <- function(value, digits, name) {
 #'
 #' @details The comb runs from the whole number at or below `x` to the next one
 #'   up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
-#'   included, and, with `items_averaged = 1`, about `n` attainable ones. With
+#'   included. With `items_averaged = 1`, about `n` of them are attainable, or
+#'   all if `n` exceeds `10 ^ digits_x`. With
 #'   `percent = TRUE`, a unit is one percentage point, and the comb widens by
 #'   `100 / (n * items_averaged)` points, rounded up, on either side so that
 #'   the nearest attainable values remain visible, but not beyond 0 or 100.

@@ -358,8 +358,8 @@ explain_sd_sample_or_pop <- function(explain_type, consistency) {
       # ones that apply:
       population$paragraphs
     } else if (is.na(verdict)) {
-      # The sample SD is undecidable where the population SD is not only at
-      # `n = 1`:
+      # Only at `n = 1` is the sample SD undecidable but the population SD
+      # not:
       c(
         out$paragraphs,
         "A single value has no sample SD, but it has a population SD, which divides by n rather than n - 1.",

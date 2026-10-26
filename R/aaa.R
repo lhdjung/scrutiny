@@ -4,18 +4,16 @@
 #
 # They are evaluated at install time, not load time. For the two tolerances that
 # is deliberate: `.Machine$double.eps` is `2.220446e-16` on every platform R
-# runs on, so nothing is lost by freezing it, and a verdict must not depend on
-# the machine that reached it. A run-machine value would take an `.onLoad()`
-# hook; there is none, and there should not be one without a reason.
+# runs on, and a verdict must not depend on the machine that reached it.
 
 # The tolerance below which a difference from the nearest whole number counts as
 # none, used by `is_whole_number()` and by the check that `digits_x` and
 # `digits_sd` are whole. Ten times `ROUNDING_TOLERANCE`, which is a nudge on a
 # scaled value rather than a margin around an integer.
 #
-# A constant rather than a default argument spelled `.Machine$double.eps^0.5`
-# in place: that was re-evaluated on every call -- a list lookup plus a square
-# root -- costing more than the arithmetic it is a tolerance for (#92).
+# A constant rather than a default argument `.Machine$double.eps^0.5`, which
+# would be evaluated on every call, costing more than the arithmetic it is a
+# tolerance for.
 
 WHOLE_NUMBER_TOLERANCE <- .Machine$double.eps^0.5
 
@@ -29,7 +27,7 @@ WHOLE_NUMBER_TOLERANCE <- .Machine$double.eps^0.5
 # smaller than any difference a reported value could express, so it only absorbs
 # representation error.
 #
-# `unround()`'s bounds assume exactly this tolerance, and the property test in
+# `unround()`'s bounds assume exactly this tolerance, and the sweep in
 # test-unround.R checks that the two agree: change one and change the other.
 #
 # The tolerance is absolute, so it has a domain of validity: representation
@@ -47,16 +45,13 @@ ROUNDING_TOLERANCE <- WHOLE_NUMBER_TOLERANCE / 10
 # `rounding_offsets()` both resolve them through this one table, so the forward
 # functions and the bounds cannot disagree about what a name means.
 #
-# `symmetric` is not consulted for them, and giving it is an error rather than a
-# no-op -- see `resolve_ties_rounding()` (`R/utils.R`), which decides that for
-# both sides.
+# Giving `symmetric` alongside one of them is an error; see
+# `resolve_ties_rounding()` in `R/utils.R`.
 #
-# `"ties_even"` resolves to `base::round()` and carries `symmetric = FALSE` only
-# because the field has to say something: rounding to even is its own mirror
-# image. It is here because *roundTiesToEven* is IEEE 754's default and R's, so
-# it was the conspicuous absence from a family that names tie rules. With it,
-# these five names plus `"ceiling"`, `"floor"`, and `"trunc"` cover every
-# rounding direction the standard defines.
+# `"ties_even"` resolves to `base::round()`. Its `symmetric = FALSE` is a
+# placeholder: rounding to even is its own mirror image. These five names plus
+# `"ceiling"`, `"floor"`, and `"trunc"` cover every rounding direction that
+# IEEE 754 defines.
 
 # fmt: skip
 TIES_METHODS <- list(
@@ -69,8 +64,8 @@ TIES_METHODS <- list(
 
 
 # The values of `sd_meaning` in GRIMMER and DEBIT: what a value reported as an
-# SD really is. The sample SD divides by `n - 1`, the population SD by `n`
-# (#95), and `"sd_sample_or_pop"` accepts a value set that passes under one or
+# SD really is. The sample SD divides by `n - 1`, the population SD by `n`,
+# and `"sd_sample_or_pop"` accepts a value set that passes under one or
 # the other. `"se"` is the standard error of the mean, the sample SD divided by
 # `sqrt(n)`, for an SE reported as if it were an SD. Each value is one premise,
 # so a new one takes a row in `sd_denominator()`. And the values of DEBIT's
@@ -94,23 +89,14 @@ NON_FINITE_TOKENS <- c(outer(
 ))
 
 
-# Used in `grim_plot_grid()` if `digits > 2`
+# Placeholder data for `grim_plot_grid()`'s tile layer when there is no
+# raster, as with `digits > 2`:
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 
 
-# List of minimal-distance functions for `audit_seq()`
-#
-# The functions collected in `LIST_MIN_DISTANCE_FUNCTIONS` are mapped in one
-# particular place within `audit_seq()` and shouldn't really be used elsewhere.
-#
-# Instead of being individually defined as named functions or being used as
-# anonymous functions directly inside of `audit_seq()`, they are stored in a
-# list for greater efficiency -- in terms of both speed and memory.
-#
-# The `x` parameter in all three functions is an integer vector measuring the
-# number of dispersion steps between inconsistent reported values and their
-# consistent neighbors. The notion of "steps" is the same as in, e.g.,
-# `grim_map_seq()`.
+# The `diff_*` distances in `audit_seq()`, passed to `dplyr::across()` as one
+# list. `x` is the number of dispersion steps between a reported value and its
+# consistent neighbors, as in `grim_map_seq()`.
 LIST_MIN_DISTANCE_FUNCTIONS <- list(
   # Absolute distance:
   function(x) {

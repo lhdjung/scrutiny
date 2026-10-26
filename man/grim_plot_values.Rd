@@ -36,22 +36,21 @@ A ggplot object.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{grim_plot_values()} draws the GRIM test for a single value set.
-The plot is a comb. Each tooth is a mean (or percentage) that could have
-been reported with \code{digits_x} decimal places, between the whole number at
-or below \code{x} and the next one up. Teeth for means that a sample of size
-\code{n} can have are tall. The reported value is
-marked above the comb and labeled with its verdict. If it is inconsistent,
-the nearest attainable values on either side are labeled.
+\code{grim_plot_values()} draws the GRIM test for a single value set as a
+comb. Each tooth is a mean (or percentage) that could have been reported
+with \code{digits_x} decimal places. Teeth for means that a sample of size \code{n}
+can have are tall. The reported value is marked above the comb and
+labeled with its verdict. If it is inconsistent, the nearest attainable
+values on either side are labeled.
 
-\code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function shows one test
-in detail, for teaching or for explaining a verdict. \code{\link[=grim_values]{grim_values()}}
-returns the attainable values as numbers.
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function explains
+one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
 }
 \details{
 The comb runs from the whole number at or below \code{x} to the next one
 up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
-included, and, with \code{items_averaged = 1}, about \code{n} attainable ones. With
+included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
+all if \code{n} exceeds \code{10 ^ digits_x}. With
 \code{percent = TRUE}, a unit is one percentage point, and the comb widens by
 \code{100 / (n * items_averaged)} points, rounded up, on either side so that
 the nearest attainable values remain visible, but not beyond 0 or 100.

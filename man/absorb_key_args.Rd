@@ -20,10 +20,9 @@ mapper.}
 \code{data}.
 }
 \description{
-\code{absorb_key_args()} is called within mapper functions. If the user named a
-key argument such as \code{x} after a column of \code{data}, it renames that column to
-the key argument's name, so that the rest of the mapper finds it under the
-expected name.
+\code{absorb_key_args()} is called within mappers. If a key argument such as \code{x}
+names a column of \code{data}, it renames that column to the key argument's
+name, so that the rest of the mapper finds it.
 }
 \examples{
 df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))

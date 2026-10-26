@@ -4,7 +4,7 @@
 #'
 #' A fictional dataset with means and sample sizes of flying pigs. It can be
 #' used to demonstrate the functionality of [`grim_map()`] and functions
-#' building up on it.
+#' built on it.
 
 #' @include utils.R grim-map.R
 #'
@@ -27,7 +27,7 @@
 #'
 #' A fictional dataset with percentages and sample sizes of flying pigs. It can
 #' be used to demonstrate the functionality of `grim_map()`, particularly its
-#' `percent` argument, and functions building up on it.
+#' `percent` argument, and functions built on it.
 
 #' @include utils.R grim.R
 #'
@@ -50,7 +50,7 @@
 #'
 #' A fictional dataset with means and standard deviations from a binary
 #' distribution related to flying pigs. It can be used to demonstrate the
-#' functionality of `debit_map()` and functions building up on it.
+#' functionality of `debit_map()` and functions built on it.
 
 #' @include utils.R debit-map.R
 #'
@@ -98,7 +98,7 @@
 #'
 #' A fictional dataset with means, standard deviations (SDs), and sample sizes
 #' of flying pigs. It can be used to demonstrate the functionality of
-#' `grimmer_map()` and functions building up on it.
+#' `grimmer_map()` and functions built on it.
 
 #' @include utils.R grimmer-map.R
 #'

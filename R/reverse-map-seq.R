@@ -10,7 +10,7 @@
 #'
 #' @export
 #'
-#' @return The reconstructed tibble.
+#' @return A tibble with the tested columns, one row per case.
 #'
 #' @examples
 #' pigs1
@@ -25,8 +25,6 @@
 #' reverse_map_seq(out)
 
 reverse_map_seq <- function(data) {
-  # Check that `data` is a tibble returned by a function that had been
-  # manufactured using `function_map_seq()`:
   if (!inherits(data, "scrutiny_map_seq")) {
     abort_in_export(
       "!" = "`data` must be the output of \\
@@ -38,9 +36,8 @@ reverse_map_seq <- function(data) {
 
   check_dispersion_linear(data, "reverse_map_seq")
 
-  # The tested columns are those left of the key result column, which the
-  # sequence mapper records by name because `.name_key_result` may have renamed
-  # it. Absent the attribute, it is `"consistency"`:
+  # The tested columns are those left of the key result column, whose name the
+  # sequence mapper records:
   name_key_result <- attr(data, "scrutiny", exact = TRUE)$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
@@ -55,12 +52,10 @@ reverse_map_seq <- function(data) {
     return(tibble::new_tibble(as.list(data)[var], nrow = 0L))
   }
 
-  # The step size of each variable's dispersion. For a variable with a
-  # `digits_*` column -- every variable that the mapper takes decimal places for
-  # -- it is one unit of the last decimal place, stated by the caller of the
-  # mapper rather than guessed from the values. `n` is dispersed in whole
-  # numbers. Anything else falls back to `index_case_from_diff()`'s own
-  # inference from the sequence:
+  # The step size of each variable's dispersion: one unit of the last decimal
+  # place as given by a `digits_*` column, not guessed from the values. `n`
+  # steps by whole numbers. Anything else falls back to
+  # `index_case_from_diff()`'s inference from the sequence:
   step_by_var <- function(var_name) {
     if (var_name == "n") {
       return(1)
@@ -73,13 +68,11 @@ reverse_map_seq <- function(data) {
   }
 
   # Every row of a case carries the reported values of all variables except the
-  # one it disperses, which sits `diff_var` steps away from its reported value.
-  # Each reported value is therefore read off the rows that leave it untouched,
-  # and only recovered from its own dispersion when there are no such rows. This
-  # keeps the cases aligned even if `out_min` or `out_max` clipped a variable's
-  # dispersion to nothing for one case: pairing the groups of each variable by
-  # position used to shift every later case's value in that column. A case
-  # without any rows at all is not in the output, as in `audit_seq()`.
+  # one it disperses. Each reported value is therefore read off the rows that
+  # leave it untouched, and only recovered from its own dispersion when there
+  # are none. This keeps the cases aligned even if `out_min` or `out_max`
+  # clipped a variable's dispersion to nothing for one case. A case without
+  # any rows is not in the output, as in `audit_seq()`.
   cases <- split(data, data$case)
 
   cols <- lapply(var, function(v) {

@@ -71,10 +71,8 @@ grim_binomial <- function(
     )
   }
 
-  # A value set the test could not decide -- a missing `n`, say -- has neither a
-  # verdict nor a probability. It is left out on both sides: counting it as a
-  # case while its `NA` probability went into the Poisson binomial made the
-  # p-value `NA` for the whole table:
+  # An undecidable value set has neither a verdict nor a probability, so it is
+  # left out on both sides; an `NA` probability would make the p-value `NA`:
   data <- data[!is.na(data$consistency) & !is.na(data$probability), ]
 
   n_consistent <- sum(data$consistency)
@@ -91,7 +89,6 @@ grim_binomial <- function(
   # Per-row probability of consistency under the null (random decimal digits)
   pp <- 1 - data$probability
 
-  # Poisson binomial p-value using per-row null probabilities
   p.value <- poibin_p_values(pp, alternative)[[n_consistent + 1L]]
 
   conf_int <- stats::binom.test(
@@ -185,8 +182,7 @@ grim_binomial_power <- function(
     )
   }
 
-  # A probability outside of 0 and 1 used to give `NaN`, an error, or a power
-  # of 1:
+  # A probability outside of 0 and 1 would give `NaN`, an error, or a power of 1:
   check_probability <- function(p, name) {
     if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
       abort_in_export(
@@ -205,15 +201,13 @@ grim_binomial_power <- function(
     p0 <- rep(p0, k)
   }
 
-  # All possible numbers of consistent cases, from 0 to `k`
   x <- 0:k
 
   # Probability of each outcome under H1. This uses the standard binomial model
   # because `p1` is shared across all rows.
   pmf_alt <- stats::dbinom(x, size = k, prob = p1)
 
-  # For each outcome `x`, compute the null p-value using the Poisson binomial
-  # distribution (which accounts for per-row heterogeneity in `p0`)
+  # Under H0, the Poisson binomial, since `p0` may differ by row:
   p_values_all <- poibin_p_values(p0, alternative)
 
   # Does this outcome fall into the rejection region? A p-value that equals
@@ -231,7 +225,7 @@ grim_binomial_power <- function(
 # among independent trials with success probabilities `p`: the Poisson binomial
 # distribution. Its probabilities are built by adding one trial at a time, and
 # each tail is summed from its far end. Both tails therefore keep their
-# precision far below `1e-16`, where `1 - poibin::ppoibin()` was 0, and a
+# precision far below `1e-16`, where `1 - poibin::ppoibin()` would be 0, and a
 # stronger result can't get a larger p-value.
 poibin_p_values <- function(p, alternative) {
   pmf <- 1

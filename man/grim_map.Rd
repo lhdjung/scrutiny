@@ -54,8 +54,8 @@ as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
 A tibble with these columns:
 \itemize{
 \item \code{x}, \code{n}: the inputs.
-\item \code{digits_x}: the number of decimal places in \code{x}, as given.
 \item \code{items_averaged}: the number of items averaged into each score.
+\item \code{digits_x}: the number of decimal places in \code{x}, as given.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items_averaged}. \code{NA} for
 a case that cannot be decided, such as one with a missing value.
 \item \code{probability}: the probability of GRIM inconsistency; see

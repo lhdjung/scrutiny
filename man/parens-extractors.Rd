@@ -19,7 +19,8 @@ or a length-2 vector of custom separators, matched literally.}
 \value{
 String vector as long as \code{string}, with surrounding whitespace
 removed. If a string has no opening separator, \code{before_parens()} returns
-all of it and \code{inside_parens()} returns \code{NA}.
+all of it and \code{inside_parens()} returns \code{NA}, as it does for empty
+separators.
 }
 \description{
 \code{before_parens()} and \code{inside_parens()} extract the part of a

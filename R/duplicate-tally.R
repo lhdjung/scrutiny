@@ -15,8 +15,8 @@
 #'   lose trailing zeros when converted: `2.0` becomes `"2"`.
 #'
 #' @param x Vector or data frame.
-#' @param ignore Optionally, a vector of values not to check. Their result is
-#'   `NA`.
+#' @param ignore Optionally, a vector of values not to check. Their tally is
+#'   `NA`, as is that of missing values.
 #' @param colname_end String. Suffix of the tally columns. Default is `"n"`.
 #'
 #' @return A tibble with the columns of `x`, each followed by its tally column.
@@ -48,7 +48,6 @@
 #'   duplicate_tally(ignore = c(8.13, 7.57))
 
 duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
-  # Type checking:
   if (!rlang::is_vector(x)) {
     abort_in_export(
       "`x` must be a data frame or other type of vector.",
@@ -56,7 +55,6 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
     )
   }
 
-  # Convert `x` to a data frame if needed:
   x_was_named <- rlang::is_named(x)
   if (!x_was_named || !is.data.frame(x)) {
     x <- tibble::as_tibble(
@@ -73,7 +71,6 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
     x <- tibble::as_tibble(x)
   }
 
-  # Save the column names before the transformations that will occur below:
   colnames_original <- names(x)
   nrow_original <- nrow(x)
 
@@ -89,9 +86,7 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
     )
   }
 
-  # Create a reference vector with all values from `x` so that they can be
-  # tested against. To make all values fit together, they are coerced to
-  # character strings, with numbers written out in full:
+  # All values of `x` as strings, with numbers written out in full:
   x <- x |>
     tidyr::pivot_longer(
       cols = everything(),
@@ -100,18 +95,12 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
     ) |>
     dplyr::pull(.data$value)
 
-  # For each input value, count how many instances of that value exist. The
-  # comparison used to be `x == x[i]`, which is `NA` against a missing value,
-  # and indexing by `NA` returns an element -- so every count was off by the
-  # number of missing values in `x`. `match()` pairs each value with the first
-  # of its kind and never a value with `NA`, and it is linear rather than
-  # quadratic in `length(x)`:
+  # `match()` pairs each value with the first of its kind, never with `NA`, and
+  # is linear rather than quadratic in `length(x)`:
   first_of_kind <- match(x, x)
   new_cols <- tabulate(first_of_kind, nbins = length(x))[first_of_kind]
 
-  # With missing values from the input, it's not known whether they have
-  # duplicates or not. `NA` should also be substituted if the user chose to
-  # ignore that value:
+  # Whether a missing value has duplicates is unknown:
   if (is.null(ignore)) {
     new_cols[is.na(x)] <- NA
   } else {

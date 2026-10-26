@@ -17,8 +17,8 @@ disperse_total(n, dispersion = 0:5, n_min = 1L, n_max = NULL, constant = NULL)
 the two consecutive numbers closest to half of an odd total, such as
 \code{c(25, 26)} for 51. In \code{disperse_total()}, the total itself.}
 
-\item{dispersion}{Numeric. Steps up and down from \code{n} (or, in
-\code{disperse_total()}, from half of \code{n}). Default is \code{0:5}.}
+\item{dispersion}{Numeric. Non-negative whole numbers of steps up and down
+from \code{n} (or, in \code{disperse_total()}, from half of \code{n}). Default is \code{0:5}.}
 
 \item{n_min}{Numeric. Minimal group size. Default is \code{1L}.}
 

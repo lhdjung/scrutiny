@@ -43,11 +43,12 @@ named in full.}
 A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
-\item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
 \item \code{items_averaged}: the number of items averaged into each score.
+\item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
 \item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items_averaged}.
 \code{NA} for a case that cannot be decided, such as one with a missing value.
-\item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed.
+\item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed, or
+why the case cannot be decided.
 \item Any other columns from \code{data}.
 }
 

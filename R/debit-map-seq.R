@@ -65,10 +65,8 @@ debit_map_seq <- function_map_seq(
   .fun = debit_map,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
-  # DEBIT works on binary data, where the mean is a proportion and the SD is
-  # bounded by it, so both live in `[0, 1]`. `debit()` rejects anything outside
-  # that range, which used to make `debit_map_seq()` fail outright whenever a
-  # reported value sat close enough to a bound for the dispersion to cross it:
+  # The mean and SD of binary data lie in `[0, 1]`, and `debit()` rejects
+  # anything outside, so the dispersion must not cross these bounds:
   .var_bounds = list(
     n = function(args) c(sd_min_n(args$sd_meaning), NA),
     x = c(0, 1),

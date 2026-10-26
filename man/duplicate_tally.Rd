@@ -9,8 +9,8 @@ duplicate_tally(x, ignore = NULL, colname_end = "n")
 \arguments{
 \item{x}{Vector or data frame.}
 
-\item{ignore}{Optionally, a vector of values not to check. Their result is
-\code{NA}.}
+\item{ignore}{Optionally, a vector of values not to check. Their tally is
+\code{NA}, as is that of missing values.}
 
 \item{colname_end}{String. Suffix of the tally columns. Default is \code{"n"}.}
 }

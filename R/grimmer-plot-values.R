@@ -2,18 +2,18 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `grimmer_plot_values()` draws the GRIMMER test for a single
-#'   value set, as [`grim_plot_values()`] does for GRIM. Every SD that could
-#'   have been reported with `digits_sd` decimal places within a window is a
-#'   tooth of a comb; the ones that a sample of size `n` with mean `x` could
-#'   have produced are tall. The reported SD is marked above the comb and
-#'   labeled with its verdict.
+#'   `grimmer_plot_values()` draws the GRIMMER test for a single value set, as
+#'   [`grim_plot_values()`] does for GRIM. Each tooth of the comb is an SD that
+#'   could have been reported with `digits_sd` decimal places; the ones that a
+#'   sample of size `n` with mean `x` could have are tall. The reported SD is
+#'   marked above the comb and labeled with its verdict.
 #'
-#'   There is no GRIMMER-specific plot for many value sets; [`grim_plot_grid()`]
-#'   accepts [`grimmer_map()`] output and shows the GRIM part of the test.
+#'   For many value sets, [`grim_plot_grid()`] accepts [`grimmer_map()`] output
+#'   and shows the GRIM part of the test.
 #'
 #' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning
-#'   The same as in [`grimmer()`], but `x`, `sd`, and `n` must have length 1.
+#'   The same as in [`grimmer()`], but `x`, `sd`, `n`, and `items_averaged`
+#'   must have length 1.
 #' @inheritParams grim_plot_values
 #'
 #' @details The comb runs from the whole number at or below `sd` to the next
@@ -81,7 +81,6 @@ grimmer_plot_values <- function(
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
   check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
 
-  # One unit around `sd`, as for a mean:
   values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
 
   test <- function(sd) {

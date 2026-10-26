@@ -1,9 +1,8 @@
 #' Map a single-case function over its caller's arguments
 #'
 #' `map_value_sets()` applies `fun` once per value set, taking the arguments
-#' of the function that calls it, such as `grim()`, which writes out its own
-#' signature mirroring that of the `*_scalar()` function it wraps -- minus the
-#' internal-only `show_rec` / `show_reason` (see gotcha 20 in AGENTS.md):
+#' of the function that calls it, such as `grim()`. That wrapper's signature
+#' must mirror `fun`'s, minus `show_rec` and `show_reason`:
 #'
 #' ```
 #' grim <- function(x, n, digits_x, items_averaged, percent = FALSE, ...) {
@@ -14,10 +13,9 @@
 #' @param fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
 #' @param along String vector naming the arguments to vectorize over: the key
 #'   arguments, their `digits_*` arguments, and `items_averaged` where the test
-#'   has it. Every other argument is scalar. The split is the same one the
-#'   mapper tier makes: `along` is what `function_map()` takes from `data` --
-#'   key columns, `.args_by_row`, and helper columns -- and the rest are what it
-#'   passes as constants for the whole call.
+#'   has it. Every other argument must be length 1. This is the mapper tier's
+#'   split: `along` is what `function_map()` takes from `data`, the rest is
+#'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
 #'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
 #'   whose `fun` returns a vector of any length per value set.
@@ -35,17 +33,13 @@ map_value_sets <- function(fun, along, type = "logical") {
     return(vector(type, 0L))
   }
 
-  # Arguments the caller left out are not forwarded at all, so `fun` applies its
-  # own defaults -- the same ones the wrapper states -- and raises its own error
-  # where it has none. That covers two cases with one rule: `digits_x` and
-  # `digits_sd`, which must arrive missing so that `error_digits_missing()`
-  # fires, and the ordinary defaults.
+  # Arguments the caller left out are not forwarded, so `fun` applies its own
+  # defaults, the same as the wrapper's, and raises its own error where it has
+  # none: `digits_x` must arrive missing so that `error_digits_missing()` fires.
   #
-  # `missing()` per formal, evaluated in the wrapper's frame. `match.call()`
-  # would answer in one step but cannot be trusted here: a wrapper reached
-  # through `lapply()` is called as `FUN(X[[i]], ...)`, and matching that fails
-  # with "... used in a situation where it does not exist". The calls are built
-  # once per signature; see `missing_arg_calls()`.
+  # Not `match.call()`: a wrapper reached through `lapply()` is called as
+  # `FUN(X[[i]], ...)`, and matching that fails with "... used in a situation
+  # where it does not exist".
   calls_missing <- missing_arg_calls(args_all)
 
   is_supplied <- !vapply(
@@ -64,7 +58,7 @@ map_value_sets <- function(fun, along, type = "logical") {
 
   # Arguments that say *how* to test rather than *what* describe the call as a
   # whole: one call cannot use two rounding methods, and `x` is either a
-  # percentage or it isn't. `reround()` has treated them as scalar throughout.
+  # percentage or it isn't.
   for (name in names_scalar) {
     value <- vals[[name]]
     if (length(value) != 1L) {
@@ -82,17 +76,16 @@ map_value_sets <- function(fun, along, type = "logical") {
     }
   }
 
-  # A required argument is missing, so hand the call to `fun` as it stands and
-  # let it raise its error -- here rather than inside the loop, so that the error
-  # is attributed to the wrapper and raised once.
+  # If a required argument is missing, let `fun` raise its error here rather
+  # than inside the loop, so that it is raised once:
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
       return(do.call(fun, vals))
     }
   }
 
-  # A `NULL` is no value set, so `digits_x = NULL` used to return `logical(0)`
-  # without a word:
+  # A `NULL` is no value set; `digits_x = NULL` would silently return
+  # `logical(0)`:
   for (name in names_along) {
     if (is.null(vals[[name]])) {
       abort_in_export("{.arg {name}} must not be `NULL`.")
@@ -113,16 +106,12 @@ map_value_sets <- function(fun, along, type = "logical") {
   }
 
   # `.mapply()` is `mapply()` without the argument matching and the
-  # `simplify2array()` that turned a list return into a matrix. Recycling has
-  # already happened above, so it has nothing to do but loop.
+  # `simplify2array()` that would turn a list return into a matrix:
   results <- .mapply(fun, vals_along, MoreArgs = vals[names_scalar])
 
   out <- if (type == "list") results else unlist(results, use.names = FALSE)
 
-  # The whole point of the wrappers is that they return a vector of `type`, one
-  # value per value set, whatever the arguments. If a `*_scalar()` function
-  # ever returned something else, that would be a bug in scrutiny rather than
-  # in the call, so this reports it as one:
+  # Anything but one value of `type` per value set is a bug in scrutiny:
   if (typeof(out) != type || length(out) != length_out) {
     cli::cli_abort(
       c(
@@ -168,11 +157,7 @@ cache_missing_arg_calls <- new.env(parent = emptyenv())
 #' Common length of arguments that are recycled against each other
 #'
 #' Tidyverse recycling rules: a length-1 argument is recycled to the length of
-#' the others, and everything else must already have that length. `mapply()`
-#' recycled anything into anything and only warned when the longer length was
-#' not a multiple of the shorter, so that `grim(x = <3 values>, n = <2 values>)`
-#' returned three verdicts, the third of which paired the third `x` with the
-#' first `n`.
+#' the others, and everything else must already have that length.
 #'
 #' @param lengths_args Integer vector of argument lengths.
 #' @param names_args String vector of the corresponding argument names.

@@ -35,8 +35,8 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 \code{debit(0.05, 0.21, 20, 2, 2)} is \code{TRUE} under \code{"mean_n"}, although a mean
 of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds to 0.22.}
 
-\item{rounding}{String. The rounding method assumed to have produced \code{sd}.
-Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}
+and \code{sd}. Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 
@@ -49,8 +49,8 @@ Default is \code{"up_or_down"}. See \code{vignette("rounding-options")}.}
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if
 not, and \code{NA} if the case cannot be decided: if a value is missing or if
 \code{n} is not a positive whole number. A sample SD divides by \code{n - 1}, so
-under the default \code{sd_meaning = "sd_sample"}, \code{n} must also be greater than
-\code{1}.
+under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also
+be at least 2.
 }
 \description{
 \code{debit()} checks whether the reported mean and standard

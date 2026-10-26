@@ -7,12 +7,15 @@
 #'   with `digits_x` decimal places that is otherwise random is
 #'   GRIM-inconsistent with `n`. It is the `probability` column of
 #'   [`grim_map()`].
-#'   - `grim_total()` returns the number of such inconsistent values per unit.
+#'   - `grim_total()` returns the number of such inconsistent values between
+#'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
+#'   `percent = TRUE`).
 #'
 #'   See `vignette("grim")`, section *GRIM statistics*.
 #'
-#' @param x Numeric. The mean or percentage. Only its number of decimal
-#'   places matters; the argument exists for compatibility with [`grim()`].
+#' @param x Numeric. The mean or percentage. Its value only matters if it is
+#'   missing or infinite, which makes the result `NA`; the argument mirrors
+#'   [`grim()`].
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
@@ -20,13 +23,13 @@
 #' @param items_averaged Integer. As in [`grim()`].
 #' @param percent Logical. If `TRUE`, `x` is a percentage, which adds 2 to the
 #'   decimal count. Default is `FALSE`.
-#' @param rounding,threshold Only in `grim_probability()` and `grim_total()`.
-#'   The rounding method and, for the `"*_from"` methods, its threshold, as in
-#'   [`grim()`]. Defaults are `"up_or_down"` and `5`. The count depends on the
-#'   method: `"up_or_down"` accepts a mean on a tie in both directions, and
-#'   `"ceiling_or_floor"` admits a range two steps wide. `"even"` counts a tie
-#'   on either bound as consistent, like `"up_or_down"`, although
-#'   [`base::round()`] may round it the other way; see [`unround()`].
+#' @param rounding,threshold The rounding method and, for the `"*_from"`
+#'   methods, its threshold, as in [`grim()`]. Defaults are `"up_or_down"` and
+#'   `5`. The count depends on the method: `"up_or_down"` accepts a mean on a
+#'   tie in both directions, and `"ceiling_or_floor"` admits a range two steps
+#'   wide. `"even"` counts a tie on either bound as consistent, like
+#'   `"up_or_down"`, although [`base::round()`] may round it the other way;
+#'   see [`unround()`].
 #'   [`grim_map()`] passes its own `rounding` and `threshold` on.
 #'
 #' @seealso [`grim()`] and [`grim_map()`].
@@ -124,8 +127,7 @@ grim_total <- function(
     error_items_missing()
   }
 
-  # A string `x` used to be coerced here, so that `"5.19"` got a count while
-  # `grim()` rejected it. Missing values are undecidable, not mistakes:
+  # As in `grim()`, a string is a mistake, but missing values are undecidable:
   if (!is.numeric(x) && !all(is.na(x))) {
     check_type(x, c("double", "integer"))
   }
@@ -151,11 +153,8 @@ grim_total <- function(
   n_values <- 10^digits_x
   n_means <- as.numeric(n) * items_averaged
 
-  # Where `grim()` has nothing to test, it returns `NA`, and so does this
-  # function. That is the case for a missing or infinite `x`, and for an `n` or
-  # `items_averaged` that is not a positive whole number. The `probability`
-  # column of `grim_map()` used to show values such as `1.03` next to an `NA`
-  # verdict.
+  # `NA` exactly where `grim()` returns `NA`, so that the `probability` column
+  # of `grim_map()` never shows a number next to an `NA` verdict.
   decidable <- is_decidable_n_items(n, items_averaged) &
     is.finite(x) &
     is.finite(n_values)
@@ -185,12 +184,9 @@ grim_total <- function(
   # alone would suggest. The common divisor is what tells the two cases apart:
   # 20 for 40 and 100, but only 10 for 30 and 100.
   #
-  # Base R has no function for the greatest common divisor, so the code below
-  # uses Euclid's algorithm, for all elements at once. In each round,
-  # `div_common` takes the value of `div_main`, and `div_main` takes the
-  # remainder of dividing the old `div_common` by it. Once `div_main` is zero,
-  # `div_common` holds the result. Cases that can't be decided start from 1 so
-  # that the loop still ends; their results are replaced by `NA` at the end.
+  # Base R has no greatest common divisor, so this is Euclid's algorithm,
+  # vectorized. Undecidable cases start from 1 so that the loop still ends;
+  # they are set to `NA` at the end.
   div_common <- dplyr::if_else(decidable, n_means, 1)
   div_main <- dplyr::if_else(decidable, n_values, 1)
 
@@ -232,12 +228,9 @@ grim_total <- function(
 
   n_multiples <- pmax(multiple_last - multiple_first + 1, 0)
 
-  # The count is returned as a double, even though it is a whole number. From
-  # `digits_x = 10` on (or from 8 with `percent = TRUE`), it can be larger than
-  # `.Machine$integer.max`, the largest integer that R can store. Returning an
-  # integer only when the count fits would make the type depend on the largest
-  # value in the call. A double stores whole numbers without error up to 2^53,
-  # which is far beyond any count that GRIM can produce.
+  # A double, not an integer: from `digits_x = 10` on (8 with `percent =
+  # TRUE`), the count can exceed `.Machine$integer.max`, and the type should not
+  # depend on the values. Doubles are exact for whole numbers up to 2^53.
   #
   # If the possible means lie closer together than the rounding interval is
   # wide, every reported value is consistent. The subtraction then gives a

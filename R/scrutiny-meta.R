@@ -4,22 +4,20 @@
 #'
 #'   Every mapper, such as [`grim_map()`], records the settings of the call
 #'   that produced its output. `scrutiny_meta()` returns them as a tibble, so
-#'   that a report can state under which rounding method or SD convention a
-#'   verdict was reached.
+#'   that a report can state the rounding method or SD convention behind a
+#'   verdict.
 #'
 #'   Settings are the arguments that apply to the whole call, with defaults
 #'   resolved, such as `rounding`, `percent`, or `sd_meaning`. Arguments that
-#'   may vary by row are columns of the output instead: `digits_x`, `digits_sd`,
-#'   and helper arguments such as `items_averaged`, even if given as a single
-#'   value.
+#'   may vary by row, such as `digits_x` and `items_averaged`, are columns of
+#'   the output instead, even if given as a single value. Sequence and total-n
+#'   mappers, such as [`grim_map_seq()`], add their own settings, such as
+#'   `dispersion`.
 #'
-#'   Sequence and total-n mappers, such as [`grim_map_seq()`], add their own
-#'   settings, such as `dispersion`, to those of the basic mapper they call.
-#'
-#'   When the output of [`grim_map()`], [`grimmer_map()`], [`debit_map()`], or
-#'   [`is_percentage_of_map()`] is printed, a line in the header names the
-#'   settings that are not at their defaults, as in `# GRIM: rounding = "up"`.
-#'   This includes sequence and total-n output.
+#'   Printed output of [`grim_map()`], [`grimmer_map()`], [`debit_map()`], or
+#'   [`is_percentage_of_map()`], including sequence and total-n output, has a
+#'   header line that names the settings that are not at their defaults, as in
+#'   `# GRIM: rounding = "up"`.
 #'
 #'   Some dplyr verbs, such as `summarise()`, drop the record, and with it the
 #'   header line; `filter()`, `arrange()`, and `mutate()` keep it.
@@ -76,10 +74,9 @@ single_quotes <- function(code) {
 
 
 # The settings of the basic mapper, as a named list of their values, or `NULL`
-# if `x` has no record. The sequence and total-n mappers name their rows by the
-# suffixes of `name_mapper()`; a basic mapper may have recorded no rows at all.
-# This is what the package itself reads: the plots, `explain_map()`, and the
-# sequence mapper's re-tests.
+# if `x` has no record. Package code reads this, never `scrutiny_meta()`. Rows
+# of sequence and total-n mappers are told apart by the suffixes of
+# `name_mapper()`:
 scrutiny_args <- function(x) {
   settings <- attr(x, "scrutiny", exact = TRUE)$settings
   if (is.null(settings)) {
@@ -93,14 +90,13 @@ scrutiny_args <- function(x) {
 # Print header ------------------------------------------------------------
 
 # A header line under "# A tibble: ..." that names the settings that are not at
-# their defaults. `pillar::tbl_sum()` is the documented hook for such lines.
-# Sequence and total-n output carries the basic class, so it gets the same
-# line. Mappers made by `function_map()` in other packages get no header unless
-# they add a method like these.
+# their defaults. Sequence and total-n output carries the basic class, so it
+# gets the same line. Mappers made by `function_map()` in other packages need
+# a method like these.
 #
 # pillar pads every name in the header to the widest one, "A tibble", so the
-# line would read `# GRIM:     rounding = "up"`. Only an unnamed header is
-# printed as it is, so the names are written into the lines here:
+# line would read `# GRIM:     rounding = "up"`. An unnamed header is printed
+# as it is, so the names are written into the lines here:
 header_settings <- function(header, x, name_test) {
   header <- paste0(names(header), ": ", header)
   settings <- attr(x, "scrutiny", exact = TRUE)$settings

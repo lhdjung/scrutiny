@@ -27,11 +27,7 @@
 #'   a tibble if `data` was a matrix.
 #' @export
 
-# @examples
-
 row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
-  # Initial checks ---
-
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {
       # Only missing names get a placeholder, quietly: a column whose header
@@ -61,7 +57,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     check_type(row, c("double", "integer"))
   }
 
-  # A missing or infinite `row` used to fail in `if ()`:
+  # A missing or infinite `row` would fail in `if ()`:
   if (!all(is.finite(row)) || !all(is_whole_number(row))) {
     offenders <- row[!is.finite(row) | !is_whole_number(row)]
     offenders <- wrap_in_backticks(offenders)
@@ -82,12 +78,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     )
   }
 
-  # Get correct column names ---
-
-  # Restore the vector of correct column names by the values stored in the one
-  # or more rows that were specified by the `row` argument. For each column, its
-  # non-missing cells in these rows are pasted together. If all of them are
-  # missing, the column keeps its current name:
+  # A column whose cells in `row` are all missing keeps its current name:
   correct <- vapply(
     seq_along(data),
     function(i) {
@@ -103,13 +94,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     character(1L)
   )
 
-  # Subsequent checks ---
-
-  # Check for empty strings in the "correct" column names:
   correct_is_empty <- stringr::str_length(correct) == 0L
-
-  # If any of those strings really are empty, they are unsuitable as column
-  # names. An error is then thrown:
   if (any(correct_is_empty)) {
     n_empty <- length(correct_is_empty[correct_is_empty])
     name_names <- dplyr::if_else(n_empty == 1L, "name", "names")
@@ -120,9 +105,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     )
   }
 
-  # A tibble's column names must be unique, but a table often repeats its
-  # headers, as in "M, SD, M, SD" for two groups. Names that are taken twice
-  # used to make an invalid tibble that only failed further down:
+  # A table often repeats its headers, as in "M, SD, M, SD" for two groups,
+  # which would make an invalid tibble that only fails further down:
   names_dup <- unique(correct[duplicated(correct)])
   if (length(names_dup) > 0L) {
     abort_in_export(
@@ -134,13 +118,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     )
   }
 
-  # Final correction and return ---
-
-  # Reinstate the correct column names:
   colnames(data) <- correct
 
-  # Return the data frame. By default (`drop = TRUE`), remove the specified row
-  # or rows beforehand:
   if (drop) {
     data[-row, , drop = FALSE]
   } else {

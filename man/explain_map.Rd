@@ -29,6 +29,8 @@ Each row is tested again from its own values and the settings of
 the mapper call, such as \code{rounding} and \code{percent}. If the verdict differs
 from the row's \code{consistency} value, the row must have been changed after
 testing, and \code{explain_map()} throws an error.
+
+DEBIT explanations cover \code{formula = "exact"} only.
 }
 \examples{
 pigs1 |>

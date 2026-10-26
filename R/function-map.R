@@ -1,24 +1,23 @@
 #' Create new `*_map()` functions
 #'
-#' @description `function_map()` creates a basic mapper function for a
-#'   consistency test: a function that applies a single-case test such as
-#'   `grim_scalar()` to every row of a data frame, as [`grim_map()`],
-#'   [`grimmer_map()`], and [`debit_map()`] do. All three are made by it.
+#' @description `function_map()` creates a basic mapper: a function that
+#'   applies a single-case test such as `grim_scalar()` to every row of a data
+#'   frame. [`grim_map()`], [`grimmer_map()`], and [`debit_map()`] are made by
+#'   it.
 #'
 #'   See `vignette("consistency-tests-in-depth")`, section *Creating basic
 #'   mappers with `function_map()`*.
 #'
 #' @param .fun Single-case function to apply to each row. It must return a
-#'   single logical value, or, if `.col_names` is specified, a list of values
+#'   single logical value or, if `.col_names` is specified, a list of values
 #'   with the key result first.
-#' @param .reported String. Names of the arguments of `.fun` that contain the
+#' @param .reported String. Names of the arguments of `.fun` that take the
 #'   reported values, such as `c("x", "n")`. These become the key columns. May
 #'   be `NULL` if `.reported_variadic` is specified.
 #' @param .reported_variadic Optionally, a single string naming an argument of
-#'   `.fun` that takes the values of one row as a vector. The factory-made
-#'   function then has an argument by that name that selects any number of
-#'   columns with tidyselect syntax, so that the caller decides how many columns
-#'   are tested. It has no default. See *Details*.
+#'   `.fun` that takes the values of one row as a vector. The new function gets
+#'   an argument by that name, without a default, that selects any number of
+#'   columns with tidyselect syntax. See *Details*.
 #' @param .name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #' @param .name_key_result (Experimental) String (length 1). Name of the key
@@ -26,42 +25,40 @@
 #' @param .name_class String. Optionally, one or more classes to add to the
 #'   output. Default is `NULL`; see *Details* for the class that is always
 #'   added.
-#' @param .args_disabled Optionally, names of arguments of `.fun` that the
-#'   factory-made function should not have. Specifying one of them is an error.
+#' @param .args_disabled Optionally, names of arguments of `.fun` that the new
+#'   function should not have. Specifying one of them is an error.
 #' @param .args_by_row Optionally, names of arguments of `.fun` that may vary
-#'   by row, such as `"digits_x"`. The factory-made function accepts a single
-#'   value or one per row of `data` for each, and returns them as columns.
-#' @param .args_fixed Optionally, a named list of values for arguments of
-#'   `.fun` that the factory-made function always passes on and does not have
-#'   itself, such as `list(show_reason = TRUE)`. Specifying one of them is an
-#'   error.
+#'   by row, such as `"digits_x"`. The new function takes a single value or one
+#'   per row of `data` for each, and returns them as columns.
+#' @param .args_fixed Optionally, a named list of values that are always passed
+#'   to `.fun`, such as `list(show_reason = TRUE)`. The new function has no
+#'   arguments for them; specifying one is an error.
 #' @param .cols_helper Optionally, names of arguments of `.fun` that may also be
 #'   given as columns of `data`, such as `"items_averaged"`. A helper column is
 #'   returned after the key columns if it was given, as a column or as an
 #'   argument. See [`manage_helper_col()`].
-#' @param .col_names Optionally, the names of the columns that the values
-#'   returned by `.fun` unpack into when it returns a list, as with
-#'   `show_rec = TRUE`. The first name must be `.name_key_result`. If `data`
-#'   has no rows, only the key result column is created.
+#' @param .col_names Optionally, names of the columns that a list returned by
+#'   `.fun` unpacks into, as with `show_rec = TRUE`. The first name must be
+#'   `.name_key_result`. If `data` has no rows, only the key result column is
+#'   created.
 #' @param .cols_derived Optionally, a named list of functions that compute
 #'   further columns from the same per-row input, such as
 #'   `list(probability = grim_probability)`. Each gets only the arguments it
 #'   has formals for. The columns follow the key result column.
 #' @param ... These dots must be empty.
 #'
-#' @details The factory-made function has an argument for every argument of
-#'   `.fun` that is not named in `.reported`, `.reported_variadic`, or
-#'   `.args_disabled`, with the same default.
+#' @details The new function has an argument for every argument of `.fun` that
+#'   is not named in `.reported`, `.reported_variadic`, `.args_disabled`, or
+#'   `.args_fixed`, with the same default.
 #'
 #'   `.reported_variadic` is for a test whose number of key columns depends on
 #'   the data, such as whether the values in any number of columns add up to
-#'   the value in one other column. `.fun` takes those values as a single
-#'   vector, and the factory-made function selects the columns with
-#'   tidyselect; see *Examples*. The selection must not be empty and must not
-#'   include a column that already has a role in the test. The selected
-#'   columns are returned as themselves. Such a mapper cannot be wrapped by
-#'   [`function_map_seq()`] or [`function_map_total_n()`], which derive their
-#'   arguments from `.reported`.
+#'   the value in another one. `.fun` takes those values as a single vector,
+#'   and the new function selects the columns with tidyselect; see *Examples*.
+#'   The selection must not be empty and must not include a column that already
+#'   has a role in the test. The selected columns are returned as themselves.
+#'   Such a mapper cannot be wrapped by [`function_map_seq()`] or
+#'   [`function_map_total_n()`], which derive their arguments from `.reported`.
 #'
 #'   The output has the class `"scrutiny_{tolower(.name_test)}_map"`, e.g.,
 #'   `"scrutiny_grim_map"`, in addition to any `.name_class`. The arguments that
@@ -70,18 +67,20 @@
 #'
 #' @return A function with these arguments:
 #' - `data`: a data frame with the key columns. Other columns are permitted.
-#' - One argument per `.reported` value, for passing the name of a column of
-#'   `data` that contains that value under another name.
+#' - The `.args_by_row` arguments, such as `digits_x`.
 #' - If `.reported_variadic` was given, an argument by that name.
-#' - The arguments of `.fun`, with the same defaults; see *Details*.
-#' - `...`, passed on to `.fun`.
+#' - One argument per `.reported` value, for naming a column of `data` that
+#'   holds that value under another name.
+#' - `...`: must be empty. Every argument after it must be named in full.
+#' - The other arguments of `.fun`, with the same defaults; see *Details*.
 #'
 #' @section Value returned by the factory-made function: A tibble with the
-#'   `.reported_variadic` columns, the `.reported` columns, the `.args_by_row`
-#'   columns, and `consistency`, a logical column that is `TRUE` if the values
-#'   to its left are consistent and `FALSE` if they are not. Any `.cols_derived`
-#'   columns, any `.col_names` columns, and the other columns of `data` follow,
-#'   in that order.
+#'   `.reported_variadic` columns, the `.reported` columns, the helper columns
+#'   that were given, the `.args_by_row` columns, and the key result column
+#'   (`consistency` by default), which is `TRUE` for consistent value sets and
+#'   `FALSE` for inconsistent ones. Any `.cols_derived` columns, any
+#'   `.col_names` columns, and the other columns of `data` follow, in that
+#'   order.
 #'
 #' @include grim.R debit.R function-factory-helpers.R
 #'
@@ -139,9 +138,7 @@ function_map <- function(
   .cols_helper = NULL,
   .col_names = NULL,
   .cols_derived = NULL,
-  # Last among the named arguments, rather than next to `.reported` where it
-  # belongs by meaning, so that adding it does not shift what any existing
-  # positional call means. The documentation groups the two together anyway:
+  # Last, not next to `.reported`, so that positional calls keep their meaning:
   .reported_variadic = NULL,
   ...
 ) {
@@ -160,8 +157,7 @@ function_map <- function(
 
   # Checks ---
 
-  # The dots are only included to prevent a false-positive CRAN warning, so they
-  # must not be used:
+  # The dots only prevent a false-positive CRAN warning:
   rlang::check_dots_empty()
 
   check_args_disabled_unnamed(.args_disabled)
@@ -169,8 +165,6 @@ function_map <- function(
   fun_name <- deparse(substitute(.fun))
   formals_fun <- formals(.fun)
 
-  # Check that all values of the arguments that name arguments of `.fun` really
-  # do name arguments of `.fun`:
   check_factory_arg_names(.reported, formals_fun, fun_name, ".reported")
   check_factory_arg_names(
     .reported_variadic,
@@ -238,9 +232,7 @@ function_map <- function(
     abort_in_export("`.args_fixed` must be a named list.")
   }
 
-  # A fixed argument is one the factory-made function passes on with a set
-  # value, so it can't be any argument whose value comes from `data` or from
-  # the caller:
+  # A fixed value can't also come from `data` or from the caller:
   args_fixed_offenders <- intersect(
     names(.args_fixed),
     c(.reported, .reported_variadic, .args_by_row, .cols_helper, .args_disabled)
@@ -255,20 +247,11 @@ function_map <- function(
   }
 
   # The arguments of `.fun` that become arguments of the factory-made function,
-  # in the order in which `.fun` has them. Key columns are covered by the
-  # `.reported` arguments inserted at the very end, and disabled and fixed
-  # arguments are meant to be unavailable:
+  # in `.fun`'s order. Key arguments are inserted at the very end:
   args_promoted <- setdiff(
     names(formals_fun),
     c(.reported, .reported_variadic, .args_disabled, names(.args_fixed), "...")
   )
-
-  # Three groups among them: arguments that may vary by row and hence ride along
-  # as columns of the input to `purrr::pmap()`; arguments that may be given as
-  # columns of `data`; and plain arguments applying to the whole call. Those of
-  # `.fun` that have no default must reach it as missing, so that its own error
-  # message is shown rather than a generic one. All others are passed on
-  # explicitly.
 
   # The body of the factory-made function assigns these names before it reads
   # the values of the arguments, so an argument of `.fun` by one of these names
@@ -313,10 +296,10 @@ function_map <- function(
   args_helper <- intersect(args_promoted, .cols_helper)
   args_const <- setdiff(args_promoted, c(args_by_row, args_helper))
 
-  # Settings whose default is a set of strings, such as `sd_meaning`. A call
-  # that leaves one out gets the first of them, as `rlang::arg_match()` in the
-  # test function would resolve it anyway. Resolving it here is what records the
-  # value itself, not the whole set, in the "scrutiny" attribute:
+  # Arguments whose default is a set of strings, such as `sd_meaning`. A call
+  # that leaves one out gets the first string, as `rlang::arg_match()` would
+  # resolve it. Resolving it here records that string, not the whole set, in the
+  # "scrutiny" attribute:
   args_enum <- args_const[vapply(
     formals_promoted[args_const],
     is_enum_default,
@@ -324,24 +307,22 @@ function_map <- function(
     USE.NAMES = FALSE
   )]
 
-  # What the settings of a call are compared to, to fill the `default` column
-  # of the "scrutiny" attribute:
+  # For the `default` column of the "scrutiny" attribute:
   defaults_const <- eval_defaults(
     formals_promoted[args_const],
     environment(.fun)
   )
 
-  # The by-row arguments -- in practice the `digits_*` ones -- come first, right
-  # after `data`: they have no defaults, so they belong next to the other
-  # argument that must be given in every call, in the same position in every
-  # mapper. This must happen after `args_required` is derived above, which pairs
-  # `formals_promoted` with `args_promoted` by position:
+  # The by-row arguments, in practice `digits_*`, have no defaults, so they go
+  # right after `data`, in the same position in every mapper. This must come
+  # after `args_required`, which pairs `formals_promoted` with `args_promoted`
+  # by position:
   formals_promoted <- formals_promoted[
     c(args_by_row, setdiff(names(formals_promoted), args_by_row))
   ]
 
-  # With variadic key columns, `.reported` may name no column at all, and there
-  # is then nothing to rename:
+  # With variadic key columns, `.reported` may be empty, leaving nothing to
+  # rename:
   code_key_arg_checks <- if (length(.reported) > 0L) {
     code_missing <- paste0("!missing(", .reported, ")", collapse = " || ")
     list(rlang::expr({
@@ -353,11 +334,9 @@ function_map <- function(
     list()
   }
 
-  # The variadic key columns are chosen by the user's tidyselect expression at
-  # call time, so they need no renaming mechanism and no check for their
-  # presence: `tidyselect::eval_select()` does both jobs. As with the helper
-  # columns below, the argument has to be spliced in as a symbol -- here so
-  # that `rlang::enquo()` can capture the expression instead of evaluating it.
+  # `tidyselect::eval_select()` both finds and renames the variadic columns.
+  # The argument is spliced in as a symbol so that `rlang::enquo()` captures
+  # the expression instead of evaluating it:
   code_variadic <- if (is.null(.reported_variadic)) {
     list()
   } else {
@@ -372,19 +351,18 @@ function_map <- function(
         name = `!!`(.reported_variadic)
       )
       cols_variadic <- as.list(data)[index_variadic]
-      # `eval_select()` may rename the columns it selects, so the names under
-      # which the output carries them are not necessarily the names they have
-      # in `data`. Both are needed: the new ones for the output, the old ones
-      # to keep the columns from being returned a second time:
+      # `eval_select()` may rename the columns it selects. The new names go
+      # into the output; the old ones keep the columns from being returned a
+      # second time:
       names_variadic <- colnames(data)[index_variadic]
       names(cols_variadic) <- names(index_variadic)
     }))
   }
 
-  # `manage_helper_col()` takes the name of the helper column from the
-  # expression it was given, so the argument has to be spliced in as a symbol:
-  # A helper argument without a default, like `items_averaged`, is passed on
-  # without one, so that a missing argument reaches `fun()` as missing:
+  # `manage_helper_col()` reads the column name off the expression it was
+  # given, so the argument is spliced in as a symbol. A helper without a
+  # default, like `items_averaged`, gets none here either, so that a missing
+  # one reaches `fun()` as missing:
   code_cols_helper <- lapply(
     args_helper,
     function(name) {
@@ -406,11 +384,9 @@ function_map <- function(
     }
   )
 
-  # Same for `check_lengths_congruent()`, which names the offending arguments in
-  # its message by deparsing the call it was given. Arguments that may vary by
-  # row are exempt -- it is their point to have one value per row -- and so are
-  # those without a default, which may be missing here and must reach `fun()`
-  # as such:
+  # Spliced in as symbols too: `check_lengths_congruent()` names offenders by
+  # deparsing its call. By-row arguments are exempt, and so are those without
+  # a default, which may be missing here and must reach `fun()` as such:
   args_check_lengths <- setdiff(args_const, args_required)
   code_check_lengths <- if (length(args_check_lengths) > 1L) {
     list(rlang::expr(
@@ -428,9 +404,8 @@ function_map <- function(
   # --- Start of the factory-made function, `fn_out()` ---
 
   # The dots come right after the key arguments, which `insert_key_args()` puts
-  # in front of them below. Every argument after the dots must be named in
-  # full, so that `items = 2` can't partially match `items_averaged`, the
-  # argument that was renamed from `items` because the old name was misread:
+  # in front of them below. Every argument after the dots must then be named in
+  # full, so that `items = 2` can't partially match `items_averaged`:
   fn_out <- rlang::new_function(
     args = rlang::pairlist2(
       data = ,
@@ -457,11 +432,10 @@ function_map <- function(
 
       # Checks ---
 
-      # What `data` is comes first, before anything reads columns off it:
+      # First, before anything reads columns off `data`:
       data <- as_tibble_input(data)
 
-      # Manage key columns in `data`, renaming missing columns using the values
-      # of key arguments, if necessary:
+      # Rename columns named by key arguments:
       `!!!`(code_key_arg_checks)
 
       check_args_disabled(`!!`(c(.args_disabled, names(.args_fixed))))
@@ -473,15 +447,14 @@ function_map <- function(
         `!!`(.name_key_result)
       )
 
-      # Resolve the variadic key columns, if there are any. This comes after
-      # the renaming above, so that a tidyselect expression sees the same
-      # column names as the rest of the function:
+      # After the renaming, so that tidyselect sees the same column names as
+      # the rest of the function:
       cols_variadic <- list()
       names_variadic <- character(0L)
       `!!!`(code_variadic)
 
-      # A set of strings left at its default is the first of them; see
-      # `args_enum` above. Before the length check, which would see the set:
+      # See `args_enum` above. Before the length check, which would see the
+      # whole set:
       for (arg in args_enum) {
         if (eval(call("missing", as.name(arg)))) {
           assign(arg, get(arg)[[1L]])
@@ -499,18 +472,14 @@ function_map <- function(
         }
       }
 
-      # Add a column for every helper argument that `data` doesn't have one for
-      # already, and throw an error if `data` and the argument contradict each
-      # other:
+      # Add missing helper columns; error if `data` and an argument disagree:
       `!!!`(code_cols_helper)
 
       # Main part ---
 
-      # Collect the values of those arguments that the user actually supplied.
-      # Arguments left at their default are not passed on to `fun()`: it has the
-      # very same defaults, so it applies them itself -- and an argument with no
-      # default at all, such as `digits_x`, must reach `fun()` as missing so
-      # that the test function's own error message is shown, not a generic one:
+      # An argument with no default, such as `digits_x`, must reach `fun()` as
+      # missing, so that the test function's own error message is shown rather
+      # than a generic one:
       args_vals <- list()
       for (arg in c(args_by_row, args_const)) {
         if (arg %in% args_required && eval(call("missing", as.name(arg)))) {
@@ -540,10 +509,8 @@ function_map <- function(
       }
 
       for (arg in args_by_row) {
-        # An argument with a default that was not given, while `data` has a
-        # column by its name, takes its values from the column. The default
-        # used to be compared to the column, and to fail as disagreeing with
-        # it:
+        # An argument with a default that was not given takes its values from
+        # a column by its name, if `data` has one:
         arg_given <- !eval(call("missing", as.name(arg)))
         if (!arg_given && !arg %in% args_required && arg %in% colnames(data)) {
           args_vals[[arg]] <- data[[arg]]
@@ -554,10 +521,9 @@ function_map <- function(
             nrow(data),
             arg
           )
-          # A column of `data` by the same name is returned as the argument's
+          # A column of `data` by the same name is replaced by the argument's
           # values (see `other_cols` below), which is only right if the two
-          # agree. They do when a mapper's output is tested again; a user
-          # column that contradicts the argument would be silently replaced:
+          # agree, as they do when a mapper's output is tested again:
           if (
             arg %in%
               colnames(data) &&
@@ -577,22 +543,16 @@ function_map <- function(
 
       args_const_vals <- args_vals[intersect(args_const, names(args_vals))]
 
-      # Apply `fun()` to the first row on its own before mapping over all of
-      # them. Anything wrong with the arguments themselves -- a missing
-      # `digits_x`, an unknown `rounding` string, a `symmetric` of length 2 --
-      # fails here just as it would on any other row, and the test function's
-      # own error is far more helpful than the same error wrapped in the
-      # indexed-error context `purrr::pmap()` would add ("i In index: 1.").
-      # The result is discarded; the row is tested again below.
+      # Test the first row on its own, so that an error about the arguments,
+      # such as a missing `digits_x`, is the test function's own, not wrapped
+      # in `purrr::pmap()`'s indexed-error context. The result is discarded.
       #
-      # Do *not* muffle conditions other than errors here. It looks right, since
-      # the row is about to be tested again, but a once-per-session warning is
-      # then lost for good: `lifecycle::deprecate_warn()` records that it has
-      # warned before the muffle discards the warning, so a deprecated argument
-      # went through in complete silence.
+      # Do *not* muffle warnings or messages here: `lifecycle::deprecate_warn()`
+      # records that it has warned before the muffle discards the warning, so a
+      # once-per-session warning would be lost for good.
       #
-      # An error here names row 1 only if row 2 passes, since an error about
-      # the arguments fails on every row and is not about row 1:
+      # The error names row 1 only if row 2 passes; an error about the
+      # arguments fails on every row:
       if (nrow(data) > 0L) {
         test_row <- function(row) {
           row_values <- lapply(cols_tested, function(x) x[[row]])
@@ -609,7 +569,6 @@ function_map <- function(
           check_fun_result(`!!`(fun_name))
       }
 
-      # Test for consistency:
       results <- withCallingHandlers(
         do.call(
           purrr::pmap,
@@ -623,18 +582,14 @@ function_map <- function(
         purrr_error_indexed = rethrow_row_error
       )
 
-      # The key columns of the output, followed by the helper columns that were
-      # given. The variadic columns are returned as themselves, so the output
-      # is as rectangular as any other mapper's -- only the number of columns
-      # that go into each test varies:
+      # The key columns of the output, then the helper columns that were given:
       cols_key <- c(cols_variadic, as.list(data[reported]))
 
       for (arg in args_helper_given) {
         cols_key[[arg]] <- data[[arg]]
       }
 
-      # `n` is a sample size, so it is always a whole number. Coercing it to
-      # integer makes for better representation, as in `function_map_seq()`:
+      # `n` is a whole number, which prints better as integer:
       if (!is.null(cols_key[["n"]])) {
         cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
       }
@@ -643,15 +598,11 @@ function_map <- function(
         args_by_row %in% names(args_vals)
       ]]
 
-      # `fun()` returns a single value per row unless it was told to show its
-      # reconstructed values, in which case it returns a list of values that are
-      # unpacked into the columns named in `col_names`:
       cols_result <- write_result_cols(results, col_names)
 
-      # Columns that are not part of `fun()`'s return value but are computed
-      # from the same per-row input, such as `probability` in `grim_map()`. Each
-      # function only gets those arguments that it has formals for, so it needs
-      # to know nothing about the test around it:
+      # Derived columns, such as `probability` in `grim_map()`. Each function only gets the
+      # arguments it has formals for, so it needs to know nothing about the
+      # test around it:
       cols_derived <- list()
 
       for (col_name in names(cols_derived_funs)) {
@@ -670,7 +621,7 @@ function_map <- function(
           )
         )
         vals_derived <- unlist(vals_derived, use.names = FALSE)
-        # A wrong length used to make a tibble that only failed when printed:
+        # A wrong length would make a tibble that only fails when printed:
         if (length(vals_derived) != nrow(data)) {
           abort_in_export(
             "The `.cols_derived` function for `{col_name}` must return one \\
@@ -686,13 +637,10 @@ function_map <- function(
         }
       }
 
-      # The derived columns follow the key result column, ahead of any columns
-      # unpacked from `col_names`:
       cols_result <- c(cols_result[1L], cols_derived, cols_result[-1L])
 
-      # A column of `data` by the name of a result column would be dropped from
-      # the output in favor of the result, so it is an error, as it is for the
-      # key result column:
+      # A column of `data` by the name of a result column would be silently
+      # dropped:
       names_taken <- intersect(names(cols_result), colnames(data))
       if (length(names_taken) > 0L) {
         abort_in_export(
@@ -702,12 +650,10 @@ function_map <- function(
         )
       }
 
-      # Any columns of `data` that play no role in the test are returned
-      # alongside the results. Columns that the output has already -- e.g., a
-      # `digits_x` column in the output of a mapper that is tested again -- are
-      # skipped rather than duplicated. These are named as in `data`: skipping
-      # the new name of a renamed variadic column would drop a column of `data`
-      # that has that name, rather than catching the clash below:
+      # Columns that the output has already, such as `digits_x` in a mapper's
+      # output tested again, are skipped. Variadic columns go by their names in
+      # `data`: skipping the new name would drop a column of `data` that has
+      # it, rather than catching the clash below:
       other_cols <- data[
         !colnames(data) %in%
           c(
@@ -736,10 +682,10 @@ function_map <- function(
 
       out <- add_class(out, `!!`(all_classes))
 
-      # Record the settings of this call for functions downstream, such as
-      # `rounding` and `percent`, which `grim_plot_grid()` reads. Classes are left to
-      # dispatch. A missing value, as from a `lifecycle::deprecated()` default
-      # of a `.fun` written elsewhere, is no setting:
+      # Settings of this call for functions downstream, such as `rounding`,
+      # which `grim_plot_grid()` reads. A missing value, as from a
+      # `lifecycle::deprecated()` default of a `.fun` written elsewhere, is no
+      # setting:
       attr(out, "scrutiny") <- list(
         settings = new_settings(
           Filter(Negate(rlang::is_missing), args_const_vals),
@@ -748,8 +694,7 @@ function_map <- function(
         )
       )
 
-      # Unquote-splice the code that finalizes `out`. This includes unnesting if
-      # the key result column has been a list, and renaming it if
+      # Unnest the key result column if it is a list, and rename it if
       # `.name_key_result` was specified:
       `!!!`(write_code_col_key_result(
         name_key_result = .name_key_result,
@@ -757,17 +702,16 @@ function_map <- function(
         rename = is.null(.col_names)
       ))
     }),
-    # As in `function_map_seq()` and `function_map_total_n()`: the body relies
-    # on scrutiny helpers, so the manufactured function is enclosed in a child
-    # of the present execution environment, which inherits from scrutiny's
-    # namespace. Never use the caller's environment here -- a factory-made
-    # function exported from another package would then fail to find them.
+    # The body relies on scrutiny's internal helpers, so the enclosure must
+    # inherit from scrutiny's namespace. Never use the caller's environment: a
+    # factory-made function exported from another package would then fail to
+    # find them.
     env = rlang::env()
   )
 
   # --- End of the factory-made function, `fn_out()` ---
 
-  # Garbage collection:
+  # Keep the enclosure of `fn_out()` small:
   rm(
     fun_name,
     formals_fun,
@@ -780,14 +724,9 @@ function_map <- function(
     all_classes
   )
 
-  # Insert parameters named after the key columns into `fn_out()`, with `NULL`
-  # as the default for each. The key columns need to be present in the input
-  # data frame. They are expected to have the names specified in `.reported`. If
-  # they don't, however, the user can simply specify the key column arguments as
-  # the non-quoted names of the columns meant to fulfill these roles. They go
-  # after `data` and the by-row arguments moved next to it above, led by the
-  # variadic key argument if there is one -- which has no default at all,
-  # because guessing which columns to test would silently test the wrong ones:
+  # Key arguments go after `data` and the by-row arguments, led by the
+  # variadic one if there is one. That one has no default, because guessing
+  # which columns to test would silently test the wrong ones:
   fn_out <- insert_key_args(
     fun = fn_out,
     reported = .reported,
@@ -795,11 +734,9 @@ function_map <- function(
     variadic = .reported_variadic
   )
 
-  # Record the helper-column arguments (such as `items_averaged`) as metadata on
-  # the manufactured function. A helper argument that was given is a column of
-  # the mapper's output, so code that re-runs the mapper on data derived from
-  # that output must not pass the argument a second time. `function_map_seq()`
-  # and `function_map_total_n()` consult this attribute when they re-test:
+  # A helper argument that was given is a column of the output, so
+  # `function_map_seq()` and `function_map_total_n()` must not pass it again
+  # when they re-test. They read this attribute to know which ones those are:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
 
   fn_out

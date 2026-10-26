@@ -21,7 +21,8 @@ grimmer_plot_values(
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
+must have length 1.}
 
 \item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
 and unattainable values.}
@@ -36,15 +37,14 @@ A ggplot object.
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{grimmer_plot_values()} draws the GRIMMER test for a single
-value set, as \code{\link[=grim_plot_values]{grim_plot_values()}} does for GRIM. Every SD that could
-have been reported with \code{digits_sd} decimal places within a window is a
-tooth of a comb; the ones that a sample of size \code{n} with mean \code{x} could
-have produced are tall. The reported SD is marked above the comb and
-labeled with its verdict.
+\code{grimmer_plot_values()} draws the GRIMMER test for a single value set, as
+\code{\link[=grim_plot_values]{grim_plot_values()}} does for GRIM. Each tooth of the comb is an SD that
+could have been reported with \code{digits_sd} decimal places; the ones that a
+sample of size \code{n} with mean \code{x} could have are tall. The reported SD is
+marked above the comb and labeled with its verdict.
 
-There is no GRIMMER-specific plot for many value sets; \code{\link[=grim_plot_grid]{grim_plot_grid()}}
-accepts \code{\link[=grimmer_map]{grimmer_map()}} output and shows the GRIM part of the test.
+For many value sets, \code{\link[=grim_plot_grid]{grim_plot_grid()}} accepts \code{\link[=grimmer_map]{grimmer_map()}} output
+and shows the GRIM part of the test.
 }
 \details{
 The comb runs from the whole number at or below \code{sd} to the next

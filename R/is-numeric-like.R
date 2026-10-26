@@ -78,9 +78,8 @@ is_numeric_like <- function(x) {
   if (!is.character(x)) {
     x <- as.character(x)
   }
-  # The string `"NA"` is missing, too, as `decimal_places()` and
-  # `restore_zeros()` read it. A column with it used to be skipped by the
-  # `*_df()` functions, which select numeric-like columns:
+  # The string `"NA"` is missing, as in `decimal_places()` and
+  # `restore_zeros()`:
   x <- x[!is.na(x) & x != "NA"]
   if (length(x) == 0L) {
     return(NA)

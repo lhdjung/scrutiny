@@ -42,30 +42,14 @@ rounding_bias <- function(
 ) {
   # Checks ---
 
-  # If any two arguments called right below are length > 1, they need to have
-  # the same length. Otherwise, the call will fail. But even so, there will be a
-  # warning that values will get paired:
+  # Not `rounding`, `threshold`, and `symmetric`: `reround()` requires them to
+  # have length 1. The pairing warning is kept for `x` and `digits` here, though
+  # not in `reround()`: a per-value `digits` is unusual when summarizing bias.
   check_lengths_congruent(list(x, digits))
 
-  # `rounding`, `threshold`, and `symmetric` are deliberately left out. They
-  # describe one rounding procedure, and `reround()` requires each of them to
-  # have length 1, so including them here produced a warning about values
-  # "getting paired" for arguments that cannot be paired at all -- immediately
-  # followed by an error from `reround()` saying so.
-  #
-  # The pairing warning for `x` and `digits` is kept here, and deliberately not
-  # in `reround()` itself: this is a user-facing function whose whole purpose is
-  # to summarize bias over a vector, so a per-value `digits` is worth a second
-  # look, whereas `reround()` is the interface every helper in the package calls
-  # with exactly that shape.
-
-  # A compound method makes `reround()` return two values per input value, so
-  # the subtraction below would recycle `x` across them and return twice as many
-  # "biases" as there are inputs, all of them meaningless.
-  # `%in%` rather than `==`: the latter compares element by element, so a
-  # `rounding` of length 2 was recycled against this length-3 vector and drew
-  # R's "longer object length is not a multiple" warning before the check below
-  # could say anything about it.
+  # A compound method returns two values per input, so the subtraction below
+  # would recycle `x` across them. `%in%`, not `==`, so that a longer `rounding`
+  # isn't recycled against this vector before the check can report it:
   if (
     any(
       rounding %in% c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
@@ -82,9 +66,8 @@ rounding_bias <- function(
 
   # Main part ---
 
-  # A string only has to stand for its number: `digits` says where to round, so
-  # nothing is read off the string itself. Unconverted, it failed in the
-  # subtraction below. A factor is read by its labels, not its level codes.
+  # Strings are fine because `digits` says where to round. A factor is read by
+  # its labels, not its level codes.
   x <- as.numeric(as.character(x))
 
   bias <- reround(x, digits, rounding, threshold, symmetric) - x

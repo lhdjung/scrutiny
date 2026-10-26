@@ -1,7 +1,7 @@
 # The three compound rounding methods return two values per input value,
 # interleaved as `c(up_1, down_1, up_2, down_2, ...)`, so each input's pair
 # stays together. `grimmer_scalar()` relies on that to keep its candidates
-# apart -- pooling them across candidates was the false-pass bug #85.
+# apart; pooling them across candidates would let a case pass falsely (#85).
 
 interleave_pair <- function(first, second) {
   out <- rep_len(NA_real_, length(first) + length(second))
@@ -11,10 +11,8 @@ interleave_pair <- function(first, second) {
 }
 
 
-# Despite the name, this is vectorized over `x` and `digits` -- every rounding
-# function it dispatches to is. It is scalar in `rounding`, `threshold`, and
-# `symmetric`, which `reround()` enforces before calling it. The name is a
-# leftover from when `reround()` wrapped it in `Vectorize()`.
+# Despite the name, this is vectorized over `x` and `digits`. It is scalar only
+# in `rounding`, `threshold`, and `symmetric`, which `reround()` enforces.
 
 reconstruct_rounded_numbers_scalar <- function(
   x,
@@ -43,8 +41,7 @@ reconstruct_rounded_numbers_scalar <- function(
     "even" = round(x, digits),
     "up" = round_up(x, digits, symmetric),
     "down" = round_down(x, digits, symmetric),
-    # The `"*_from"` methods are the ones that `threshold` applies to, so they
-    # are the ones that validate it:
+    # Only the `"*_from"` methods use `threshold`, so only they validate it:
     "up_from" = {
       check_threshold_valid(threshold)
       round_up_from(x, digits, threshold, symmetric)
@@ -113,32 +110,23 @@ reround <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  # The last three arguments describe one rounding procedure; `x` is the vector.
-  # Vectors of procedures would mean dispatching per element of `x`, and pairing
-  # values with procedures by position is confusing enough that `unround()`,
-  # which keeps that behavior for display, warns about it in its docs:
+  # The last three arguments describe one rounding procedure for all of `x`.
+  # Pairing values with procedures by position would be too confusing:
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
-  # `digits` really is vectorized along with `x`: one decimal count per value.
-  # R's own recycling passed a short `digits` without a word and rounded the
-  # extra values at the wrong decimal level. No pairing warning here -- unlike a
-  # rounding method, a per-value `digits` is the ordinary way to call this.
+  # R's own recycling would silently round extra values at the wrong decimal
+  # level. No pairing warning: a per-value `digits` is the ordinary way to call
+  # this.
   check_lengths_congruent(list(x, digits), warn = FALSE)
 
-  # A fractional `digits` is not a decimal level: it scales `x` by a non-power of
-  # ten (`10^1.5` is about 31.6) and returns a number on no decimal grid, so
-  # `reround(1.25, digits = 1.5, rounding = "up")` was 1.264911 while `"even"`
-  # gave the whole-number answer -- `base::round()` rounds `digits` itself.
+  # A fractional `digits` would scale `x` by a non-power of ten and return a
+  # number on no decimal grid, whereas `base::round()` rounds `digits` itself:
   check_digits_whole(digits)
 
-  # A `"ties_*"` string stands in for a `rounding` and a `symmetric` together.
-  # `rounding_offsets()` resolves it through the same helper:
+  # `rounding_offsets()` resolves `"ties_*"` strings through the same helper:
   spec <- resolve_ties_rounding(rounding, symmetric)
 
-  # Every `round_*()` function is natively vectorized, so only the dispatch is
-  # scalar, and it happens once for the whole of `x`. Attributes are dropped so
-  # that the return value is a bare numeric vector whatever `x` carried. Adding
-  # zero turns a negative zero, as from `ceiling(-0.5)`, into zero, which
+  # Adding zero turns a negative zero, as from `ceiling(-0.5)`, into zero, which
   # `sprintf()` would otherwise print as `"-0.00"`:
   out <- reconstruct_rounded_numbers_scalar(
     x,

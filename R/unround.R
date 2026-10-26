@@ -4,9 +4,8 @@
 # would have been rounded to the reported mean. Deriving it from floating-point
 # products such as `floor(upper * n_items)` is unsafe: where such a product is
 # mathematically an exact integer, its `double` can fall on either side of it,
-# dropping a legitimate sum or admitting a phantom one, and the verdict flips.
-# GRIMMER derived its sums this way until 1.0.0 (#86). GRIM did not: it rounded
-# the two nearest granules forward and compared them to `x` with a tolerance.
+# dropping a legitimate sum or admitting a phantom one, and the verdict flips
+# (#86).
 #
 # The functions below therefore work in integer arithmetic. Every bound that
 # `unround()` can return is `x` plus a whole number of units of
@@ -23,9 +22,9 @@
 # `ceiling(a / b)` need no correction. IEEE 754 division returns the double
 # nearest the true quotient, and a quotient that is not an integer lies at least
 # `1 / b` from every integer -- more than half the spacing of doubles there, as
-# long as `|a| < 2^53`. A helper that multiplied the result back out to check it
-# never corrected anything below that limit, and above it, where the product
-# rounds, it turned correct results into wrong ones more often than the reverse.
+# long as `|a| < 2^53`. Don't add a check that multiplies the result back out:
+# below that limit it never corrects anything, and above it, where the product
+# rounds, it turns correct results into wrong ones more often than the reverse.
 
 # The floor of a sum of two fractions, `a1 / b1 + a2 / b2` (`b1`, `b2` positive
 # integers), plus a flag for whether the sum is an integer, which callers need
@@ -72,19 +71,17 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 rounding_offsets <- function(rounding, threshold, x_num, symmetric = FALSE) {
   check_rounding_spec_singular(rounding, threshold, symmetric)
 
-  # The branches below need a sign, and a missing value has none. Standing in a
-  # positive number keeps `rounding` validated the way it is for any other
-  # value; the offsets it yields are discarded at the end. An infinity counts as
-  # missing, as it does in the tests themselves: its "bounds" were `Inf` on both
-  # sides, which is no range at all.
+  # The branches below need a sign, and a missing value has none. A positive
+  # stand-in keeps `rounding` validated as for any other value; its offsets are
+  # discarded at the end. An infinity counts as missing, as in the tests: its
+  # "bounds" would be `Inf` on both sides, which is no range at all.
   x_missing <- !is.finite(x_num)
   if (x_missing) {
     x_num <- 1
   }
 
-  # A `"ties_*"` string stands in for a `rounding` and a `symmetric` together.
-  # `reround()` resolves it through the same helper, so the bounds stay in step
-  # with the rounding functions they invert:
+  # `reround()` resolves `"ties_*"` strings through the same helper, so the
+  # bounds stay in step with the rounding functions they invert:
   spec <- resolve_ties_rounding(rounding, symmetric)
   rounding <- spec$rounding
   symmetric <- spec$symmetric
@@ -204,10 +201,9 @@ bound_numerators <- function(x_num, digits, rounding, threshold, symmetric) {
     return(NULL)
   }
 
-  # `threshold` is documented as an integer but not enforced to be one. Scale a
-  # fractional one up by a power of ten, along with the denominator, until the
-  # offsets are whole again; failing that, the arithmetic degrades to floating
-  # point:
+  # A fractional `threshold` is scaled up by a power of ten, along with the
+  # denominator, until the offsets are whole again; failing that, the
+  # arithmetic degrades to floating point:
   bounds <- c(offsets[[1L]], offsets[[2L]])
   scale <- 1
   while (scale < 1e6 && any(bounds * scale != round(bounds * scale))) {
@@ -355,8 +351,8 @@ sum_squares_attainable <- function(s, n, lower, upper) {
   }
 
   # Three or four numbers can have most sums of squares, so a scan from `first`
-  # ends soon. It runs step by step: `seq(first, upper, by = 2)` allocated the
-  # whole range, which made GRIMMER slow for these `n` with many items averaged.
+  # ends soon. Step by step, not `seq(first, upper, by = 2)`, which would
+  # allocate the whole range: huge with many items averaged.
   q <- first
   while (q <= upper) {
     excess <- q - minimum
@@ -552,14 +548,12 @@ unround <- function(
   digits = NULL,
   symmetric = FALSE
 ) {
-  # Two arguments of length > 1 must have the same length. Pairing values of `x`
-  # with values of `rounding` is confusing enough to warn about:
+  # Pairing values of `x` with values of `rounding` is confusing enough to warn
+  # about:
   check_lengths_congruent(list(x, rounding))
 
-  # The other arguments need the same length check but no warning -- one
-  # `digits` per `x` is the ordinary way to call this from a helper. Unchecked,
-  # a short `digits` was recycled silently, giving the extra `x` values the
-  # wrong number of decimal places and hence the wrong bounds.
+  # No warning for the others: one `digits` per `x` is the ordinary way to call
+  # this from a helper.
   check_lengths_congruent(
     list(x, rounding, digits, threshold, symmetric),
     warn = FALSE
@@ -567,12 +561,9 @@ unround <- function(
 
   digits_given <- !is.null(digits)
   if (digits_given) {
-    # The same check as in `reround()`: a fractional `digits` was accepted and
-    # gave bounds on no decimal grid, and a string failed deep inside with
-    # "non-numeric argument to mathematical function".
     check_digits_whole(digits)
-    # `as.numeric()` below takes a factor's level codes and `TRUE` for 1, which
-    # gave the bounds of those numbers next to `x`'s own spelling:
+
+    # `as.numeric()` below would read a factor's level codes and `TRUE` as 1:
     if (
       !is.numeric(x) &&
         !is.character(x) &&
@@ -584,8 +575,7 @@ unround <- function(
       )
     }
   } else {
-    # The decimal places are counted from `x`, which must then be a string so
-    # that trailing zeros survive:
+    # Only a string keeps trailing zeros to count:
     if (!is.character(x)) {
       abort_in_export(
         "`x` is {an_a_type(x)}.",
@@ -595,12 +585,10 @@ unround <- function(
     digits <- decimal_places(x)
   }
 
-  # The bound helpers operate on the numeric value of `x`:
   x_num <- as.numeric(x)
 
-  # Recycle all arguments to a common length, so that each output row describes
-  # one complete combination. Leaving it to `paste0()` could make the columns
-  # longer than the `nrow` taken from `x`, i.e. a malformed tibble:
+  # Recycle explicitly: `paste0()` could make the columns longer than `x`,
+  # i.e. a malformed tibble. An empty argument means no rows at all:
   lengths_in <- c(
     length(x_num),
     length(rounding),
@@ -608,10 +596,6 @@ unround <- function(
     length(threshold),
     length(symmetric)
   )
-
-  # Recycling stops at zero: with an empty argument there is no complete
-  # combination to describe. The maximum alone let the length-1 defaults set the
-  # row count, so `unround(character(0))` returned a phantom row:
   n_out <- if (any(lengths_in == 0L)) 0L else max(lengths_in)
 
   recycle <- function(value) rep_len(value, n_out)
@@ -622,19 +606,13 @@ unround <- function(
   threshold <- recycle(threshold)
   symmetric <- recycle(symmetric)
 
-  # With `digits` given, the value of `x` must fit into it. The bounds below are
-  # `x` plus a whole number of units of the *next* decimal place, which takes
-  # `x` to be a whole number of units of `digits` itself; a value with more
-  # decimal places than that was silently rounded to `digits` and reported with
-  # its own, longer spelling: `unround(1.234, digits = 1)` gave `1.18 <=
-  # x(1.234) <= 1.28`, the bounds of nothing at all. Trailing zeros in a string
-  # are not the problem -- `"4.50"` at one decimal place is 4.5 -- so the test
-  # is the same two-step one as in `check_newly_numeric()`: `round()` decides,
-  # and the decimal count is only consulted for what it leaves open. Counting is
-  # the expensive step, so it runs on those values alone. A `digits` counted
-  # from `x` itself cannot disagree with it. (`round()` rejects a zero-length
-  # `digits`, hence the guard, and most of the cost of `decimal_places()` is
-  # fixed, hence the second one.)
+  # With `digits` given, `x` must fit into it: the bounds are `x` plus whole
+  # units of the next decimal place, so `unround(1.234, digits = 1)` would give
+  # the bounds of nothing at all. Trailing zeros are fine (`"4.50"` at one
+  # decimal place is 4.5), so the test is the two-step one of
+  # `check_newly_numeric()`: `round()` decides, and the expensive decimal count
+  # runs only on what it leaves open. `round()` rejects a zero-length `digits`,
+  # hence the guard.
   too_many <- rep(FALSE, n_out)
   if (digits_given && n_out > 0L) {
     unsettled <-
@@ -659,10 +637,8 @@ unround <- function(
     )
   }
 
-  # The same helper GRIM and GRIMMER derive their candidate ranges from, so all
-  # three agree on the bounds, on which rounding methods exist, and on what
-  # `threshold` and `symmetric` mean. It gives each bound as an integer
-  # numerator over a common denominator; dividing recovers the value:
+  # GRIM and GRIMMER derive their candidate ranges from the same helper, so all
+  # three agree on the bounds and on what each setting means:
   bounds <- lapply(seq_len(n_out), function(i) {
     bound_numerators(
       x_num = x_num[i],

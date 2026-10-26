@@ -17,11 +17,11 @@ debit_plot(
 \item{show_labels}{Logical. Should the value sets be labeled with
 "mean; SD"? Default is \code{TRUE}.}
 
-\item{show_full_scale}{Logical. Should the whole DEBIT line be shown,
-regardless of the data? Default is \code{TRUE}.}
+\item{show_full_scale}{Logical. If \code{TRUE}, the x-axis spans the whole DEBIT
+line, from 0 to 1, regardless of the data. Default is \code{TRUE}.}
 
-\item{show_theme_other}{Logical. Should the theme be adjusted to the plot?
-Default is \code{TRUE}.}
+\item{show_theme_other}{Logical. If \code{TRUE}, minor grid lines are removed and
+y-axis ticks are added. Default is \code{TRUE}.}
 }
 \value{
 A ggplot object.

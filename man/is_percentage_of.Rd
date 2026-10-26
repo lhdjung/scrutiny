@@ -43,9 +43,9 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 }
 \value{
 Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
-and \code{NA} if the case cannot be decided: if a value is missing, if
-\code{absolute} is not a non-negative whole number, or if \code{n} is not a positive
-whole number.
+and \code{NA} if the case cannot be decided: if a value is missing or infinite,
+if \code{absolute} is not a non-negative whole number, or if \code{n} is not a
+positive whole number.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

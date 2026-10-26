@@ -1,23 +1,17 @@
-#' Check that key columns perfectly map onto their identifiers
+#' Check that key arguments name columns of `data`
 #'
-#' Two helpers only called within `absorb_key_args()` to check the validity of
-#' arguments supplied to the factory-made function:
+#' Two checks called within `absorb_key_args()`:
 #'
-#' - `check_factory_key_args_values()` concerns the input data frame in
-#'   conjunction with the expressions provided to identify the "key" columns in
-#'   `data` and makes sure that no values other than these column names have
-#'   been provided.
-#' - `check_factory_key_args_names()` checks that all key columns have been
-#'   identified.
+#' - `check_factory_key_args_values()` errors if a key argument names a column
+#'   that `data` doesn't have.
+#' - `check_factory_key_args_names()` errors if a key column is missing from
+#'   `data` and no key argument stands in for it.
 #'
-#' @param data Data frame passed to the factory-made function.
-#' @param key_cols_call Optionally, a named character vector that maps key
-#'   argument names to the columns of `data` that they refer to, such as `c(x =
-#'   "mean")`. By default, it is read from the key arguments of the function
-#'   that calls `absorb_key_args()`.
-#' @param key_cols_missing,key_cols_call_names String. Vectors with names of the
-#'   key columns that are missing in `data` or that were provided by the user as
-#'   arguments, respectively.
+#' @param data Data frame passed to the mapper.
+#' @param key_cols_call Named character vector that maps key argument names to
+#'   the columns of `data` that they refer to, such as `c(x = "mean")`.
+#' @param key_cols_missing,key_cols_call_names String. Names of the key columns
+#'   that are missing from `data`, and of the key arguments the user specified.
 #'
 #' @return No return value; might throw an error.
 #'
@@ -28,9 +22,6 @@ check_factory_key_args_values <- function(data, key_cols_call) {
   if (length(offenders) == 0L) {
     return(NULL)
   }
-
-  # Error condition -- one or more key arguments have been specified with values
-  # that are not actually column names of `data`:
 
   offenders_names <- offenders |>
     names() |>
@@ -44,7 +35,6 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     msg_is_colname <- "are not column names"
   }
 
-  # Prepare an error message. It might be subsequently appended...
   msg_error <- c(
     "!" = "{offenders} {msg_is_colname} of `data`.",
     "x" = "The {offenders_names[1L]} argument of \\
@@ -52,7 +42,6 @@ check_factory_key_args_values <- function(data, key_cols_call) {
       but there is no column in `data` called {offenders[[1L]]}."
   )
 
-  # ... to point out that more than one supplied value is flawed:
   if (length(offenders) > 1L) {
     if (length(offenders) == 2L) {
       msg_arg_s <- "argument"
@@ -72,7 +61,6 @@ check_factory_key_args_values <- function(data, key_cols_call) {
     )
   }
 
-  # Throw the actual error:
   abort_in_export(msg_error)
 }
 
@@ -84,8 +72,6 @@ check_factory_key_args_names <- function(
   offenders <- key_cols_missing |>
     call_on(\(x) x[!x %in% key_cols_call_names])
 
-  # Error condition -- not all of the `reported` values that are not column
-  # names of `data` have been supplied as values of the respective arguments:
   if (length(offenders) == 0L) {
     return(NULL)
   }
@@ -94,8 +80,6 @@ check_factory_key_args_names <- function(
 
   msg_fun_name <- name_last_export_code()
 
-  # Because either one or more arguments (or column names) may be missing, the
-  # wording of the error message may be either singular or plural:
   if (length(offenders) == 1L) {
     msg_missing <- "Column {offenders} is"
     msg_is_are <- "is"
@@ -113,7 +97,6 @@ check_factory_key_args_names <- function(
     msg_argument <- "arguments"
   }
 
-  # Throw the error:
   abort_in_export(
     "{msg_column_s} {offenders} {msg_is_are} \\
           missing from `data`.",
@@ -126,11 +109,9 @@ check_factory_key_args_names <- function(
 
 # The settings of a mapper `fun`, such as `rounding`: its formals after the
 # dots, minus those named in `exclude`. `function_map_seq()` and
-# `function_map_total_n()` copy them, with `fun`'s defaults, so that they are
-# arguments of the mappers they create, as in `function_map()`. Through the
-# dots, they were invisible to `formals()`, tab completion, and the help page.
-# A `fun` without dots has no settings to copy, and keeps getting them through
-# the dots.
+# `function_map_total_n()` copy them with `fun`'s defaults, so that they show
+# up in `formals()`, tab completion, and the help page. A `fun` without dots has
+# no settings to copy; it gets them through the dots.
 formals_settings <- function(fun, exclude) {
   formals_fun <- formals(fun)
   index_dots <- match("...", names(formals_fun))
@@ -142,12 +123,10 @@ formals_settings <- function(fun, exclude) {
 }
 
 
-# The settings of a call, recorded in the "scrutiny" attribute as a tibble:
-# `setting`, `value` (a list), `default`, and `added_by`, the mapper whose
-# setting it is. A sequence or total-n mapper adds its own rows to those of the
-# basic mapper. `default` compares each value to `defaults`, from
-# `eval_defaults()`; a setting missing from them never counts as a default.
-# `scrutiny_meta()` shows the values as code, and `scrutiny_args()` reads them.
+# The settings of a call for the "scrutiny" attribute, as a tibble: `setting`,
+# `value` (a list), `default`, and `added_by`, the mapper whose setting it is.
+# A sequence or total-n mapper adds its own rows to the basic mapper's. A
+# setting missing from `defaults` never counts as a default.
 new_settings <- function(values, defaults, added_by) {
   names_values <- names(values)
   if (is.null(names_values)) {
@@ -216,14 +195,13 @@ is_enum_default <- function(default) {
 
 #' Check that no dots argument is misspelled
 #'
-#' `check_factory_dots()` is called within the mapper functions made by
-#' [`function_map()`], [`function_map_seq()`], and [`function_map_total_n()`].
-#' It errors if an argument passed through the dots is not an argument of the
-#' function being mapped.
+#' `check_factory_dots()` is called within mappers made by [`function_map()`],
+#' [`function_map_seq()`], and [`function_map_total_n()`]. It errors if an
+#' argument passed through the dots is not an argument of `fun`.
 #'
-#' @param fun Function applied by the factory-made function.
+#' @param fun Function applied by the mapper.
 #' @param fun_name_scalar String (length 1). Name of `fun`.
-#' @param ... The dots of the factory-made function.
+#' @param ... The dots of the mapper.
 #'
 #' @return No return value; might throw an error.
 #'
@@ -239,8 +217,8 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 
   fun_name_mapper <- name_last_export_code()
 
-  # The dots come right after the key arguments, so an unnamed argument
-  # after them lands here, with an empty name:
+  # The dots come right after the key arguments, so an unnamed argument after
+  # them lands here with an empty name:
   n_unnamed <- sum(offenders == "")
   if (n_unnamed > 0L) {
     abort_in_export(
@@ -250,9 +228,9 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
     )
   }
 
-  # Arguments after the dots must be named in full, so an abbreviation such as
-  # `items` for `items_averaged` lands here. `fun` has the arguments a sequence
-  # or total-n mapper passes on, such as `rounding`:
+  # An abbreviation, such as `items` for `items_averaged`, lands here too. `fun`
+  # has the arguments a sequence or total-n mapper passes on, such as
+  # `rounding`:
   names_full <- union(names(formals(rlang::caller_fn())), names(formals(fun)))
   names_meant <- unique(unlist(lapply(offenders, function(offender) {
     names_full[startsWith(names_full, offender)]
@@ -282,11 +260,10 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 
 #' Check that an argument names arguments of `.fun`
 #'
-#' Several arguments of `function_map()` -- `.reported`, `.args_by_row`, and
-#' `.cols_helper` -- are string vectors that must name arguments of the
-#' `*_scalar()` function passed as `.fun`. `check_factory_arg_names()` enforces
-#' this in the factory's entry area, where the user of the factory can still be
-#' told which of their specifications is at fault.
+#' Several arguments of `function_map()`, such as `.reported` and
+#' `.args_by_row`, must name arguments of `.fun`. `check_factory_arg_names()`
+#' checks this when the mapper is created, so the error can name the factory
+#' argument at fault.
 #'
 #' @param names String. The values given for `arg_name`.
 #' @param formals_fun Pairlist. The formal arguments of `.fun`.
@@ -324,10 +301,9 @@ check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
 
 #' Turn a mapper's test results into output columns
 #'
-#' A `*_scalar()` function returns a single value per row, or -- if it was told
-#' to show its reconstructed values, as via `show_rec` -- a list of values per
-#' row. `write_result_cols()` covers both cases, and is called within
-#' factory-made mapper functions.
+#' A `*_scalar()` function returns a single value per row or, as with
+#' `show_rec = TRUE`, a list of values per row. `write_result_cols()` handles
+#' both.
 #'
 #' @param results List with one element per row of the mapper's input data
 #'   frame, as returned by `purrr::pmap()`.
@@ -339,11 +315,9 @@ check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
 #'
 #' @noRd
 write_result_cols <- function(results, col_names) {
-  # With no rows to test, there is no result to read the output's shape off, so
-  # only the key result column is created -- the one column that is present
-  # whatever the `*_scalar()` function was told to show. Without this,
-  # `unlist()` below returns `NULL`, and the tibble ends up counting a column
-  # that it doesn't have:
+  # With no rows, there is no result to read the output's shape off, so only
+  # the key result column is created. `unlist()` below would return `NULL`, and
+  # the tibble would count a column that it doesn't have:
   if (length(results) == 0L) {
     out <- list(logical(0L))
     names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
@@ -352,16 +326,13 @@ write_result_cols <- function(results, col_names) {
 
   lengths_results <- lengths(results)
 
-  # The regular case: one value per row, so the key result column is all there
-  # is:
   if (all(lengths_results == 1L)) {
     out <- list(unlist(results, use.names = FALSE))
     names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
     return(out)
   }
 
-  # Without `.col_names`, there is nothing to unpack into, so the values stay in
-  # a list-column, as before:
+  # Without `.col_names`, there is nothing to unpack into:
   if (is.null(col_names)) {
     return(list(consistency = results))
   }
@@ -385,35 +356,19 @@ write_result_cols <- function(results, col_names) {
 
 #' Insert key arguments into the factory-made function
 #'
-#' `insert_key_args()` extends the list of the factory-made function's
-#' parameters (i.e., its formal arguments) by the key arguments corresponding to
-#' the particular consistency test which the factory-made function will apply.
-#'
-#' It must be used in concert with `absorb_key_args()`.
-#'
-#' @details The function is called in the exit area of function factories (i.e.,
-#'   the part after the first version of the factory-made function is created).
-#'   It inserts parameters named after the key columns into `fun`, with `NULL`
-#'   as the default for each.
-#'
-#'   The key columns need to be present in the input data frame. They are
-#'   expected to have the names specified in `.reported`. If they don't,
-#'   however, the user can simply specify the key column arguments as the
-#'   non-quoted names of the columns meant to fulfill these roles.
-#'
-#'   In its current form, the function is very hard to read, but this is for
-#'   performance only. An equivalent but better-readable version is outcommented
-#'   below the function.
+#' `insert_key_args()` adds the key arguments, such as `x` and `n`, to the
+#' formals of a factory-made function, each with `NULL` as the default. A user
+#' whose columns have other names specifies them through these arguments, and
+#' `absorb_key_args()` renames the columns at call time.
 #'
 #' @param fun Factory-made function.
 #' @param reported String. Names of the key arguments to be inserted into `fun`.
-#' @param insert_after Integer. Index of the existing formal argument of `fun`
-#'   after which the key arguments will be inserted. Default is `1L`. For
-#'   convention's sake, this should hardly be changed.
+#' @param insert_after Integer. Index of the formal of `fun` after which the key
+#'   arguments are inserted. Default is `1L`.
 #' @param variadic String (length 1) or `NULL`, the default. Optionally, the
 #'   name of a variadic key argument, which is inserted ahead of the `reported`
-#'   ones and with no default rather than with `NULL`: it takes a tidyselect
-#'   expression, and there is no set of columns that could be guessed at.
+#'   ones with no default: it takes a tidyselect expression, and there is no
+#'   set of columns that could be guessed at.
 #'
 #' @return Function `fun` with new arguments, named after `reported`, with
 #'   `NULL` as the default for each.
@@ -431,8 +386,6 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
     key_args <- c(arg_variadic, key_args)
   }
 
-  # Replace the arguments of `fun` by the result of the pipeline, which just
-  # appends `key_args` after the specified position.
   `formals<-`(
     fun,
     value = fun |>
@@ -444,11 +397,9 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
 
 #' Check that a variadic key argument was specified
 #'
-#' A factory-made function with a `.reported_variadic` argument has one formal
-#' that takes a tidyselect expression, and that formal has no default: which
-#' columns are tested is a property of the caller's data, so there is nothing
-#' the factory could have guessed at. `check_variadic_arg()` turns the empty
-#' quosure that results from leaving it out into a message that says so.
+#' The variadic argument of a factory-made function has no default.
+#' `check_variadic_arg()` turns the empty quosure that results from leaving it
+#' out into an error that says so.
 #'
 #' @param quo Quosure captured from the variadic argument.
 #' @param name String (length 1). Name of that argument.
@@ -474,15 +425,12 @@ check_variadic_arg <- function(quo, name) {
 #' Check what a variadic key argument selected
 #'
 #' `tidyselect::eval_select()` guarantees that the selected columns exist, but
-#' not that they are usable as variadic key columns. Two ways they may not be:
+#' not that they are usable as variadic key columns. They are not if:
 #'
-#' - The selection is empty, which leaves the test function with no values.
-#'   `purrr::pmap()` would report this as a recycling failure over a variable
-#'   the caller has never heard of.
-#' - The selection overlaps the columns that already have a role in the test.
-#'   Such a column would be both tested as one of many values and used in its
-#'   own right, and it would appear twice in the output, giving a tibble with
-#'   duplicate column names.
+#' - The selection is empty. `purrr::pmap()` would report this as a recycling
+#'   failure over a variable the caller has never heard of.
+#' - The selection includes a column that already has a role in the test. It
+#'   would appear twice in the output.
 #'
 #' @param index Integer. Column positions, as returned by
 #'   `tidyselect::eval_select()`.
@@ -536,10 +484,9 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 
 #' Rename key columns according to the key arguments
 #'
-#' `absorb_key_args()` is called within mapper functions. If the user named a
-#' key argument such as `x` after a column of `data`, it renames that column to
-#' the key argument's name, so that the rest of the mapper finds it under the
-#' expected name.
+#' `absorb_key_args()` is called within mappers. If a key argument such as `x`
+#' names a column of `data`, it renames that column to the key argument's
+#' name, so that the rest of the mapper finds it.
 #'
 #' @param data Data frame passed to the mapper.
 #' @param reported String. Names of the key arguments.
@@ -557,10 +504,9 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 #' df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
 #' absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
 absorb_key_args <- function(data, reported, key_cols_call = NULL) {
-  # The values of the key arguments are read in the frame of the factory-made
-  # function, not off its call: the call is `FUN(X[[i]], ...)` if the function
-  # was reached through `lapply()`, and names a variable rather than its value
-  # if it was called from within another function.
+  # The key arguments are read in the mapper's frame, not off its call: the
+  # call is `FUN(X[[i]], ...)` if the mapper was reached through `lapply()`,
+  # and names a variable rather than its value if called from another function.
   if (is.null(key_cols_call)) {
     fn_caller <- rlang::caller_fn()
     env <- rlang::caller_env()
@@ -600,8 +546,6 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
     call_on(\(x) x[!x %in% colnames(data)]) |>
     as.character()
 
-  # No need to work with key arguments here if `data` has all of the expected
-  # column names:
   if (length(key_cols_missing) == 0L) {
     return(data)
   }
@@ -610,8 +554,6 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
   key_cols_call_names <- names(key_cols_call)
 
-  # Run specialized checks on the code supplied by the factory-made
-  # function's user to the subsequently inserted key argument parameters:
   check_factory_key_args_values(data, key_cols_call)
   check_factory_key_args_names(key_cols_missing, key_cols_call_names)
 
@@ -625,8 +567,7 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
     )
   }
 
-  # Replace the actual column names by the missing names for which they stand
-  # in, then move the renamed columns to the front, as they are key columns:
+  # Rename, then move the key columns to the front:
   index <- match(key_cols_call, colnames(data))
   colnames(data)[index] <- key_cols_call_names
   data |>
@@ -634,11 +575,11 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 }
 
 
-# Read the key arguments, captured as named quosures, as a named character
-# vector of column names. An argument that is `NULL`, i.e., not
-# specified, is left out. A bare name is taken as a column name if `data` has
-# such a column; otherwise, if it is a variable holding a string, as that
-# string. Any other expression must evaluate to a single string.
+# Turn the key arguments, captured as named quosures, into a named character
+# vector of column names. A `NULL` argument, i.e., one not specified, is left
+# out. A bare name is a column name if `data` has such a column, otherwise the
+# string that a variable of that name holds. Any other expression must evaluate
+# to a single string.
 capture_key_args <- function(data, quos) {
   out <- character()
   for (name in names(quos)) {
@@ -679,10 +620,9 @@ capture_key_args <- function(data, quos) {
 
 #' Check that disabled arguments are not specified
 #'
-#' `check_args_disabled()` is called within functions made by
-#' [`function_map()`] or [`function_map_seq()`]. It errors if the user of the
-#' factory-made function specified an argument that the factory's user disabled
-#' via `.args_disabled` or fixed via `.args_fixed`.
+#' `check_args_disabled()` is called within mappers made by [`function_map()`]
+#' or [`function_map_seq()`]. It errors if the caller specified an argument
+#' that is disabled via `.args_disabled` or fixed via `.args_fixed`.
 #'
 #' @param args_disabled String. Names of the disabled arguments.
 #'
@@ -693,11 +633,10 @@ check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
   }
-  # Disabled arguments arrive through the caller's dots, or they are formals
-  # of the caller, as `dispersion` is in a sequence mapper. The names of the
-  # dots are read off the dots themselves, not off the call, which through
-  # `lapply()` is `FUN(X[[i]], ...)` and names nothing; a formal is given if
-  # `missing()` says so in the caller's frame:
+  # Disabled arguments arrive through the caller's dots, or they are formals of
+  # the caller, as `dispersion` is in a sequence mapper. The names of the dots
+  # are read off the dots themselves, not off the call, which through
+  # `lapply()` is `FUN(X[[i]], ...)` and names nothing:
   env_caller <- parent.frame()
   names_dots <- if (exists("...", envir = env_caller, inherits = FALSE)) {
     eval(quote(...names()), env_caller)
@@ -740,10 +679,9 @@ check_args_disabled <- function(args_disabled) {
 
 #' Check that the vector of disabled arguments is unnamed
 #'
-#' `check_args_disabled_unnamed()` is a companion to `check_args_disabled()`. It
-#' must be called in a function factory's entry area. The function will throw an
-#' error if the factory's (!) user provided a named vector, rather than simply
-#' the names of the arguments to be disabled.
+#' `check_args_disabled_unnamed()` is called when a factory creates a mapper.
+#' It errors if `.args_disabled` is a named vector rather than just the names of
+#' the arguments to disable.
 #'
 #' @param args_disabled The factory's `.args_disabled` argument, specified by
 #'   the factory's user.
@@ -774,8 +712,7 @@ check_args_disabled_unnamed <- function(args_disabled) {
 #'
 #' `check_fun_result()` is called on the result of applying `.fun` to the
 #' first row. The key result column is logical, so `.fun` must return a single
-#' logical value, or a list that starts with one if it shows its
-#' reconstructed values.
+#' logical value, or a list that starts with one.
 #'
 #' @param result What `.fun` returned.
 #' @param fun_name String. Name of `.fun`, for the message.

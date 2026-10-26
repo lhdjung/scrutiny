@@ -15,8 +15,8 @@
 #'   unit of the last decimal place of `from`. A number does not keep trailing
 #'   zeros, so `5.30` steps by `0.1`: give `by = 0.01`, or `from` as the string
 #'   `"5.30"`.
-#' @param dispersion,.dispersion Numeric. The steps up and down from `from`.
-#'   Default is `1:5`.
+#' @param dispersion,.dispersion Numeric. Whole numbers of steps up and down
+#'   from `from`. Default is `1:5`.
 #' @param offset_from,.offset_from Integer. Moves the starting point by that
 #'   many steps. Default is `0`.
 #' @param out_min,.out_min,out_max,.out_max Limits on the values, including
@@ -43,7 +43,8 @@
 #'   is an integer and the steps are whole numbers. With `track_diff_var =
 #'   TRUE`, it returns a list of that vector and an integer vector of steps.
 #'   - `seq_disperse_df()` returns a tibble with the sequence in the `x`
-#'   column, plus any columns added via the dots.
+#'   column, the steps in `diff_var` if requested, and any columns added via
+#'   the dots.
 #'
 #' @export
 #'
@@ -77,9 +78,8 @@ seq_disperse <- function(
 ) {
   # Checks ---
 
-  # Any sequence can only proceed from a single number (for multiple numbers,
-  # map the function). Also, the steps away from the number can't be negative:
   check_length(from, 1L)
+
   # A factor is its label, not its code:
   if (is.factor(from)) {
     from <- as.character(from)
@@ -91,7 +91,7 @@ seq_disperse <- function(
   check_non_negative(dispersion)
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse
-  # on. It used to be blamed on `out_min`, or to fail in `restore_zeros()`:
+  # on:
   from_num <- suppressWarnings(as.numeric(from))
   if (!is.finite(from_num)) {
     abort_in_export(
@@ -100,18 +100,12 @@ seq_disperse <- function(
     )
   }
 
-  # Each value in `dispersion` is a number of steps taken both up and down from
-  # `from`, so a step of 0 is `from` itself -- twice over, once in each
-  # direction. Whether `from` belongs in its own sequence is what
-  # `include_reported` decides, so a zero step used to add it two more times:
-  # `seq_disperse(4.02, dispersion = 0)` was `c("4.02", "4.02", "4.02")`, and
-  # `grim_map_seq(dispersion = c(0, 1, 2))` returned the reported case twice,
-  # which `audit_seq()` then counted twice:
+  # A step of 0 is `from` itself, twice over. Whether `from` is included is up
+  # to `include_reported`, and a duplicate would be counted twice by
+  # `audit_seq()`:
   dispersion <- dispersion[dispersion != 0]
 
-  # Each value is a number of steps, so a fractional one lands off the decimal
-  # level of `from`: `dispersion = 1.5` around `4` returned
-  # `"2"`, `"4"`, and `"6"`, next to steps of `-1.5` and `1.5`. `disperse()`
+  # A fractional step would land off the decimal level of `from`. `disperse()`
   # rejects it for the same reason:
   if (!all(is_whole_number(dispersion))) {
     offenders <- dispersion[!is_whole_number(dispersion)]
@@ -126,9 +120,6 @@ seq_disperse <- function(
 
   # Main part ---
 
-  # If the step size by which the sequence progresses (`by`) was not manually
-  # chosen as in `seq()`, it is determined by the number of decimal places in
-  # `from`:
   if (is.null(by)) {
     digits <- decimal_places_scalar(from)
     by <- 1 / (10^digits)
@@ -163,22 +154,18 @@ seq_disperse <- function(
   disp_minus <- dispersion * by
   disp_plus <- disp_minus
 
-  # The sequence is meant to proceed on the decimal level of `by` (or of `from`,
-  # if `by` was specified with fewer decimal places). Floating-point arithmetic
-  # does not respect that level: with `from` at `3.14` and `dispersion` going up
-  # to `305`, `from - (305 * 0.01)` is `0.0899999999999999`, not `0.09`. Every
-  # value derived from `from`, `by`, and `dispersion` is therefore rounded back
-  # to `digits_out` before it is compared to the limits or returned. It is
-  # counted before `from` becomes a number, which would drop the trailing zero
-  # of a string like `"1.50"`:
+  # Floating-point arithmetic leaves the decimal level: `3.14 - (305 * 0.01)`
+  # is `0.0899999999999999`. Every derived value is therefore rounded back to
+  # `digits_out` before it is compared to the limits or returned. It is counted
+  # before `from` becomes a number, which would drop the trailing zero of a
+  # string like `"1.50"`:
   digits_out <- max(digits, decimal_places_scalar(from))
 
   from_is_integer <- is.integer(from)
   from <- as.numeric(from)
 
-  # The limits are compared to numbers, so they have to be numbers themselves. A
-  # string was compared as a string, so `out_max = "10"` ruled out `9` (it sorts
-  # after `"10"`), and a missing value failed in `if ()`:
+  # A string limit would be compared as a string, so `out_max = "10"` would
+  # rule out `9`:
   check_limit <- function(limit, name, auto = FALSE) {
     limit_num <- suppressWarnings(as.numeric(limit))
     if (length(limit) != 1L || is.na(limit_num)) {
@@ -212,10 +199,8 @@ seq_disperse <- function(
     from <- round(from + (by * offset_from), digits_out)
   }
 
-  # Drop the values that fall outside of the range specified by `out_min` and
-  # `out_max`, along with the `dispersion` steps that led to them. Both limits
-  # apply to both sides of the sequence: with `from = 30` and `out_max = 25`,
-  # the steps down from `from` land on `29`, `28`, ..., which are above the
+  # Both limits apply to both sides of the sequence: with `from = 30` and
+  # `out_max = 25`, the steps down land on `29`, `28`, ..., which are above the
   # maximum just as the steps up are.
   is_within_range <- function(x) {
     ok <- rep(TRUE, length(x))
@@ -239,9 +224,7 @@ seq_disperse <- function(
   disp_plus_represent <- dispersion[is_within_range_upper]
   seq_upper <- seq_upper[is_within_range_upper]
 
-  # The limits apply to `from` as well: a reported value outside of them is
-  # left out even if `include_reported` is `TRUE`, or the output would break
-  # the very limits it was asked to keep:
+  # The limits apply to `from` as well, even if `include_reported` is `TRUE`:
   include_reported <- include_reported && is_within_range(from)
 
   disp_zero <- if (include_reported) {
@@ -250,8 +233,6 @@ seq_disperse <- function(
     NULL
   }
 
-  # Create sequences that are dispersed upward and downward, starting at `from`.
-  # If this very value is meant to be included, it is positioned in between:
   out <- seq_lower |>
     rev() |>
     append(c(disp_zero, seq_upper))
@@ -262,23 +243,17 @@ seq_disperse <- function(
     out <- as_integer_if_lossless(out)
   }
 
-  # All the rest is only for creating and appending a sequence of dispersion
-  # steps, so if this is not desired, the `out` vector is returned right now:
   if (!track_diff_var) {
     return(out)
   }
 
-  # The complete vector of dispersion steps -- negative and positive -- includes
-  # the midpoint at zero to represent `from` if and only if chosen by the user:
   disp_zero_represent <- if (include_reported) {
     0L
   } else {
     NULL
   }
 
-  # Collect the sequence dispersed around `from` and the sequence of dispersion
-  # steps in a list. The steps are whole numbers, so they are integers, as
-  # documented, even if `dispersion` was given as doubles:
+  # The steps are integers, as documented, even if `dispersion` was doubles:
   list(
     out,
     c(-rev(disp_minus_represent), disp_zero_represent, disp_plus_represent) |>
@@ -320,8 +295,8 @@ seq_disperse_df <- function(
     diff_var <- NULL
   }
 
-  # Passing the dots on as they are, rather than as captured expressions,
-  # evaluates them where the caller wrote them, so a local variable is found:
+  # Plain dots, not captured expressions, so that a caller's local variable is
+  # found:
   tibble::tibble(x, diff_var, ...)
 }
 
@@ -329,11 +304,9 @@ seq_disperse_df <- function(
 #' Helper function for dispersed sequence generation
 #'
 #' @description `seq_disperse_df_internal()` is a lightweight version of
-#'   `seq_disperse_df()`. It's used as an internal helper for
-#'   `function_map_seq_proto()`, which in turn powers `function_map_seq()`,
-#'   which ultimately produces `grim_map_seq()` and other sequence mappers.
+#'   `seq_disperse_df()` for `function_map_seq_proto()`.
 #'
-#' @return A tibble (data frame).
+#' @return A tibble with the columns `x` and `diff_var`.
 #'
 #' @noRd
 

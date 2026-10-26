@@ -21,7 +21,7 @@ A tibble (data frame).
 \description{
 A fictional dataset with means, standard deviations (SDs), and sample sizes
 of flying pigs. It can be used to demonstrate the functionality of
-\code{grimmer_map()} and functions building up on it.
+\code{grimmer_map()} and functions built on it.
 }
 \seealso{
 \code{\link{pigs1}} for (only) GRIM-testing the same means as here, \code{\link{pigs2}}

@@ -12,7 +12,7 @@ check_mapper_input_colnames(
 )
 }
 \arguments{
-\item{data}{Data frame. Input to the mapper function.}
+\item{data}{Data frame. Input to the mapper.}
 
 \item{reported}{String. Names of the key columns that \code{data} must have,
 such as \code{c("x", "n")} for \code{grim_map()}.}
@@ -27,10 +27,9 @@ the mapper adds. Default is \code{"consistency"}.}
 No return value; might throw an error.
 }
 \description{
-\code{check_mapper_input_colnames()} is called within consistency
-test mapper functions. It errors if \code{data} lacks a key column, or if it
-already has a column named like the result column (\code{"consistency"} by
-default).
+\code{check_mapper_input_colnames()} is called within mappers. It
+errors if \code{data} lacks a key column, or if it already has a column named
+like the key result column (\code{"consistency"} by default).
 }
 \seealso{
 \code{vignette("consistency-tests-in-depth")}.

@@ -1,10 +1,9 @@
 #' Is an object the output of a mapper function?
 #'
 #' @description
-#' - `is_map_df()` tests whether an object was returned by a scrutiny-style
-#' mapper function of any tier: a basic mapper such as [`grim_map()`] or one
-#' made by [`function_map()`], or a function made by [`function_map_seq()`] or
-#' [`function_map_total_n()`].
+#' - `is_map_df()` tests whether an object is the output of a mapper of any
+#' tier, i.e., of a function made by [`function_map()`], [`function_map_seq()`],
+#' or [`function_map_total_n()`], such as [`grim_map()`].
 #' - `is_map_basic_df()`, `is_map_seq_df()`, and `is_map_total_n_df()` test
 #' for one tier each.
 #'

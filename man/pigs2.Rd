@@ -20,7 +20,7 @@ A tibble (data frame).
 \description{
 A fictional dataset with percentages and sample sizes of flying pigs. It can
 be used to demonstrate the functionality of \code{grim_map()}, particularly its
-\code{percent} argument, and functions building up on it.
+\code{percent} argument, and functions built on it.
 }
 \seealso{
 \code{\link{pigs1}} for GRIM-testing means instead of percentages, \code{\link{pigs3}}

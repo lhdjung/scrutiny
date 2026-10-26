@@ -102,16 +102,12 @@
 #' @export
 
 round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
-  # The same check that `reround()` and `rounding_offsets()` run. It belongs
-  # here most of all: this is the function that acts on `threshold`, and a value
-  # outside of `(0, 10)` silently turns it into `round_ceiling()` or
-  # `round_floor()` rather than rounding from a threshold at all:
+  # A `threshold` outside of `(0, 10)` would silently turn this into
+  # `round_ceiling()` or `round_floor()`:
   check_threshold_valid(threshold)
 
-  # A bare `if (symmetric)` failed on an `NA` or a longer vector with base R's
-  # message, and took a number or a string like `"TRUE"` as a flag. Primitives
-  # only, not `isTRUE()` and `isFALSE()`: this runs once per candidate value,
-  # and those two closures cost half again as much as the rounding itself.
+  # Primitives only, not `isTRUE()` and `isFALSE()`: this runs once per
+  # candidate value, and those closures cost half again as much as the rounding.
   if (!is.logical(symmetric) || length(symmetric) != 1L || is.na(symmetric)) {
     abort_symmetric_invalid(symmetric)
   }
@@ -120,8 +116,6 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   offset <- tie_offset_up(threshold)
 
   if (symmetric) {
-    # For a non-negative `x`, `abs(x)` is `x`, so this is the same rounding;
-    # for a negative one, it is the mirror image of the rounding of `-x`:
     restore_sign(floor(abs(x) * p10 + offset) / p10, x)
   } else {
     floor(x * p10 + offset) / p10
@@ -134,12 +128,7 @@ round_up_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 #' @rdname rounding-common
 #' @export
 
-# Note that this implementation is slightly different from the formula for
-# rounding down in the "Rounding in detail" article. However, this is only for
-# performance reasons, and the results are equivalent.
-
 round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
-  # See the comment in `round_up_from()`:
   check_threshold_valid(threshold)
 
   if (!is.logical(symmetric) || length(symmetric) != 1L || is.na(symmetric)) {
@@ -149,7 +138,6 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
   p10 <- 10^digits
   offset <- tie_offset_down(threshold)
 
-  # See the comments in `round_up_from()`:
   if (symmetric) {
     restore_sign(ceiling(abs(x) * p10 - offset) / p10, x)
   } else {
@@ -159,11 +147,6 @@ round_down_from <- function(x, digits = 0L, threshold, symmetric = FALSE) {
 
 
 # Round up from 5 ------------------------------------------------------------
-
-# We want `x`, the decimal number, to be rounded up if the part of the decimal
-# portion to be cut off by rounding is 5 or greater. However, if that part is
-# less than 5, `x` should instead be rounded down. The `threshold` for rounding
-# up is therefore set to 5.
 
 #' @rdname rounding-common
 #' @export
@@ -175,15 +158,6 @@ round_up <- function(x, digits = 0L, symmetric = FALSE) {
 
 # Round down from 5 ----------------------------------------------------------
 
-# Here, we want `x` to be rounded down if the part of the decimal portion to be
-# cut off by rounding is 5 or less. However, if that part is greater than 5, `x`
-# should instead be rounded up. The `threshold` for rounding down is therefore
-# set to 5.
-#
-# `round_down_from()` reads `threshold` the same way `round_up_from()` does, so
-# the two differ only in where they send a value sitting exactly on it. At the 5
-# used here, that is the tie.
-
 #' @rdname rounding-common
 #' @export
 
@@ -192,9 +166,9 @@ round_down <- function(x, digits = 0L, symmetric = FALSE) {
 }
 
 
-# Shared by `check_rounding_spec_singular()`, which `reround()` goes through,
-# and the exported rounding functions, which don't. Each tests `symmetric`
-# inline, since this runs once per candidate value.
+# Shared by `check_rounding_spec_singular()` and the exported rounding
+# functions. Each caller tests `symmetric` inline because it runs once per
+# candidate value; only the error is shared.
 abort_symmetric_invalid <- function(symmetric) {
   abort_in_export(
     "`symmetric` must be `TRUE` or `FALSE`.",

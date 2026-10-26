@@ -25,22 +25,20 @@ A tibble with one row per setting and these columns, or \code{NULL} if
 
 Every mapper, such as \code{\link[=grim_map]{grim_map()}}, records the settings of the call
 that produced its output. \code{scrutiny_meta()} returns them as a tibble, so
-that a report can state under which rounding method or SD convention a
-verdict was reached.
+that a report can state the rounding method or SD convention behind a
+verdict.
 
 Settings are the arguments that apply to the whole call, with defaults
 resolved, such as \code{rounding}, \code{percent}, or \code{sd_meaning}. Arguments that
-may vary by row are columns of the output instead: \code{digits_x}, \code{digits_sd},
-and helper arguments such as \code{items_averaged}, even if given as a single
-value.
+may vary by row, such as \code{digits_x} and \code{items_averaged}, are columns of
+the output instead, even if given as a single value. Sequence and total-n
+mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, add their own settings, such as
+\code{dispersion}.
 
-Sequence and total-n mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, add their own
-settings, such as \code{dispersion}, to those of the basic mapper they call.
-
-When the output of \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=debit_map]{debit_map()}}, or
-\code{\link[=is_percentage_of_map]{is_percentage_of_map()}} is printed, a line in the header names the
-settings that are not at their defaults, as in \verb{# GRIM: rounding = "up"}.
-This includes sequence and total-n output.
+Printed output of \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=debit_map]{debit_map()}}, or
+\code{\link[=is_percentage_of_map]{is_percentage_of_map()}}, including sequence and total-n output, has a
+header line that names the settings that are not at their defaults, as in
+\verb{# GRIM: rounding = "up"}.
 
 Some dplyr verbs, such as \code{summarise()}, drop the record, and with it the
 header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.

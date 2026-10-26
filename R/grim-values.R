@@ -1,7 +1,6 @@
-# The two exported functions below share all of their work with each other and
-# with `grim_scalar()`: `sum_range()` returns the least and the greatest whole
-# number sum total that would have been reported as `x`. Everything else is
-# division and comparison.
+# The two exported functions below share their work with `grim_scalar()`:
+# `sum_range()` returns the least and the greatest whole-number sum total that
+# would have been reported as `x`. Everything else is division and comparison.
 
 grim_sums_scalar <- function(
   x,
@@ -31,12 +30,9 @@ grim_sums_scalar <- function(
 
   n_items <- as.numeric(n) * items_averaged
 
-  # An infinite `x` is undecidable, exactly as in `grim_scalar()`: no data set
-  # has an infinite mean, and `sum_range()` would answer with an infinitely wide
-  # range that `seq()` then refuses to walk. Both callers read the sums with
-  # `anyNA()`, which is how a missing `x` arrives here as well:
-  # So is a sample size or item count that is no positive whole number, as in
-  # every other test (see `is_decidable_n_items()`):
+  # Undecidable cases as in `grim_scalar()`. An infinite `x` would give an
+  # infinitely wide range that `seq()` refuses to walk. Both callers check the
+  # sums with `anyNA()`, which also catches a missing `x`:
   sums <- if (
     is.infinite(x_num) ||
       is.na(digits_x) ||
@@ -57,8 +53,8 @@ grim_sums_scalar <- function(
   list(
     sums = sums,
     n_items = n_items,
-    # Values are returned on the scale of `x` itself, so that they can be read
-    # against it. Internally, a percentage is a decimal number:
+    # Values are returned on the scale of `x`, so that they can be read against
+    # it. Internally, a percentage is a decimal number:
     scale = if (percent) 100 else 1
   )
 }
@@ -86,8 +82,6 @@ grim_values_scalar <- function(
   )
   sums <- parts$sums
 
-  # The bounds are undefined -- as with a missing `x` -- so consistency is
-  # undecidable, and so is the set of achievable means:
   if (anyNA(sums)) {
     return(NA_real_)
   }
@@ -198,7 +192,8 @@ grim_closest_scalar <- function(
 #' - For `grim_values()`, a list of numeric vectors, one per value set. A
 #'   vector is empty if the value set is inconsistent, and `NA` if it cannot
 #'   be decided.
-#' - For `grim_closest()`, a numeric vector as long as the inputs.
+#' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
+#'   where a value set cannot be decided.
 #'
 #' @seealso [`grim()`], [`grim_map()`], and [`grim_probability()`].
 #'
@@ -236,7 +231,7 @@ grim_closest_scalar <- function(
 #' )
 
 # The signatures mirror those of the `*_scalar()` functions; see
-# `map_value_sets()`:
+# `map_value_sets()`.
 grim_values <- function(
   x,
   n,

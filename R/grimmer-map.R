@@ -22,11 +22,12 @@
 #'
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
-#' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
 #' - `items_averaged`: the number of items averaged into each score.
+#' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
 #' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items_averaged`.
 #'   `NA` for a case that cannot be decided, such as one with a missing value.
-#' - `reason`: `"Passed all"` if consistent; otherwise the test that failed.
+#' - `reason`: `"Passed all"` if consistent; otherwise the test that failed, or
+#'   why the case cannot be decided.
 #' - Any other columns from `data`.
 #'
 #' The `reason` column refers to GRIM and the GRIMMER tests of Allard (2018):

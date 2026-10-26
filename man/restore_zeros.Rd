@@ -26,7 +26,7 @@ restore_zeros_df(
 }
 \arguments{
 \item{x}{Numeric, or a string coercible to numeric. A value that is not
-coercible, such as \code{"5\%"}, becomes \code{NA}.}
+coercible, such as \code{"5\%"}, becomes \code{NA} with a warning.}
 
 \item{width}{Integer. Number of decimal places the output should have.
 Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of

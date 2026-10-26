@@ -11,8 +11,8 @@ duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE)
 
 \item{ignore}{Optionally, a vector of values not to count.}
 
-\item{show_rates}{Logical. If \code{TRUE} (the default), add \code{rate_x} and
-\code{rate_y}; see \emph{Value}. \code{FALSE} is faster.}
+\item{show_rates}{Logical. If \code{TRUE} (the default), add \code{total_x},
+\code{total_y}, \code{rate_x}, and \code{rate_y}; see \emph{Value}. \code{FALSE} is faster.}
 }
 \value{
 A tibble with these columns:
@@ -28,7 +28,8 @@ differs from \code{count / total_y} if a value repeats within a column.
 }
 \description{
 \code{duplicate_count_colpair()} counts, for every pair of columns in a data
-frame, the values that occur in both. Results are ordered by that count.
+frame, the values that occur in both. Results are ordered by that count,
+in descending order.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
  \code{audit()} on

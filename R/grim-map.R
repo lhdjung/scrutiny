@@ -34,8 +34,8 @@
 #'
 #' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.
-#' - `digits_x`: the number of decimal places in `x`, as given.
 #' - `items_averaged`: the number of items averaged into each score.
+#' - `digits_x`: the number of decimal places in `x`, as given.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items_averaged`. `NA` for
 #'   a case that cannot be decided, such as one with a missing value.
 #' - `probability`: the probability of GRIM inconsistency; see
@@ -128,8 +128,6 @@ grim_map <- function_map(
     "rec_x_upper",
     "rec_x_lower"
   ),
-  # `probability` is not part of `grim_scalar()`'s return value: it comes from
-  # `grim_probability()`, applied to the same per-row input. Making
-  # `grim_scalar()` return it as well would change what `grim()` returns:
+  # Not returned by `grim_scalar()`, which would change what `grim()` returns:
   .cols_derived = list(probability = grim_probability)
 )

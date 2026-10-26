@@ -10,7 +10,7 @@ reverse_map_seq(data)
 \item{data}{Data frame with the \code{"scrutiny_map_seq"} class.}
 }
 \value{
-The reconstructed tibble.
+A tibble with the tested columns, one row per case.
 }
 \description{
 \code{reverse_map_seq()} takes the output of a function made by
