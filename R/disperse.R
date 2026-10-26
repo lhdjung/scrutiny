@@ -168,7 +168,7 @@ disperse <- function(
       names_constant[unnamed] <-
         paste0("constant", seq_along(constant))[unnamed]
       constant <- constant |>
-        purrr::map(repeat_constant, out, list_input = TRUE) |>
+        purrr::map(function(x) repeat_constant(x, out, list_input = TRUE)) |>
         tibble::as_tibble(.name_repair = function(x) names_constant)
     } else {
       constant <- repeat_constant(constant, out)

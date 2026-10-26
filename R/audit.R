@@ -351,18 +351,18 @@ audit_total_n <- function(data) {
   df_list <- split(data, data$case)
 
   df_list_hits <- df_list |>
-    purrr::map(dplyr::filter, both_consistent)
+    purrr::map(function(x) dplyr::filter(x, both_consistent))
 
   map_nrow_half <- function(x) {
     vapply(x, nrow, integer(1L), USE.NAMES = FALSE) / 2L
   }
 
   hits_forth <- df_list_hits |>
-    purrr::map(dplyr::filter, dir == "forth") |>
+    purrr::map(function(x) dplyr::filter(x, dir == "forth")) |>
     map_nrow_half()
 
   hits_back <- df_list_hits |>
-    purrr::map(dplyr::filter, dir == "back") |>
+    purrr::map(function(x) dplyr::filter(x, dir == "back")) |>
     map_nrow_half()
 
   hits_total <- hits_forth + hits_back
@@ -371,7 +371,7 @@ audit_total_n <- function(data) {
   # a miss, so it is left out of the total, as `audit_seq()` leaves out
   # undecidable cases. A case with no decidable split has no hit rate:
   scenarios_total <- df_list |>
-    purrr::map(dplyr::filter, !is.na(both_consistent)) |>
+    purrr::map(function(x) dplyr::filter(x, !is.na(both_consistent))) |>
     map_nrow_half()
   hit_rate <- hits_total / scenarios_total
   hit_rate[scenarios_total == 0] <- NA

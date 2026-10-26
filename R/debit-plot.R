@@ -333,12 +333,16 @@ debit_plot <- function(
     for (type in sd_meanings) {
       if (is_thinning) {
         k_by_row <- list(k_lower = k_lower, k_upper = k_upper, n = n) |>
-          purrr::pmap(
-            thin_binary_means,
-            x_range = panel$x.range,
-            y_range = panel$y.range,
-            sd_meaning = type
-          )
+          purrr::pmap(function(k_lower, k_upper, n) {
+            thin_binary_means(
+              k_lower,
+              k_upper,
+              n,
+              x_range = panel$x.range,
+              y_range = panel$y.range,
+              sd_meaning = type
+            )
+          })
         is_thinned <- is_thinned | lengths(k_by_row) < k_count
       } else {
         k_by_row <- purrr::map2(k_lower, k_upper, function(k_lower, k_upper) {

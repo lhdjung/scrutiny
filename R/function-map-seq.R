@@ -529,9 +529,7 @@ function_map_seq <- function(
       # Repeat the `var` strings so that they form a vector of the length that
       # is the row number of `out`, and that can therefore be added to `out`:
       nrow_out <- vapply(out, nrow, integer(1L), USE.NAMES = FALSE)
-      var <- var |>
-        purrr::map2(nrow_out, rep) |>
-        purrr::list_c(ptype = character())
+      var <- rep(var, nrow_out)
 
       # For better output, `out` should be a single data frame; and for
       # identifying the origin of individual rows, `var` is added. See above.

@@ -31,24 +31,24 @@ function_map_total_n_proto <- function(
     reported_n_cols <- ncol(.reported)
     reported_n_vars <- reported_n_cols / 2
 
-    df_list <- data |>
-      dplyr::select(n) |>
-      purrr::pmap(
-        disperse_total,
-        dispersion = .dispersion,
-        n_min = .n_min,
-        n_max = .n_max,
-        constant = .constant
-      )
+    df_list <- data$n |>
+      purrr::map(function(n) {
+        disperse_total(
+          n,
+          dispersion = .dispersion,
+          n_min = .n_min,
+          n_max = .n_max,
+          constant = .constant
+        )
+      })
 
     # Row numbers of `disperse()` tibbles will be used below to determine how
     # often the reported values need to be repeated:
     df_list_nrow <- vapply(df_list, nrow, integer(1L), USE.NAMES = FALSE)
-    df_list_n_groups <- length(df_list_nrow)
 
     out_df_nested <- .reported |>
       split_into_rows() |>
-      purrr::map(split_into_groups, group_size = 2) |>
+      purrr::map(function(x) split_into_groups(x, group_size = 2)) |>
       tibble::tibble(.name_repair = function(x) "reported") |>
       dplyr::mutate(
         df_list,
@@ -89,9 +89,7 @@ function_map_total_n_proto <- function(
     # This references the rows of `.reported` to which the various
     # scenarios belong. In other words, `case` is identical to the respective
     # row number in `.reported`:
-    case <- 1L:df_list_n_groups |>
-      purrr::map2(df_list_nrow, rep) |>
-      purrr::list_c(ptype = integer())
+    case <- rep(seq_along(df_list_nrow), df_list_nrow)
 
     out_df <- out_df_nested |>
       tidyr::unnest(cols = everything())
