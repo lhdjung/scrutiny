@@ -1,6 +1,7 @@
-# Set this to `TRUE` to run the exhaustive DEBIT oracle further below. It takes
-# a few minutes.
-run_full_debit_oracle <- FALSE
+# The exhaustive DEBIT oracle further below takes a few minutes, so it only runs
+# if the `SCRUTINY_FULL_ORACLE` environment variable is `"true"`, as in the
+# weekly workflow in .github/workflows/full-oracle.yaml.
+run_full_debit_oracle <- identical(Sys.getenv("SCRUTINY_FULL_ORACLE"), "true")
 
 
 # x <- rnorm(1000, 0.5, 0.08) |> censor(0, 1) |> as.character()
@@ -279,95 +280,94 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples", {
 # twice the value in units of the last decimal place: an odd whole number
 # exactly at a tie.
 
-if (run_full_debit_oracle) {
-  oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
-    if (is_tie && rounding == "even") {
-      c(twice - 1, twice + 1) / 2 / 10^digits
-    } else {
-      reround(value, digits, rounding, threshold = 4, symmetric = symmetric)
-    }
+oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
+  if (is_tie && rounding == "even") {
+    c(twice - 1, twice + 1) / 2 / 10^digits
+  } else {
+    reround(value, digits, rounding, threshold = 4, symmetric = symmetric)
   }
+}
 
-  # Every value that the mean of `k` ones among `n` values could be reported as:
-  oracle_means <- function(k, n, digits, rounding, symmetric) {
-    twice_times_n <- 2 * k * 10^digits
-    twice <- twice_times_n %/% n
-    is_tie <- twice_times_n %% n == 0 && twice %% 2 == 1
-    oracle_round(k / n, twice, is_tie, digits, rounding, symmetric)
-  }
+# Every value that the mean of `k` ones among `n` values could be reported as:
+oracle_means <- function(k, n, digits, rounding, symmetric) {
+  twice_times_n <- 2 * k * 10^digits
+  twice <- twice_times_n %/% n
+  is_tie <- twice_times_n %% n == 0 && twice %% 2 == 1
+  oracle_round(k / n, twice, is_tie, digits, rounding, symmetric)
+}
 
-  # ...and the same for their SD, whose square is `k * (n - k) / (n * (n - 1))`:
-  oracle_sds <- function(k, n, digits, rounding, symmetric) {
-    sd <- sd_binary_1_n(k, n)
-    twice <- round(2 * sd * 10^digits)
-    is_tie <- twice %% 2 == 1 &&
-      twice^2 * n * (n - 1) == 4 * k * (n - k) * 10^(2 * digits)
-    oracle_round(sd, twice, is_tie, digits, rounding, symmetric)
-  }
+# ...and the same for their SD, whose square is `k * (n - k) / (n * (n - 1))`:
+oracle_sds <- function(k, n, digits, rounding, symmetric) {
+  sd <- sd_binary_1_n(k, n)
+  twice <- round(2 * sd * 10^digits)
+  is_tie <- twice %% 2 == 1 &&
+    twice^2 * n * (n - 1) == 4 * k * (n - k) * 10^(2 * digits)
+  oracle_round(sd, twice, is_tie, digits, rounding, symmetric)
+}
 
-  specs <- tibble::tibble(
-    rounding = c(
-      rounding_methods,
-      "ties_up",
-      "ties_down",
-      "ties_away",
-      "ties_zero",
-      "up_or_down",
-      "up",
-      "down",
-      "up_from",
-      "down_from",
-      "up_from_or_down_from"
-    ),
-    symmetric = rep(c(FALSE, TRUE), c(length(rounding_methods) + 4L, 6L))
-  )
+specs <- tibble::tibble(
+  rounding = c(
+    rounding_methods,
+    "ties_up",
+    "ties_down",
+    "ties_away",
+    "ties_zero",
+    "up_or_down",
+    "up",
+    "down",
+    "up_from",
+    "down_from",
+    "up_from_or_down_from"
+  ),
+  symmetric = rep(c(FALSE, TRUE), c(length(rounding_methods) + 4L, 6L))
+)
 
-  test_that("`formula = \"exact\"` passes exactly the real binary samples (full)", {
-    for (i in seq_len(nrow(specs))) {
-      rounding <- specs$rounding[i]
-      symmetric <- specs$symmetric[i]
+test_that("`formula = \"exact\"` passes exactly the real binary samples (full)", {
+  skip_if_not(run_full_debit_oracle, "set `SCRUTINY_FULL_ORACLE=true` to run")
+  for (i in seq_len(nrow(specs))) {
+    rounding <- specs$rounding[i]
+    symmetric <- specs$symmetric[i]
 
-      for (n in c(2L, 3L, 9L, 13L, 40L, 101L, 333L)) {
-        for (digits_x in 1:2) {
-          for (digits_sd in 1:2) {
-            real <- 0:n |>
-              purrr::map(function(k) {
-                tidyr::expand_grid(
-                  x  = oracle_means(k, n, digits_x,  rounding, symmetric),
-                  sd = oracle_sds(  k, n, digits_sd, rounding, symmetric)
-                )
-              }) |>
-              purrr::list_rbind()
-            real <- paste(round(real$x * 10^digits_x), round(real$sd * 10^digits_sd))
+    for (n in c(2L, 3L, 9L, 13L, 40L, 101L, 333L)) {
+      for (digits_x in 1:2) {
+        for (digits_sd in 1:2) {
+          real <- 0:n |>
+            purrr::map(function(k) {
+              tidyr::expand_grid(
+                x  = oracle_means(k, n, digits_x,  rounding, symmetric),
+                sd = oracle_sds(  k, n, digits_sd, rounding, symmetric)
+              )
+            }) |>
+            purrr::list_rbind()
+          real <- paste(round(real$x * 10^digits_x), round(real$sd * 10^digits_sd))
 
-            grid <- tidyr::expand_grid(
-              x  = 0:10^digits_x / 10^digits_x,
-              sd = 0:(0.75 * 10^digits_sd) / 10^digits_sd
-            )
-            expected <- paste(round(grid$x * 10^digits_x), round(grid$sd * 10^digits_sd)) %in% real
+          grid <- tidyr::expand_grid(
+            x  = 0:10^digits_x / 10^digits_x,
+            sd = 0:(0.75 * 10^digits_sd) / 10^digits_sd
+          )
+          expected <- paste(round(grid$x * 10^digits_x), round(grid$sd * 10^digits_sd)) %in% real
 
-            exact <- grid$x |>
-              debit(grid$sd, n, digits_x, digits_sd, "exact", rounding, 4, symmetric)
+          exact <- grid$x |>
+            debit(grid$sd, n, digits_x, digits_sd, "exact", rounding, 4, symmetric)
 
-            mean_n <- grid$x |>
-              debit(grid$sd, n, digits_x, digits_sd, "mean_n", rounding, 4, symmetric)
+          mean_n <- grid$x |>
+            debit(grid$sd, n, digits_x, digits_sd, "mean_n", rounding, 4, symmetric)
 
-            label <- paste0(
-              "rounding = ", rounding, ", symmetric = ", symmetric, ", n = ", n,
-              ", digits_x = ", digits_x, ", digits_sd = ", digits_sd
-            )
-            exact |> expect_equal(expected, label = label)
-            # The difference only ever turns `TRUE` into `FALSE`:
-            (exact & !mean_n) |> any() |> expect_false(label = label)
-          }
+          label <- paste0(
+            "rounding = ", rounding, ", symmetric = ", symmetric, ", n = ", n,
+            ", digits_x = ", digits_x, ", digits_sd = ", digits_sd
+          )
+          exact |> expect_equal(expected, label = label)
+          # The difference only ever turns `TRUE` into `FALSE`:
+          (exact & !mean_n) |> any() |> expect_false(label = label)
         }
       }
     }
-  })
-}
+  }
+})
 
 # Two branches of `binary_sd_attainable()` that the grid above doesn't reach.
-# The full oracle does, but it is off by default.
+# The full oracle does, but it only runs on request.
 
 test_that("`formula = \"exact\"` folds a range of `k` around `n / 2` fully", {
   # 22 ones in 40: a mean of 0.55, reported as 0.5 when rounding up from 6, and

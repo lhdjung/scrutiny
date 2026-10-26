@@ -159,3 +159,28 @@ tryCatch_error <- function(expr) {
 error_message_full <- function(err) {
   err |> conditionMessage() |> paste(collapse = " ") |> cli::ansi_strip()
 }
+
+
+#' Seed for a random sweep
+#'
+#' Fixed on CRAN, so that a check there is reproducible, and new on every other
+#' run, so that the sweep reaches new points over time instead of acting like a
+#' fixed grid. Tests put the seed into their failure messages; setting the
+#' `SCRUTINY_SEED` environment variable replays it.
+#'
+#' @param fixed Integer. The seed to use on CRAN.
+#'
+#' @return Integer (length 1).
+#'
+#' @noRd
+sweep_seed <- function(fixed) {
+  replay <- Sys.getenv("SCRUTINY_SEED")
+  if (nzchar(replay)) {
+    return(as.integer(replay))
+  }
+  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    return(fixed)
+  }
+  # Not `sample.int()`: earlier `set.seed()` calls would make it predictable.
+  as.integer((as.numeric(Sys.time()) * 1000) %% .Machine$integer.max)
+}

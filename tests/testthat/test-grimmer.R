@@ -667,7 +667,8 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
 
 
 test_that("GRIMMER never flags a real multi-item data set", {
-  set.seed(1234)
+  seed <- sweep_seed(1234L)
+  set.seed(seed)
   false_flags <- 0L
 
   for (trial in 1:400) {
@@ -685,7 +686,7 @@ test_that("GRIMMER never flags a real multi-item data set", {
     }
   }
 
-  false_flags |> expect_equal(0L)
+  false_flags |> expect_equal(0L, info = paste("seed =", seed))
 })
 
 
@@ -1013,14 +1014,17 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
   # some sample rounds to it. Under `"even"`, a tie counts either way, as under
   # `"up_or_down"` (see `?grimmer`). With two items, the whole numbers are the
   # respondents' totals, so the means and SDs are theirs divided by 2; the
-  # smaller ranges of `x` and `sd` keep every total within `-6:12`.
+  # smaller ranges of `x` and `sd` keep every total within `-6:12`. A threshold
+  # of 3 keeps the `"*_from"` methods apart from `"up"` and `"down"`; the others
+  # ignore it.
   pairs <- grimmer_reachable_pairs()
+  threshold <- 3
   reachable <- function(n, items, rounding) {
     s <- pairs[[n]]$s
     q <- pairs[[n]]$q
-    rounding_forward <- if (rounding == "even") "up_or_down" else rounding
-    means <- reround(s / (n * items), 1, rounding_forward)
-    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))) / items, 1, rounding_forward)
+    rounding_forward <- if (rounding %in% c("even", "ties_even")) "up_or_down" else rounding
+    means <- reround(s / (n * items), 1, rounding_forward, threshold)
+    sds <- reround(sqrt((n * q - s^2) / (n * (n - 1))) / items, 1, rounding_forward, threshold)
     # A compound `rounding` returns both variants per sample, interleaved:
     means <- matrix(round(10 * means), ncol = length(s))
     sds <- matrix(round(10 * sds), ncol = length(s))
@@ -1033,8 +1037,14 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
     unique(keys)
   }
 
-  roundings <- c("up_or_down", "up", "down", "even", "ceiling", "floor", "trunc", "anti_trunc")
-  set.seed(42)
+  # fmt: skip
+  roundings <- c(
+    "up_or_down", "up", "down", "even", "ceiling", "floor", "ceiling_or_floor",
+    "trunc", "anti_trunc", "up_from", "down_from", "up_from_or_down_from",
+    "ties_up", "ties_down", "ties_away", "ties_zero", "ties_even"
+  )
+  seed <- sweep_seed(42L)
+  set.seed(seed)
   n_checked <- 0L
   for (items in 1:2) {
     for (rounding in roundings) {
@@ -1042,15 +1052,15 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
         x <- round(runif(60L, 1, if (items == 1L) 5 else 3), 1)
         sd <- round(runif(60L, 0, if (items == 1L) 2.5 else 1), 1)
         truth <- paste(round(10 * x), round(10 * sd)) %in% reachable(n, items, rounding)
-        verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, rounding = rounding)
-        info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n)
+        verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, rounding = rounding, threshold = threshold)
+        info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n, ", seed = ", seed)
         verdict |> expect_equal(truth, info = info)
         n_checked <- n_checked + sum(truth)
       }
     }
   }
   # Consistent cases are well represented:
-  n_checked |> expect_gt(1000L)
+  n_checked |> expect_gt(4000L)
 })
 
 
@@ -1148,7 +1158,8 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
     unique(keys)
   }
 
-  set.seed(95)
+  seed <- sweep_seed(95L)
+  set.seed(seed)
   n_checked <- 0L
   n_checked_se <- 0L
   for (items in 1:2) {
@@ -1160,7 +1171,7 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
         is_population <- key %in% reachable(n, items, rounding, "sd_pop")
         # A single value has no sample SD:
         is_sample <- if (n == 1L) FALSE else key %in% reachable(n, items, rounding, "sd_sample")
-        info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n)
+        info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n, ", seed = ", seed)
 
         x |>
           grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_pop") |>
