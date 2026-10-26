@@ -132,7 +132,7 @@ The `rounding` and `symmetric` columns are one way to say it; the `"ties_*"` equ
 | Matlab | [`round()`](https://www.mathworks.com/help/matlab/ref/double.round.html) | `"up"` (`"ties_away"`) | `TRUE` | "Rounds away from zero to the nearest integer with larger magnitude"; a `TieBreaker` option overrides this |
 | Stata | [`round()`](https://www.stata.com/manuals/fnmathematicalfunctions.pdf) | `"up"` (`"ties_up"`) | `FALSE` | "x is always rounded up to the larger value \[...\] `round(-4.5)` is −4" |
 | R (>= 4.0.0) | [`round()`](https://rpubs.com/maechler/Rounding) | `"even"` | --- | Measures which neighbor is closer on the binary double |
-| Python | [`round()`](https://docs.python.org/3/library/functions.html#round) | `"even"` | --- | Own algorithm for inexact ties; can differ from R |
+| Python | [`round()`](https://docs.python.org/3/builtins/functions.html#round) | `"even"` | --- | Own algorithm for inexact ties; can differ from R |
 | Python | [`decimal`](https://docs.python.org/3/library/decimal.html) `ROUND_HALF_UP` | `"up"` (`"ties_away"`) | `TRUE` | In this vocabulary, "up" means away from zero |
 | NumPy | [`np.round()`](https://numpy.org/doc/stable/reference/generated/numpy.round.html) | `"even"` | --- | Own algorithm for inexact ties |
 
