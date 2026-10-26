@@ -32,7 +32,7 @@ This is a list of other packages and apps for error detection, with no claim to 
 
 -   Ian Hussey's raft of checks for summary statistics:
 
-    -   The [strait](https://github.com/ianhussey/strait) R package and the [TIDES app](https://errors.shinyapps.io/TIDES/) test whether a mean and SD are possible for data with a known minimum and maximum, such as Likert scales. TIDES also assesses the magnitude of variability given the scale bounds.
+    -   The [strait](https://github.com/ianhussey/strait) R package tests whether a mean and SD are possible for data with a known minimum and maximum, such as Likert scales, and assesses the magnitude of variability given the scale bounds. Its methods were formerly called TIDES, as is the [Shiny app](https://errors.shinyapps.io/TIDES/) that implements them.
 
     -   The [ANCHOR app](https://errors.shinyapps.io/ANCHOR/) checks the consistency between a whole sample and its subgroups.
 
