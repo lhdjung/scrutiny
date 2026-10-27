@@ -163,6 +163,18 @@ Both functions are vectorized. A reported mean may have one achievable mean, sev
 grim_values(x = c(5.19, 5.19, 5.19), n = c(32, 300, 28), digits_x = 2, items_averaged = 1)
 ```
 
+To line the values up with the data they came from, number its rows as `case` and join. An inner join leaves out the inconsistent rows, and `suffix` keeps the achievable `x` apart from the reported one:
+
+```{r}
+pigs1 |>
+  dplyr::mutate(case = dplyr::row_number()) |>
+  dplyr::inner_join(
+    grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1),
+    by = "case",
+    suffix = c("", "_achievable")
+  )
+```
+
 Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM cannot detect anything. The number of achievable means can then become very large, which is why `grim_map()` does not return them.
 
 ## Summaries with `audit()`

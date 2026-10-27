@@ -95,6 +95,8 @@ grim_values_scalar <- function(
     return(grim_values_tibble(numeric(0L), parts))
   }
 
+  check_values_size(sum2 - sum1 + 1, "means")
+
   grim_values_tibble(seq(sum1, sum2), parts)
 }
 
@@ -182,7 +184,8 @@ grim_closest_scalar <- function(
 #'   divided by `n * items_averaged`. Once `n * items_averaged` exceeds
 #'   `10^digits_x`, several of them can be reported as the same `x`, and their
 #'   number grows with `n * items_averaged`. GRIM is then no longer informative.
-#'   `grim_closest()` stays cheap in that case; `grim_values()` does not.
+#'   `grim_closest()` stays cheap in that case. `grim_values()` does not, and
+#'   more than a million values for one value set is an error.
 #'
 #'   With `percent = TRUE`, the values are percentages, like `x`.
 #'

@@ -52,6 +52,12 @@ test_that("`grim_closest()` keeps a consistent `x` to the means reported as `x`"
 })
 
 
+test_that("too many means is an error, not a huge allocation", {
+  5 |> grim_values(1e7, digits_x = 0, items_averaged = 1)  |> expect_error("Too many achievable means")
+  5 |> grim_closest(1e7, digits_x = 0, items_averaged = 1) |> expect_equal(5)
+})
+
+
 test_that("`grim_values()` agrees with `grim()` itself", {
   # Every achievable mean must be reported as `x` when rounded the same way,
   # and there must be as many of them as the value set is consistent:

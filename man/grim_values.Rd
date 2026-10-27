@@ -77,7 +77,8 @@ The achievable means are the whole numbers in the range that
 divided by \code{n * items_averaged}. Once \code{n * items_averaged} exceeds
 \code{10^digits_x}, several of them can be reported as the same \code{x}, and their
 number grows with \code{n * items_averaged}. GRIM is then no longer informative.
-\code{grim_closest()} stays cheap in that case; \code{grim_values()} does not.
+\code{grim_closest()} stays cheap in that case. \code{grim_values()} does not, and
+more than a million values for one value set is an error.
 
 With \code{percent = TRUE}, the values are percentages, like \code{x}.
 
