@@ -270,7 +270,7 @@ check_grim_map_basic <- function(data) {
   if (inherits(data, "scrutiny_grim_map") && is_map_basic_df(data)) {
     return(invisible(NULL))
   }
-  msg_what_it_is <- if (is_map_df(data)) {
+  msg_what_it_is <- if (is_map_seq_df(data) || is_map_total_n_df(data)) {
     c(
       "x" = "It is the output of a sequence or total-n mapper, whose rows \\
       are hypothetical value sets, not reported ones."

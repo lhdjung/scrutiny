@@ -88,3 +88,8 @@ test_that("`grim_binomial()` rejects sequence and total-n output", {
     expect_error("hypothetical")
   pigs1 |> grim_binomial() |> expect_error("output of `grim_map()`", fixed = TRUE)
 })
+
+
+test_that("`grim_binomial()` names the class of other mapper output", {
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> grim_binomial() |> expect_error("scrutiny_grimmer_map")
+})
