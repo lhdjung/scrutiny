@@ -941,38 +941,6 @@ test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot h
 })
 
 
-# Every pair of a sum and a sum of squares that `k` numbers from `vals` can
-# have, for `k` up to `n_max`, built up one number at a time from the empty
-# sample, with sums in rows and sums of squares in columns. It shares nothing
-# with `grimmer()`: no rounding bounds, no candidate sums, only integer
-# arithmetic. Means from 1 to 5 and SDs up to 2.5 keep every value of up to 8
-# numbers within `-6:12`, so the pairs are complete there.
-grimmer_reachable_pairs <- function(vals = -6:12, n_max = 8L) {
-  s_min <- min(vals) * n_max
-  rows <- max(vals) * n_max - s_min + 1L
-  cols <- max(vals^2) * n_max + 1L
-
-  reach <- matrix(FALSE, rows, cols)
-  reach[1L - s_min, 1L] <- TRUE
-  pairs <- vector("list", n_max)
-  for (k in seq_len(n_max)) {
-    reach_next <- matrix(FALSE, rows, cols)
-    for (v in vals) {
-      from_row <- max(1L, 1L - v):min(rows, rows - v)
-      from_col <- seq_len(cols - v^2)
-      to_row <- from_row + v
-      to_col <- from_col + v^2
-      reach_next[to_row, to_col] <-
-        reach_next[to_row, to_col] | reach[from_row, from_col]
-    }
-    reach <- reach_next
-    found <- which(reach, arr.ind = TRUE)
-    pairs[[k]] <- list(s = found[, 1L] + s_min - 1L, q = found[, 2L] - 1L)
-  }
-  pairs
-}
-
-
 test_that("GRIMMER agrees with a brute force on random value sets", {
   # The truth is whether any sample of `n` whole numbers has a mean and an SD
   # that round to the reported ones, with both bounds inclusive as under

@@ -70,6 +70,7 @@ reference:
   - grimmer_map_seq
   - grimmer_map_total_n
   - grimmer_plot_values
+  - grimmer_values
 - subtitle: DEBIT
   desc: Test reported means and standard deviations of binary data for numerical consistency
     with reported sample sizes

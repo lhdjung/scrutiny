@@ -325,9 +325,9 @@ test_that("every `sd_meaning` and `formula` default spells out its constant", {
     }
   }
   # `sd_meaning` in the scalar, vectorized, and explain functions of GRIMMER and
-  # DEBIT, `grimmer_plot_values()`, and all six mappers; `formula` in DEBIT's
-  # three functions and three mappers:
-  n_checked |> expect_equal(19L)
+  # DEBIT, `grimmer_plot_values()`, `grimmer_values()` and its scalar function,
+  # and all six mappers; `formula` in DEBIT's three functions and three mappers:
+  n_checked |> expect_equal(21L)
 })
 
 test_that("a mapper records an enum setting it was not given as its first value", {

@@ -96,6 +96,7 @@ Collate:
     'grimmer-map-total-n.R'
     'grimmer-plot-values.R'
     'grimmer-sum-squares.R'
+    'grimmer-values.R'
     'import-standalone-last-export.R'
     'is-percentage-of.R'
     'is-percentage-of-map.R'
