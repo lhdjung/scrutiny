@@ -124,16 +124,16 @@ test_that("a single value is decidable under `sd_meaning = \"sd_pop\"` only", {
   out <- 3 |> grimmer_values(0, 1, digits_x = 0, digits_sd = 0, items_averaged = 1, sd_meaning = "sd_pop") |> purrr::pluck(1L)
   out$sum         |> expect_equal(3)
   out$sum_squares |> expect_equal(9)
-  3 |> grimmer_values(0, 1, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_equal(list(NA))
+  3 |> grimmer_values(0, 1, digits_x = 0, digits_sd = 0, items_averaged = 1) |> purrr::pluck(1L) |> expect_undecidable()
 })
 
 
-test_that("undecidable cases give `NA`", {
-  NA   |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1)   |> expect_equal(list(NA))
-  5.23 |> grimmer_values(NA,   31,   digits_x = 2, digits_sd = 2, items_averaged = 1)   |> expect_equal(list(NA))
-  5.23 |> grimmer_values(2.55, 31.5, digits_x = 2, digits_sd = 2, items_averaged = 1)   |> expect_equal(list(NA))
-  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1.5) |> expect_equal(list(NA))
-  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = NA, items_averaged = 1)  |> expect_equal(list(NA))
+test_that("undecidable cases give one row of `NA`", {
+  NA   |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1)   |> purrr::pluck(1L) |> expect_undecidable()
+  5.23 |> grimmer_values(NA,   31,   digits_x = 2, digits_sd = 2, items_averaged = 1)   |> purrr::pluck(1L) |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31.5, digits_x = 2, digits_sd = 2, items_averaged = 1)   |> purrr::pluck(1L) |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1.5) |> purrr::pluck(1L) |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = NA, items_averaged = 1)  |> purrr::pluck(1L) |> expect_undecidable()
 })
 
 

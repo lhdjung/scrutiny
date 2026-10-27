@@ -28,34 +28,32 @@ grimmer_values_scalar <- function(
     )
   }
 
-  result <- grimmer_scalar(
+  consistency <- grimmer_scalar(
     x = x,
     sd = sd,
     n = n,
     digits_x = digits_x,
     digits_sd = digits_sd,
     items_averaged = items_averaged,
-    show_reason = TRUE,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
     sd_meaning = sd_meaning
   )
-  consistency <- result[[1L]]
-
-  if (is.na(consistency)) {
-    return(NA)
-  }
 
   n_dev <- sd_denominator(n, sd_meaning)
 
+  # One row of `NA` if undecidable, no rows if inconsistent:
+  if (is.na(consistency)) {
+    return(grimmer_values_tibble(NA_real_, NA_real_, n, items_averaged, n_dev))
+  }
   if (!consistency) {
     return(grimmer_values_tibble(
-      sums = numeric(0L),
-      sums_squares = numeric(0L),
-      n = n,
-      items_averaged = items_averaged,
-      n_dev = n_dev
+      numeric(0L),
+      numeric(0L),
+      n,
+      items_averaged,
+      n_dev
     ))
   }
 
@@ -79,10 +77,14 @@ grimmer_values_scalar <- function(
     symmetric = symmetric
   )
 
-  sums <- numeric(0L)
-  sums_squares <- numeric(0L)
+  # One element per candidate sum, joined once at the end: appending to a
+  # vector in the loop copies it each time, which gets quadratic by `n = 20000`.
+  candidate_sums <- sums_consistent[1L]:sums_consistent[2L]
+  sums <- vector("list", length(candidate_sums))
+  sums_squares <- sums
 
-  for (s in sums_consistent[1L]:sums_consistent[2L]) {
+  for (i in seq_along(candidate_sums)) {
+    s <- candidate_sums[i]
     candidate <- grimmer_candidate(
       s = s,
       n = n,
@@ -115,9 +117,12 @@ grimmer_values_scalar <- function(
       out
     }
 
-    sums <- c(sums, rep(s, length(squares)))
-    sums_squares <- c(sums_squares, squares)
+    sums[[i]] <- rep(s, length(squares))
+    sums_squares[[i]] <- squares
   }
+
+  sums <- unlist(sums)
+  sums_squares <- unlist(sums_squares)
 
   if (length(sums) == 0L) {
     cli::cli_abort(
@@ -131,7 +136,8 @@ grimmer_values_scalar <- function(
 
 
 # The mean and SD that a sum and a sum of squares of `n` whole numbers give;
-# see `sd_square_term()` for the formula.
+# see `sd_square_term()` for the formula. One row of `NA` for an undecidable
+# value set, so that the element is a tibble either way.
 grimmer_values_tibble <- function(
   sums,
   sums_squares,
@@ -168,7 +174,9 @@ grimmer_values_tibble <- function(
 #'   totals across the items, so the sums are those of the totals.
 #'
 #'   The number of pairs grows with `n` and `items_averaged`, as the number of
-#'   values in [`grim_values()`] does.
+#'   values in [`grim_values()`] does. Under `rounding = "even"`, the pairs
+#'   include ties that [`base::round()`] may round away from `x` or `sd`, as
+#'   there.
 #'
 #' @inheritParams grimmer
 #' @param sd_meaning String. As in [`grimmer()`], but `"sd_sample_or_pop"` is
@@ -178,8 +186,8 @@ grimmer_values_tibble <- function(
 #'
 #' @return A list with one tibble per value set. Its columns are `x` and `sd`,
 #'   the achievable values, and `sum` and `sum_squares`, the whole numbers
-#'   behind them. The tibble has no rows if the value set is inconsistent. The
-#'   element is `NA` if the value set cannot be decided, as in [`grimmer()`].
+#'   behind them. The tibble has no rows if the value set is inconsistent, and
+#'   one row of `NA` if it cannot be decided, as in [`grimmer()`].
 #'
 #' @seealso [`grimmer()`], [`grimmer_map()`], and [`grim_values()`].
 #'

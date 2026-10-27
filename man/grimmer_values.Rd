@@ -57,8 +57,8 @@ column holds the standard error.}
 \value{
 A list with one tibble per value set. Its columns are \code{x} and \code{sd},
 the achievable values, and \code{sum} and \code{sum_squares}, the whole numbers
-behind them. The tibble has no rows if the value set is inconsistent. The
-element is \code{NA} if the value set cannot be decided, as in \code{\link[=grimmer]{grimmer()}}.
+behind them. The tibble has no rows if the value set is inconsistent, and
+one row of \code{NA} if it cannot be decided, as in \code{\link[=grimmer]{grimmer()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -80,7 +80,9 @@ have. With \code{items_averaged > 1}, the whole numbers are the respondents'
 totals across the items, so the sums are those of the totals.
 
 The number of pairs grows with \code{n} and \code{items_averaged}, as the number of
-values in \code{\link[=grim_values]{grim_values()}} does.
+values in \code{\link[=grim_values]{grim_values()}} does. Under \code{rounding = "even"}, the pairs
+include ties that \code{\link[base:Round]{base::round()}} may round away from \code{x} or \code{sd}, as
+there.
 }
 \examples{
 # A mean of 5.23 and an SD of 2.55 are consistent with a sample size of 31,

@@ -104,6 +104,17 @@ grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged =
 
 GRIMMER does not use the bounds of a scale. For data on a bounded scale, such as a five-point Likert scale, see the [strait](https://github.com/ianhussey/strait) package, whose `brimmest()` decides exactly whether a mean and SD are possible within the bounds.
 
+### Achievable means and SDs
+
+`grimmer_values()` returns every pair of a mean and an SD that a sample of `n` integers can have and that would be reported as `x` and `sd`, with the sum and sum of squares behind each. It is the counterpart of `grim_values()`, and like it, it returns a list with one tibble per value set, with no rows if the value set is inconsistent:
+
+```{r}
+grimmer_values(x = 5.3, sd = 0.7, n = 30, digits_x = 1, digits_sd = 1, items_averaged = 1)
+grimmer_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
+```
+
+Through the integers, a statistic computed from several groups, such as a *t*-value, can be compared exactly with its reported value. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
+
 ## Summaries with `audit()`
 
 ```{r}

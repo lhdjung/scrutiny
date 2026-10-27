@@ -92,9 +92,9 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
-- `grim_values()` returns all means of `n` integers that would be reported as `x`, and `grim_closest()` the achievable mean closest to `x` (#62).
+- `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, along with the sum and sum of squares behind each.
+- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. This is related to #59 but doesn't conclude the questions raised there.
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test.
 

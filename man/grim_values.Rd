@@ -44,9 +44,10 @@ keep them (\code{1.40} is \code{1.4}).}
 }
 \value{
 \itemize{
-\item For \code{grim_values()}, a list of numeric vectors, one per value set. A
-vector is empty if the value set is inconsistent, and \code{NA} if it cannot
-be decided.
+\item For \code{grim_values()}, a list with one tibble per value set. Its columns are
+\code{x}, the achievable values, and \code{sum}, the whole numbers behind them. The
+tibble has no rows if the value set is inconsistent, and one row of \code{NA}
+if it cannot be decided, as in \code{\link[=grim]{grim()}}.
 \item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
 where a value set cannot be decided.
 }
@@ -58,7 +59,8 @@ These functions return the means (or percentages) that a sample
 of \code{n * items_averaged} integers can have:
 \itemize{
 \item \code{grim_values()} returns every achievable value that would be reported as
-\code{x}. The result is empty if \code{x} is GRIM-inconsistent with \code{n}.
+\code{x}, with the whole-number sum behind it. The result has no rows if \code{x} is
+GRIM-inconsistent with \code{n}.
 \item \code{grim_closest()} returns the single achievable value closest to \code{x}
 among those that would be reported as \code{x}, or, if there are none, the
 closest one overall.
@@ -66,7 +68,8 @@ closest one overall.
 
 Both are vectorized like \code{\link[=grim]{grim()}}. A reported mean may correspond to one
 achievable mean, to several, or to none, so \code{grim_values()} returns a list
-with one element per value set.
+with one tibble per value set. \code{\link[=grimmer_values]{grimmer_values()}} is the counterpart for
+GRIMMER.
 }
 \details{
 The achievable means are the whole numbers in the range that
@@ -83,6 +86,9 @@ Under \code{rounding = "even"}, both bounds of that range are inclusive (see
 \code{\link[base:Round]{base::round()}} may round away from \code{x}:
 \code{grim_values(1.3, 20, 1, 1, rounding = "even")} returns 1.25 and 1.35
 along with 1.3.
+
+With \code{items_averaged > 1}, the whole numbers are the respondents' totals
+across the items, so \code{sum} is the sum of the totals.
 }
 \examples{
 # A mean of 5.19 is consistent with a sample size of 32,
@@ -113,5 +119,6 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim]{grim()}}, \code{\link[=grim_map]{grim_map()}}, and \code{\link[=grim_exp_incon]{grim_exp_incon()}}.
+\code{\link[=grim]{grim()}}, \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_values]{grimmer_values()}}, and
+\code{\link[=grim_exp_incon]{grim_exp_incon()}}.
 }

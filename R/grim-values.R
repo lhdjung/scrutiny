@@ -83,7 +83,7 @@ grim_values_scalar <- function(
   sums <- parts$sums
 
   if (anyNA(sums)) {
-    return(NA_real_)
+    return(grim_values_tibble(NA_real_, parts))
   }
 
   sum1 <- sums[1L]
@@ -92,10 +92,20 @@ grim_values_scalar <- function(
   # An empty range means no whole-number sum total would have been reported as
   # `x`; i.e., GRIM-inconsistency:
   if (sum1 > sum2) {
-    return(numeric(0L))
+    return(grim_values_tibble(numeric(0L), parts))
   }
 
-  seq(sum1, sum2) * parts$scale / parts$n_items
+  grim_values_tibble(seq(sum1, sum2), parts)
+}
+
+
+# The means, on the scale of `x`, that whole-number sums give. One row of `NA`
+# for an undecidable value set, so that the element is a tibble either way.
+grim_values_tibble <- function(sums, parts) {
+  tibble::tibble(
+    x = sums * parts$scale / parts$n_items,
+    sum = sums
+  )
 }
 
 
@@ -156,14 +166,16 @@ grim_closest_scalar <- function(
 #'   of `n * items_averaged` integers can have:
 #'
 #'   - `grim_values()` returns every achievable value that would be reported as
-#'   `x`. The result is empty if `x` is GRIM-inconsistent with `n`.
+#'   `x`, with the whole-number sum behind it. The result has no rows if `x` is
+#'   GRIM-inconsistent with `n`.
 #'   - `grim_closest()` returns the single achievable value closest to `x`
 #'   among those that would be reported as `x`, or, if there are none, the
 #'   closest one overall.
 #'
 #'   Both are vectorized like [`grim()`]. A reported mean may correspond to one
 #'   achievable mean, to several, or to none, so `grim_values()` returns a list
-#'   with one element per value set.
+#'   with one tibble per value set. [`grimmer_values()`] is the counterpart for
+#'   GRIMMER.
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
@@ -180,6 +192,9 @@ grim_closest_scalar <- function(
 #'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
 #'   along with 1.3.
 #'
+#'   With `items_averaged > 1`, the whole numbers are the respondents' totals
+#'   across the items, so `sum` is the sum of the totals.
+#'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including
@@ -190,13 +205,15 @@ grim_closest_scalar <- function(
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
 #'
 #' @return
-#' - For `grim_values()`, a list of numeric vectors, one per value set. A
-#'   vector is empty if the value set is inconsistent, and `NA` if it cannot
-#'   be decided.
+#' - For `grim_values()`, a list with one tibble per value set. Its columns are
+#'   `x`, the achievable values, and `sum`, the whole numbers behind them. The
+#'   tibble has no rows if the value set is inconsistent, and one row of `NA`
+#'   if it cannot be decided, as in [`grim()`].
 #' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
 #'   where a value set cannot be decided.
 #'
-#' @seealso [`grim()`], [`grim_map()`], and [`grim_exp_incon()`].
+#' @seealso [`grim()`], [`grim_map()`], [`grimmer_values()`], and
+#'   [`grim_exp_incon()`].
 #'
 #' @include grim.R
 #'

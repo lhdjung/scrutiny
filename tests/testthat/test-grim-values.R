@@ -4,14 +4,15 @@
 # `sum_range()` derives the same set in closed form and in exact integer
 # arithmetic.
 
-test_that("`grim_values()` returns the achievable means", {
-  5.19 |> grim_values(32, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L) |> expect_equal(5.1875)
-  5.19 |>
-    grim_values(300, digits_x = 2, items_averaged = 1) |>
-    purrr::pluck(1L) |>
-    expect_equal(c(1556, 1557, 1558) / 300)
+test_that("`grim_values()` returns the achievable means and their sums", {
+  out <- 5.19 |> grim_values(32, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L)
+  out |> expect_equal(tibble::tibble(x = 5.1875, sum = 166))
+  out <- 5.19 |> grim_values(300, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L)
+  out |> expect_equal(tibble::tibble(x = c(1556, 1557, 1558) / 300, sum = c(1556, 1557, 1558)))
   # No achievable mean at all if the value set is GRIM-inconsistent:
-  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L) |> expect_equal(numeric(0L))
+  out <- 5.19 |> grim_values(28, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L)
+  out |> nrow()  |> expect_equal(0L)
+  out |> names() |> expect_equal(c("x", "sum"))
 })
 
 
@@ -30,7 +31,7 @@ test_that("both functions are vectorized like `grim()`", {
   out <- c(5.19, 5.19, 5.19) |> grim_values(c(32, 300, 28), digits_x = 2, items_averaged = 1)
   out |> expect_type("list")
   out |> expect_length(3L)
-  out |> lengths() |> expect_equal(c(1L, 3L, 0L))
+  out |> purrr::map_int(nrow) |> expect_equal(c(1L, 3L, 0L))
 
   c(5.19, 5.19) |>
     grim_closest(c(32, 28), digits_x = 2, items_averaged = 1) |>
@@ -60,8 +61,8 @@ test_that("`grim_values()` agrees with `grim()` itself", {
         values <- x |> grim_values(n, digits_x = 2, items_averaged = 1, rounding = rounding) |> purrr::pluck(1L)
         info <- paste0("x = ", x, ", n = ", n, ", rounding = ", rounding)
         consistency <- grim(x, n, digits_x = 2, items_averaged = 1, rounding = rounding)
-        values |> length() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
-        for (value in values) {
+        values |> nrow() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
+        for (value in values$x) {
           value |>
             roundwork::reround(digits = 2, rounding = rounding) |>
             purrr::pluck(1L) |>
@@ -78,12 +79,13 @@ test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
   out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
   values <- grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1)
   counts <- pmax(0L, out$sum_upper - out$sum_lower + 1L)
-  values |> lengths() |> expect_equal(as.integer(counts))
-  # `grim_closest()` is one of them wherever there are any:
+  values |> purrr::map_int(nrow) |> expect_equal(as.integer(counts))
   for (i in which(out$consistency)) {
+    values[[i]]$sum |> expect_equal(seq(out$sum_lower[i], out$sum_upper[i]))
+    # `grim_closest()` is one of them wherever there are any:
     pigs1$x[i] |>
       grim_closest(pigs1$n[i], digits_x = 2, items_averaged = 1) |>
-      expect_in(values[[i]])
+      expect_in(values[[i]]$x)
   }
 })
 
@@ -96,7 +98,7 @@ test_that("`percent` returns values on the scale of `x`", {
   closest |> expect_lt(74)
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
-  40 |> grim_values(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> purrr::pluck(1L) |> expect_equal(40)
+  40 |> grim_values(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> purrr::pluck(1L) |> expect_equal(tibble::tibble(x = 40, sum = 2))
   40 |> grim_closest(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(40)
 })
 
@@ -109,12 +111,12 @@ test_that("`items_averaged` multiplies into the sample size", {
 })
 
 
-test_that("undecidable cases give `NA`", {
+test_that("undecidable cases give one row of `NA`", {
   # A missing mean has no bounds to derive, as in `grim()`. (This used to be
   # tested with `rounding = "anti_trunc"` at a mean of zero, which had no
   # defined bounds either until `anti_trunc()` stopped sending zero away from
   # zero.)
-  NA |> grim_values(40, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L) |> expect_equal(NA_real_)
+  NA |> grim_values(40, digits_x = 2, items_averaged = 1) |> purrr::pluck(1L) |> expect_undecidable()
   NA |> grim_closest(40, digits_x = 2, items_averaged = 1) |> expect_equal(NA_real_)
 })
 
@@ -125,7 +127,7 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
   0 |>
     grim_values(40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |>
     purrr::pluck(1L) |>
-    expect_equal(0)
+    expect_equal(tibble::tibble(x = 0, sum = 0))
   0 |> grim_closest(40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_equal(0)
 })
 
@@ -140,7 +142,7 @@ test_that("`digits_x` is required, with the bespoke error message", {
 
 test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` is", {
   5.19 |> grim(20.5, 2, items_averaged = 1)         |> is.na() |> expect_true()
-  5.19 |> grim_values(20.5, 2, items_averaged = 1)  |> expect_equal(list(NA_real_))
+  5.19 |> grim_values(20.5, 2, items_averaged = 1)  |> purrr::pluck(1L) |> expect_undecidable()
   5.19 |> grim_closest(20.5, 2, items_averaged = 1) |> expect_equal(NA_real_)
-  5.19 |> grim_values(28, 2, items_averaged = 1.5)  |> expect_equal(list(NA_real_))
+  5.19 |> grim_values(28, 2, items_averaged = 1.5)  |> purrr::pluck(1L) |> expect_undecidable()
 })

@@ -143,7 +143,7 @@ pigs1 |>
 
 ### Achievable means
 
-`grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`:
+`grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`, each with the whole-number sum behind it:
 
 ```{r}
 grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
@@ -157,11 +157,12 @@ grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: 
 grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
-Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns a list, which fits into a list-column:
+Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns a list with one tibble per value set, which fits into a list-column. `tidyr::unnest()` expands it to one row per achievable mean; `names_sep` keeps the achievable `x` apart from the reported one:
 
 ```{r}
 pigs1 |>
-  dplyr::mutate(values = grim_values(x, n, digits_x = 2, items_averaged = 1))
+  dplyr::mutate(values = grim_values(x, n, digits_x = 2, items_averaged = 1)) |>
+  tidyr::unnest(values, names_sep = "_")
 ```
 
 Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM cannot detect anything. The number of achievable means can then become very large, which is why `grim_map()` does not return them.

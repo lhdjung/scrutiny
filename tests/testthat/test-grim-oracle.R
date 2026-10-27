@@ -251,7 +251,18 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       })
 
     values |>
+      purrr::map("x") |>
       expect_equal(achievable, info = info)
+
+    # ...and the sums behind them are those very sums:
+    values |>
+      purrr::map("sum") |>
+      expect_equal(
+        lapply(seq_along(consistency), function(j) {
+          if (consistency[j]) seq(lower[j], upper[j]) else numeric(0L)
+        }),
+        info = info
+      )
 
     # `grim_closest()` is one of the achievable means -- or, for an inconsistent
     # value set, one of the two straddling it -- and no other one is closer to

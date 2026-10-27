@@ -18,7 +18,7 @@
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
 #'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
-#'   whose `fn` returns a vector of any length per value set.
+#'   whose `fn` returns a tibble per value set.
 #'
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'
