@@ -5,7 +5,7 @@
 \title{Create new \verb{*_map()} functions}
 \usage{
 function_map(
-  .fun,
+  .fn,
   .reported = NULL,
   .name_test,
   .name_key_result = "consistency",
@@ -21,11 +21,11 @@ function_map(
 )
 }
 \arguments{
-\item{.fun}{Single-case function to apply to each row. It must return a
+\item{.fn}{Single-case function to apply to each row. It must return a
 single logical value or, if \code{.col_names} is specified, a list of values
 with the key result first.}
 
-\item{.reported}{String. Names of the arguments of \code{.fun} that take the
+\item{.reported}{String. Names of the arguments of \code{.fn} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
 be \code{NULL} if \code{.reported_variadic} is specified.}
 
@@ -39,24 +39,24 @@ result column. Default is \code{"consistency"}.}
 output. Default is \code{NULL}; see \emph{Details} for the class that is always
 added.}
 
-\item{.args_disabled}{Optionally, names of arguments of \code{.fun} that the new
+\item{.args_disabled}{Optionally, names of arguments of \code{.fn} that the new
 function should not have. Specifying one of them is an error.}
 
-\item{.args_by_row}{Optionally, names of arguments of \code{.fun} that may vary
+\item{.args_by_row}{Optionally, names of arguments of \code{.fn} that may vary
 by row, such as \code{"digits_x"}. The new function takes a single value or one
 per row of \code{data} for each, and returns them as columns.}
 
 \item{.args_fixed}{Optionally, a named list of values that are always passed
-to \code{.fun}, such as \code{list(show_reason = TRUE)}. The new function has no
+to \code{.fn}, such as \code{list(show_reason = TRUE)}. The new function has no
 arguments for them; specifying one is an error.}
 
-\item{.cols_helper}{Optionally, names of arguments of \code{.fun} that may also be
+\item{.cols_helper}{Optionally, names of arguments of \code{.fn} that may also be
 given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
 returned after the key columns if it was given, as a column or as an
 argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 
 \item{.col_names}{Optionally, names of the columns that a list returned by
-\code{.fun} unpacks into, as with \code{show_rec = TRUE}. The first name must be
+\code{.fn} unpacks into, as with \code{show_rec = TRUE}. The first name must be
 \code{.name_key_result}. If \code{data} has no rows, only the key result column is
 created.}
 
@@ -66,7 +66,7 @@ further columns from the same per-row input, such as
 has formals for. The columns follow the key result column.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of
-\code{.fun} that takes the values of one row as a vector. The new function gets
+\code{.fn} that takes the values of one row as a vector. The new function gets
 an argument by that name, without a default, that selects any number of
 columns with tidyselect syntax. See \emph{Details}.}
 
@@ -81,7 +81,7 @@ A function with these arguments:
 \item One argument per \code{.reported} value, for naming a column of \code{data} that
 holds that value under another name.
 \item \code{...}: must be empty. Every argument after it must be named in full.
-\item The other arguments of \code{.fun}, with the same defaults; see \emph{Details}.
+\item The other arguments of \code{.fn}, with the same defaults; see \emph{Details}.
 }
 }
 \description{
@@ -94,13 +94,13 @@ See \code{vignette("consistency-tests-in-depth")}, section \emph{Creating basic
 mappers with \code{function_map()}}.
 }
 \details{
-The new function has an argument for every argument of \code{.fun} that
+The new function has an argument for every argument of \code{.fn} that
 is not named in \code{.reported}, \code{.reported_variadic}, \code{.args_disabled}, or
 \code{.args_fixed}, with the same default.
 
 \code{.reported_variadic} is for a test whose number of key columns depends on
 the data, such as whether the values in any number of columns add up to
-the value in another one. \code{.fun} takes those values as a single vector,
+the value in another one. \code{.fn} takes those values as a single vector,
 and the new function selects the columns with tidyselect; see \emph{Examples}.
 The selection must not be empty and must not include a column that already
 has a role in the test. The selected columns are returned as themselves.
@@ -130,7 +130,7 @@ schlim_scalar <- function(y, n) {
 
 # The mapper:
 schlim_map <- function_map(
-  .fun = schlim_scalar,
+  .fn = schlim_scalar,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
@@ -146,7 +146,7 @@ sum_check_scalar <- function(parts, total, tolerance = 0) {
 
 # ...which `.reported_variadic` names:
 sum_check_map <- function_map(
-  .fun = sum_check_scalar,
+  .fn = sum_check_scalar,
   .reported = "total",
   .reported_variadic = "parts",
   .name_test = "SUMCHECK"

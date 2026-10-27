@@ -39,7 +39,7 @@
 #'   is_percentage_of_map_seq(digits_percentage = 0) |>
 #'   audit_seq()
 is_percentage_of_map_seq <- function_map_seq(
-  .fun = is_percentage_of_map,
+  .fn = is_percentage_of_map,
   .reported = c("absolute", "percentage", "n"),
   .name_test = "is_percentage_of",
   .var_bounds = list(absolute = c(0, NA), percentage = c(0, NA), n = c(1, NA))

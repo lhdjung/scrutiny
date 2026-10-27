@@ -251,8 +251,8 @@ audit_seq <- function(data) {
     }
   }
 
-  fun_names <- c("", "_up", "_down")
-  fun_names <- rep(fun_names, length(var_names))
+  fn_names <- c("", "_up", "_down")
+  fn_names <- rep(fn_names, length(var_names))
 
   df_nested <- df_list |>
     purrr::map(index_hit_distance) |>
@@ -277,7 +277,7 @@ audit_seq <- function(data) {
       dplyr::across(
         .cols = everything(),
         .fns = LIST_MIN_DISTANCE_FUNCTIONS,
-        .names = "diff_{.col}{fun_names}"
+        .names = "diff_{.col}{fn_names}"
       ),
       .keep = "none"
     ) |>

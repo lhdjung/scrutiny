@@ -1,8 +1,8 @@
 #' Map a single-case function over its caller's arguments
 #'
-#' `map_value_sets()` applies `fun` once per value set, taking the arguments
+#' `map_value_sets()` applies `fn` once per value set, taking the arguments
 #' of the function that calls it, such as `grim()`. That wrapper's signature
-#' must mirror `fun`'s, minus `show_rec` and `show_reason`:
+#' must mirror `fn`'s, minus `show_rec` and `show_reason`:
 #'
 #' ```
 #' grim <- function(x, n, digits_x, items_averaged, percent = FALSE, ...) {
@@ -10,7 +10,7 @@
 #' }
 #' ```
 #'
-#' @param fun The `*_scalar()` function to apply, e.g. `grim_scalar()`.
+#' @param fn The `*_scalar()` function to apply, e.g. `grim_scalar()`.
 #' @param along String vector naming the arguments to vectorize over: the key
 #'   arguments, their `digits_*` arguments, and `items_averaged` where the test
 #'   has it. Every other argument must be length 1. This is the mapper tier's
@@ -18,12 +18,12 @@
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
 #'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
-#'   whose `fun` returns a vector of any length per value set.
+#'   whose `fn` returns a vector of any length per value set.
 #'
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'
 #' @noRd
-map_value_sets <- function(fun, along, type = "logical") {
+map_value_sets <- function(fn, along, type = "logical") {
   frame <- parent.frame()
   formals_wrapper <- formals(sys.function(sys.parent()))
   args_all <- names(formals_wrapper)
@@ -33,7 +33,7 @@ map_value_sets <- function(fun, along, type = "logical") {
     return(vector(type, 0L))
   }
 
-  # Arguments the caller left out are not forwarded, so `fun` applies its own
+  # Arguments the caller left out are not forwarded, so `fn` applies its own
   # defaults, the same as the wrapper's, and raises its own error where it has
   # none: `digits_x` must arrive missing so that `error_digits_missing()` fires.
   #
@@ -70,7 +70,7 @@ map_value_sets <- function(fun, along, type = "logical") {
         "i" = "Only {.arg {along}} are vectorized.",
         "i" = if (exists(name_mapper, mode = "function")) {
           "To test value sets that differ in {.arg {name}}, call \\
-          {.fun {name_mapper}} once for each of its values."
+          {.fn {name_mapper}} once for each of its values."
         }
       )
     }
@@ -96,11 +96,11 @@ map_value_sets <- function(fun, along, type = "logical") {
     check_rounding_args(spec$rounding, spec$threshold, spec$symmetric)
   }
 
-  # If a required argument is missing, let `fun` raise its error here rather
+  # If a required argument is missing, let `fn` raise its error here rather
   # than inside the loop, so that it is raised once:
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
-      return(do.call(fun, vals))
+      return(do.call(fn, vals))
     }
   }
 
@@ -127,7 +127,7 @@ map_value_sets <- function(fun, along, type = "logical") {
 
   # `.mapply()` is `mapply()` without the argument matching and the
   # `simplify2array()` that would turn a list return into a matrix:
-  results <- .mapply(fun, vals_along, MoreArgs = vals[names_scalar])
+  results <- .mapply(fn, vals_along, MoreArgs = vals[names_scalar])
 
   out <- if (type == "list") results else unlist(results, use.names = FALSE)
 
@@ -135,7 +135,7 @@ map_value_sets <- function(fun, along, type = "logical") {
   if (typeof(out) != type || length(out) != length_out) {
     cli::cli_abort(
       c(
-        "Internal error: `fun` returned {length(out)} \\
+        "Internal error: `fn` returned {length(out)} \\
       {.cls {typeof(out)}} value{?s} for {length_out} value set{?s}.",
         "i" = "It must return one {type} value per value set."
       ),

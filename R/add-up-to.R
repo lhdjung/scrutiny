@@ -62,7 +62,7 @@ add_up_to <- function(summands, total) {
     summands <- list(summands)
   }
   map_value_sets(
-    fun = add_up_to_scalar,
+    fn = add_up_to_scalar,
     along = c("summands", "total")
   )
 }

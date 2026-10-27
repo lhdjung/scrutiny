@@ -114,7 +114,7 @@
 #' )
 
 grim_map <- function_map(
-  .fun = grim_scalar,
+  .fn = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM",
   .args_by_row = "digits_x",

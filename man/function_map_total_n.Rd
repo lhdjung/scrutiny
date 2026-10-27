@@ -5,7 +5,7 @@
 \title{Create new \verb{*_map_total_n()} functions}
 \usage{
 function_map_total_n(
-  .fun,
+  .fn,
   .reported,
   .name_test,
   .name_key_result = "consistency",
@@ -18,7 +18,7 @@ function_map_total_n(
 )
 }
 \arguments{
-\item{.fun}{A basic mapper function such as \code{\link[=grim_map]{grim_map()}}, typically made
+\item{.fn}{A basic mapper function such as \code{\link[=grim_map]{grim_map()}}, typically made
 by \code{\link[=function_map]{function_map()}}. It must return its input data frame with a logical
 column named by \code{.name_key_result} added.}
 
@@ -31,7 +31,7 @@ columns with the suffixes \code{1} and \code{2}, such as \code{x1} and \code{x2}
 \code{"GRIM"}, for messages.}
 
 \item{.name_key_result}{(Experimental) String (length 1). Name of the key
-result column. Default is \code{"consistency"}. Must be the value that \code{.fun}
+result column. Default is \code{"consistency"}. Must be the value that \code{.fn}
 was created with.}
 
 \item{.name_class}{String. Optionally, a class to add to the output. Default
@@ -51,10 +51,10 @@ A function such as these:\tabular{lll}{
 }
 
 
-The settings of \code{.fun}, i.e., its arguments after \code{...}, such as
+The settings of \code{.fn}, i.e., its arguments after \code{...}, such as
 \code{rounding}, are arguments of this function as well, with the same
 defaults. So are its helper arguments, such as \code{items_averaged}. Its \code{...}
-pass any other arguments on to \code{.fun}, which is only of use for a \code{.fun}
+pass any other arguments on to \code{.fn}, which is only of use for a \code{.fn}
 without \code{...} of its own.
 }
 \description{
@@ -74,7 +74,7 @@ see \code{vignette("consistency-tests-in-depth")}, section \emph{Context and
 export}.
 }
 \section{Conventions}{
- Name the factory-made function after \code{.fun} with
+ Name the factory-made function after \code{.fn} with
 \verb{_total_n} appended, as in \code{\link[=grim_map_total_n]{grim_map_total_n()}} from \code{\link[=grim_map]{grim_map()}}. If
 you add a class via \code{.name_class}, name it after the function with the
 package name as prefix, as in \code{scrutiny_grim_map_total_n}.
@@ -83,7 +83,7 @@ package name as prefix, as in \code{scrutiny_grim_map_total_n}.
 \examples{
 # Function definition of `grim_map_total_n()`:
 grim_map_total_n <- function_map_total_n(
-  .fun = grim_map,
+  .fn = grim_map,
   .reported = "x",
   .name_test = "GRIM"
 )

@@ -27,7 +27,7 @@ schlim_map <- function(data) {
 
 # Use the function factory:
 schlim_map_total_n <- function_map_total_n(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = "y",
   .name_test = "SCHLIM",
   .name_class = "scrutiny_schlim_map_total_n"
@@ -106,13 +106,13 @@ test_that("group suffixes are swapped even if the statistic's name has digits", 
     abs(t1 * n - round(t1 * n)) < 10^-digits_t1
   }
   t1_map <- function_map(
-    .fun = t1_scalar,
+    .fn = t1_scalar,
     .reported = c("t1", "n"),
     .args_by_row = "digits_t1",
     .name_test = "T1"
   )
   t1_map_total_n <- function_map_total_n(
-    .fun = t1_map,
+    .fn = t1_map,
     .reported = "t1",
     .name_test = "T1"
   )
@@ -153,13 +153,13 @@ test_that("`.name_key_result` renames the key result column", {
   # total-n ones used to hard-code `"consistency"` and fail with base-R errors
   # ("first argument must be a vector", "invalid argument type"):
   vermin_map <- function_map(
-    .fun = function(y, n) (y / 3) > n,
+    .fn = function(y, n) (y / 3) > n,
     .reported = c("y", "n"),
     .name_test = "VERMIN",
     .name_key_result = "verdict"
   )
   vermin_map_total_n <- function_map_total_n(
-    .fun = vermin_map,
+    .fn = vermin_map,
     .reported = "y",
     .name_test = "VERMIN",
     .name_key_result = "verdict"
@@ -171,7 +171,7 @@ test_that("`.name_key_result` renames the key result column", {
   out |> audit_total_n() |> nrow() |> expect_equal(1L)
 
   vermin_map_seq <- function_map_seq(
-    .fun = vermin_map,
+    .fn = vermin_map,
     .reported = c("y", "n"),
     .name_test = "VERMIN",
     .name_key_result = "verdict"
@@ -184,7 +184,7 @@ test_that("`.name_key_result` renames the key result column", {
   # A mismatch between the two factories' `.name_key_result` values is caught
   # with a message that names the column, rather than an obscure `NULL`:
   mismatched <- function_map_seq(
-    .fun = vermin_map,
+    .fn = vermin_map,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )

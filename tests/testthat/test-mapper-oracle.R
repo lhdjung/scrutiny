@@ -5,20 +5,20 @@
 # agree. The data are rows of a grid on which leaving out any one setting
 # changes some verdict, so the check cannot pass with a setting dropped.
 
-# Each row's verdict, from the columns that are arguments of `fun`:
-verdicts <- function(data, fun, settings) {
-  args <- data[intersect(names(data), names(formals(fun)))]
-  do.call(fun, c(as.list(args), settings))
+# Each row's verdict, from the columns that are arguments of `fn`:
+verdicts <- function(data, fn, settings) {
+  args <- data[intersect(names(data), names(formals(fn)))]
+  do.call(fn, c(as.list(args), settings))
 }
 
 # A matrix of rows by settings: does leaving out the setting change the row's
 # verdict?
-sensitive <- function(data, fun, settings) {
-  full <- verdicts(data, fun, settings)
+sensitive <- function(data, fn, settings) {
+  full <- verdicts(data, fn, settings)
   vapply(
     names(settings),
     function(name) {
-      without <- verdicts(data, fun, settings[names(settings) != name])
+      without <- verdicts(data, fn, settings[names(settings) != name])
       is.na(without) != is.na(full) | (without != full) %in% TRUE
     },
     logical(nrow(data))
@@ -26,16 +26,16 @@ sensitive <- function(data, fun, settings) {
 }
 
 # The first row of `grid` on which each setting matters:
-pick_rows <- function(grid, fun, settings) {
-  rows <- grid |> sensitive(fun, settings) |> apply(2L, \(x) which(x)[1L])
+pick_rows <- function(grid, fn, settings) {
+  rows <- grid |> sensitive(fn, settings) |> apply(2L, \(x) which(x)[1L])
   rows |> anyNA() |> expect_false()
   grid[unique(rows), ]
 }
 
-expect_rows_agree <- function(out, fun, settings, label) {
-  out$consistency |> expect_equal(verdicts(out, fun, settings), label = label)
+expect_rows_agree <- function(out, fn, settings, label) {
+  out$consistency |> expect_equal(verdicts(out, fn, settings), label = label)
   out |>
-    sensitive(fun, settings) |>
+    sensitive(fn, settings) |>
     colSums() |>
     call_on(\(x) x > 0) |>
     all() |>
@@ -49,17 +49,17 @@ expect_tiers_agree <- function(
   mapper,
   mapper_seq,
   mapper_total_n,
-  fun,
+  fn,
   args,
   settings
 ) {
   out <- do.call(mapper, c(list(grid), args, settings))
-  out |> expect_rows_agree(fun, settings, "basic")
+  out |> expect_rows_agree(fn, settings, "basic")
 
   # `args` go in as columns, so that `verdicts()` finds them:
   picked <- grid |>
     dplyr::mutate(!!!args) |>
-    pick_rows(fun, settings) |>
+    pick_rows(fn, settings) |>
     dplyr::select(dplyr::all_of(names(grid)))
   out <- do.call(
     mapper_seq,
@@ -71,7 +71,7 @@ expect_tiers_agree <- function(
       include_reported = TRUE
     )
   )
-  out |> expect_rows_agree(fun, settings, "seq")
+  out |> expect_rows_agree(fn, settings, "seq")
 
   reported <- intersect(c("x", "sd"), names(picked))
   picked_twice <- picked[reported] |> dplyr::rename_with(\(x) paste0(x, 1L))
@@ -81,7 +81,7 @@ expect_tiers_agree <- function(
   others <- setdiff(names(picked), c(reported, "n"))
   picked_twice[others] <- picked[others]
   out <- do.call(mapper_total_n, c(list(picked_twice), args, settings))
-  out |> expect_rows_agree(fun, settings, "total-n")
+  out |> expect_rows_agree(fn, settings, "total-n")
 }
 
 

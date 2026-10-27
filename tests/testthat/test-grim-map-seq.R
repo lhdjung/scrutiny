@@ -1579,7 +1579,7 @@ test_that("a zero step in `dispersion` doesn't duplicate the reported case", {
 # which ignores them, so the class never reached the output:
 test_that("`function_map_seq()` adds the `.name_class` class", {
   my_map_seq <- function_map_seq(
-    .fun = grim_map,
+    .fn = grim_map,
     .reported = c("x", "n"),
     .name_test = "GRIM",
     .name_class = "my_class"
@@ -1669,7 +1669,7 @@ test_that("`var` must name each column once", {
 
 test_that("a `.var_bounds` function is checked once it is called", {
   my_map_seq <- function_map_seq(
-    .fun = grim_map,
+    .fn = grim_map,
     .reported = c("x", "n"),
     .name_test = "GRIM",
     .var_bounds = list(n = function(args) 2)

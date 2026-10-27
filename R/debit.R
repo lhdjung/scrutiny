@@ -553,7 +553,7 @@ debit <- function(
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 ) {
   map_value_sets(
-    fun = debit_scalar,
+    fn = debit_scalar,
     along = c("x", "sd", "n", "digits_x", "digits_sd")
   )
 }

@@ -244,7 +244,7 @@ grim_values <- function(
   symmetric = FALSE
 ) {
   map_value_sets(
-    fun = grim_values_scalar,
+    fn = grim_values_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),
     type = "list"
   )
@@ -264,7 +264,7 @@ grim_closest <- function(
   symmetric = FALSE
 ) {
   map_value_sets(
-    fun = grim_closest_scalar,
+    fn = grim_closest_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),
     type = "double"
   )

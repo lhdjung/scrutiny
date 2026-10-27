@@ -36,7 +36,7 @@
 #' df |>
 #'   add_up_to_map(summands = starts_with("n_"))
 add_up_to_map <- function_map(
-  .fun = add_up_to_scalar,
+  .fn = add_up_to_scalar,
   .reported = "total",
   .reported_variadic = "summands",
   .name_test = "add_up_to"

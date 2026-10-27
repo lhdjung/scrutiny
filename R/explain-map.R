@@ -91,12 +91,12 @@ explain_map.scrutiny_debit_map <- function(data) {
 }
 
 
-# Calls `fun`, an `*_explain()` function, on each row of `data`: the key columns
+# Calls `fn`, an `*_explain()` function, on each row of `data`: the key columns
 # as values, plus the settings recorded by the mapper. A helper column like
 # `items_averaged` is used if `data` has it.
 add_explanation_col <- function(
   data,
-  fun,
+  fn,
   cols_key,
   cols_helper = character()
 ) {
@@ -111,8 +111,8 @@ add_explanation_col <- function(
       verbs like `filter()`, `slice()`, and `arrange()`."
     )
   }
-  # The ones that `fun` can take: not `show_rec`, say.
-  args <- args[intersect(names(args), names(formals(fun)))]
+  # The ones that `fn` can take: not `show_rec`, say.
+  args <- args[intersect(names(args), names(formals(fn)))]
 
   cols <- c(cols_key, intersect(cols_helper, colnames(data)))
 
@@ -127,18 +127,18 @@ add_explanation_col <- function(
       character(1L),
       columns = columns,
       consistency = data$consistency,
-      fun = fun,
+      fn = fn,
       args = args
     )
   data
 }
 
 
-explain_row <- function(i, columns, consistency, fun, args) {
+explain_row <- function(i, columns, consistency, fn, args) {
   explanation <- columns |>
     lapply(`[[`, i) |>
     c(args) |>
-    do.call(what = fun)
+    do.call(what = fn)
 
   if (!identical(explanation$consistency, consistency[[i]])) {
     abort_in_export(

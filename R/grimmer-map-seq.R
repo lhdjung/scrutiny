@@ -71,7 +71,7 @@
 #'   audit_seq()
 
 grimmer_map_seq <- function_map_seq(
-  .fun = grimmer_map,
+  .fn = grimmer_map,
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
   # A standard deviation cannot be negative, but it can be `0`. The mean is

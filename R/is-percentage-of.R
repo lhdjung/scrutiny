@@ -116,7 +116,7 @@ is_percentage_of <- function(
   symmetric = FALSE
 ) {
   map_value_sets(
-    fun = is_percentage_of_scalar,
+    fn = is_percentage_of_scalar,
     along = c("absolute", "percentage", "n", "digits_percentage")
   )
 }

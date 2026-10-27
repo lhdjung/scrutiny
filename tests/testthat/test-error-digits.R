@@ -2,7 +2,7 @@
 # that name used to depend on counting frames, which broke whenever the call
 # stack had an unexpected shape: `Vectorize()` inserts `do.call()` and
 # `mapply()`, purrr inserts several frames of its own, and factory-made
-# functions invoke `fun` as a function object, so that frame carries no name.
+# functions invoke `fn` as a function object, so that frame carries no name.
 # `as.character()` on such a call head threw an error, and on a call head like
 # `scrutiny::grim_map` it returned a length-3 vector, which `lifecycle` then
 # rejected. Either way, the user saw an internal error instead of guidance.

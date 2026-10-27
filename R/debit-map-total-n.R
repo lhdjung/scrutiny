@@ -76,7 +76,7 @@
 #'   audit_total_n()
 
 debit_map_total_n <- function_map_total_n(
-  .fun = debit_map,
+  .fn = debit_map,
   .reported = c("x", "sd"),
   .name_test = "DEBIT",
   .n_min = 2L

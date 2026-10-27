@@ -93,7 +93,7 @@ Create mappers with `function_map()`:
 
 ```{r}
 schlim_map <- function_map(
-  .fun = schlim_scalar,
+  .fn = schlim_scalar,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
@@ -106,21 +106,21 @@ schlim_map(df1)
 
 These arguments are required:
 
--   `.fun` is the single-case function from section 1.
+-   `.fn` is the single-case function from section 1.
 
--   `.reported` names the arguments of `.fun` that take the reported statistics. These become the key columns. `function_map()` does not assume any particular number of them: GRIM has two, GRIMMER and DEBIT have three.
+-   `.reported` names the arguments of `.fn` that take the reported statistics. These become the key columns. `function_map()` does not assume any particular number of them: GRIM has two, GRIMMER and DEBIT have three.
 
 -   `.name_test` is the name of the test, used in messages and in the class of the output.
 
-Every other argument of `.fun` becomes an argument of the mapper, with the same default. Optional arguments of `function_map()` control how some of them are treated:
+Every other argument of `.fn` becomes an argument of the mapper, with the same default. Optional arguments of `function_map()` control how some of them are treated:
 
 | Argument | Purpose | Example in scrutiny |
 |:---|:---|:---|
 | `.args_by_row` | Arguments that take one value per row, returned as columns | `digits_x` |
 | `.cols_helper` | Arguments that may also be columns of `data`, returned after the key columns if given | `items_averaged` |
-| `.args_fixed` | Values always passed to `.fun`; the mapper has no argument for them | `list(show_reason = TRUE)` in `grimmer_map()` |
-| `.args_disabled` | Arguments of `.fun` that the mapper should not have | |
-| `.col_names` | Names of the columns that a list returned by `.fun` unpacks into; the first is the key result | `show_rec = TRUE` columns |
+| `.args_fixed` | Values always passed to `.fn`; the mapper has no argument for them | `list(show_reason = TRUE)` in `grimmer_map()` |
+| `.args_disabled` | Arguments of `.fn` that the mapper should not have | |
+| `.col_names` | Names of the columns that a list returned by `.fn` unpacks into; the first is the key result | `show_rec = TRUE` columns |
 | `.cols_derived` | Functions that compute further columns from the same row | `list(exp_incon = grim_exp_incon)` |
 | `.name_class` | Extra classes for the output | |
 | `.name_key_result` | Name of the result column, `"consistency"` by default | |
@@ -129,7 +129,7 @@ Every other argument of `.fun` becomes an argument of the mapper, with the same 
 
 ```{r, eval=FALSE}
 grim_map <- function_map(
-  .fun = grim_scalar,
+  .fn = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM",
   .args_by_row = "digits_x",
@@ -160,7 +160,7 @@ schlim_map <- function(...) "dummy"
 
 .onLoad <- function(lib, pkg) {
   schlim_map <<- scrutiny::function_map(
-    .fun = schlim_scalar,
+    .fn = schlim_scalar,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )
@@ -199,7 +199,7 @@ sum_check_scalar <- function(parts, total, tolerance = 0) {
 }
 
 sum_check_map <- function_map(
-  .fun = sum_check_scalar,
+  .fn = sum_check_scalar,
   .reported = "total",
   .reported_variadic = "parts",
   .name_test = "SUMCHECK"
@@ -356,7 +356,7 @@ Create sequence mappers from basic mappers with `function_map_seq()`. This is `g
 
 ```{r, eval=FALSE}
 grimmer_map_seq <- function_map_seq(
-  .fun = grimmer_map,
+  .fn = grimmer_map,
   .reported = c("x", "sd", "n"),
   .name_test = "GRIMMER",
   # A standard deviation cannot be negative, but it can be `0`. The mean is
@@ -375,7 +375,7 @@ A sequence mapper can be created in the same way from any basic mapper that meet
 
 ```{r}
 schlim_map_seq <- function_map_seq(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
@@ -410,7 +410,7 @@ Group means and standard deviations are not always reported with their group siz
 
 ```{r, eval=FALSE}
 grimmer_map_total_n <- function_map_total_n(
-  .fun = grimmer_map,
+  .fn = grimmer_map,
   .reported = c("x", "sd"), # not `n`
   .name_test = "GRIMMER",
   .n_min = 2L
@@ -423,7 +423,7 @@ For SCHLIM:
 
 ```{r}
 schlim_map_total_n <- function_map_total_n(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = "y",
   .name_test = "SCHLIM"
 )

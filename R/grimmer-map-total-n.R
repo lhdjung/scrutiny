@@ -91,7 +91,7 @@
 #'   audit_total_n()
 
 grimmer_map_total_n <- function_map_total_n(
-  .fun = grimmer_map,
+  .fn = grimmer_map,
   .reported = c("x", "sd"),
   .name_test = "GRIMMER",
   .n_min = 2L

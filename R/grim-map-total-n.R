@@ -103,7 +103,7 @@
 #'   audit_total_n()
 
 grim_map_total_n <- function_map_total_n(
-  .fun = grim_map,
+  .fn = grim_map,
   .reported = "x",
   .name_test = "GRIM"
 )

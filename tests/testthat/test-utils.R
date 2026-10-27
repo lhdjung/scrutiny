@@ -310,11 +310,11 @@ test_that("every `sd_meaning` and `formula` default spells out its constant", {
   ns <- asNamespace("scrutiny")
   n_checked <- 0L
   for (name in ls(ns)) {
-    fun <- get(name, envir = ns)
-    if (!is.function(fun)) {
+    fn <- get(name, envir = ns)
+    if (!is.function(fn)) {
       next
     }
-    defaults <- formals(fun)
+    defaults <- formals(fn)
     for (arg in intersect(names(defaults), names(constants))) {
       # Internal helpers take a single, resolved value, or one with no default:
       if (identical(defaults[[arg]], quote(expr = )) || is.character(defaults[[arg]])) {

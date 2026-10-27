@@ -39,7 +39,7 @@
 #' df |>
 #'   is_percentage_of_map(digits_percentage = 0)
 is_percentage_of_map <- function_map(
-  .fun = is_percentage_of_scalar,
+  .fn = is_percentage_of_scalar,
   .reported = c("absolute", "percentage", "n"),
   .name_test = "is_percentage_of",
   .args_by_row = "digits_percentage"

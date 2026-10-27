@@ -276,7 +276,7 @@ seq_disperse_df <- function(
   .include_reported = TRUE,
   .track_diff_var = FALSE
 ) {
-  out_basic_fun <- seq_disperse(
+  out_basic_fn <- seq_disperse(
     from = .from,
     by = .by,
     dispersion = .dispersion,
@@ -288,10 +288,10 @@ seq_disperse_df <- function(
   )
 
   if (.track_diff_var) {
-    x <- out_basic_fun[[1L]]
-    diff_var <- out_basic_fun[[2L]]
+    x <- out_basic_fn[[1L]]
+    diff_var <- out_basic_fn[[2L]]
   } else {
-    x <- out_basic_fun
+    x <- out_basic_fn
     diff_var <- NULL
   }
 

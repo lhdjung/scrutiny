@@ -21,7 +21,7 @@ schlim_map <- function(data) {
 }
 
 schlim_map_seq <- function_map_seq(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = c("y", "n"),
   .name_test = "SCHLIM",
   .name_class = "scrutiny_schlim_map_seq"

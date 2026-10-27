@@ -72,7 +72,7 @@
 #'   audit()
 
 debit_map <- function_map(
-  .fun = debit_scalar,
+  .fn = debit_scalar,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
   .args_by_row = c("digits_x", "digits_sd"),

@@ -12,9 +12,9 @@ mutate_both_consistent <- function(data, name_key_result = "consistency") {
 
 # Tests one direction of group pairing; called twice by `function_map_total_n()`:
 function_map_total_n_proto <- function(
-  fun,
+  fn,
   name_key_result = "consistency",
-  name_fun = "the mapper"
+  name_fn = "the mapper"
 ) {
   function(
     data,
@@ -130,7 +130,7 @@ function_map_total_n_proto <- function(
     }
 
     # Other columns of `data`, such as `items_averaged`, go along with each
-    # case; `fun()` needs helper columns and returns the others as they are:
+    # case; `fn()` needs helper columns and returns the others as they are:
     for (name in setdiff(colnames(data), c(colnames(.reported), "n"))) {
       out_df[[name]] <- data[[name]][case]
     }
@@ -138,7 +138,7 @@ function_map_total_n_proto <- function(
     # A row of `out_df` is a scenario, not a row of the user's `data`, so an
     # error names the case it belongs to (see `rethrow_row_error()`):
     out_df <- withCallingHandlers(
-      do.call(fun, c(list(out_df), dots)),
+      do.call(fn, c(list(out_df), dots)),
       error = function(cnd) {
         if (is.null(cnd$scrutiny_row)) {
           return()
@@ -153,7 +153,7 @@ function_map_total_n_proto <- function(
       }
     )
 
-    check_key_result_col(out_df, name_key_result, name_fun)
+    check_key_result_col(out_df, name_key_result, name_fn)
 
     if (!any("n_change" == colnames(out_df))) {
       out_df <- out_df |>
@@ -192,7 +192,7 @@ function_map_total_n_proto <- function(
 #'
 #'   See `vignette("consistency-tests-in-depth")`, section *Total-n mapper*.
 #'
-#' @param .fun A basic mapper function such as [`grim_map()`], typically made
+#' @param .fn A basic mapper function such as [`grim_map()`], typically made
 #'   by [`function_map()`]. It must return its input data frame with a logical
 #'   column named by `.name_key_result` added.
 #' @param .reported String. Names of the group-specific statistics reported
@@ -202,7 +202,7 @@ function_map_total_n_proto <- function(
 #' @param .name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`, for messages.
 #' @param .name_key_result (Experimental) String (length 1). Name of the key
-#'   result column. Default is `"consistency"`. Must be the value that `.fun`
+#'   result column. Default is `"consistency"`. Must be the value that `.fn`
 #'   was created with.
 #' @param .name_class String. Optionally, a class to add to the output. Default
 #'   is `NULL`.
@@ -228,13 +228,13 @@ function_map_total_n_proto <- function(
 #'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer")`
 #'   | [`debit_map_total_n()`]          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'
-#'   The settings of `.fun`, i.e., its arguments after `...`, such as
+#'   The settings of `.fn`, i.e., its arguments after `...`, such as
 #'   `rounding`, are arguments of this function as well, with the same
 #'   defaults. So are its helper arguments, such as `items_averaged`. Its `...`
-#'   pass any other arguments on to `.fun`, which is only of use for a `.fun`
+#'   pass any other arguments on to `.fn`, which is only of use for a `.fn`
 #'   without `...` of its own.
 #'
-#' @section Conventions: Name the factory-made function after `.fun` with
+#' @section Conventions: Name the factory-made function after `.fn` with
 #'   `_total_n` appended, as in [`grim_map_total_n()`] from [`grim_map()`]. If
 #'   you add a class via `.name_class`, name it after the function with the
 #'   package name as prefix, as in `scrutiny_grim_map_total_n`.
@@ -248,13 +248,13 @@ function_map_total_n_proto <- function(
 #' @examples
 #' # Function definition of `grim_map_total_n()`:
 #' grim_map_total_n <- function_map_total_n(
-#'   .fun = grim_map,
+#'   .fn = grim_map,
 #'   .reported = "x",
 #'   .name_test = "GRIM"
 #' )
 
 function_map_total_n <- function(
-  .fun,
+  .fn,
   .reported,
   .name_test,
   .name_key_result = "consistency",
@@ -265,7 +265,7 @@ function_map_total_n <- function(
   .constant = NULL,
   ...
 ) {
-  force(.fun)
+  force(.fn)
   force(.reported)
   force(.name_test)
   force(.name_key_result)
@@ -288,7 +288,7 @@ function_map_total_n <- function(
     )
   }
 
-  name_fun <- deparse(substitute(.fun))
+  name_fn <- deparse(substitute(.fn))
 
   reported_reduplicated <- rep(.reported, each = 2L)
   reported_reduplicated <- paste0(reported_reduplicated, c("1", "2"))
@@ -297,32 +297,32 @@ function_map_total_n <- function(
   # `formals()`, tab completion, and the help page:
   digits_args_names <- intersect(
     paste0("digits_", .reported),
-    names(formals(.fun))
+    names(formals(.fn))
   )
   digits_pairlist_entries <- setNames(
     replicate(length(digits_args_names), NULL, simplify = FALSE),
     digits_args_names
   )
 
-  # The same goes for helper arguments, with `.fun`'s defaults, i.e., none for
+  # The same goes for helper arguments, with `.fn`'s defaults, i.e., none for
   # `items_averaged`:
-  args_helper_fun <- attr(.fun, "scrutiny_args_helper", exact = TRUE)
-  helper_formals <- formals(.fun)[args_helper_fun]
+  args_helper_fn <- attr(.fn, "scrutiny_args_helper", exact = TRUE)
+  helper_formals <- formals(.fn)[args_helper_fn]
 
-  # And for the settings of `.fun`, such as `rounding`:
+  # And for the settings of `.fn`, such as `rounding`:
   setting_formals <- formals_settings(
-    .fun,
+    .fn,
     exclude = c(
-      args_helper_fun,
+      args_helper_fn,
       "dispersion",
       "n_min",
       "n_max",
       "constant"
     )
   )
-  args_setting_fun <- names(setting_formals)
+  args_setting_fn <- names(setting_formals)
 
-  # The total-n mapper's own settings are recorded next to those of `.fun` and
+  # The total-n mapper's own settings are recorded next to those of `.fn` and
   # compared to these defaults:
   defaults_total_n <- list(
     dispersion = .dispersion,
@@ -349,18 +349,18 @@ function_map_total_n <- function(
     body = rlang::expr({
       # Collect the helper arguments that were given, first thing, before any
       # local variable could shadow one. A missing one is left out, so that it
-      # reaches `fun()` as missing, which then says how to supply it:
+      # reaches `fn()` as missing, which then says how to supply it:
       helper_vals <- list()
-      for (arg_helper in `!!`(args_helper_fun)) {
+      for (arg_helper in `!!`(args_helper_fn)) {
         if (!eval(call("missing", as.name(arg_helper)))) {
           helper_vals[arg_helper] <- list(get(arg_helper))
         }
       }
 
       # The same for the settings. One that was not given is left out, so that
-      # `fun()` applies its own default, which is the same:
+      # `fn()` applies its own default, which is the same:
       setting_vals <- list()
-      for (arg_setting in `!!`(args_setting_fun)) {
+      for (arg_setting in `!!`(args_setting_fn)) {
         if (!eval(call("missing", as.name(arg_setting)))) {
           setting_vals[arg_setting] <- list(get(arg_setting))
         }
@@ -382,12 +382,12 @@ function_map_total_n <- function(
       }
 
       name_test <- `!!`(.name_test)
-      name_fun <- `!!`(name_fun)
+      name_fn <- `!!`(name_fn)
       name_class <- `!!`(.name_class)
       name_key_result <- `!!`(.name_key_result)
       reported <- `!!`(.reported)
       reported_reduplicated <- `!!`(reported_reduplicated)
-      fun <- `!!`(.fun)
+      fn <- `!!`(.fn)
 
       # First, before anything reads columns off `data`:
       data <- as_tibble_input(data)
@@ -396,7 +396,7 @@ function_map_total_n <- function(
 
       # Checks ---
 
-      check_factory_dots(fun, name_fun, ...)
+      check_factory_dots(fn, name_fn, ...)
 
       # The other columns of `data` are returned as they are, so one named like
       # a result column, or like a group's reported values, would be
@@ -413,7 +413,7 @@ function_map_total_n <- function(
         )
       }
 
-      # A missing `digits_*` argument is left out, so that `fun()` raises its
+      # A missing `digits_*` argument is left out, so that `fn()` raises its
       # own error about it. See `function_map_seq()` for why not `mget()`:
       digits_vals <- list()
       for (arg_digits in `!!`(digits_args_names)) {
@@ -421,7 +421,7 @@ function_map_total_n <- function(
           digits_vals[arg_digits] <- list(get(arg_digits))
         }
       }
-      fun_args <- c(digits_vals, helper_vals, setting_vals, list(...))
+      fn_args <- c(digits_vals, helper_vals, setting_vals, list(...))
 
       # `check_mapper_input_colnames()` would look for the wrong key columns:
       check_consistency_not_in_colnames(data, name_test, name_key_result)
@@ -531,9 +531,9 @@ function_map_total_n <- function(
         dplyr::relocate(all_of(cols_forth_order))
 
       map_total_n_proto <- function_map_total_n_proto(
-        fun = fun,
+        fn = fn,
         name_key_result = name_key_result,
-        name_fun = name_fun
+        name_fn = name_fn
       )
 
       out_forth <- do.call(
@@ -549,7 +549,7 @@ function_map_total_n <- function(
             .n_max = n_max,
             .constant = constant
           ),
-          fun_args
+          fn_args
         )
       )
 
@@ -573,7 +573,7 @@ function_map_total_n <- function(
             .n_max = n_max,
             .constant = constant_back
           ),
-          fun_args
+          fn_args
         )
       )
 
@@ -598,7 +598,7 @@ function_map_total_n <- function(
 
       out <- dplyr::bind_rows(out_forth, out_back)
 
-      # The settings that `fun()` recorded, such as `rounding`, followed by
+      # The settings that `fn()` recorded, such as `rounding`, followed by
       # those of this call:
       meta <- attr(out_forth, "scrutiny", exact = TRUE)
       meta$settings <- dplyr::bind_rows(
@@ -642,7 +642,7 @@ function_map_total_n <- function(
           add_class(name_class)
       }
 
-      # `rename = FALSE`: `fun()` already named the column, so only the
+      # `rename = FALSE`: `fn()` already named the column, so only the
       # list-column-to-logical half of this code applies here.
       `!!!`(write_code_col_key_result(.name_key_result, rename = FALSE))
     }),
@@ -656,7 +656,7 @@ function_map_total_n <- function(
   # --- End of the manufactured function, `fn_out()` ---
 
   # Keep the enclosure of `fn_out()` small:
-  rm(name_fun)
+  rm(name_fn)
 
   # After the `digits_*` arguments, so that all three mapper tiers start their
   # signature the same way. `n` is the column of totals. As a key argument,

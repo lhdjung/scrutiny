@@ -12,7 +12,7 @@ utils::globalVariables(c(
   "frac",
   "distance",
   "both_consistent",
-  "fun",
+  "fn",
   "var",
   "dispersion",
   "out_min",
@@ -39,7 +39,7 @@ utils::globalVariables(c(
   "x_lower",
   "x_upper",
   "na_count",
-  "fun_name",
+  "fn_name",
   # Used in the bodies that the function factories build:
   "!!",
   "!!!",
@@ -1431,7 +1431,7 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 #' @param var_bounds Named list of length-2 numeric vectors, `c(min, max)`, with
 #'   `NA` for an unbounded side, or of functions that return one from `args`.
 #'   May be `NULL`.
-#' @param args The settings of the initial `fun()` call, from `scrutiny_args()`.
+#' @param args The settings of the initial `fn()` call, from `scrutiny_args()`.
 #'
 #' @return List of two elements, `out_min` and `out_max`.
 #'
@@ -1527,12 +1527,12 @@ check_var_bounds <- function(var_bounds) {
 #'   increasing. The default `1:5` is, but `5:1` and `c(3, 7, 2)` are not.
 #'
 #' @param data Data frame returned by a function made by `function_map_seq()`.
-#' @param name_fun String (length 1). Name of the calling function.
+#' @param name_fn String (length 1). Name of the calling function.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_dispersion_linear <- function(data, name_fun) {
+check_dispersion_linear <- function(data, name_fn) {
   if (isFALSE(attr(data, "scrutiny", exact = TRUE)$dispersion_linear)) {
     name_mapper <- class(data) |>
       call_on(\(x) x[grepl("_map_seq$", x)]) |>
@@ -1541,7 +1541,7 @@ check_dispersion_linear <- function(data, name_fun) {
 
     abort_in_export(
       "Invalid for data with this dispersion.",
-      "!" = "`{name_fun}()` is only applicable if `dispersion` \\
+      "!" = "`{name_fn}()` is only applicable if `dispersion` \\
       in `{name_mapper}()` is a linearly increasing sequence.",
       "i" = "This limitation may be removed in a future version of scrutiny."
     )

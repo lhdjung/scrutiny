@@ -1,6 +1,6 @@
 # Manufactured functions --------------------------------------------------
 
-# Stripped-down versions of the real mappers: same `.fun` and `.reported`, but
+# Stripped-down versions of the real mappers: same `.fn` and `.reported`, but
 # none of the arguments that give the real ones their extra columns. They exist
 # to check that the factory's core -- key columns, renaming, the key result
 # column -- is what the real mappers get from it, and that the extras really are
@@ -8,19 +8,19 @@
 # the arguments that applied to the whole call, and these differ by design.
 
 grim_map_alt <- function_map(
-  .fun = grim_scalar,
+  .fn = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM"
 )
 
 debit_map_alt <- function_map(
   .reported = c("x", "sd", "n"),
-  .fun = debit_scalar,
+  .fn = debit_scalar,
   .name_test = "DEBIT"
 )
 
 grim_map_alt_renamed <- function_map(
-  .fun = grim_scalar,
+  .fn = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM",
   .name_key_result = "success"
@@ -28,7 +28,7 @@ grim_map_alt_renamed <- function_map(
 
 debit_map_alt_renamed <- function_map(
   .reported = c("x", "sd", "n"),
-  .fun = debit_scalar,
+  .fn = debit_scalar,
   .name_test = "DEBIT",
   .name_key_result = "success"
 )
@@ -151,7 +151,7 @@ test_that("Renaming `\"consistency\"` via `.name_key_result` works", {
 
 test_that("a `consistency` column is not silently lost under another name", {
   v_map <- function_map(
-    .fun = grim_scalar,
+    .fn = grim_scalar,
     .reported = c("x", "n"),
     .name_test = "VGRIM",
     .name_key_result = "verdict",
@@ -181,7 +181,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
   # Without `.args_by_row`, a `digits_*` argument is one value for the whole
   # call, as it is for the `*_scalar()` function itself:
   map_const <- function_map(
-    .fun = grimmer_scalar,
+    .fn = grimmer_scalar,
     .reported = c("x", "sd", "n"),
     .name_test = "GRIMMER"
   )
@@ -191,7 +191,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
   df |> map_const(digits_x = c(2, 1), digits_sd = 2, items_averaged = 1) |> expect_error()
 
   map_by_row <- function_map(
-    .fun = grimmer_scalar,
+    .fn = grimmer_scalar,
     .reported = c("x", "sd", "n"),
     .name_test = "GRIMMER",
     .args_by_row = c("digits_x", "digits_sd")
@@ -269,7 +269,7 @@ test_that("arguments of the test function become real arguments", {
 
   # Disabled arguments are not among them:
   map_disabled <- function_map(
-    .fun = grim_scalar,
+    .fn = grim_scalar,
     .reported = c("x", "n"),
     .name_test = "GRIM",
     .args_disabled = "percent"
@@ -321,7 +321,7 @@ test_that("`.reported` may name any number of key columns", {
   }
 
   quadrant_map <- function_map(
-    .fun = quadrant_scalar,
+    .fn = quadrant_scalar,
     .reported = c("a", "b", "c", "d"),
     .name_test = "QUADRANT"
   )
@@ -348,13 +348,13 @@ test_that("`.reported` may name any number of key columns", {
 test_that("`.reported_variadic` decides the number of key columns at call time", {
   # The other case of #42: a test over "any number of columns", where how many
   # there are is a property of the caller's data rather than of the factory
-  # call. Its `.fun` takes them as one vector argument.
+  # call. Its `.fn` takes them as one vector argument.
   sum_check_scalar <- function(parts, total, tolerance = 0) {
     abs(sum(parts) - total) <= tolerance
   }
 
   sum_check_map <- function_map(
-    .fun = sum_check_scalar,
+    .fn = sum_check_scalar,
     .reported = "total",
     .reported_variadic = "parts",
     .name_test = "SUMCHECK"
@@ -419,7 +419,7 @@ test_that("`.reported_variadic` decides the number of key columns at call time",
 test_that("a variadic key argument must be specified, and must select real columns", {
   sum_check_scalar <- function(parts, total) sum(parts) == total
   sum_check_map <- function_map(
-    .fun = sum_check_scalar,
+    .fn = sum_check_scalar,
     .reported = "total",
     .reported_variadic = "parts",
     .name_test = "SUMCHECK"
@@ -445,7 +445,7 @@ test_that("a variadic key argument must be specified, and must select real colum
   # Helper columns count as spoken for, too:
   helper_scalar <- function(parts, total, items = 1) sum(parts) == total * items
   helper_map <- function_map(
-    .fun = helper_scalar,
+    .fn = helper_scalar,
     .reported = "total",
     .reported_variadic = "parts",
     .name_test = "SUMCHECK",
@@ -463,7 +463,7 @@ test_that("a variadic key argument must be specified, and must select real colum
 test_that("`.reported` may be empty if `.reported_variadic` is not", {
   all_equal_scalar <- function(values) length(unique(values)) == 1L
   all_equal_map <- function_map(
-    .fun = all_equal_scalar,
+    .fn = all_equal_scalar,
     .reported_variadic = "values",
     .name_test = "ALLEQUAL"
   )
@@ -490,7 +490,7 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
   count_parts <- function(parts) length(parts)
 
   sum_check_map <- function_map(
-    .fun = sum_check_scalar,
+    .fn = sum_check_scalar,
     .reported = "total",
     .reported_variadic = "parts",
     .name_test = "SUMCHECK",
@@ -820,39 +820,39 @@ test_that("a key argument clashing with an existing column is an error", {
 # `write_code_col_key_result()` renamed a `consistency` column that
 # `.col_names` had already named otherwise, so the mapper always failed.
 test_that("`.col_names` may start with a custom `.name_key_result`", {
-  fun <- function(y, n, show_rec = FALSE) if (show_rec) list(y / 3 > n, y / 3) else y / 3 > n
-  map_verdict <- function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("verdict", "third"))
+  fn <- function(y, n, show_rec = FALSE) if (show_rec) list(y / 3 > n, y / 3) else y / 3 > n
+  map_verdict <- function_map(.fn = fn, .reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("verdict", "third"))
   df <- tibble::tibble(y = 16:18, n = 3:5)
   df      |> map_verdict()                |> colnames() |> expect_equal(c("y", "n", "verdict"))
   df      |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict", "third"))
   df[0, ] |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict"))
-  fun |>
+  fn |>
     function_map(.reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("consistency", "third")) |>
     expect_error("must start with `.name_key_result`")
 })
 
 
 test_that("`function_map()` rejects arguments it can't honor", {
-  fun <- function(y, n, z = 1) y > n
-  fun |>
+  fn <- function(y, n, z = 1) y > n
+  fn |>
     function_map(.reported = c("y", "n"), .name_test = "T", .args_fixed = list(n = 2)) |>
     expect_error("key, by-row")
-  fun |>
+  fn |>
     function_map(.reported = c("y", "n"), .name_test = "T", .cols_helper = "z", .args_fixed = list(z = 2)) |>
     expect_error("`z` is already one")
-  fun |>
+  fn |>
     function_map(.reported = c("y", "n"), .name_test = "T", .args_fixed = list(2)) |>
     expect_error("must be a named list")
-  fun_shadowed <- function(y, n, fun = 1) y > n
-  fun_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fun`")
+  fn_shadowed <- function(y, n, fn = 1) y > n
+  fn_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fn`")
 })
 
 
 # `check_args_disabled()` read the names off the call, which through `lapply()`
 # is `FUN(X[[i]], ...)`, so a disabled argument went through.
 test_that("disabled arguments stay disabled when the mapper is called indirectly", {
-  fun <- function(y, n, bad = 1) (y / 3) > n + bad
-  map_disabled <- function_map(.fun = fun, .reported = c("y", "n"), .name_test = "T", .args_disabled = "bad")
+  fn <- function(y, n, bad = 1) (y / 3) > n + bad
+  map_disabled <- function_map(.fn = fn, .reported = c("y", "n"), .name_test = "T", .args_disabled = "bad")
   df <- tibble::tibble(y = 16:18, n = 3:5)
   df        |> map_disabled(bad = 100)            |> expect_error("disabled")
   list(df)  |> lapply(map_disabled, bad = 100)     |> expect_error("disabled")
@@ -870,7 +870,7 @@ test_that("a data column named like a result column is an error", {
 test_that("a `.cols_derived` function must return one value per row", {
   # A wrong length used to make a tibble that only failed when printed:
   bad <- function_map(
-    .fun = function(x, n) x > n,
+    .fn = function(x, n) x > n,
     .reported = c("x", "n"),
     .name_test = "T",
     .cols_derived = list(twice = function(x) c(x, x))
@@ -878,8 +878,8 @@ test_that("a `.cols_derived` function must return one value per row", {
   tibble::tibble(x = 1:2, n = 0:1) |> bad() |> expect_error("one value per row")
 })
 
-test_that("`.fun` must return a single logical value", {
-  nul <- function_map(.fun = function(x, n) NULL, .reported = c("x", "n"), .name_test = "T")
+test_that("`.fn` must return a single logical value", {
+  nul <- function_map(.fn = function(x, n) NULL, .reported = c("x", "n"), .name_test = "T")
   tibble::tibble(x = 1:2, n = 0:1) |> nul() |> expect_error("single logical value")
 })
 
@@ -895,7 +895,7 @@ test_that("a variadic column can't be renamed to a name the output uses", {
 
 test_that("`.args_disabled` covers formals of the sequence mapper", {
   seq_disabled <- function_map_seq(
-    .fun = grim_map,
+    .fn = grim_map,
     .reported = c("x", "n"),
     .name_test = "GRIM",
     .args_disabled = "dispersion"
@@ -907,7 +907,7 @@ test_that("`.args_disabled` covers formals of the sequence mapper", {
 test_that("a by-row argument with a default takes its values from a column", {
   # The default used to be compared to the column and to fail as disagreeing:
   dflt <- function_map(
-    .fun = function(x, n, digits_y = 2) x > n + digits_y,
+    .fn = function(x, n, digits_y = 2) x > n + digits_y,
     .reported = c("x", "n"),
     .name_test = "T",
     .args_by_row = "digits_y"
@@ -918,7 +918,7 @@ test_that("a by-row argument with a default takes its values from a column", {
 })
 
 test_that("a space in `.name_test` becomes an underscore in the class", {
-  spaced <- function_map(.fun = function(x, n) x > n, .reported = c("x", "n"), .name_test = "My Test")
+  spaced <- function_map(.fn = function(x, n) x > n, .reported = c("x", "n"), .name_test = "My Test")
   tibble::tibble(x = 1, n = 0) |> spaced() |> class() |> purrr::pluck(1) |> expect_equal("scrutiny_my_test_map")
 })
 

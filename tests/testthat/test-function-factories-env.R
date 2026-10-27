@@ -22,17 +22,17 @@ schlim_map <- function(data) {
 
 fns_factory_made <- list(
   map = function_map(
-    .fun = schlim_scalar,
+    .fn = schlim_scalar,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   ),
   map_seq = function_map_seq(
-    .fun = schlim_map,
+    .fn = schlim_map,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   ),
   map_total_n = function_map_total_n(
-    .fun = schlim_map,
+    .fn = schlim_map,
     .reported = "y",
     .name_test = "SCHLIM"
   )
@@ -81,7 +81,7 @@ test_that("factory-made functions work outside of scrutiny's scope", {
 
 
 # `function_map_seq()` used to add a `digits_*` column for every reported
-# variable except `n`, whether or not `.fun` had a matching argument.
+# variable except `n`, whether or not `.fn` had a matching argument.
 # `audit_seq()` forwards every `digits_*` column back to the mapper as an
 # argument, so the mapper rejected its own output.
 test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
@@ -90,13 +90,13 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
   # by. `audit_seq()` recovers the mapper by that name, looking it up in the
   # environment it was called from -- here, this test block.
   schlim_map <- function_map(
-    .fun = schlim_scalar,
+    .fn = schlim_scalar,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )
 
   schlim_map_seq <- function_map_seq(
-    .fun = schlim_map,
+    .fn = schlim_map,
     .reported = c("y", "n"),
     .name_test = "SCHLIM"
   )
@@ -123,12 +123,12 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
 # number of rows when there were no other key columns.
 test_that("`function_map_seq()` works for a mapper with one reported variable", {
   even_map <- function_map(
-    .fun = function(x) x %% 2 == 0,
+    .fn = function(x) x %% 2 == 0,
     .reported = "x",
     .name_test = "EVEN"
   )
   even_map_seq <- function_map_seq(
-    .fun = even_map,
+    .fn = even_map,
     .reported = "x",
     .name_test = "EVEN"
   )
@@ -148,12 +148,12 @@ test_that("`audit_seq()` works on a mapper that nothing can find any more", {
   # environment has any path to it:
   make_out_seq <- function() {
     schlim_map <- function_map(
-      .fun = schlim_scalar,
+      .fn = schlim_scalar,
       .reported = c("y", "n"),
       .name_test = "SCHLIM"
     )
     schlim_map_seq <- function_map_seq(
-      .fun = schlim_map,
+      .fn = schlim_map,
       .reported = c("y", "n"),
       .name_test = "SCHLIM"
     )

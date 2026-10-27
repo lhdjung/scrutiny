@@ -5,7 +5,7 @@
 \title{Create new \verb{*_map_seq()} functions}
 \usage{
 function_map_seq(
-  .fun,
+  .fn,
   .var = .reported,
   .reported,
   .name_test,
@@ -22,7 +22,7 @@ function_map_seq(
 )
 }
 \arguments{
-\item{.fun}{A basic mapper function such as \code{\link[=grim_map]{grim_map()}}, typically made
+\item{.fn}{A basic mapper function such as \code{\link[=grim_map]{grim_map()}}, typically made
 by \code{\link[=function_map]{function_map()}}. It must return its input data frame with a logical
 column named by \code{.name_key_result} added.}
 
@@ -36,13 +36,13 @@ disperse.}
 \code{"GRIM"}, for messages.}
 
 \item{.name_key_result}{(Experimental) String (length 1). Name of the key
-result column. Default is \code{"consistency"}. Must be the value that \code{.fun}
+result column. Default is \code{"consistency"}. Must be the value that \code{.fn}
 was created with.}
 
 \item{.name_class}{String. Optionally, a class to add to the output. Default
 is \code{NULL}.}
 
-\item{.args_disabled}{String. Optionally, names of arguments of \code{.fun} that
+\item{.args_disabled}{String. Optionally, names of arguments of \code{.fn} that
 the factory-made function should reject.}
 
 \item{.dispersion}{Numeric. Steps up and down from the reported values, in
@@ -56,7 +56,7 @@ every dispersed variable, and \code{NULL} removes the limit. Default is
 after a variable in \code{.reported} and is a numeric vector of its least and
 greatest possible value, with \code{NA} for an unbounded side, such as \code{list(n = c(1, NA), sd = c(0, NA))}. A variable not named here is unbounded, except
 for \code{n}, which always has a minimum of 1. For a bound that depends on a
-setting, an element may also be a function that takes the settings \code{.fun}
+setting, an element may also be a function that takes the settings \code{.fn}
 recorded for its call, as a named list such as \code{list(sd_meaning = "sd_sample")}, and returns such a vector. The bounds only keep impossible
 values, such as a sample size of 0, from being tested. They have no
 bearing on consistency.}
@@ -78,10 +78,10 @@ A function such as these:\tabular{lll}{
 }
 
 
-The settings of \code{.fun}, i.e., its arguments after \code{...}, such as
+The settings of \code{.fn}, i.e., its arguments after \code{...}, such as
 \code{rounding}, are arguments of this function as well, with the same
 defaults. So are its helper arguments, such as \code{items_averaged}. Its \code{...}
-pass any other arguments on to \code{.fun}, which is only of use for a \code{.fun}
+pass any other arguments on to \code{.fn}, which is only of use for a \code{.fn}
 without \code{...} of its own.
 }
 \description{
@@ -109,7 +109,7 @@ see \code{vignette("consistency-tests-in-depth")}, section \emph{Context and
 export}.
 }
 \section{Conventions}{
- Name the factory-made function after \code{.fun} with
+ Name the factory-made function after \code{.fn} with
 \verb{_seq} appended, as in \code{\link[=grim_map_seq]{grim_map_seq()}} from \code{\link[=grim_map]{grim_map()}}. If you add
 a class via \code{.name_class}, name it after the function with the package
 name as prefix, as in \code{scrutiny_grim_map_seq}.
@@ -118,7 +118,7 @@ name as prefix, as in \code{scrutiny_grim_map_seq}.
 \examples{
 # Function definition of `grim_map_seq()`:
 grim_map_seq <- function_map_seq(
-  .fun = grim_map,
+  .fn = grim_map,
   .reported = c("x", "n"),
   .name_test = "GRIM"
 )

@@ -64,6 +64,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
 
+- `function_map()`, `function_map_seq()`, and `function_map_total_n()` take the function to map as `.fn` instead of `.fun`.
+
 - Mapper settings that other functions need later, such as `rounding`, are recorded in a `"scrutiny"` attribute instead of S3 classes, which are now used for dispatch only. The `"scr_rounding_*"`, `"scr_percent_true"`, `"scr_map_seq_disp_nonlinear"`, `"scr_seq_df"`, and `"scr_seq_test"` classes are gone.
 
 - In `*_map_seq()` output, `case` is the row number of the value set in the input data; it used to count only the inconsistent rows. `n` and `items_averaged` are separate columns, also in `*_map_total_n()` output, and `n` is dispersed in steps of 1.

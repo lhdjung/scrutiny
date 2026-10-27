@@ -78,7 +78,7 @@ check_factory_key_args_names <- function(
 
   offenders <- wrap_in_backticks(offenders)
 
-  msg_fun_name <- name_last_export_code()
+  msg_fn_name <- name_last_export_code()
 
   if (length(offenders) == 1L) {
     msg_missing <- "Column {offenders} is"
@@ -102,23 +102,23 @@ check_factory_key_args_names <- function(
           missing from `data`.",
     "x" = "{msg_needs_to_be} of the input data frame.",
     "i" = "Alternatively, specify the {offenders} \\
-          {msg_argument} of {msg_fun_name} as {msg_names}."
+          {msg_argument} of {msg_fn_name} as {msg_names}."
   )
 }
 
 
-# The settings of a mapper `fun`, such as `rounding`: its formals after the
+# The settings of a mapper `fn`, such as `rounding`: its formals after the
 # dots, minus those named in `exclude`. `function_map_seq()` and
-# `function_map_total_n()` copy them with `fun`'s defaults, so that they show
-# up in `formals()`, tab completion, and the help page. A `fun` without dots has
+# `function_map_total_n()` copy them with `fn`'s defaults, so that they show
+# up in `formals()`, tab completion, and the help page. A `fn` without dots has
 # no settings to copy; it gets them through the dots.
-formals_settings <- function(fun, exclude) {
-  formals_fun <- formals(fun)
-  index_dots <- match("...", names(formals_fun))
+formals_settings <- function(fn, exclude) {
+  formals_fn <- formals(fn)
+  index_dots <- match("...", names(formals_fn))
   if (is.na(index_dots)) {
     return(list())
   }
-  formals_after <- formals_fun[-seq_len(index_dots)]
+  formals_after <- formals_fn[-seq_len(index_dots)]
   formals_after[setdiff(names(formals_after), exclude)]
 }
 
@@ -197,25 +197,25 @@ is_enum_default <- function(default) {
 #'
 #' `check_factory_dots()` is called within mappers made by [`function_map()`],
 #' [`function_map_seq()`], and [`function_map_total_n()`]. It errors if an
-#' argument passed through the dots is not an argument of `fun`.
+#' argument passed through the dots is not an argument of `fn`.
 #'
-#' @param fun Function applied by the mapper.
-#' @param fun_name_scalar String (length 1). Name of `fun`.
+#' @param fn Function applied by the mapper.
+#' @param fn_name_scalar String (length 1). Name of `fn`.
 #' @param ... The dots of the mapper.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_factory_dots <- function(fun, fun_name_scalar, ...) {
+check_factory_dots <- function(fn, fn_name_scalar, ...) {
   dots <- rlang::enexprs(...)
   dots_names <- names(dots)
-  offenders <- dots_names[!dots_names %in% names(formals(fun))]
+  offenders <- dots_names[!dots_names %in% names(formals(fn))]
 
   if (length(offenders) == 0L) {
     return(NULL)
   }
 
-  fun_name_mapper <- name_last_export_code()
+  fn_name_mapper <- name_last_export_code()
 
   # The dots come right after the key arguments, so an unnamed argument after
   # them lands here with an empty name:
@@ -228,10 +228,10 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
     )
   }
 
-  # An abbreviation, such as `items` for `items_averaged`, lands here too. `fun`
+  # An abbreviation, such as `items` for `items_averaged`, lands here too. `fn`
   # has the arguments a sequence or total-n mapper passes on, such as
   # `rounding`:
-  names_full <- union(names(formals(rlang::caller_fn())), names(formals(fun)))
+  names_full <- union(names(formals(rlang::caller_fn())), names(formals(fn)))
   names_meant <- unique(unlist(lapply(offenders, function(offender) {
     names_full[startsWith(names_full, offender)]
   })))
@@ -248,8 +248,8 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 
   abort_in_export(
     "Invalid {msg_arg} {offenders}.",
-    "x" = "{msg_it_they} {msg_arg} of {fun_name_mapper} \\
-      or `{fun_name_scalar}()`.",
+    "x" = "{msg_it_they} {msg_arg} of {fn_name_mapper} \\
+      or `{fn_name_scalar}()`.",
     "i" = if (length(names_meant) > 0L) {
       "Did you mean {wrap_in_backticks(names_meant)}? Arguments after \\
       `...` must be named in full."
@@ -258,24 +258,24 @@ check_factory_dots <- function(fun, fun_name_scalar, ...) {
 }
 
 
-#' Check that an argument names arguments of `.fun`
+#' Check that an argument names arguments of `.fn`
 #'
 #' Several arguments of `function_map()`, such as `.reported` and
-#' `.args_by_row`, must name arguments of `.fun`. `check_factory_arg_names()`
+#' `.args_by_row`, must name arguments of `.fn`. `check_factory_arg_names()`
 #' checks this when the mapper is created, so the error can name the factory
 #' argument at fault.
 #'
 #' @param names String. The values given for `arg_name`.
-#' @param formals_fun Pairlist. The formal arguments of `.fun`.
-#' @param fun_name String (length 1). Name of `.fun`.
+#' @param formals_fn Pairlist. The formal arguments of `.fn`.
+#' @param fn_name String (length 1). Name of `.fn`.
 #' @param arg_name String (length 1). Name of the function factory's argument
 #'   that `names` was given for, such as `".reported"`.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
-check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
-  offenders <- names[!names %in% names(formals_fun)]
+check_factory_arg_names <- function(names, formals_fn, fn_name, arg_name) {
+  offenders <- names[!names %in% names(formals_fn)]
 
   if (length(offenders) == 0L) {
     return(NULL)
@@ -292,9 +292,9 @@ check_factory_arg_names <- function(names, formals_fun, fun_name, arg_name) {
   }
 
   abort_in_export(
-    "Function `{fun_name}()` lacks {msg_arg} {offenders}.",
+    "Function `{fn_name}()` lacks {msg_arg} {offenders}.",
     "i" = "{msg_it_they} given as `{arg_name}` in the \\
-    `function_map()` call, where `.fun` was specified as `{fun_name}`."
+    `function_map()` call, where `.fn` was specified as `{fn_name}`."
   )
 }
 
@@ -361,20 +361,20 @@ write_result_cols <- function(results, col_names) {
 #' whose columns have other names specifies them through these arguments, and
 #' `absorb_key_args()` renames the columns at call time.
 #'
-#' @param fun Factory-made function.
-#' @param reported String. Names of the key arguments to be inserted into `fun`.
-#' @param insert_after Integer. Index of the formal of `fun` after which the key
+#' @param fn Factory-made function.
+#' @param reported String. Names of the key arguments to be inserted into `fn`.
+#' @param insert_after Integer. Index of the formal of `fn` after which the key
 #'   arguments are inserted. Default is `1L`.
 #' @param variadic String (length 1) or `NULL`, the default. Optionally, the
 #'   name of a variadic key argument, which is inserted ahead of the `reported`
 #'   ones with no default: it takes a tidyselect expression, and there is no
 #'   set of columns that could be guessed at.
 #'
-#' @return Function `fun` with new arguments, named after `reported`, with
+#' @return Function `fn` with new arguments, named after `reported`, with
 #'   `NULL` as the default for each.
 #'
 #' @noRd
-insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
+insert_key_args <- function(fn, reported, insert_after = 1L, variadic = NULL) {
   key_args <- rep(list(NULL), times = length(reported))
   names(key_args) <- reported
 
@@ -387,8 +387,8 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
   }
 
   `formals<-`(
-    fun,
-    value = fun |>
+    fn,
+    value = fn |>
       formals() |>
       append(key_args, after = insert_after)
   )
@@ -409,9 +409,9 @@ insert_key_args <- function(fun, reported, insert_after = 1L, variadic = NULL) {
 #' @noRd
 check_variadic_arg <- function(quo, name) {
   if (rlang::quo_is_missing(quo)) {
-    fun_name <- name_last_export_code()
+    fn_name <- name_last_export_code()
     abort_in_export(
-      "The `{name}` argument of {fun_name} must be specified.",
+      "The `{name}` argument of {fn_name} must be specified.",
       "x" = "It has no default: which columns are tested is up to the data, \\
       and testing all the remaining ones by default would quietly draw in \\
       any column that is not a key column for some other reason.",
@@ -443,11 +443,11 @@ check_variadic_arg <- function(quo, name) {
 #'
 #' @noRd
 check_variadic_cols <- function(index, data, spoken_for, name) {
-  fun_name <- name_last_export_code()
+  fn_name <- name_last_export_code()
 
   if (length(index) == 0L) {
     abort_in_export(
-      "The `{name}` argument of {fun_name} selected no columns.",
+      "The `{name}` argument of {fn_name} selected no columns.",
       "x" = "There would be no values to test."
     )
   }
@@ -474,7 +474,7 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
   }
 
   abort_in_export(
-    "The `{name}` argument of {fun_name} selected {offenders}.",
+    "The `{name}` argument of {fn_name} selected {offenders}.",
     "x" = "{msg_that_column} a role in the test already, so {msg_subject} \\
     cannot also be tested as {msg_one} of the `{name}` values.",
     "i" = "Exclude {msg_object} from the selection, as in \\
@@ -678,7 +678,7 @@ check_args_disabled <- function(args_disabled) {
   )
   offenders <- args_disabled[is_given]
   if (length(offenders) > 0L) {
-    fun_name <- name_last_export_code()
+    fn_name <- name_last_export_code()
     if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
@@ -695,7 +695,7 @@ check_args_disabled <- function(args_disabled) {
     offenders <- wrap_in_backticks(offenders)
     abort_in_export(
       "{msg_arg_s} {offenders} {msg_is_are} \\
-          disabled in {fun_name}{msg_among_others}."
+          disabled in {fn_name}{msg_among_others}."
     )
   }
 }
@@ -717,14 +717,14 @@ check_args_disabled_unnamed <- function(args_disabled) {
   if (!is.null(names(args_disabled))) {
     name <- deparse(substitute(args_disabled))
     name_names <- wrap_in_backticks(names(args_disabled))
-    name_fun <- name_last_export_code()
+    name_fn <- name_last_export_code()
     if (length(name_names) == 1L) {
       msg_names <- "this name"
     } else {
       msg_names <- "these names"
     }
     abort_in_export(
-      "In {name_fun}, the `{name}` argument must be \\
+      "In {name_fn}, the `{name}` argument must be \\
       an unnamed string vector.",
       "x" = "It has {msg_names}: {name_names}."
     )
@@ -734,21 +734,21 @@ check_args_disabled_unnamed <- function(args_disabled) {
 
 #' Check what a test function returned
 #'
-#' `check_fun_result()` is called on the result of applying `.fun` to the
-#' first row. The key result column is logical, so `.fun` must return a single
+#' `check_fn_result()` is called on the result of applying `.fn` to the
+#' first row. The key result column is logical, so `.fn` must return a single
 #' logical value, or a list that starts with one.
 #'
-#' @param result What `.fun` returned.
-#' @param fun_name String. Name of `.fun`, for the message.
+#' @param result What `.fn` returned.
+#' @param fn_name String. Name of `.fn`, for the message.
 #'
 #' @return `result`, invisibly; might throw an error.
 #'
 #' @noRd
-check_fun_result <- function(result, fun_name) {
+check_fn_result <- function(result, fn_name) {
   key <- if (is.list(result) && length(result) > 0L) result[[1L]] else result
   if (!is.logical(key) || length(key) != 1L) {
     abort_in_export(
-      "`{fun_name}()` must return a single logical value, or a list \\
+      "`{fn_name}()` must return a single logical value, or a list \\
       starting with one.",
       "x" = "It returned {.obj_type_friendly {result}}."
     )

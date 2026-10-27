@@ -85,22 +85,22 @@ check_consistency_not_in_colnames <- function(
     } else {
       class_basic
     }
-    fun_name_all <- class_best |>
+    fn_name_all <- class_best |>
       stringr::str_remove("^scrutiny_") |>
       call_on(\(x) x[!x %in% c("map_seq", "map_total_n")])
     # Several matches have no single function to name:
-    if (length(fun_name_all) != 1L) {
-      fun_name_all <- character(0L)
+    if (length(fn_name_all) != 1L) {
+      fn_name_all <- character(0L)
     }
-    if (length(fun_name_all) == 1L && grepl("_seq$", fun_name_all)) {
+    if (length(fn_name_all) == 1L && grepl("_seq$", fn_name_all)) {
       msg_special <- "sequence "
-    } else if (length(fun_name_all) == 1L && grepl("_total_n$", fun_name_all)) {
+    } else if (length(fn_name_all) == 1L && grepl("_total_n$", fn_name_all)) {
       msg_special <- "total-n "
     } else {
       msg_special <- ""
     }
-    msg_fun_name <- if (length(fun_name_all) == 1L) {
-      paste0(", `", fun_name_all, "()`,")
+    msg_fn_name <- if (length(fn_name_all) == 1L) {
+      paste0(", `", fn_name_all, "()`,")
     } else {
       ""
     }
@@ -108,7 +108,7 @@ check_consistency_not_in_colnames <- function(
       "`data` already includes a \"{names_taken[1L]}\" column.",
       "x" = "This shouldn't be the case before {name_test}-testing.",
       "i" = "Did you use the output of a consistency test \\
-      {msg_special}mapper function for {name_test}{msg_fun_name} \\
+      {msg_special}mapper function for {name_test}{msg_fn_name} \\
       as an input here?"
     )
   }
@@ -155,17 +155,17 @@ check_mapper_input_colnames <- function(
 #'   have been created with the same value. Otherwise, the column lookup returns
 #'   `NULL` and fails much later with an unhelpful error from base R.
 #'
-#' @param data Data frame returned by the basic mapper, `fun()`.
+#' @param data Data frame returned by the basic mapper, `fn()`.
 #' @param name_key_result String (length 1). The expected column name.
-#' @param name_fun String (length 1). Name of the basic mapper, for the message.
+#' @param name_fn String (length 1). Name of the basic mapper, for the message.
 #'
 #' @return No return value. Might throw an error.
 #'
 #' @noRd
-check_key_result_col <- function(data, name_key_result, name_fun) {
+check_key_result_col <- function(data, name_key_result, name_fn) {
   if (!any(name_key_result == colnames(data))) {
     abort_in_export(
-      "`{name_fun}()` did not return a \"{name_key_result}\" column.",
+      "`{name_fn}()` did not return a \"{name_key_result}\" column.",
       "x" = "Its results columns are {wrap_in_backticks(colnames(data))}.",
       "i" = "The two functions must have been created with the same \\
       `.name_key_result` value."
@@ -179,9 +179,9 @@ check_key_result_col <- function(data, name_key_result, name_fun) {
 check_cols_needed <- function(data, cols, ...) {
   cols_missing <- setdiff(cols, colnames(data))
   if (length(cols_missing) > 0L) {
-    name_fun <- name_last_export()
+    name_fn <- name_last_export()
     abort_in_export(
-      "`data` lacks columns that `{name_fun}()` needs.",
+      "`data` lacks columns that `{name_fn}()` needs.",
       "x" = "Missing: {.code {cols_missing}}.",
       ...
     )
@@ -242,13 +242,13 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
       var_arg <- wrap_in_quotes_or_backticks(var_arg)
-      fun_name <- name_last_export_code()
+      fn_name <- name_last_export_code()
       msg_default <- if (has_default) {
         paste0(" (default: ", wrap_in_quotes_or_backticks(default), ")")
       }
       abort_in_export(
         "Column {var_name} already in {data_name}.",
-        "x" = "The {var_name_as_arg} argument in {fun_name} \\
+        "x" = "The {var_name_as_arg} argument in {fn_name} \\
         was specified as {var_arg}{msg_default}.",
         "x" = "This conflicts with the {var_name} column in {data_name}."
       )

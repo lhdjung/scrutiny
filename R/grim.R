@@ -214,7 +214,7 @@ grim <- function(
   symmetric = FALSE
 ) {
   map_value_sets(
-    fun = grim_scalar,
+    fn = grim_scalar,
     along = c("x", "n", "digits_x", "items_averaged")
   )
 }

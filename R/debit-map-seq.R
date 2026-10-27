@@ -62,7 +62,7 @@
 #'   audit_seq()
 
 debit_map_seq <- function_map_seq(
-  .fun = debit_map,
+  .fn = debit_map,
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
   # The mean and SD of binary data lie in `[0, 1]`, and `debit()` rejects

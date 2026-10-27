@@ -51,7 +51,7 @@ This works if every argument of the single-case function is a value to be tested
 
 ```{r}
 schlim_map <- function_map(
-  .fun = schlim_scalar,
+  .fn = schlim_scalar,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
@@ -84,7 +84,7 @@ A sequence mapper tests values around the reported ones, like `grim_map_seq()`. 
 
 ```{r}
 schlim_map_seq <- function_map_seq(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
@@ -117,7 +117,7 @@ A total-n mapper tests hypothetical group sizes, like `grim_map_total_n()`:
 
 ```{r}
 schlim_map_total_n <- function_map_total_n(
-  .fun = schlim_map,
+  .fn = schlim_map,
   .reported = "y",
   .name_test = "SCHLIM"
 )
