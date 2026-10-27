@@ -61,3 +61,14 @@ test_that("`is_percentage_of_map_seq()` disperses all three columns", {
   out[out$var == "absolute" & out$consistency, ]$absolute |> expect_equal(24)
   out |> audit_seq() |> getElement("hits_absolute") |> expect_equal(1L)
 })
+
+test_that("a count above its total is undecidable", {
+  130 |> is_percentage_of(108.3, 120, 1) |> expect_equal(NA)
+  120 |> is_percentage_of(100, 120, 1)   |> expect_equal(TRUE)
+})
+
+test_that("an abbreviated key argument is an error, not a partial match", {
+  df <- tibble::tibble(absolute = 40, percentage = 33, n = 120)
+  df |> is_percentage_of_map(digits_percentage = 0, percent = TRUE) |> expect_error("`percent` is not an argument")
+  df |> is_percentage_of_map(digits_percentage = 0, percentage = "percentage") |> expect_no_error()
+})

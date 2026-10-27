@@ -22,13 +22,15 @@ is_percentage_of_scalar <- function(
 
   check_newly_numeric(percentage, digits_percentage)
 
-  # Counts are whole numbers, and `n` must be a positive one. Anything else
-  # describes no data set that the percentage could have been computed from, so
-  # the case is undecidable, as a fractional `n` is under GRIM:
+  # Counts are whole numbers, `n` must be a positive one, and a count is at most
+  # its total. Anything else describes no data set that the percentage could
+  # have been computed from, so the case is undecidable, as a fractional `n` is
+  # under GRIM:
   if (
     !is_decidable_n_items(n) ||
       !is.finite(absolute) ||
       absolute < 0 ||
+      absolute > n ||
       abs(absolute - round(absolute)) >= WHOLE_NUMBER_TOLERANCE ||
       !is.finite(percentage) ||
       is.na(digits_percentage)
@@ -89,7 +91,7 @@ is_percentage_of_scalar <- function(
 #'
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
 #'   and `NA` if the case cannot be decided: if a value is missing or infinite,
-#'   if `absolute` is not a non-negative whole number, or if `n` is not a
+#'   if `absolute` is not a whole number from 0 to `n`, or if `n` is not a
 #'   positive whole number.
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.

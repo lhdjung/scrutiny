@@ -805,6 +805,8 @@ test_that("`absorb_key_args()` reads key arguments passed through dots", {
   my_map <- function(data, ...) absorb_key_args(data, c("x", "n"))
   df |> my_map(x = "mean") |> colnames() |> expect_equal(c("x", "n"))
   df |> my_map(x = mean)   |> colnames() |> expect_equal(c("x", "n"))
+  # At the top level, there is no calling function to read formals from:
+  pigs1 |> absorb_key_args(c("x", "n")) |> expect_no_warning()
 })
 
 

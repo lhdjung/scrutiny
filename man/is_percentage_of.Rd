@@ -44,7 +44,7 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \value{
 Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
 and \code{NA} if the case cannot be decided: if a value is missing or infinite,
-if \code{absolute} is not a non-negative whole number, or if \code{n} is not a
+if \code{absolute} is not a whole number from 0 to \code{n}, or if \code{n} is not a
 positive whole number.
 }
 \description{

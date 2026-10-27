@@ -510,7 +510,13 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
   if (is.null(key_cols_call)) {
     fn_caller <- rlang::caller_fn()
     env <- rlang::caller_env()
-    names_formals <- names(formals(fn_caller))
+    # `NULL` at the top level, where `formals()` would warn:
+    names_formals <- if (is.null(fn_caller)) {
+      character()
+    } else {
+      names(formals(fn_caller))
+    }
+    check_key_args_abbreviated(reported, names_formals, rlang::caller_call())
     quos <- list()
     for (name in intersect(reported, names_formals)) {
       quos[[name]] <- eval(rlang::call2(rlang::enquo, rlang::sym(name)), env)
@@ -580,6 +586,24 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 # out. A bare name is a column name if `data` has such a column, otherwise the
 # string that a variable of that name holds. Any other expression must evaluate
 # to a single string.
+# The key arguments come before the dots, so R matches them partially:
+# `is_percentage_of_map(percent = TRUE)` reads as `percentage = TRUE`, and the
+# error would then blame `percentage`, which the user never named.
+check_key_args_abbreviated <- function(reported, names_formals, call) {
+  names_call <- names(call)
+  names_abbreviated <- setdiff(names_call, c("", names_formals, reported))
+  for (name in names_abbreviated) {
+    name_full <- reported[startsWith(reported, name)]
+    if (length(name_full) > 0L) {
+      abort_in_export(
+        "`{name}` is not an argument of `{name_last_export()}()`.",
+        "x" = "R reads it as `{name_full[[1L]]}`, which must be a column name.",
+        "i" = "Did you mean another argument? Write its name out in full."
+      )
+    }
+  }
+}
+
 capture_key_args <- function(data, quos) {
   out <- character()
   for (name in names(quos)) {
