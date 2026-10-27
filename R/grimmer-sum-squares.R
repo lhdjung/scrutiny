@@ -120,32 +120,18 @@ sum_squares_attainable <- function(s, n, lower, upper) {
     return(if (q <= upper) q else NA_real_)
   }
 
-  # Three or four numbers can have most sums of squares, so a scan from `first`
-  # ends soon. Step by step, not `seq(first, upper, by = 2)`, which would
-  # allocate the whole range: huge with many items averaged.
-  q <- first
-  while (q <= upper) {
-    excess <- q - minimum
-    half <- excess / 2
-    attainable <- if (n == 3) {
-      if (r == 0) is_loeschian(half) else is_loeschian(3 * half + 1)
-    } else {
-      if (r == 0) is_sum_three_squares(excess) else r == 1 || excess %% 8 != 6
-    }
-    if (attainable) {
-      return(q)
-    }
-    q <- q + 2
-  }
-
-  NA_real_
+  # Three or four numbers can have most sums of squares, so the first window
+  # of `sum_squares_attainable_all()`, which has their rules, usually finds one:
+  found <- sum_squares_attainable_all(s, n, first, upper, count_max = 0)
+  if (length(found) == 0L) NA_real_ else found
 }
 
 
 # Every sum of squares from `first` to `upper` that `n < 5` whole numbers with
-# the sum `s` can have, where `first` is one of them, but no more than
-# `count_max + 1`: enough to tell that there are too many. The rules are those
-# of `sum_squares_attainable()`, applied to many sums of squares at once.
+# the sum `s` can have, but no more than `count_max + 1`: enough to tell that
+# there are too many. `first` must be at least `sum_squares_min(s, n)` and have
+# the parity of `s`. The rules for three and four numbers are here only;
+# `sum_squares_attainable()` uses them for the first one.
 sum_squares_attainable_all <- function(
   s,
   n,
@@ -156,9 +142,9 @@ sum_squares_attainable_all <- function(
 ) {
   # Squares are sparse, and `sum_squares_attainable()` jumps to each next one:
   if (n <= 2) {
-    out <- first
-    q <- first
-    k <- 1L
+    out <- numeric(0L)
+    q <- first - 2
+    k <- 0L
     while (k <= count_max) {
       q <- sum_squares_attainable(s, n, q + 2, upper)
       if (is.na(q)) {
@@ -178,15 +164,20 @@ sum_squares_attainable_all <- function(
     r <- min(r, n - r)
   }
 
-  # In chunks of `chunk` sums of squares, so that a huge range is never
-  # allocated at once:
+  # In windows of sums of squares that start at 8 and double up to `chunk`:
+  # the first attainable one is usually near, and a huge range is never
+  # allocated at once.
   found <- list()
   count <- 0
   from <- first
+  width <- min(8, chunk)
 
   while (from <= upper && count <= count_max) {
-    to <- min(from + 2 * (chunk - 1), upper)
+    to <- min(from + 2 * (width - 1), upper)
 
+    # Three numbers: the half excess, or three times it plus one, is of the form
+    # `x^2 + x * y + y^2`. Four: the excess is a sum of three squares, or not
+    # 6 modulo 8 for a remainder of 2, or anything for one of 1.
     q <- if (n == 3) {
       half <- (c(from, to) - minimum) / 2
       if (r == 0) {
@@ -204,9 +195,11 @@ sum_squares_attainable_all <- function(
     found[[length(found) + 1L]] <- q
     count <- count + length(q)
     from <- to + 2
+    width <- min(2 * width, chunk)
   }
 
-  out <- unlist(found)
+  # Not `NULL` if there were no windows at all:
+  out <- as.numeric(unlist(found))
   out[seq_len(min(length(out), count_max + 1))]
 }
 
@@ -225,32 +218,33 @@ next_square_root <- function(m) {
 }
 
 
-# Is `m == x^2 + x * y + y^2` for some whole `x` and `y`? Equivalently, is
-# `4 * m - 3 * y^2` a square (that of `2 * x + y`) for some `y`?
-is_loeschian <- function(m) {
-  if (m < 0) {
-    return(FALSE)
-  }
-  y <- 0:floor(sqrt(4 * m / 3))
-  any(round(sqrt(4 * m - 3 * y^2))^2 == 4 * m - 3 * y^2)
-}
-
 # The Loeschian numbers from `lo` to `hi`, generated as `x^2 + x * y + y^2`
-# with `x >= y >= 0`: testing each number with `is_loeschian()` costs a scan of
-# about `sqrt(m)`. For each `y`, the `x` with a value in range form a run.
+# with `x >= y >= 0`: testing each number costs a scan of about `sqrt(m)`. For
+# each `y`, the `x` with a value in range form a run.
 loeschian_between <- function(lo, hi) {
   y <- 0:(floor(sqrt(hi / 3)) + 1)
   # From the root of `x^2 + x * y + y^2 = m`, widened by one against
-  # floating-point error; the exact filter below trims the excess:
-  x_from <- pmax(y, ceiling((sqrt(pmax(4 * lo - 3 * y^2, 0)) - y) / 2) - 1)
-  x_to <- floor((sqrt(pmax(4 * hi - 3 * y^2, 0)) - y) / 2) + 1
-  runs <- pmax(x_to - x_from + 1, 0)
+  # floating-point error; the exact filter below trims the excess. Clamped by
+  # subassignment, which is much cheaper than `pmax()` on short vectors, as most
+  # of these are:
+  root_lo <- 4 * lo - 3 * y^2
+  root_lo[root_lo < 0] <- 0
+  root_hi <- 4 * hi - 3 * y^2
+  root_hi[root_hi < 0] <- 0
+  x_from <- ceiling((sqrt(root_lo) - y) / 2) - 1
+  x_from[x_from < y] <- y[x_from < y]
+  x_to <- floor((sqrt(root_hi) - y) / 2) + 1
+  runs <- x_to - x_from + 1
+  runs[runs < 0] <- 0
   # Doubles, not the integers of `sequence()` and `:`, whose products overflow
   # past about 2e9:
   x <- as.numeric(sequence(runs, from = x_from))
   y <- rep(as.numeric(y), runs)
   m <- x^2 + x * y + y^2
-  sort(unique(m[m >= lo & m <= hi]))
+  m <- m[m >= lo & m <= hi]
+  # Sorted and unique: `sort()` costs some 20 microseconds even for a handful of
+  # numbers, and the window is short enough to tabulate:
+  lo - 1 + which(tabulate(m - lo + 1, nbins = hi - lo + 1) > 0)
 }
 
 # Legendre's three-square theorem: `m >= 0` is a sum of three squares unless it

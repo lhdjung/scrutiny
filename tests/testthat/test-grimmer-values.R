@@ -178,22 +178,21 @@ test_that("too many pairs is an error, not a huge allocation", {
 })
 
 
-test_that("`sum_squares_attainable_all()` agrees with `sum_squares_attainable()`", {
-  # Stepping through the range one attainable sum of squares at a time, with
-  # chunks small enough that many of them are crossed:
-  for (n in 2:4) {
-    for (s in c(0, 1, 2, 7, 30)) {
-      first <- s |> sum_squares_attainable(n, sum_squares_min(s, n), Inf)
-      upper <- first + 2000
-      expected <- first
-      repeat {
-        q <- s |> sum_squares_attainable(n, expected[length(expected)] + 2, upper)
-        if (is.na(q)) break
-        expected <- c(expected, q)
+test_that("`sum_squares_attainable_all()` agrees with every sample of fewer than five", {
+  # A sum of squares of at most 36 keeps every number within `-6:6`, so the
+  # brute force is complete there. Windows of 3 cross many boundaries, and
+  # `first` need not be attainable itself:
+  pairs <- grimmer_reachable_pairs(n_max = 4L)
+  for (n in 1:4) {
+    for (s in -12:12) {
+      attained <- sort(pairs[[n]]$q[pairs[[n]]$s == s & pairs[[n]]$q <= 36])
+      minimum <- sum_squares_min(s, n)
+      for (first in seq(minimum, max(minimum, 36), by = 2)) {
+        info <- paste0("n = ", n, ", s = ", s, ", first = ", first)
+        expected <- attained[attained >= first]
+        s |> sum_squares_attainable_all(n, first, 36, count_max = Inf, chunk = 3) |> expect_equal(expected,          info = info)
+        s |> sum_squares_attainable_all(n, first, 36, count_max = 1,   chunk = 3) |> expect_equal(head(expected, 2), info = info)
       }
-      info <- paste0("n = ", n, ", s = ", s)
-      s |> sum_squares_attainable_all(n, first, upper, count_max = Inf, chunk = 7) |> expect_equal(expected, info = info)
-      s |> sum_squares_attainable_all(n, first, upper, count_max = 9,   chunk = 7) |> expect_equal(expected[1:10], info = info)
     }
   }
 })

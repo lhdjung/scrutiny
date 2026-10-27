@@ -223,3 +223,15 @@ grimmer_reachable_pairs <- function(vals = -6:12, n_max = 8L) {
   }
   pairs
 }
+
+
+# The oracle for `loeschian_between()`, which generates these numbers instead:
+# Is `m == x^2 + x * y + y^2` for some whole `x` and `y`? Equivalently, is
+# `4 * m - 3 * y^2` a square (that of `2 * x + y`) for some `y`?
+is_loeschian <- function(m) {
+  if (m < 0) {
+    return(FALSE)
+  }
+  y <- 0:floor(sqrt(4 * m / 3))
+  any(round(sqrt(4 * m - 3 * y^2))^2 == 4 * m - 3 * y^2)
+}
