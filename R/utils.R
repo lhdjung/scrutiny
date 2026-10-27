@@ -183,6 +183,38 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 }
 
 
+#' Check that `grim_values()` or `grimmer_values()` has few enough rows
+#'
+#' @description Both return one row per achievable value, so a huge `n` (e.g.,
+#'   a typo) would fill the memory rather than fail. The check runs before the
+#'   rows are allocated. The limit, `VALUES_MAX`, applies to each value set.
+#'
+#' @param size Numeric (length 1). The number of rows so far, or a lower bound.
+#' @param what String. What the rows are: `"means"` or `"pairs"`.
+#'
+#' @return No return value. Might throw an error.
+#'
+#' @noRd
+check_values_size <- function(size, what) {
+  if (size <= VALUES_MAX) {
+    return(invisible())
+  }
+  hint <- if (what == "pairs") {
+    "Their number grows with {.arg n}, {.arg items_averaged}, and {.arg sd}, \\
+    and shrinks with {.arg digits_x} and {.arg digits_sd}."
+  } else {
+    "Their number grows with {.arg n} and {.arg items_averaged}, and shrinks \\
+    with {.arg digits_x}."
+  }
+  limit <- format(VALUES_MAX, big.mark = ",", scientific = FALSE)
+  abort_in_export(
+    "Too many achievable {what} for {.fn {name_last_export()}}.",
+    "x" = "The value set admits more than {limit} {what}, and the output has one \\
+    row for each.",
+    "i" = hint
+  )
+}
+
 #' Can a value set be decided at all, going by `n` and `items_averaged`?
 #'
 #' @description All three consistency tests reason about integer data: GRIM

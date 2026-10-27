@@ -146,7 +146,50 @@ test_that("`digits_*` and `items_averaged` are required, with the bespoke errors
 
 test_that("too many pairs is an error, not a huge allocation", {
   # Would be 5e8 rows; `check_enumeration_size()` only caps the sums:
-  50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_error("too large")
+  50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_error("Too many achievable pairs")
   # Below the limit, the same shape of value set works:
   50 |> grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |> nrow() |> expect_equal(199990L)
+  # Two numbers have few sums of squares in a wide range, which only an upper
+  # bound of 4e7 would count as too many:
+  out <- 50 |> grimmer_values(20, 2, digits_x = 0, digits_sd = 0, items_averaged = 100)
+  out |> nrow() |> expect_lt(1e5)
+  out$sd |> round() |> expect_equal(rep(20, nrow(out)))
+})
+
+
+test_that("`sum_squares_attainable_all()` agrees with `sum_squares_attainable()`", {
+  # Stepping through the range one attainable sum of squares at a time, with
+  # chunks small enough that many of them are crossed:
+  for (n in 2:4) {
+    for (s in c(0, 1, 2, 7, 30)) {
+      first <- s |> sum_squares_attainable(n, sum_squares_min(s, n), Inf)
+      upper <- first + 2000
+      expected <- first
+      repeat {
+        q <- s |> sum_squares_attainable(n, expected[length(expected)] + 2, upper)
+        if (is.na(q)) break
+        expected <- c(expected, q)
+      }
+      info <- paste0("n = ", n, ", s = ", s)
+      s |> sum_squares_attainable_all(n, first, upper, count_max = Inf, chunk = 7) |> expect_equal(expected, info = info)
+      s |> sum_squares_attainable_all(n, first, upper, count_max = 9,   chunk = 7) |> expect_equal(expected[1:10], info = info)
+    }
+  }
+})
+
+
+test_that("`loeschian_between()` agrees with `is_loeschian()`", {
+  expected <- (0:3000)[vapply(0:3000, is_loeschian, logical(1L))]
+  0    |> loeschian_between(3000) |> expect_equal(expected)
+  1000 |> loeschian_between(1200) |> expect_equal(expected[expected >= 1000 & expected <= 1200])
+  # Large values, where `sqrt()` is least exact near the ends of each run:
+  m <- 1e10 + 0:200
+  m[m |> vapply(is_loeschian, logical(1L))] |> expect_equal(loeschian_between(1e10, 1e10 + 200))
+})
+
+
+test_that("`sum_squares_attainable_all()` stops one past `count_max`", {
+  # Four numbers summing to 1 have every odd sum of squares from 1 on:
+  1 |> sum_squares_attainable_all(4, first = 1, upper = 1e9, count_max = 5) |> expect_equal(c(1, 3, 5, 7, 9, 11))
+  1 |> sum_squares_attainable_all(4, first = 1, upper = 7,   count_max = 5) |> expect_equal(c(1, 3, 5, 7))
 })

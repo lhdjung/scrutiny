@@ -142,6 +142,75 @@ sum_squares_attainable <- function(s, n, lower, upper) {
 }
 
 
+# Every sum of squares from `first` to `upper` that `n < 5` whole numbers with
+# the sum `s` can have, where `first` is one of them, but no more than
+# `count_max + 1`: enough to tell that there are too many. The rules are those
+# of `sum_squares_attainable()`, applied to many sums of squares at once.
+sum_squares_attainable_all <- function(
+  s,
+  n,
+  first,
+  upper,
+  count_max,
+  chunk = 1e5
+) {
+  # Squares are sparse, and `sum_squares_attainable()` jumps to each next one:
+  if (n <= 2) {
+    out <- first
+    q <- first
+    k <- 1L
+    while (k <= count_max) {
+      q <- sum_squares_attainable(s, n, q + 2, upper)
+      if (is.na(q)) {
+        break
+      }
+      k <- k + 1L
+      # Assigning past the end grows the vector with room to spare; `c()` would
+      # copy it every time:
+      out[k] <- q
+    }
+    return(out)
+  }
+
+  minimum <- sum_squares_min(s, n)
+  r <- s %% n
+  if (r > 0) {
+    r <- min(r, n - r)
+  }
+
+  # In chunks of `chunk` sums of squares, so that a huge range is never
+  # allocated at once:
+  found <- list()
+  count <- 0
+  from <- first
+
+  while (from <= upper && count <= count_max) {
+    to <- min(from + 2 * (chunk - 1), upper)
+
+    q <- if (n == 3) {
+      half <- (c(from, to) - minimum) / 2
+      if (r == 0) {
+        minimum + 2 * loeschian_between(half[1L], half[2L])
+      } else {
+        m <- loeschian_between(3 * half[1L] + 1, 3 * half[2L] + 1)
+        minimum + 2 * (m[m %% 3 == 1] - 1) / 3
+      }
+    } else {
+      q <- seq(from, to, by = 2)
+      excess <- q - minimum
+      q[if (r == 0) is_sum_three_squares(excess) else r == 1 | excess %% 8 != 6]
+    }
+
+    found[[length(found) + 1L]] <- q
+    count <- count + length(q)
+    from <- to + 2
+  }
+
+  out <- unlist(found)
+  out[seq_len(min(length(out), count_max + 1))]
+}
+
+
 # The smallest whole `k` with `k^2 >= m`, for `m >= 0`, corrected for
 # floating-point error in `sqrt()`:
 next_square_root <- function(m) {
@@ -166,11 +235,33 @@ is_loeschian <- function(m) {
   any(round(sqrt(4 * m - 3 * y^2))^2 == 4 * m - 3 * y^2)
 }
 
+# The Loeschian numbers from `lo` to `hi`, generated as `x^2 + x * y + y^2`
+# with `x >= y >= 0`: testing each number with `is_loeschian()` costs a scan of
+# about `sqrt(m)`. For each `y`, the `x` with a value in range form a run.
+loeschian_between <- function(lo, hi) {
+  y <- 0:(floor(sqrt(hi / 3)) + 1)
+  # From the root of `x^2 + x * y + y^2 = m`, widened by one against
+  # floating-point error; the exact filter below trims the excess:
+  x_from <- pmax(y, ceiling((sqrt(pmax(4 * lo - 3 * y^2, 0)) - y) / 2) - 1)
+  x_to <- floor((sqrt(pmax(4 * hi - 3 * y^2, 0)) - y) / 2) + 1
+  runs <- pmax(x_to - x_from + 1, 0)
+  # Doubles, not the integers of `sequence()` and `:`, whose products overflow
+  # past about 2e9:
+  x <- as.numeric(sequence(runs, from = x_from))
+  y <- rep(as.numeric(y), runs)
+  m <- x^2 + x * y + y^2
+  sort(unique(m[m >= lo & m <= hi]))
+}
+
 # Legendre's three-square theorem: `m >= 0` is a sum of three squares unless it
-# is `4^a * (8 * b + 7)`.
+# is `4^a * (8 * b + 7)`. Vectorized.
 is_sum_three_squares <- function(m) {
-  while (m > 0 && m %% 4 == 0) {
-    m <- m / 4
+  repeat {
+    divisible <- m > 0 & m %% 4 == 0
+    if (!any(divisible)) {
+      break
+    }
+    m[divisible] <- m[divisible] / 4
   }
   m %% 8 != 7
 }

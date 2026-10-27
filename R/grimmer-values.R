@@ -78,73 +78,53 @@ grimmer_values_scalar <- function(
   )
 
   candidate_sums <- sums_consistent[1L]:sums_consistent[2L]
-  candidates <- lapply(
-    candidate_sums,
-    grimmer_candidate,
-    n = n,
-    items_averaged = items_averaged,
-    sd_bounds = sd_bounds
-  )
-
-  # The sums of squares each candidate admits run from the first one with the
-  # parity of `s` to the upper bound. For `n >= 5`, every second whole number
-  # in between is attainable; fewer numbers skip some, so for them this count is
-  # an upper bound.
-  first <- rep(NA_real_, length(candidates))
-  upper <- first
-
-  for (i in seq_along(candidates)) {
-    candidate <- candidates[[i]]
-    if (!candidate$pass_test3) {
-      next
-    }
-    lower <- max(candidate$sum_squares[1L], candidate$sum_squares_min)
-    first[i] <- lower + (lower - candidate_sums[i]) %% 2
-    upper[i] <- candidate$sum_squares[2L]
-  }
-
-  # Checked before anything is allocated: the count grows with `n^2` for SDs
-  # with few decimal places, and `check_enumeration_size()` only caps the sums.
-  # At `x = 50`, `sd = 20`, `n = 5000`, both with no decimals, it is 5e8.
-  n_pairs <- sum((upper - first) %/% 2 + 1, na.rm = TRUE)
-  limit <- 1e6
-
-  if (n_pairs > limit) {
-    abort_in_export(
-      "`n` is too large for `grimmer_values()`.",
-      "x" = "With `n = {n}` and `digits_sd = {digits_sd}`, the reported \\
-      values admit up to \\
-      {format(n_pairs, big.mark = \",\", scientific = FALSE)} pairs of a \\
-      mean and an SD, and the output has one row for each.",
-      "i" = "The limit is \\
-      {format(limit, big.mark = \",\", scientific = FALSE)}."
-    )
-  }
 
   # One element per candidate sum, joined once at the end: appending to a
   # vector in the loop copies it each time, which gets quadratic by `n = 20000`.
-  sums <- vector("list", length(candidates))
+  sums <- vector("list", length(candidate_sums))
   sums_squares <- sums
 
-  for (i in which(!is.na(first))) {
+  # Counted as they come, before anything big is allocated: the pairs grow with
+  # `n^2` for SDs with few decimal places, and `check_enumeration_size()` only
+  # caps the sums. At `x = 50`, `sd = 20`, `n = 5000`, both with no decimals,
+  # there are 5e8.
+  n_pairs <- 0
+
+  for (i in seq_along(candidate_sums)) {
     s <- candidate_sums[i]
+    candidate <- grimmer_candidate(
+      s = s,
+      n = n,
+      items_averaged = items_averaged,
+      sd_bounds = sd_bounds
+    )
+
+    if (!candidate$pass_test3) {
+      next
+    }
+
+    upper <- candidate$sum_squares[2L]
 
     squares <- if (n >= 5) {
-      seq(first[i], upper[i], by = 2)
+      # Every second whole number from the first one with the parity of `s`:
+      lower <- max(candidate$sum_squares[1L], candidate$sum_squares_min)
+      first <- lower + (lower - s) %% 2
+      check_values_size(n_pairs + (upper - first) %/% 2 + 1, "pairs")
+      seq(first, upper, by = 2)
     } else {
-      # `grimmer_candidate()` found the first attainable one, and
-      # `sum_squares_attainable()` finds each next one:
-      q <- candidates[[i]]$attained
-      out <- q
-      repeat {
-        q <- sum_squares_attainable(s, n, q + 2, upper[i])
-        if (is.na(q)) {
-          break
-        }
-        out <- c(out, q)
-      }
-      out
+      # Fewer numbers skip some sums of squares, so they can't be counted
+      # without finding them. `grimmer_candidate()` found the first one:
+      sum_squares_attainable_all(
+        s = s,
+        n = n,
+        first = candidate$attained,
+        upper = upper,
+        count_max = VALUES_MAX - n_pairs
+      )
     }
+
+    n_pairs <- n_pairs + length(squares)
+    check_values_size(n_pairs, "pairs")
 
     sums[[i]] <- rep(s, length(squares))
     sums_squares[[i]] <- squares
@@ -202,10 +182,12 @@ grimmer_values_tibble <- function(
 #'   have. With `items_averaged > 1`, the whole numbers are the respondents'
 #'   totals across the items, so the sums are those of the totals.
 #'
-#'   The number of pairs grows with `n` and `items_averaged`, as the number of
-#'   values in [`grim_values()`] does. Under `rounding = "even"`, the pairs
-#'   include ties that [`base::round()`] may round away from `x` or `sd`, as
-#'   there.
+#'   The number of pairs grows with `n`, `items_averaged`, and `sd`, and
+#'   shrinks with `digits_x` and `digits_sd`. More than a million pairs for one
+#'   value set is an error, since the output has one row for each.
+#'
+#'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
+#'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
 #' @inheritParams grimmer
 #' @param sd_meaning String. As in [`grimmer()`], but `"sd_sample_or_pop"` is

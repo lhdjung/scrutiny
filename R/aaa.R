@@ -47,6 +47,10 @@ NON_FINITE_TOKENS <- c(outer(
 # raster, as with `digits > 2`:
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 
+# The most rows that `grim_values()` and `grimmer_values()` return for one
+# value set; see `check_values_size()`:
+VALUES_MAX <- 1e6
+
 # The columns of `grim_values()` and `grimmer_values()` output, for the
 # zero-row case; see `bind_cases()`:
 PTYPE_GRIM_VALUES <- tibble::tibble(
