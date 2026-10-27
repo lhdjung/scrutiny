@@ -32,9 +32,9 @@ random.
 }
 \details{
 The expected rate of a study is the mean of the \code{exp_incon}
-column, from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Value sets whose probability is zero
-or missing are left out because GRIM cannot test them. Value sets without
-a study are left out with a warning.
+column, from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Value sets whose \code{exp_incon} is zero
+or missing are left out because GRIM cannot test them; if none remain,
+that is an error. Value sets without a study are left out with a warning.
 
 Point area is the number of GRIM-testable value sets. Color shows the ratio
 of the observed rate to the expected one: 0 means no inconsistencies, 1 as

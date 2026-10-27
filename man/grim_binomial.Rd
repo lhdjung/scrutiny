@@ -37,8 +37,9 @@ care.
 }
 \details{
 Under the null hypothesis, the decimal digits of each mean are
-random, so its probability of consistency is \code{1 - probability} from
-\code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value sets, the test
+random, so its probability of consistency is \code{1 - exp_incon}, with
+\code{exp_incon} from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value
+sets, the test
 uses the Poisson binomial distribution rather than averaging the
 probabilities. Value sets without a verdict are left out.
 
@@ -50,7 +51,7 @@ the one-sided default.
 The confidence interval is the exact Clopper-Pearson interval for the
 consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, one-sided like the test.
 It treats the value sets as sharing one probability, so it is an interval
-for their average. Compare it to the mean of \code{1 - probability}.
+for their average. Compare it to the mean of \code{1 - exp_incon}.
 }
 \examples{
 pigs1 |>

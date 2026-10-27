@@ -48,5 +48,5 @@ grim_binomial_power(p0 = 0.50, p1 = 0.9, k = 10)
 grim_binomial_power(p0 = 0.50, p1 = 0.9, k = 30)
 
 # One null probability per value set:
-grim_binomial_power(p0 = c(0.50, 0.70, 0.80, 0.90, 0.60), p1 = 0.9)
+grim_binomial_power(p0 = c(0.5, 0.7, 0.8, 0.9, 0.6, 0.5, 0.4), p1 = 0.9)
 }

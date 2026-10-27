@@ -16,8 +16,9 @@
 #'   around `estimate`. Default is `0.95`.
 #'
 #' @details Under the null hypothesis, the decimal digits of each mean are
-#'   random, so its probability of consistency is `1 - probability` from
-#'   [`grim_exp_incon()`]. Since this differs between value sets, the test
+#'   random, so its probability of consistency is `1 - exp_incon`, with
+#'   `exp_incon` from [`grim_exp_incon()`]. Since this differs between value
+#'   sets, the test
 #'   uses the Poisson binomial distribution rather than averaging the
 #'   probabilities. Value sets without a verdict are left out.
 #'
@@ -29,7 +30,7 @@
 #'   The confidence interval is the exact Clopper-Pearson interval for the
 #'   consistency rate, as in [`stats::binom.test()`], one-sided like the test.
 #'   It treats the value sets as sharing one probability, so it is an interval
-#'   for their average. Compare it to the mean of `1 - probability`.
+#'   for their average. Compare it to the mean of `1 - exp_incon`.
 #'
 #' @returns Tibble with the columns `estimate` (observed consistency rate),
 #'   `statistic` (number of consistent cases), `p.value`, `parameter` (number
@@ -81,8 +82,8 @@ grim_binomial <- function(
   if (n_cases == 0L) {
     abort_in_export(
       "No value sets to test.",
-      "x" = "`data` has no rows with a GRIM verdict and a probability.",
-      "i" = "Rows whose consistency or probability is `NA` are left out."
+      "x" = "`data` has no rows with a GRIM verdict and an `exp_incon` value.",
+      "i" = "Rows whose `consistency` or `exp_incon` is `NA` are left out."
     )
   }
 
@@ -145,7 +146,7 @@ grim_binomial <- function(
 #' grim_binomial_power(p0 = 0.50, p1 = 0.9, k = 30)
 #'
 #' # One null probability per value set:
-#' grim_binomial_power(p0 = c(0.50, 0.70, 0.80, 0.90, 0.60), p1 = 0.9)
+#' grim_binomial_power(p0 = c(0.5, 0.7, 0.8, 0.9, 0.6, 0.5, 0.4), p1 = 0.9)
 
 grim_binomial_power <- function(
   p0,

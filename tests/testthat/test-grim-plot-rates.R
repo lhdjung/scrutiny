@@ -44,3 +44,13 @@ test_that("`grim_plot_rates()` rejects sequence and total-n output", {
   skip_if_not_installed("ggrepel")
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> grim_plot_rates(case) |> expect_error("hypothetical")
 })
+
+
+test_that("`grim_plot_rates()` errors on a missing `study` and on nothing to plot", {
+  skip_if_not_installed("ggrepel")
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data$study <- rep(c("A", "B"), 6)
+  data |> grim_plot_rates() |> expect_error("`study` is missing")
+  data |> dplyr::mutate(exp_incon = 0) |> grim_plot_rates(study) |> expect_error("can be plotted")
+  data[0L, ] |> grim_plot_rates(study) |> expect_error("can be plotted")
+})

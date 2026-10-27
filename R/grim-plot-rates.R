@@ -19,9 +19,9 @@
 #'   that identifies the study of each value set.
 #'
 #' @details The expected rate of a study is the mean of the `exp_incon`
-#'   column, from [`grim_exp_incon()`]. Value sets whose probability is zero
-#'   or missing are left out because GRIM cannot test them. Value sets without
-#'   a study are left out with a warning.
+#'   column, from [`grim_exp_incon()`]. Value sets whose `exp_incon` is zero
+#'   or missing are left out because GRIM cannot test them; if none remain,
+#'   that is an error. Value sets without a study are left out with a warning.
 #'
 #'   Point area is the number of GRIM-testable value sets. Color shows the ratio
 #'   of the observed rate to the expected one: 0 means no inconsistencies, 1 as
@@ -59,6 +59,13 @@ grim_plot_rates <- function(data, study) {
 
   check_cols_needed(data, c("consistency", "exp_incon"))
 
+  if (missing(study)) {
+    abort_in_export(
+      "`study` is missing.",
+      "i" = "Name the column of `data` that identifies each value set's study."
+    )
+  }
+
   study <- names(tidyselect::eval_select(rlang::enquo(study), data))
 
   if (length(study) != 1L) {
@@ -94,6 +101,16 @@ grim_plot_rates <- function(data, study) {
       ratio = .data$observed / .data$expected,
       .by = dplyr::all_of(study)
     )
+
+  if (nrow(rates) == 0L) {
+    abort_in_export(
+      "No value set in `data` can be plotted.",
+      "x" = "Every `exp_incon` value is 0 or `NA`, so GRIM cannot test any \\
+      value set.",
+      "i" = "The expected rate of a study is the mean of its `exp_incon` \\
+      values; see `?grim_plot_rates`."
+    )
+  }
 
   # Red marks 1, not the end of the scale, so that ratios above it remain
   # distinguishable:
