@@ -8,7 +8,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Numeric inputs
 
-- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1))`, and must be whole numbers from 0 to 15.
+- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)`, and must be whole numbers from 0 to 15.
 
 - Mappers return `digits_x` and `digits_sd` as columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
@@ -18,11 +18,11 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - GRIMMER tests every sum that rounds to the reported mean. Earlier versions only took the one nearest to `x * n`, so tests 1 and 3 could fail for a consistent value set whenever several sums round to the mean, which can happen once `n` reaches `10^digits_x`. In a grid of such value sets, a fifth of the inconsistencies that scrutiny 0.6.1 found for means with one decimal place were false positives, as were 3% of those for means with two decimal places. The warning about this was removed. Thanks to Nathanael Larigaldie and \@takua624 (#80, #84).
 
-- GRIMMER computes candidate sums and sums of squares in exact integer arithmetic. Floating-point comparisons could lose a candidate on a rounding bound, so some consistent value sets were reported as inconsistent, also for multi-item scales. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was `FALSE`, although seven 1s and 193 0s have exactly these statistics. Thanks to Ian Hussey (#86) and Aurélien Allard.
+- GRIMMER computes candidate sums and sums of squares in exact integer arithmetic. Floating-point comparisons could lose a candidate on a rounding bound, so some consistent value sets were reported as inconsistent, also for multi-item scales. For example, `grimmer(x = 0.03, sd = 0.18, digits_x = 2, digits_sd = 2, items_averaged = 1, n = 200)` was `FALSE`, although seven 1s and 193 0s have exactly these statistics. Thanks to Ian Hussey (#86) and Aurélien Allard.
 
-- GRIMMER rejects sums of squares below the minimum that whole numbers with the reconstructed sum can have. For example, `grimmer(x = 3.6, sd = 0.2, n = 11)` was `TRUE`, but 11 whole numbers that sum to 40 cannot have an SD below 0.5.
+- GRIMMER rejects sums of squares below the minimum that whole numbers with the reconstructed sum can have. For example, `grimmer(x = 3.6, sd = 0.2, digits_x = 1, digits_sd = 1, items_averaged = 1, n = 11)` was `TRUE`, but 11 whole numbers that sum to 40 cannot have an SD below 0.5.
 
-- For `n < 5`, GRIMMER also rejects sums of squares that are large enough but unattainable: `grimmer(x = 1.0, sd = 2.0, n = 2)` was `TRUE`, but the values would be 1 ± √2. For `n >= 5`, the minimum and the parity test suffice, so `grimmer()` is `TRUE` if and only if a sample of whole numbers has the reported mean and SD, except under `rounding = "even"`, which lets a tie round either way. The `reason` for both new rejections is `"GRIMMER inconsistent (test 1)"`.
+- For `n < 5`, GRIMMER also rejects sums of squares that are large enough but unattainable: `grimmer(x = 1.0, sd = 2.0, digits_x = 1, digits_sd = 1, items_averaged = 1, n = 2)` was `TRUE`, but the values would be 1 ± √2. For `n >= 5`, the minimum and the parity test suffice, so `grimmer()` is `TRUE` if and only if a sample of whole numbers has the reported mean and SD, except under `rounding = "even"`, which lets a tie round either way. The `reason` for both new rejections is `"GRIMMER inconsistent (test 1)"`.
 
 - A rounding bound is exclusive whenever a value exactly on it would round away from the reported number. This already held for `"up"` and `"down"`, and now also for `"ceiling"`, `"floor"`, `"trunc"`, `"anti_trunc"`, and the `"*_from"` methods. Under `"even"`, both bounds stay inclusive, because whether `base::round()` sees a tie depends on the binary representation of the value.
 
@@ -44,7 +44,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
 
-- In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full: `items = 2` is now an error rather than a partial match. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, n = "total")`.
+- In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full: `items = 2` is now an error rather than a partial match. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, digits_x = c(2, 1), n = "total", items_averaged = 1)`.
 
 - scrutiny uses the base pipe `|>`, no longer exports `%>%`, and requires R >= 4.1.0.
 
@@ -58,7 +58,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column.
 
-- `grim()`, `grimmer()`, and `debit()` lost `show_rec` and `show_reason`, which were only meant for the mappers. They are vectorized over `x`, `sd`, `n`, the `digits_*` arguments, and `items_averaged`; all other arguments must have length 1. Recycling follows the tidyverse rules, so `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2)` is an error.
+- `grim()`, `grimmer()`, and `debit()` lost `show_rec` and `show_reason`, which were only meant for the mappers. They are vectorized over `x`, `sd`, `n`, the `digits_*` arguments, and `items_averaged`; all other arguments must have length 1. Recycling follows the tidyverse rules, so `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2, items_averaged = 1)` is an error.
 
 - `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`: `n` is the sample size as given, and `items_averaged` is a column of its own. `grim_plot_grid()` places tiles at `n * items_averaged`.
 
