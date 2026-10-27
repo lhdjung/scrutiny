@@ -389,7 +389,7 @@ test_that("invalid rounding arguments are errors from the function called", {
 
   tibble::tibble(x = -5.19, n = 28) |>
     grim_map(digits_x = 2, items_averaged = 1, rounding = "ties_up", symmetric = TRUE) |>
-    expect_error("must not be given")
+    expect_error("`symmetric` must not be")
 
   5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2)                 |> caller_of() |> expect_equal("grim")
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, rounding = 2)          |> caller_of() |> expect_equal("grim_values")
