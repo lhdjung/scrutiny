@@ -26,7 +26,7 @@ This is a list of other packages and apps for error detection, with no claim to 
 
 ## Up and coming
 
-*Recent and ongoing development in forensic metascience methods.*
+*Recent and ongoing development in forensic meta-science methods.*
 
 -   The [unsum](https://lhdjung.github.io/unsum/) package implements CLOSURE, a technique by Nathanael Larigaldie that generalizes SPRITE to find all possible samples, not just a few. Its core is written in Rust, which makes it fast enough for moderately large samples.
 
@@ -44,7 +44,7 @@ This is a list of other packages and apps for error detection, with no claim to 
 
 ## Possibly helpful
 
-*Less well-known projects, not widely used in forensic metascience, that may be useful for error checking. Their forensic utility has not been thoroughly examined.*
+*Less well-known projects, not widely used in forensic meta-science, that may be useful for error checking. Their forensic utility has not been thoroughly examined.*
 
 -   The R package [validate](https://cran.r-project.org/package=validate) by Mark P.J. van der Loo provides many tools for data checking.
 

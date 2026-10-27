@@ -27,7 +27,8 @@ detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
 
 Besides ready-made tests, scrutiny has a system for implementing new
 consistency tests, duplicate analysis, and data wrangling helpers. See
-the *Articles* tab for vignettes.
+the [articles](https://lhdjung.github.io/scrutiny/articles/) for
+details.
 
 Install the package from CRAN:
 
@@ -116,7 +117,8 @@ grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
 
 Choose how the means were rounded — below, up from 5. The plot adjusts
-to the rounding method. Blue dots are consistent, red dots inconsistent:
+to the rounding method. Blue tiles are consistent, red tiles
+inconsistent:
 
 ``` r
 pigs1 |>
