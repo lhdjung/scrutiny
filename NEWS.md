@@ -38,7 +38,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Function interfaces
 
-- `grim_probability()` is now `grim_exp_incon()`, and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In every `audit()` method for mapper output, including `audit_cols_minimal()`, the first columns are now `all_cases`, `incon_cases` (formerly `incons_cases`), and `emp_incon` (formerly `incons_rate`), in this order. For `grim_map()` output, `testable_cases` follows `all_cases`, and `exp_incon` (formerly `mean_grim_prob`) and `ratio` (formerly `incons_to_prob`) come last. `testable_rate` was removed: it is `testable_cases / all_cases`.
+- `grim_probability()` is now `grim_exp_incon()` (the old name is deprecated), and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In every `audit()` method for mapper output, including `audit_cols_minimal()`, the first columns are now `all_cases`, `incon_cases` (formerly `incons_cases`), and `emp_incon` (formerly `incons_rate`), in this order. For `grim_map()` output, `testable_cases` follows `all_cases`, and `exp_incon` (formerly `mean_grim_prob`) and `ratio` (formerly `incons_to_prob`) come last. `testable_rate` was removed: it is `testable_cases / all_cases`.
 
 - `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
 
@@ -136,7 +136,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `decimal_places()` handles scientific notation, counts numeric values correctly when `sep` is not `"."`, and returns `NA` for `NaN`, infinite values, and the string `"NA"`.
 
-- `restore_zeros()` handles scientific notation, reads a number as `decimal_places()` does (so `1e-300` has 300 decimal places, not 315), no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`.
+- `restore_zeros()` handles scientific notation, reads a number as `decimal_places()` does (so `1e-300` has 300 decimal places, not 315), no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`. `restore_zeros_df()` no longer warns about a column without decimal places, such as `n`, or a single row.
 
 ### Other
 
@@ -171,6 +171,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 - `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_values()` and `grim_plot_rates()`.
 
 - `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
+
+- `grim_probability()` is deprecated in favor of `grim_exp_incon()`.
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 

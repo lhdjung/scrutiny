@@ -37,7 +37,9 @@ missing or infinite, which makes the result \code{NA}; the argument mirrors
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}. Like \code{x}, \code{n}, and
+\code{digits_x}, it is recycled under the tidyverse rules: all four must have
+the same length, or length 1.}
 
 \item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage, which adds 2 to the
 decimal count. Default is \code{FALSE}.}

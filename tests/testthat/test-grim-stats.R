@@ -146,3 +146,15 @@ test_that("`digits_x` must be from 0 to 15, as in `grim()`", {
   5.19 |> grim_exp_incon(28, digits_x = -1, items_averaged = 1) |> expect_error("0 to 15")
   5.19 |> grim_total(28, digits_x = 16, items_averaged = 1)       |> expect_error("0 to 15")
 })
+
+
+test_that("`grim_exp_incon()` recycles like `grim()`", {
+  c(5, 6) |> grim_exp_incon(c(21, 40, 50), digits_x = 2, items_averaged = 1) |> expect_error("Can't recycle")
+  c(5, 6) |> grim_exp_incon(c(21, 40), digits_x = 2, items_averaged = 1) |> expect_length(2L)
+  5 |> grim_exp_incon(numeric(0), digits_x = 2, items_averaged = 1) |> expect_length(0L)
+})
+
+
+test_that("`grim_probability()` is deprecated", {
+  lifecycle::expect_deprecated(grim_probability(5.19, 28, digits_x = 2, items_averaged = 1))
+})

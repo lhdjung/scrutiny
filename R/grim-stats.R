@@ -20,7 +20,9 @@
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param n Integer. The sample size.
-#' @param items_averaged Integer. As in [`grim()`].
+#' @param items_averaged Integer. As in [`grim()`]. Like `x`, `n`, and
+#'   `digits_x`, it is recycled under the tidyverse rules: all four must have
+#'   the same length, or length 1.
 #' @param percent Logical. If `TRUE`, `x` is a percentage, which adds 2 to the
 #'   decimal count. Default is `FALSE`.
 #' @param rounding,threshold The rounding method and, for the `"*_from"`
@@ -146,6 +148,14 @@ grim_total <- function(
     digits_x <- digits_x + 2L
   }
 
+  # Recycle as `grim()` does, so that a length mismatch is an error:
+  vals <- list(x = x, n = n, digits_x = digits_x, items_averaged = items_averaged)
+  length_out <- recycle_length_common(lengths(vals), names(vals))
+  x <- rep_len(x, length_out)
+  n <- rep_len(n, length_out)
+  digits_x <- rep_len(digits_x, length_out)
+  items_averaged <- rep_len(items_averaged, length_out)
+
   # Between two whole numbers, there are `10^digits_x` values that could be
   # reported, such as 0.00, 0.01, ..., 0.99 with two decimal places. The means
   # that the data can actually have are the multiples of
@@ -244,4 +254,22 @@ grim_total <- function(
 
   n_incons[!decidable] <- NA_real_
   n_incons
+}
+
+
+#' Deprecated name of `grim_exp_incon()`
+#'
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `grim_probability()` was renamed to [`grim_exp_incon()`] in scrutiny
+#'   1.0.0, which also takes new `digits_x` and `rounding` arguments.
+#'
+#' @param ... Passed on to [`grim_exp_incon()`].
+#'
+#' @keywords internal
+#' @export
+
+grim_probability <- function(...) {
+  lifecycle::deprecate_warn("1.0.0", "grim_probability()", "grim_exp_incon()")
+  grim_exp_incon(...)
 }
