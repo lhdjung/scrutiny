@@ -95,7 +95,7 @@ grim_values_scalar <- function(
     return(grim_values_tibble(numeric(0L), parts))
   }
 
-  check_values_size(sum2 - sum1 + 1, "means")
+  check_values_size(sum2 - sum1 + 1, "means", list(x = x, n = n))
 
   grim_values_tibble(seq(sum1, sum2), parts)
 }

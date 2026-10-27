@@ -147,18 +147,22 @@ test_that("`digits_*` and `items_averaged` are required, with the bespoke errors
 test_that("too many pairs is an error, not a huge allocation", {
   # Would be 5e8 rows; `check_enumeration_size()` only caps the sums:
   50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_error("Too many achievable pairs")
-  # Below the limit, the same shape of value set works. Counted independently in
-  # whole numbers: 100 values have a sum `s` from 4950 to 5050 for a mean of 50
+  # Below the limit, the same shape of value set works. Enumerated independently
+  # in   # whole numbers: 100 values have a sum `s` from 4950 to 5050 for a mean of 50
   # (ties either way), and a sum of squares `q` of the parity of `s` for an SD
   # of 20 if `100 * q - s^2` is from `99 * 100 * 19.5^2` to `99 * 100 * 20.5^2`.
   # That keeps `q` far above the least sum of squares, which does not bind:
-  count <- 4950:5050 |>
-    vapply(\(s) {
+  expected <- 4950:5050 |>
+    lapply(\(s) {
       q <- ceiling((s^2 + 99 * 100 * 19.5^2) / 100):floor((s^2 + 99 * 100 * 20.5^2) / 100)
-      sum(q %% 2 == s %% 2)
-    }, numeric(1L)) |>
-    sum()
-  50 |> grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |> nrow() |> expect_equal(count)
+      q <- q[q %% 2 == s %% 2]
+      tibble::tibble(sum = rep(s, length(q)), sum_squares = q)
+    }) |>
+    dplyr::bind_rows()
+  50 |>
+    grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |>
+    dplyr::select(sum, sum_squares) |>
+    expect_equal(expected)
 
   # Two numbers have few sums of squares in a wide range, which only an upper
   # bound of 4e7 would count as too many. Two totals with the sum `s` and the
@@ -195,6 +199,24 @@ test_that("`sum_squares_attainable_all()` agrees with every sample of fewer than
       }
     }
   }
+})
+
+
+test_that("the limit admits exactly `VALUES_MAX` rows", {
+  # 7 pairs for five or more numbers, 4 and 3 for four and three, 1 for two,
+  # and 3 means:
+  5.3 |> grimmer_values(0.7, 30, digits_x = 1, digits_sd = 1, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 7) |> nrow() |> expect_equal(7L)
+  5.3 |> grimmer_values(0.7, 30, digits_x = 1, digits_sd = 1, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 6) |> expect_error("more than 6 pairs")
+  5.3 |> grimmer_values(0.7, 4,  digits_x = 1, digits_sd = 1, items_averaged = 3) |> with_mocked_bindings(VALUES_MAX = 4) |> nrow() |> expect_equal(4L)
+  5.3 |> grimmer_values(0.7, 4,  digits_x = 1, digits_sd = 1, items_averaged = 3) |> with_mocked_bindings(VALUES_MAX = 3) |> expect_error("more than 3 pairs")
+  5.3 |> grimmer_values(0.7, 3,  digits_x = 1, digits_sd = 1, items_averaged = 4) |> with_mocked_bindings(VALUES_MAX = 3) |> nrow() |> expect_equal(3L)
+  5.3 |> grimmer_values(0.7, 3,  digits_x = 1, digits_sd = 1, items_averaged = 4) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("more than 2 pairs")
+  5.3 |> grimmer_values(0.7, 2,  digits_x = 1, digits_sd = 1, items_averaged = 10) |> with_mocked_bindings(VALUES_MAX = 1) |> nrow() |> expect_equal(1L)
+  5.3 |> grimmer_values(0.7, 2,  digits_x = 1, digits_sd = 1, items_averaged = 10) |> with_mocked_bindings(VALUES_MAX = 0) |> expect_error("more than 0 pairs")
+  5.19 |> grim_values(300, digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 3) |> nrow() |> expect_equal(3L)
+  5.19 |> grim_values(300, digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("more than 2 means")
+  # In a vectorized call, the message says which value set it is:
+  c(5.19, 5.19) |> grim_values(c(30, 300), digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("`x = 5.19`, `n = 300`")
 })
 
 

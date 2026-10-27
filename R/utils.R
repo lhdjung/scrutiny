@@ -191,11 +191,13 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
 #'
 #' @param size Numeric (length 1). The number of rows so far, or a lower bound.
 #' @param what String. What the rows are: `"means"` or `"pairs"`.
+#' @param values Named list of the reported values, to say which value set it
+#'   is in a vectorized call.
 #'
 #' @return No return value. Might throw an error.
 #'
 #' @noRd
-check_values_size <- function(size, what) {
+check_values_size <- function(size, what, values) {
   if (size <= VALUES_MAX) {
     return(invisible())
   }
@@ -207,13 +209,16 @@ check_values_size <- function(size, what) {
     with {.arg digits_x}."
   }
   limit <- format(VALUES_MAX, big.mark = ",", scientific = FALSE)
+  values <- vapply(values, format, character(1L), scientific = FALSE)
+  value_set <- paste0("`", names(values), " = ", values, "`", collapse = ", ")
   abort_in_export(
     "Too many achievable {what} for {.fn {name_last_export()}}.",
-    "x" = "The value set admits more than {limit} {what}, and the output has one \\
-    row for each.",
+    "x" = "The value set with {value_set} admits more than {limit} {what}, \\
+    and the output has one row for each.",
     "i" = hint
   )
 }
+
 
 #' Can a value set be decided at all, going by `n` and `items_averaged`?
 #'

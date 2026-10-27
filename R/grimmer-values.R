@@ -89,6 +89,7 @@ grimmer_values_scalar <- function(
   # caps the sums. At `x = 50`, `sd = 20`, `n = 5000`, both with no decimals,
   # there are 5e8.
   n_pairs <- 0
+  value_set <- list(x = x, sd = sd, n = n)
 
   for (i in seq_along(candidate_sums)) {
     s <- candidate_sums[i]
@@ -109,7 +110,7 @@ grimmer_values_scalar <- function(
       # Every second whole number from the first one with the parity of `s`:
       lower <- max(candidate$sum_squares[1L], candidate$sum_squares_min)
       first <- lower + (lower - s) %% 2
-      check_values_size(n_pairs + (upper - first) %/% 2 + 1, "pairs")
+      check_values_size(n_pairs + (upper - first) %/% 2 + 1, "pairs", value_set)
       seq(first, upper, by = 2)
     } else {
       # Fewer numbers skip some sums of squares, so they can't be counted
@@ -124,7 +125,7 @@ grimmer_values_scalar <- function(
     }
 
     n_pairs <- n_pairs + length(squares)
-    check_values_size(n_pairs, "pairs")
+    check_values_size(n_pairs, "pairs", value_set)
 
     sums[[i]] <- rep(s, length(squares))
     sums_squares[[i]] <- squares
