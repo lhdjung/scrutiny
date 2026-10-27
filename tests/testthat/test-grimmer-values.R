@@ -147,13 +147,34 @@ test_that("`digits_*` and `items_averaged` are required, with the bespoke errors
 test_that("too many pairs is an error, not a huge allocation", {
   # Would be 5e8 rows; `check_enumeration_size()` only caps the sums:
   50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_error("Too many achievable pairs")
-  # Below the limit, the same shape of value set works:
-  50 |> grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |> nrow() |> expect_equal(199990L)
+  # Below the limit, the same shape of value set works. Counted independently in
+  # whole numbers: 100 values have a sum `s` from 4950 to 5050 for a mean of 50
+  # (ties either way), and a sum of squares `q` of the parity of `s` for an SD
+  # of 20 if `100 * q - s^2` is from `99 * 100 * 19.5^2` to `99 * 100 * 20.5^2`.
+  # That keeps `q` far above the least sum of squares, which does not bind:
+  count <- 4950:5050 |>
+    vapply(\(s) {
+      q <- ceiling((s^2 + 99 * 100 * 19.5^2) / 100):floor((s^2 + 99 * 100 * 20.5^2) / 100)
+      sum(q %% 2 == s %% 2)
+    }, numeric(1L)) |>
+    sum()
+  50 |> grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |> nrow() |> expect_equal(count)
+
   # Two numbers have few sums of squares in a wide range, which only an upper
-  # bound of 4e7 would count as too many:
-  out <- 50 |> grimmer_values(20, 2, digits_x = 0, digits_sd = 0, items_averaged = 100)
-  out |> nrow() |> expect_lt(1e5)
-  out$sd |> round() |> expect_equal(rep(20, nrow(out)))
+  # bound of 4e7 would count as too many. Two totals with the sum `s` and the
+  # difference `d` have the sum of squares `(s^2 + d^2) / 2`, so every pair of
+  # `s` and `d` of the same parity within the bounds is one achievable pair:
+  d <- 0:3000
+  d <- d[d^2 >= 2 * 19.5^2 * 100^2 & d^2 <= 2 * 20.5^2 * 100^2]
+  expected <- tidyr::expand_grid(sum = 9900:10100, d = d) |>
+    dplyr::filter(d %% 2 == sum %% 2) |>
+    dplyr::mutate(sum_squares = (sum^2 + d^2) / 2) |>
+    dplyr::select(-d) |>
+    dplyr::arrange(sum, sum_squares)
+  50 |>
+    grimmer_values(20, 2, digits_x = 0, digits_sd = 0, items_averaged = 100) |>
+    dplyr::select(sum, sum_squares) |>
+    expect_equal(expected)
 })
 
 
