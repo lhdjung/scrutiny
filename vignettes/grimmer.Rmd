@@ -106,7 +106,7 @@ GRIMMER does not use the bounds of a scale. For data on a bounded scale, such as
 
 ### Achievable means and SDs
 
-`grimmer_values()` returns every pair of a mean and an SD that a sample of `n` integers can have and that would be reported as `x` and `sd`, with the sum and sum of squares behind each. It is the counterpart of `grim_values()`, and like it, it returns a list with one tibble per value set, with no rows if the value set is inconsistent:
+`grimmer_values()` returns every pair of a mean and an SD that a sample of `n` integers can have and that would be reported as `x` and `sd`, with the sum and sum of squares behind each. It is the counterpart of `grim_values()`, and like it, it returns one row per achievable pair, with `case` for the value set, and none if the value set is inconsistent:
 
 ```{r}
 grimmer_values(x = 5.3, sd = 0.7, n = 30, digits_x = 1, digits_sd = 1, items_averaged = 1)

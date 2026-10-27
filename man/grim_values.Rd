@@ -44,10 +44,10 @@ keep them (\code{1.40} is \code{1.4}).}
 }
 \value{
 \itemize{
-\item For \code{grim_values()}, a list with one tibble per value set. Its columns are
-\code{x}, the achievable values, and \code{sum}, the whole numbers behind them. The
-tibble has no rows if the value set is inconsistent, and one row of \code{NA}
-if it cannot be decided, as in \code{\link[=grim]{grim()}}.
+\item For \code{grim_values()}, a tibble with one row per achievable mean. \code{case} is
+the index of the value set, \code{x} the achievable value, and \code{sum} the whole
+number behind it. An inconsistent value set has no rows, and one that
+cannot be decided has one row of \code{NA}, as in \code{\link[=grim]{grim()}}.
 \item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
 where a value set cannot be decided.
 }
@@ -67,9 +67,9 @@ closest one overall.
 }
 
 Both are vectorized like \code{\link[=grim]{grim()}}. A reported mean may correspond to one
-achievable mean, to several, or to none, so \code{grim_values()} returns a list
-with one tibble per value set. \code{\link[=grimmer_values]{grimmer_values()}} is the counterpart for
-GRIMMER.
+achievable mean, to several, or to none, so \code{grim_values()} returns one
+row per achievable mean, and \code{case} says which value set it belongs to.
+\code{\link[=grimmer_values]{grimmer_values()}} is the counterpart for GRIMMER.
 }
 \details{
 The achievable means are the whole numbers in the range that
@@ -104,7 +104,14 @@ grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 # ...but 5.19 is close to a mean that is achievable:
 grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
-# Both functions are vectorized:
+# Both functions are vectorized. In `grim_values()`, `case` is the index of
+# the value set, and an inconsistent one has no rows:
+grim_values(
+  x = c(5.19, 4.2),
+  n = c(28, 30),
+  digits_x = 2,
+  items_averaged = 1
+)
 grim_closest(
   x = c(5.19, 4.2),
   n = c(28, 30),

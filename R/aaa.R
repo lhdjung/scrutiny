@@ -47,6 +47,21 @@ NON_FINITE_TOKENS <- c(outer(
 # raster, as with `digits > 2`:
 TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 
+# The columns of `grim_values()` and `grimmer_values()` output, for the
+# zero-row case; see `bind_cases()`:
+PTYPE_GRIM_VALUES <- tibble::tibble(
+  case = integer(),
+  x = double(),
+  sum = double()
+)
+PTYPE_GRIMMER_VALUES <- tibble::tibble(
+  case = integer(),
+  x = double(),
+  sd = double(),
+  sum = double(),
+  sum_squares = double()
+)
+
 
 # The `diff_*` distances in `audit_seq()`, passed to `dplyr::across()` as one
 # list. `x` is the number of dispersion steps between a reported value and its

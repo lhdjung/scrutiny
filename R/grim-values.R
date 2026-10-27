@@ -100,7 +100,7 @@ grim_values_scalar <- function(
 
 
 # The means, on the scale of `x`, that whole-number sums give. One row of `NA`
-# for an undecidable value set, so that the element is a tibble either way.
+# for an undecidable value set, so that it still has a row in the output.
 grim_values_tibble <- function(sums, parts) {
   tibble::tibble(
     x = sums * parts$scale / parts$n_items,
@@ -173,9 +173,9 @@ grim_closest_scalar <- function(
 #'   closest one overall.
 #'
 #'   Both are vectorized like [`grim()`]. A reported mean may correspond to one
-#'   achievable mean, to several, or to none, so `grim_values()` returns a list
-#'   with one tibble per value set. [`grimmer_values()`] is the counterpart for
-#'   GRIMMER.
+#'   achievable mean, to several, or to none, so `grim_values()` returns one
+#'   row per achievable mean, and `case` says which value set it belongs to.
+#'   [`grimmer_values()`] is the counterpart for GRIMMER.
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
@@ -205,10 +205,10 @@ grim_closest_scalar <- function(
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
 #'
 #' @return
-#' - For `grim_values()`, a list with one tibble per value set. Its columns are
-#'   `x`, the achievable values, and `sum`, the whole numbers behind them. The
-#'   tibble has no rows if the value set is inconsistent, and one row of `NA`
-#'   if it cannot be decided, as in [`grim()`].
+#' - For `grim_values()`, a tibble with one row per achievable mean. `case` is
+#'   the index of the value set, `x` the achievable value, and `sum` the whole
+#'   number behind it. An inconsistent value set has no rows, and one that
+#'   cannot be decided has one row of `NA`, as in [`grim()`].
 #' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
 #'   where a value set cannot be decided.
 #'
@@ -240,7 +240,14 @@ grim_closest_scalar <- function(
 #' # ...but 5.19 is close to a mean that is achievable:
 #' grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
-#' # Both functions are vectorized:
+#' # Both functions are vectorized. In `grim_values()`, `case` is the index of
+#' # the value set, and an inconsistent one has no rows:
+#' grim_values(
+#'   x = c(5.19, 4.2),
+#'   n = c(28, 30),
+#'   digits_x = 2,
+#'   items_averaged = 1
+#' )
 #' grim_closest(
 #'   x = c(5.19, 4.2),
 #'   n = c(28, 30),
@@ -264,7 +271,8 @@ grim_values <- function(
     fn = grim_values_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),
     type = "list"
-  )
+  ) |>
+    bind_cases(PTYPE_GRIM_VALUES)
 }
 
 

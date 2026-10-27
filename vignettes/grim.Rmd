@@ -157,12 +157,10 @@ grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: 
 grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
-Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns a list with one tibble per value set, which fits into a list-column. `tidyr::unnest()` expands it to one row per achievable mean; `names_sep` keeps the achievable `x` apart from the reported one:
+Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns one row per achievable mean, and `case` says which value set it belongs to. An inconsistent value set has no rows:
 
 ```{r}
-pigs1 |>
-  dplyr::mutate(values = grim_values(x, n, digits_x = 2, items_averaged = 1)) |>
-  tidyr::unnest(values, names_sep = "_")
+grim_values(x = c(5.19, 5.19, 5.19), n = c(32, 300, 28), digits_x = 2, items_averaged = 1)
 ```
 
 Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM cannot detect anything. The number of achievable means can then become very large, which is why `grim_map()` does not return them.

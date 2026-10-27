@@ -250,13 +250,17 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
         }
       })
 
-    values |>
-      purrr::map("x") |>
+    # `case` indexes the value sets; an inconsistent one has no rows:
+    cases <- factor(values$case, levels = seq_len(nrow(out)))
+    values$x |>
+      split(cases) |>
+      unname() |>
       expect_equal(achievable, info = info)
 
     # ...and the sums behind them are those very sums:
-    values |>
-      purrr::map("sum") |>
+    values$sum |>
+      split(cases) |>
+      unname() |>
       expect_equal(
         lapply(seq_along(consistency), function(j) {
           if (consistency[j]) seq(lower[j], upper[j]) else numeric(0L)

@@ -59,7 +59,6 @@ test_that("a missing value is `NA` under every rounding method", {
         expect_equal(c(verdict_first, NA, NA), info = info)
       NA |>
         grim_values(28, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = symmetric) |>
-        purrr::pluck(1L) |>
         expect_undecidable()
       NA |>
         grim_closest(28, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = symmetric) |>
@@ -151,8 +150,9 @@ test_that("`roundwork::unround()`, `grim_values()`, and `grim_closest()` propaga
   bounds$upper |> expect_equal(c(0.535, NA))
 
   values <- c(5.19, NA) |> grim_values(c(32, 32), digits_x = 2, items_averaged = 1)
-  values[[1L]]$x |> expect_equal(5.1875)
-  values[[2L]]   |> expect_undecidable()
+  values$case |> expect_equal(1:2)
+  values$x    |> expect_equal(c(5.1875, NA))
+  values$sum  |> expect_equal(c(166, NA))
 
   c(5.19, NA) |>
     grim_closest(c(28, 28), digits_x = 2, items_averaged = 1) |>
@@ -296,7 +296,7 @@ test_that("`grimmer()` names the infinity as its reason", {
 
 test_that("the achievable means behind an infinity are `NA`", {
   # `seq()` used to abort with "'from' must be a finite number":
-  Inf |> grim_values(28, digits_x = 2, items_averaged = 1)  |> purrr::pluck(1L) |> expect_undecidable()
+  Inf |> grim_values(28, digits_x = 2, items_averaged = 1)  |> expect_undecidable()
   Inf |> grim_closest(28, digits_x = 2, items_averaged = 1) |> expect_na()
 })
 
@@ -318,7 +318,7 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   5.19 |> grim(28, digits_x = NA, items_averaged = 1)                            |> expect_na()
   1.03 |> grimmer(0.41, 40, digits_x = 2, digits_sd = NA, items_averaged = 1)    |> expect_na()
   0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2)                        |> expect_na()
-  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> purrr::pluck(1L) |> expect_undecidable()
+  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
   5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
 
   out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA), items_averaged = 1)

@@ -137,7 +137,7 @@ grimmer_values_scalar <- function(
 
 # The mean and SD that a sum and a sum of squares of `n` whole numbers give;
 # see `sd_square_term()` for the formula. One row of `NA` for an undecidable
-# value set, so that the element is a tibble either way.
+# value set, so that it still has a row in the output.
 grimmer_values_tibble <- function(
   sums,
   sums_squares,
@@ -184,10 +184,11 @@ grimmer_values_tibble <- function(
 #'   premise, so call `grimmer_values()` once for each. Under `"se"`, the `sd`
 #'   column holds the standard error.
 #'
-#' @return A list with one tibble per value set. Its columns are `x` and `sd`,
-#'   the achievable values, and `sum` and `sum_squares`, the whole numbers
-#'   behind them. The tibble has no rows if the value set is inconsistent, and
-#'   one row of `NA` if it cannot be decided, as in [`grimmer()`].
+#' @return A tibble with one row per achievable pair. `case` is the index of
+#'   the value set, `x` and `sd` are the achievable values, and `sum` and
+#'   `sum_squares` the whole numbers behind them. An inconsistent value set has
+#'   no rows, and one that cannot be decided has one row of `NA`, as in
+#'   [`grimmer()`].
 #'
 #' @seealso [`grimmer()`], [`grimmer_map()`], and [`grim_values()`].
 #'
@@ -244,5 +245,6 @@ grimmer_values <- function(
     fn = grimmer_values_scalar,
     along = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged"),
     type = "list"
-  )
+  ) |>
+    bind_cases(PTYPE_GRIMMER_VALUES)
 }

@@ -18,7 +18,8 @@
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
 #'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
-#'   whose `fn` returns a tibble per value set.
+#'   whose `fn` returns a tibble per value set, which `bind_cases()` then
+#'   stacks.
 #'
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'
@@ -144,6 +145,20 @@ map_value_sets <- function(fn, along, type = "logical") {
   }
 
   out
+}
+
+
+#' Stack the tibbles of `map_value_sets(type = "list")` into one
+#'
+#' @param results List of tibbles, one per value set.
+#' @param ptype Zero-row tibble with the output's columns, `case` first, for
+#'   the case of no value sets at all.
+#'
+#' @return Tibble with a `case` column, the index of the value set.
+#'
+#' @noRd
+bind_cases <- function(results, ptype) {
+  purrr::list_rbind(results, names_to = "case", ptype = ptype)
 }
 
 

@@ -99,7 +99,7 @@ test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
   out$rec_x_upper |> expect_equal(c(72, 84))
   84 |>
     grim_values(25, digits_x = 0, items_averaged = 1, percent = TRUE) |>
-    purrr::pluck(1L, "x") |>
+    purrr::pluck("x") |>
     expect_equal(84)
 
   # The sums are not converted: they count the underlying data either way.

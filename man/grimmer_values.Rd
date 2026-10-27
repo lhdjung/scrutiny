@@ -55,10 +55,11 @@ premise, so call \code{grimmer_values()} once for each. Under \code{"se"}, the \
 column holds the standard error.}
 }
 \value{
-A list with one tibble per value set. Its columns are \code{x} and \code{sd},
-the achievable values, and \code{sum} and \code{sum_squares}, the whole numbers
-behind them. The tibble has no rows if the value set is inconsistent, and
-one row of \code{NA} if it cannot be decided, as in \code{\link[=grimmer]{grimmer()}}.
+A tibble with one row per achievable pair. \code{case} is the index of
+the value set, \code{x} and \code{sd} are the achievable values, and \code{sum} and
+\code{sum_squares} the whole numbers behind them. An inconsistent value set has
+no rows, and one that cannot be decided has one row of \code{NA}, as in
+\code{\link[=grimmer]{grimmer()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
