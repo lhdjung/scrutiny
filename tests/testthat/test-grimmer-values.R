@@ -142,3 +142,11 @@ test_that("`digits_*` and `items_averaged` are required, with the bespoke errors
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, items_averaged = 1)  |> suppressMessages() |> expect_error("digits_sd")
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2)       |> suppressMessages() |> expect_error("items_averaged")
 })
+
+
+test_that("too many pairs is an error, not a huge allocation", {
+  # Would be 5e8 rows; `check_enumeration_size()` only caps the sums:
+  50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1) |> expect_error("too large")
+  # Below the limit, the same shape of value set works:
+  50 |> grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1) |> nrow() |> expect_equal(199990L)
+})
