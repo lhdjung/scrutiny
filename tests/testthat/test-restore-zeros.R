@@ -74,7 +74,7 @@ test_that("the `check_decimals` argument works correctly", {
     restore_zeros_df(check_decimals = FALSE) |>
     dplyr::pull(1) |>
     expect_type("character") |>
-    expect_warning()
+    expect_no_warning()
 })
 
 
@@ -177,4 +177,11 @@ test_that("a number is read as `decimal_places()` reads it", {
   1e-300       |> restore_zeros(width = 300) |> decimal_places() |> expect_equal(300L)
   c(1e-300, 1) |> restore_zeros()            |> decimal_places() |> expect_equal(c(300L, 300L))
   c(1e-300, 1) |> restore_zeros()            |> as.numeric()     |> expect_equal(c(1e-300, 1))
+})
+
+
+test_that("`restore_zeros_df()` does not warn about columns without decimals or single rows", {
+  pigs1        |> restore_zeros_df() |> expect_no_warning()
+  pigs1[1L, ]  |> restore_zeros_df() |> expect_no_warning()
+  c(1, 2)      |> restore_zeros()    |> expect_warning(class = "scrutiny_warning_no_zeros")
 })

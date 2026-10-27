@@ -110,19 +110,25 @@ restore_zeros <- function(
 
   if (is.null(width)) {
     if (length(x) == 1L) {
-      cli::cli_warn(c(
-        "No trailing zeros can be restored",
-        "!" = "`x` has length 1",
-        ">" = "Specify `width` to predetermine a number of decimal places \\
-        to which `x` values should be padded."
-      ))
+      cli::cli_warn(
+        c(
+          "No trailing zeros can be restored",
+          "!" = "`x` has length 1",
+          ">" = "Specify `width` to predetermine a number of decimal places \\
+          to which `x` values should be padded."
+        ),
+        class = "scrutiny_warning_no_zeros"
+      )
     } else if (all(width_mantissa == 0L, na.rm = TRUE)) {
-      cli::cli_warn(c(
-        "No trailing zeros can be restored",
-        "!" = "None of the {length(x)} `x` values has any decimal places.",
-        ">" = "Specify `width` to predetermine a number of decimal places \\
-        to which `x` values should be padded."
-      ))
+      cli::cli_warn(
+        c(
+          "No trailing zeros can be restored",
+          "!" = "None of the {length(x)} `x` values has any decimal places.",
+          ">" = "Specify `width` to predetermine a number of decimal places \\
+          to which `x` values should be padded."
+        ),
+        class = "scrutiny_warning_no_zeros"
+      )
     }
     width_target <- max(0L, width_mantissa, na.rm = TRUE)
   } else if (
@@ -244,17 +250,25 @@ restore_zeros_df <- function(
     )
   }
 
+  # A column of whole numbers, such as `n`, or a single row is normal in a data
+  # frame, so `restore_zeros()`'s warning that there is nothing to pad would
+  # only be noise here, and it would name the column `x`:
+  # `dplyr::mutate()` would re-signal the warning on its own, so it is muffled
+  # inside `across()`:
   data |>
     dplyr::mutate(
       dplyr::across(
         .cols = all_of(cols_to_select),
         .fns = function(data_dummy) {
-          restore_zeros(
-            x = data_dummy,
-            width = width,
-            sep_in = sep_in,
-            sep_out = sep_out,
-            check_width = check_width
+          withCallingHandlers(
+            restore_zeros(
+              x = data_dummy,
+              width = width,
+              sep_in = sep_in,
+              sep_out = sep_out,
+              check_width = check_width
+            ),
+            scrutiny_warning_no_zeros = function(cnd) rlang::cnd_muffle(cnd)
           )
         }
       )
