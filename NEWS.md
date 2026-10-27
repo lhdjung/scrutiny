@@ -2,7 +2,7 @@
 
 scrutiny 1.0.0 is a major release with many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code; the error messages say how.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER's differ only in rare edge cases, and DEBIT is now exact. See "Test results" for details.
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER no longer flags many consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" for details.
 
 ## Breaking changes
 
@@ -16,6 +16,8 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 ### Test results
 
+- GRIMMER tests every sum that rounds to the reported mean. Earlier versions only took the one nearest to `x * n`, so tests 1 and 3 could fail for a consistent value set whenever several sums round to the mean, which can happen once `n` reaches `10^digits_x`. In a grid of such value sets, a fifth of the inconsistencies that scrutiny 0.6.1 found for means with one decimal place were false positives, as were 3% of those for means with two decimal places. The warning about this was removed. Thanks to Nathanael Larigaldie and \@takua624 (#80, #84).
+
 - GRIMMER computes candidate sums and sums of squares in exact integer arithmetic. Floating-point comparisons could lose a candidate on a rounding bound, so some consistent value sets were reported as inconsistent, also for multi-item scales. For example, `grimmer(x = 0.03, sd = 0.18, n = 200)` was `FALSE`, although seven 1s and 193 0s have exactly these statistics. Thanks to Ian Hussey (#86) and Aurélien Allard.
 
 - GRIMMER rejects sums of squares below the minimum that whole numbers with the reconstructed sum can have. For example, `grimmer(x = 3.6, sd = 0.2, n = 11)` was `TRUE`, but 11 whole numbers that sum to 40 cannot have an SD below 0.5.
@@ -28,7 +30,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `"down_from"` and `"up_from_or_down_from"` read `threshold` as `"up_from"` does: rounding goes down if the part cut off is at most `threshold` tenths of a rounding step. It used to switch at `10 - threshold`, so `"up_from_or_down_from"` could span up to 1.8 steps, and GRIM with `threshold = 9` accepted every mean at `n = 57`. Results at the default `threshold = 5` are unchanged.
 
-- `"anti_trunc"` no longer moves a value that already has the required number of decimal places: 8.42 rounded to two decimal places is 8.42, not 8.43, as with Excel's `ROUNDUP()`. A mean of `0.00` can therefore be tested under `"anti_trunc"`; the result used to be `NA`.
+- `"anti_trunc"` no longer moves a value that already has the required number of decimal places: 8.42 rounded to two decimal places is 8.42, not 8.43, as with Excel's `ROUNDUP()`. A mean of `0.00` is therefore consistent under `"anti_trunc"`; it used to be `FALSE`.
 
 - DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. The new `formula` argument selects `"exact"`, the default, or `"mean_n"`, the old behavior. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
 
@@ -110,7 +112,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`.
 
-- GRIMMER's test 3 no longer gives false positives, and the warning about this was removed (#80). With three or more candidate sums of squares under `rounding = "up"` or `"down"`, the SD check and the parity check now apply to the same candidate (#85).
+- Under `rounding = "up"` or `"down"`, GRIMMER's SD check and parity check now apply to the same candidate sum of squares, so `grimmer(x = 0.11, sd = 0.87, digits_x = 2, digits_sd = 2, items_averaged = 1, n = 64, rounding = "up")` is `FALSE`. Thanks to Ian Hussey (#85).
 
 - `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. Instead of running indefinitely for a very large `n`, it throws an error if more than a million integer sums are compatible with the reported mean.
 
