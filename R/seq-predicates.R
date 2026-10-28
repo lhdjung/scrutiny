@@ -46,11 +46,15 @@ is_seq_basic <- function(
   }
 
   # A vector of all `NA`s leaves the question open, whatever its type -- unless
-  # no values could close it: any one or two values are linear.
+  # no values could close it: any one or two numbers are linear. A string could
+  # be no number, so only a logical or numeric `NA` is sure to be one.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
   if (length(x) > 0L && all(is.na(x))) {
-    return(if (is.null(test_special) && length(x) <= 2L) TRUE else NA)
+    linear_anyway <- is.null(test_special) &&
+      length(x) <= 2L &&
+      (is.logical(x) || is.numeric(x))
+    return(if (linear_anyway) TRUE else NA)
   }
 
   if (isFALSE(is_numeric_like(x))) {

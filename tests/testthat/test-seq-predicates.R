@@ -187,6 +187,9 @@ test_that("strings and factors are tested by their numeric values", {
 test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
   c(NA, NA, NA)                     |> is_seq_linear()     |> expect_na()
   rep(NA_character_, 3L)            |> is_seq_linear()     |> expect_na()
+  # A missing string might be no number at all, unlike `c(NA, NA)` below:
+  c(NA_character_, NA_character_)   |> is_seq_linear()     |> expect_na()
+  NA_character_                     |> is_seq_linear()     |> expect_na()
   c(NA, NA, NA)                     |> is_seq_ascending()  |> expect_na()
   c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
 })
