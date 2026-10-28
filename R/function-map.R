@@ -307,6 +307,10 @@ function_map <- function(
     USE.NAMES = FALSE
   )]
 
+  # The whole sets, for the manufactured function to recognize one given as
+  # such (`eval_defaults()` below resolves them to their first string):
+  enum_defaults <- lapply(formals_promoted[args_enum], eval, environment(.fn))
+
   # For the `default` column of the "scrutiny" attribute:
   defaults_const <- eval_defaults(
     formals_promoted[args_const],
@@ -454,9 +458,15 @@ function_map <- function(
       `!!!`(code_variadic)
 
       # See `args_enum` above. Before the length check, which would see the
-      # whole set:
+      # whole set. One given as the whole set, e.g. by a wrapper that forwards
+      # its own default, is resolved the same way, so that the "scrutiny"
+      # attribute records one string:
+      enum_defaults <- `!!`(enum_defaults)
       for (arg in args_enum) {
-        if (eval(call("missing", as.name(arg)))) {
+        if (
+          eval(call("missing", as.name(arg))) ||
+            identical(get(arg), enum_defaults[[arg]])
+        ) {
           assign(arg, get(arg)[[1L]])
         }
       }

@@ -970,3 +970,14 @@ test_that("an error in row 1 names it only if it is about that row", {
   df |> grim_map(items_averaged = 1)                                    |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
   df |> grim_map(digits_x = 2, items_averaged = 1, rounding = "nope")   |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
 })
+
+
+# An enum given as its whole default set, e.g. by a wrapper forwarding its own
+# default, was recorded as the set, and `grimmer_map_seq()` then failed on it:
+test_that("an enum given as its whole default set is recorded as its first value", {
+  df <- tibble::tibble(x = c(5.19, 4.5), sd = c(1.2, 2.1), n = c(28, 30), items_averaged = 1)
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map(digits_x = 2, digits_sd = 1) |> unclass_scr())
+  df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map_seq(digits_x = 2, digits_sd = 1) |> unclass_scr())
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("must be one of")
+})
