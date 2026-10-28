@@ -588,6 +588,18 @@ function_map <- function(
           }
         ) |>
           check_fn_result(`!!`(fn_name))
+      } else {
+        # No row to test, but a required argument that is missing must still
+        # be reported by `fn()`, so test a row of missing values if one is
+        # missing:
+        args_missing <- setdiff(
+          args_required,
+          c(names(args_vals), args_helper_given)
+        )
+        if (length(args_missing) > 0L) {
+          row_na <- lapply(cols_tested, function(x) x[NA_integer_])
+          do.call(fn, c(row_na, args_const_vals, args_fixed, list(...)))
+        }
       }
 
       results <- withCallingHandlers(

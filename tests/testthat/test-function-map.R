@@ -652,6 +652,11 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
     out$consistency |> expect_type("logical")
     out |> audit() |> nrow() |> expect_equal(1L)
   }
+
+  # A required argument is still required:
+  pigs1[0L, ] |> grim_map()             |> expect_error("digits_x")
+  pigs1[0L, ] |> grim_map(digits_x = 2) |> expect_error("items_averaged")
+  pigs1[0L, ] |> grim_map_seq()         |> expect_error("digits_x")
 })
 
 
