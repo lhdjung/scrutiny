@@ -279,6 +279,11 @@ test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has
   # to `disperse_total()`, which then dispersed down to a group of 0:
   tibble::tibble(x1 = 5.2, x2 = 4.25, n = 8) |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_min = NULL) |> _$n |> min() |> expect_equal(1L)
 
+  # An invalid enum gets the mapper's error, not one from `n_min_fn()`:
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be")
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = NULL)              |> expect_error("`sd_meaning` must be")
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "nope")                                  |> expect_error("`sd_meaning` must be")
+
   # An enum given as its whole default set is its first value here, too:
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |> unclass_scr())
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")

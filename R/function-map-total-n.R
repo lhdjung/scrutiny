@@ -381,8 +381,14 @@ function_map_total_n <- function(
         }
       }
       # An enum given as its whole set is one string from here on, as in
-      # `fn()`, so that `n_min_fn()` below sees what `fn()` would record:
-      setting_vals <- resolve_enums(setting_vals, `!!`(enum_defaults))
+      # `fn()`, so that `n_min_fn()` below sees what `fn()` would record. It
+      # reads the enums before `fn()` would check them, so they are checked
+      # here, with the mapper's own error:
+      enum_defaults <- `!!`(enum_defaults)
+      setting_vals <- resolve_enums(setting_vals, enum_defaults)
+      for (arg in intersect(names(setting_vals), names(enum_defaults))) {
+        eval(call("arg_match_in_export", as.name(arg), enum_defaults[[arg]]))
+      }
 
       # The default `n_min` may depend on the settings; see `n_min_fn` above.
       # It is also the default that the recorded `n_min` is compared to. A
