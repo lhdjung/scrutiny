@@ -189,8 +189,9 @@ grim_closest_scalar <- function(
 #'
 #'   With `percent = TRUE`, the values are percentages, like `x`.
 #'
-#'   Under `rounding = "even"`, both bounds of that range are inclusive (see
-#'   [`roundwork::unround()`]), so the values include ties that
+#'   Under `rounding = "even"`, or its synonym `"ties_even"`, both bounds of
+#'   that range are inclusive (see [`roundwork::unround()`]), so the values
+#'   include ties that
 #'   [`base::round()`] may round away from `x`:
 #'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
 #'   along with 1.3.

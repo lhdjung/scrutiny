@@ -82,8 +82,9 @@ more than a million values for one value set is an error.
 
 With \code{percent = TRUE}, the values are percentages, like \code{x}.
 
-Under \code{rounding = "even"}, both bounds of that range are inclusive (see
-\code{\link[roundwork:unround]{roundwork::unround()}}), so the values include ties that
+Under \code{rounding = "even"}, or its synonym \code{"ties_even"}, both bounds of
+that range are inclusive (see \code{\link[roundwork:unround]{roundwork::unround()}}), so the values
+include ties that
 \code{\link[base:Round]{base::round()}} may round away from \code{x}:
 \code{grim_values(1.3, 20, 1, 1, rounding = "even")} returns 1.25 and 1.35
 along with 1.3.

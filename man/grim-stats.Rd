@@ -48,9 +48,9 @@ decimal count. Default is \code{FALSE}.}
 methods, its threshold, as in \code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and
 \code{5}. The count depends on the method: \code{"up_or_down"} accepts a mean on a
 tie in both directions, and \code{"ceiling_or_floor"} admits a range two steps
-wide. \code{"even"} counts a tie on either bound as consistent, like
-\code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round it the other way;
-see \code{\link[roundwork:unround]{roundwork::unround()}}.
+wide. \code{"even"} and its synonym \code{"ties_even"} count a tie on either bound
+as consistent, like \code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round
+it the other way; see \code{\link[roundwork:unround]{roundwork::unround()}}.
 \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
 }
 \value{
