@@ -209,7 +209,11 @@ grim_explain <- function(
     "."
   )
 
-  # A sum and the mean or percentage it gives, as a calculation:
+  # A sum and the mean or percentage it gives, as a calculation. Shown with
+  # enough decimal places to tell it from the bounds of `x`: with `n` above
+  # `10^digits_x`, a mean like 499 / 999 would otherwise print as 0.4995, the
+  # bound it falls short of. `debit_explain()` does the same for its SDs.
+  bounds_x <- c(bounds$lower, bounds$upper) * scale_x / bounds$denom
   divide <- function(sum) {
     paste0(
       sum,
@@ -217,7 +221,7 @@ grim_explain <- function(
       n_items,
       if (percent) " * 100",
       " = ",
-      format_number(sum * scale_x / n_items, digits_num)
+      format_number(sum * scale_x / n_items, digits_num, bounds_x)
     )
   }
 

@@ -66,6 +66,14 @@ test_that("DEBIT's example SD is not shown as a bound", {
   0   |> debit_explain(sd = 0.147, n = 320, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_match("= 0.146504, which is in", fixed = TRUE)
 })
 
+# With `n` above `10^digits_x`, 499 / 999 printed as 0.4995, the bound it falls
+# short of, and 50 / 101 as 0.495, the bound that `"down"` excludes:
+test_that("GRIM's example means are not shown as bounds", {
+  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1)                   |> format() |> expect_match("499 / 999 = 0.499499", fixed = TRUE)
+  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1)                   |> format() |> expect_match("500 / 999 = 0.500501", fixed = TRUE)
+  0.50  |> grim_explain(n = 101, digits_x = 2, items_averaged = 1, rounding = "down") |> format() |> expect_match("50 / 101 = 0.49505, which rounds to 0.50", fixed = TRUE)
+})
+
 test_that("a value that would look like a whole number or a bound gets just enough places", {
   6.99999999  |> format_number()                            |> expect_identical("6.99999999")
   0.146504464 |> format_number(digits = 3, bounds = 0.1465) |> expect_identical("0.146504")
