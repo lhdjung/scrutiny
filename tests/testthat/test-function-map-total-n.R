@@ -275,6 +275,10 @@ test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop")               |> _$n |> min() |> expect_equal(1L)
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop", n_min = 3)              |> _$n |> min() |> expect_equal(3L)
 
+  # A `NULL` stands for the default with a constant one, too; it went through
+  # to `disperse_total()`, which then dispersed down to a group of 0:
+  tibble::tibble(x1 = 5.2, x2 = 4.25, n = 8) |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_min = NULL) |> _$n |> min() |> expect_equal(1L)
+
   # An enum given as its whole default set is its first value here, too:
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |> unclass_scr())
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")

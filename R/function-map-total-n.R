@@ -385,15 +385,17 @@ function_map_total_n <- function(
       setting_vals <- resolve_enums(setting_vals, `!!`(enum_defaults))
 
       # The default `n_min` may depend on the settings; see `n_min_fn` above.
-      # It is also the default that the recorded `n_min` is compared to:
+      # It is also the default that the recorded `n_min` is compared to. A
+      # `NULL` stands for it either way, so that `disperse_total()` never sees
+      # one:
       defaults_total_n <- `!!`(defaults_total_n)
       n_min_fn <- `!!`(n_min_fn)
       if (!is.null(n_min_fn)) {
         args_resolved <- utils::modifyList(`!!`(defaults_setting), setting_vals)
         defaults_total_n$n_min <- n_min_fn(args_resolved)
-        if (is.null(n_min)) {
-          n_min <- defaults_total_n$n_min
-        }
+      }
+      if (is.null(n_min)) {
+        n_min <- defaults_total_n$n_min
       }
 
       # One value applies to both groups and every row. A vector would be
