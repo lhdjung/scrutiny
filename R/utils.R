@@ -390,21 +390,25 @@ check_newly_numeric <- function(
 
   # The 15 significant digits include the integer digits of `x`, so a value of
   # 1 or more allows fewer decimal places:
-  if (
-    is.numeric(x) &&
-      is.finite(x) &&
-      abs(x) >= 1 &&
-      digits + floor(log10(abs(x))) >= 15
-  ) {
-    name <- deparse(substitute(digits))
-    name_x <- deparse(substitute(x))
-    abort_in_export(
-      "`{name_x}` has more than 15 significant digits.",
-      "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
-      has {digits + floor(log10(abs(x))) + 1}.",
-      "i" = "A double holds 15 significant digits, so the tests are not exact \\
-      beyond that."
-    )
+  if (is.numeric(x) && is.finite(x) && abs(x) >= 1) {
+    # `log10()` rounds up to the next whole number just below a power of 10,
+    # as for 999999999999999, so the exponent is corrected as in
+    # `next_square_root()`:
+    exponent <- floor(log10(abs(x)))
+    if (10^exponent > abs(x)) {
+      exponent <- exponent - 1
+    }
+    if (digits + exponent >= 15) {
+      name <- deparse(substitute(digits))
+      name_x <- deparse(substitute(x))
+      abort_in_export(
+        "`{name_x}` has more than 15 significant digits.",
+        "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
+        has {digits + exponent + 1}.",
+        "i" = "A double holds 15 significant digits, so the tests are not exact \\
+        beyond that."
+      )
+    }
   }
 
   # Can `x` be written with `digits` decimal places? `round()` answers that some

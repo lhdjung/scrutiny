@@ -251,6 +251,10 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
   123456789012345   |> check_newly_numeric(0)  |> expect_silent()
   1234567890123456  |> check_newly_numeric(0)  |> expect_error("significant digits")
   123456789012345.5 |> check_newly_numeric(1)  |> expect_error("significant digits")
+  # `log10()` rounds up just below a power of 10; these have 15:
+  999999999999999   |> check_newly_numeric(0)  |> expect_silent()
+  99999.9999999999  |> check_newly_numeric(10) |> expect_silent()
+  1e15              |> check_newly_numeric(0)  |> expect_error("significant digits")
 })
 
 
