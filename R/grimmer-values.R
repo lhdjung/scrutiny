@@ -89,7 +89,7 @@ grimmer_values_scalar <- function(
   # caps the sums. At `x = 50`, `sd = 20`, `n = 5000`, both with no decimals,
   # there are 5e8.
   n_pairs <- 0
-  value_set <- list(x = x, sd = sd, n = n)
+  value_set <- list(x = x, sd = sd, n = n, items_averaged = items_averaged)
 
   for (i in seq_along(candidate_sums)) {
     s <- candidate_sums[i]

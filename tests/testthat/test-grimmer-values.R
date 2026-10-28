@@ -216,7 +216,7 @@ test_that("the limit admits exactly `VALUES_MAX` rows", {
   5.19 |> grim_values(300, digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 3) |> nrow() |> expect_equal(3L)
   5.19 |> grim_values(300, digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("more than 2 means")
   # In a vectorized call, the message says which value set it is:
-  c(5.19, 5.19) |> grim_values(c(30, 300), digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("`x = 5.19`, `n = 300`")
+  c(5.19, 5.19) |> grim_values(c(30, 300), digits_x = 2, items_averaged = 1) |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("`x = 5.19`, `n = 300`, `items_averaged = 1`")
 })
 
 
