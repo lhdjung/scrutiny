@@ -122,9 +122,10 @@ is_seq_basic <- function(
 
   # Steps are compared with their signs, so a zigzag like `c(1, 2, 1)` is not
   # linear:
-  if (test_linear) {
-    # An infinity makes a step `Inf - Inf`, which is `NaN` and equal to no
-    # other step, hence `isTRUE()`, here and in the other tests:
+  # Any two values are linear, even with an infinity among them. Among more,
+  # an infinity makes a step `Inf - Inf`, which is `NaN` and equal to no other
+  # step, hence `isTRUE()`, here and in the other tests:
+  if (test_linear && length(x) > 2L) {
     steps <- diff(x)
     if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
       return(FALSE)

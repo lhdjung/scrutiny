@@ -241,6 +241,9 @@ test_that("an infinity only rules out what it has to", {
   c(1, 2, Inf) |> is_seq_ascending(test_linear = FALSE)  |> expect_true()
   c(Inf, 2, 1) |> is_seq_descending(test_linear = FALSE) |> expect_true()
   Inf          |> is_seq_linear()                        |> expect_true()
+  c(1, Inf)    |> is_seq_linear()                        |> expect_true()
+  c(1, Inf)    |> is_seq_ascending()                     |> expect_true()
+  c(Inf, 1)    |> is_seq_ascending()                     |> expect_false()
 })
 
 
