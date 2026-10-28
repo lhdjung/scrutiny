@@ -388,6 +388,25 @@ check_newly_numeric <- function(
     error_digits_flawed(digits, name)
   }
 
+  # The 15 significant digits include the integer digits of `x`, so a value of
+  # 1 or more allows fewer decimal places:
+  if (
+    is.numeric(x) &&
+      is.finite(x) &&
+      abs(x) >= 1 &&
+      digits + floor(log10(abs(x))) >= 15
+  ) {
+    name <- deparse(substitute(digits))
+    name_x <- deparse(substitute(x))
+    abort_in_export(
+      "`{name_x}` has more than 15 significant digits.",
+      "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
+      has {digits + floor(log10(abs(x))) + 1}.",
+      "i" = "A double holds 15 significant digits, so the tests are not exact \\
+      beyond that."
+    )
+  }
+
   # Can `x` be written with `digits` decimal places? `round()` answers that some
   # 200 times faster than `decimal_places_scalar()` (#92), but only one way:
   # `0.1 + 0.2` prints as `"0.3"` without being that double, so whatever it

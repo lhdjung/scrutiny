@@ -244,6 +244,13 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
 
   # A negative `digits` is not a way to demand whole hundreds:
   500 |> check_newly_numeric(-2) |> expect_error()
+
+  # The 15 significant digits include the integer digits:
+  33.33333333333333 |> check_newly_numeric(14) |> expect_error("significant digits")
+  33.33333333333333 |> check_newly_numeric(13) |> expect_silent()
+  123456789012345   |> check_newly_numeric(0)  |> expect_silent()
+  1234567890123456  |> check_newly_numeric(0)  |> expect_error("significant digits")
+  123456789012345.5 |> check_newly_numeric(1)  |> expect_error("significant digits")
 })
 
 
@@ -252,7 +259,7 @@ test_that("`check_newly_numeric()` agrees with counting decimal places", {
 
   x <- c(
     0, 1, -1, 5.19, -5.19, 0.1 + 0.2, 0.1 + 0.7, 2.675, 1e-20, 1e-16, 1 / 3,
-    pi, 123456789012345.5, 1e6 + 0.5, 1e-4, 1e-5, 1e5, 8.7,
+    pi, 1234567890.5, 1e6 + 0.5, 1e-4, 1e-5, 1e5, 8.7,
     runif(30, -1e5, 1e5) |> round(3),
     runif(30, -1, 1) |> round(7),
     runif(15, -10, 10)
