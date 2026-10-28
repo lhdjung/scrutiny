@@ -402,7 +402,14 @@ function_map_total_n <- function(
       # a result column, or like a group's reported values, would be
       # overwritten -- or would overwrite them:
       names_taken <- intersect(
-        c(reported, "n_change", "both_consistent", "case", "dir"),
+        c(
+          reported,
+          "n_change",
+          "both_consistent",
+          "case",
+          "dir",
+          if (!is.null(constant)) "constant"
+        ),
         colnames(data)
       )
       if (length(names_taken) > 0L) {
@@ -523,12 +530,10 @@ function_map_total_n <- function(
       data_back <- data_back |>
         dplyr::relocate(all_of(cols_forth_order))
 
-      cols_expected_forth <- data_forth |>
-        dplyr::select(all_of(cols_expected_forth))
-
-      cols_expected_back <- data_back |>
-        dplyr::select(all_of(cols_expected_back)) |>
-        dplyr::relocate(all_of(cols_forth_order))
+      # `[`, not `dplyr::select()`, which adds the grouping columns of a
+      # grouped `data` back in, so that the pairs would no longer line up:
+      cols_expected_forth <- data_forth[cols_expected_forth]
+      cols_expected_back <- data_back[cols_expected_back][cols_forth_order]
 
       map_total_n_proto <- function_map_total_n_proto(
         fn = fn,

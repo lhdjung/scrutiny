@@ -246,6 +246,19 @@ test_that("total-n mappers take a single helper value, carry other columns, and 
   df |> dplyr::mutate(x = 5.21) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("`x` would be overwritten")
   df |> dplyr::mutate(sd1 = 1, sd2 = 1, sd = 9) |> grimmer_map_total_n(digits_x = 2, digits_sd = 0, items_averaged = 1) |> expect_error("`sd` would be overwritten")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_max = 30) |> expect_warning("no pair of group sizes")
+  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = c("a", "b")) |> expect_error("`constant` would be overwritten")
+  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_no_error()
+})
+
+
+# `dplyr::select()` added the grouping columns back in, so the group pairs no
+# longer lined up and the proto function failed:
+test_that("a grouped `data` is tested like an ungrouped one", {
+  df <- tibble::tibble(x1 = c(5.19, 3.3), x2 = c(4.5, 2.2), n = c(40, 21), items_averaged = 1, g = c("a", "b"))
+  plain   <- df |> grim_map_total_n(digits_x = c(2, 1))
+  grouped <- df |> dplyr::group_by(g) |> grim_map_total_n(digits_x = c(2, 1))
+  grouped |> dplyr::ungroup() |> unclass_scr() |> expect_equal(unclass_scr(plain))
+  grouped |> is_map_total_n_df() |> expect_true()
 })
 
 
