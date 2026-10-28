@@ -147,6 +147,13 @@ is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
 
 This follows R's own rules for missing values: `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`. The result is the same for every value that the `NA` could represent [@wickham2019, ch. 3.2.3].
 
+Likewise, the result is `TRUE` if every value substituted for the `NA`s would make `x` the kind of sequence in question. Any two values are linear:
+
+```{r}
+is_seq_linear(x = c(1, NA))
+is_seq_linear(x = c(NA, NA))
+```
+
 Leading and trailing `NA`s are mostly ignored when determining whether `x` *might* be the kind of sequence in question:
 
 ```{r}

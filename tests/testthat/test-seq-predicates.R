@@ -186,18 +186,25 @@ test_that("strings and factors are tested by their numeric values", {
 
 test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
   c(NA, NA, NA)                     |> is_seq_linear()     |> expect_na()
-  c(NA_character_, NA_character_)   |> is_seq_linear()     |> expect_na()
+  rep(NA_character_, 3L)            |> is_seq_linear()     |> expect_na()
   c(NA, NA, NA)                     |> is_seq_ascending()  |> expect_na()
   c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
 })
 
-# These were `NA` although no values could make a single one ascending:
-test_that("a vector of `NA`s that is too short for the sequence returns `FALSE`", {
-  NA         |> is_seq_linear()              |> expect_na()
+# `NA` is only for a question that the missing values could decide either way.
+# These were `NA` although no values could make a single one ascending, or one
+# or two of them not linear:
+test_that("`NA`s that cannot change the answer do not make it `NA`", {
+  NA         |> is_seq_linear()              |> expect_true()
+  c(NA, NA)  |> is_seq_linear()              |> expect_true()
+  c(NA, 5)   |> is_seq_linear()              |> expect_true()
+  c("5", NA) |> is_seq_linear()              |> expect_true()
+  c(NA, "a") |> is_seq_linear()              |> expect_false()
   NA         |> is_seq_ascending()           |> expect_false()
   NA         |> is_seq_descending()          |> expect_false()
   NA         |> is_seq_dispersed(from = 5)   |> expect_false()
   c(NA, NA)  |> is_seq_ascending()           |> expect_na()
+  c(NA, NA)  |> is_seq_descending()          |> expect_na()
 })
 
 

@@ -45,11 +45,12 @@ is_seq_basic <- function(
     return(FALSE)
   }
 
-  # A vector of all `NA`s leaves the question open, whatever its type.
+  # A vector of all `NA`s leaves the question open, whatever its type -- unless
+  # no values could close it: any one or two values are linear.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
   if (length(x) > 0L && all(is.na(x))) {
-    return(NA)
+    return(if (is.null(test_special) && length(x) <= 2L) TRUE else NA)
   }
 
   if (isFALSE(is_numeric_like(x))) {
@@ -70,6 +71,11 @@ is_seq_basic <- function(
   }
 
   if (anyNA(x)) {
+    # Whatever the missing value, two values are linear:
+    if (is.null(test_special) && length(x) == 2L) {
+      return(TRUE)
+    }
+
     x_orig <- x
 
     not_na <- which(!is.na(x))
@@ -165,11 +171,11 @@ is_seq_basic <- function(
 #'   `1.5e-8`, as in [`dplyr::near()`].
 #'
 #' @return Logical (length 1). If `x` contains `NA`:
-#'   - `NA` if all elements are `NA`, unless `x` is too short for the kind of
-#'   sequence in question: two values for `is_seq_ascending()` and
-#'   `is_seq_descending()`, three for `is_seq_dispersed()`.
-#'   - Otherwise, `NA` if some values substituted for the `NA`s would make `x`
-#'   the kind of sequence in question, and `FALSE` if none would.
+#'   - `NA` if some values substituted for the `NA`s would make `x` the kind of
+#'   sequence in question and others would not; `FALSE` if none would, e.g.,
+#'   because `x` is too short for it (two values for `is_seq_ascending()` and
+#'   `is_seq_descending()`, three for `is_seq_dispersed()`); and `TRUE` if all
+#'   would, as any one or two values are linear.
 #'
 #'   A missing `from` is handled the same way.
 #'
