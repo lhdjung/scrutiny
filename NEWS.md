@@ -136,7 +136,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `*_map_total_n()` functions return the other columns of `data`, and warn about a total that leaves no pair of group sizes within `n_min` and `n_max` instead of dropping it silently. A helper argument such as `items_averaged` must be a single value there; a vector was paired with the wrong groups in the `"back"` direction. The `constant` values stay with their groups in the `"back"` direction, too. Input columns named like the result columns (`n_change`, `both_consistent`, `case`, `dir`, and `constant` if given) or the reported values (`x`, `sd`) are an error instead of being overwritten. Grouped input is tested like ungrouped input.
 
-- `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, and `grimmer_map_total_n()` and `debit_map_total_n()` default to `n_min = 2`, since a group of 1 has no sample SD.
+- `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, and `grimmer_map_total_n()` and `debit_map_total_n()` default to `n_min = 2`, since a group of 1 has no sample SD. Under `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`, where it has one, both tiers go down to 1.
 
 ### Decimal places
 

@@ -207,7 +207,10 @@ function_map_total_n_proto <- function(
 #' @param .name_class String. Optionally, a class to add to the output. Default
 #'   is `NULL`.
 #' @param .dispersion,.n_min,.n_max,.constant Passed on to
-#'   [`disperse_total()`], with the defaults from there.
+#'   [`disperse_total()`], with the defaults from there. `.n_min` may also be
+#'   a function of the settings of `.fn`, as a named list, that returns the
+#'   default `n_min` for a call; the manufactured function's `n_min` then
+#'   defaults to `NULL`, which stands for that value.
 #' @param ... These dots must be empty.
 #'
 #' @details To export a factory-made function from another package, follow the
@@ -322,11 +325,21 @@ function_map_total_n <- function(
   )
   args_setting_fn <- names(setting_formals)
 
+  # `.n_min` may be a function of the settings of `.fn`, resolved at call
+  # time, like the seq tier's `.var_bounds`: GRIMMER and DEBIT can test a
+  # group of 1 under `sd_meaning = "sd_pop"` but not under `"sd_sample"`. The
+  # formal `n_min` then defaults to `NULL`, which the body replaces:
+  n_min_fn <- if (is.function(.n_min)) .n_min else NULL
+  n_min_default <- if (is.function(.n_min)) NULL else .n_min
+
+  # The settings of `.fn` with their defaults, for `n_min_fn()`:
+  defaults_setting <- eval_defaults(setting_formals, environment(.fn))
+
   # The total-n mapper's own settings are recorded next to those of `.fn` and
   # compared to these defaults:
   defaults_total_n <- list(
     dispersion = .dispersion,
-    n_min = .n_min,
+    n_min = n_min_default,
     n_max = .n_max,
     constant = .constant
   )
@@ -342,7 +355,7 @@ function_map_total_n <- function(
       !!!helper_formals,
       !!!setting_formals,
       dispersion = .dispersion,
-      n_min = .n_min,
+      n_min = n_min_default,
       n_max = .n_max,
       constant = .constant
     ),
@@ -363,6 +376,18 @@ function_map_total_n <- function(
       for (arg_setting in `!!`(args_setting_fn)) {
         if (!eval(call("missing", as.name(arg_setting)))) {
           setting_vals[arg_setting] <- list(get(arg_setting))
+        }
+      }
+
+      # The default `n_min` may depend on the settings; see `n_min_fn` above.
+      # It is also the default that the recorded `n_min` is compared to:
+      defaults_total_n <- `!!`(defaults_total_n)
+      n_min_fn <- `!!`(n_min_fn)
+      if (!is.null(n_min_fn)) {
+        args_resolved <- utils::modifyList(`!!`(defaults_setting), setting_vals)
+        defaults_total_n$n_min <- n_min_fn(args_resolved)
+        if (is.null(n_min)) {
+          n_min <- defaults_total_n$n_min
         }
       }
 
@@ -615,7 +640,7 @@ function_map_total_n <- function(
             n_max = n_max,
             constant = constant
           ),
-          `!!`(defaults_total_n),
+          defaults_total_n,
           `!!`(name_mapper(.name_test, "_map_total_n"))
         )
       )

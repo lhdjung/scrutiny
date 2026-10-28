@@ -20,7 +20,7 @@ grimmer_map_total_n(
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   dispersion = 0:5,
-  n_min = 2L,
+  n_min = NULL,
   n_max = NULL,
   constant = NULL
 )
@@ -54,9 +54,10 @@ There is no default.}
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is 2: a sample SD divides by
-\code{n - 1}, so a group of 1 has no test result. A population SD has one, so
-\code{n_min = 1} is useful with \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}.}
+\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}, which stands
+for 2 under \code{sd_meaning = "sd_sample"} or \code{"se"}, since a sample SD
+divides by \code{n - 1}, so a group of 1 has no test result; and for 1 under
+\code{"sd_pop"} or \code{"sd_sample_or_pop"}, where it does.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

@@ -262,12 +262,24 @@ test_that("a grouped `data` is tested like an ungrouped one", {
 })
 
 
-test_that("GRIMMER and DEBIT total-n mappers never test a group of 1", {
-  # Such rows had no test result, and `audit_total_n()` counted them:
-  out_grimmer <- tibble::tibble(x1 = 5.2, x2 = 4.25, sd1 = 1.3, sd2 = 1.4, n = 8) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1)
-  out_debit   <- tibble::tibble(x1 = 0.5, x2 = 0.25, sd1 = 0.58, sd2 = 0.5, n = 8) |> debit_map_total_n(digits_x = 2, digits_sd = 2)
-  out_grimmer$n |> min() |> expect_equal(2L)
-  out_debit$n   |> min() |> expect_equal(2L)
+test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has an SD", {
+  # Such rows had no test result under a sample SD, and `audit_total_n()`
+  # counted them. Under a population SD they have one, so `n_min` follows
+  # `sd_meaning`, as `out_min` does in the seq tier:
+  df_grimmer <- tibble::tibble(x1 = 5.2, x2 = 4.25, sd1 = 1.3, sd2 = 1.4, n = 8)
+  df_debit   <- tibble::tibble(x1 = 0.5, x2 = 0.25, sd1 = 0.58, sd2 = 0.5, n = 8)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1)                          |> _$n |> min() |> expect_equal(2L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2)                                                |> _$n |> min() |> expect_equal(2L)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "se")       |> _$n |> min() |> expect_equal(2L)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop")   |> _$n |> min() |> expect_equal(1L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop")               |> _$n |> min() |> expect_equal(1L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop", n_min = 3)              |> _$n |> min() |> expect_equal(3L)
+
+  # The resolved value is recorded, and it counts as the default:
+  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> scrutiny_meta()
+  meta[meta$setting == "n_min", c("value", "default")] |> expect_equal(tibble::tibble(value = "1", default = TRUE))
+  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, n_min = 1) |> scrutiny_meta()
+  meta[meta$setting == "n_min", c("value", "default")] |> expect_equal(tibble::tibble(value = "1", default = FALSE))
 })
 
 

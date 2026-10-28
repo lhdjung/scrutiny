@@ -19,9 +19,10 @@
 #'   set of rows separately.
 #' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
-#' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
-#'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
-#'   `n_min = 1` is useful with `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`.
+#' @param n_min Numeric. Minimal group size. Default is `NULL`, which stands
+#'   for 2 under `sd_meaning = "sd_sample"` or `"se"`, since a sample SD
+#'   divides by `n - 1`, so a group of 1 has no test result; and for 1 under
+#'   `"sd_pop"` or `"sd_sample_or_pop"`, where it does.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams debit_map
@@ -79,5 +80,5 @@ debit_map_total_n <- function_map_total_n(
   .fn = debit_map,
   .reported = c("x", "sd"),
   .name_test = "DEBIT",
-  .n_min = 2L
+  .n_min = function(args) sd_min_n(args$sd_meaning)
 )

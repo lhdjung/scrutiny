@@ -38,7 +38,10 @@ was created with.}
 is \code{NULL}.}
 
 \item{.dispersion, .n_min, .n_max, .constant}{Passed on to
-\code{\link[=disperse_total]{disperse_total()}}, with the defaults from there.}
+\code{\link[=disperse_total]{disperse_total()}}, with the defaults from there. \code{.n_min} may also be
+a function of the settings of \code{.fn}, as a named list, that returns the
+default \code{n_min} for a call; the manufactured function's \code{n_min} then
+defaults to \code{NULL}, which stands for that value.}
 
 \item{...}{These dots must be empty.}
 }

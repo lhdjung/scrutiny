@@ -22,9 +22,10 @@
 #' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
 #'   averaged into each score, given as an argument or as a column of `data`.
 #'   There is no default.
-#' @param n_min Numeric. Minimal group size. Default is 2: a sample SD divides by
-#'   `n - 1`, so a group of 1 has no test result. A population SD has one, so
-#'   `n_min = 1` is useful with `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`.
+#' @param n_min Numeric. Minimal group size. Default is `NULL`, which stands
+#'   for 2 under `sd_meaning = "sd_sample"` or `"se"`, since a sample SD
+#'   divides by `n - 1`, so a group of 1 has no test result; and for 1 under
+#'   `"sd_pop"` or `"sd_sample_or_pop"`, where it does.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams grimmer_map
@@ -94,5 +95,5 @@ grimmer_map_total_n <- function_map_total_n(
   .fn = grimmer_map,
   .reported = c("x", "sd"),
   .name_test = "GRIMMER",
-  .n_min = 2L
+  .n_min = function(args) sd_min_n(args$sd_meaning)
 )
