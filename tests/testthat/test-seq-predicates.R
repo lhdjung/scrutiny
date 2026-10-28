@@ -191,6 +191,15 @@ test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
   c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
 })
 
+# These were `NA` although no values could make a single one ascending:
+test_that("a vector of `NA`s that is too short for the sequence returns `FALSE`", {
+  NA         |> is_seq_linear()              |> expect_na()
+  NA         |> is_seq_ascending()           |> expect_false()
+  NA         |> is_seq_descending()          |> expect_false()
+  NA         |> is_seq_dispersed(from = 5)   |> expect_false()
+  c(NA, NA)  |> is_seq_ascending()           |> expect_na()
+})
+
 
 test_that("the signs of the steps count, and known values can disprove", {
   # Absolute steps made zigzags linear:

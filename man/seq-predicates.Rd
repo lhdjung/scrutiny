@@ -37,7 +37,9 @@ The value \code{x} should be centered on.}
 \value{
 Logical (length 1). If \code{x} contains \code{NA}:
 \itemize{
-\item \code{NA} if all elements are \code{NA}.
+\item \code{NA} if all elements are \code{NA}, unless \code{x} is too short for the kind of
+sequence in question: two values for \code{is_seq_ascending()} and
+\code{is_seq_descending()}, three for \code{is_seq_dispersed()}.
 \item Otherwise, \code{NA} if some values substituted for the \code{NA}s would make \code{x}
 the kind of sequence in question, and \code{FALSE} if none would.
 }

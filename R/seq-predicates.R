@@ -40,6 +40,11 @@ is_seq_basic <- function(
     from <- as.numeric(from)
   }
 
+  # Too short for the sequence in question, whatever the values:
+  if (!is.null(min_length) && length(x) < min_length) {
+    return(FALSE)
+  }
+
   # A vector of all `NA`s leaves the question open, whatever its type.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
@@ -58,10 +63,6 @@ is_seq_basic <- function(
       x <- as.character(x)
     }
     x <- as.numeric(x)
-  }
-
-  if (!is.null(min_length) && length(x) < min_length) {
-    return(FALSE)
   }
 
   if (length(x) == 1L) {
@@ -164,7 +165,9 @@ is_seq_basic <- function(
 #'   `1.5e-8`, as in [`dplyr::near()`].
 #'
 #' @return Logical (length 1). If `x` contains `NA`:
-#'   - `NA` if all elements are `NA`.
+#'   - `NA` if all elements are `NA`, unless `x` is too short for the kind of
+#'   sequence in question: two values for `is_seq_ascending()` and
+#'   `is_seq_descending()`, three for `is_seq_dispersed()`.
 #'   - Otherwise, `NA` if some values substituted for the `NA`s would make `x`
 #'   the kind of sequence in question, and `FALSE` if none would.
 #'
