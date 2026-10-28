@@ -363,7 +363,9 @@ function_map_seq <- function(
 
       # Test the reported values. What `fn()` records about the call, such as
       # `rounding`, applies to the re-tests below as well, so it is passed on to
-      # the output:
+      # the output. The input's column names tell the result columns apart
+      # from the rest of `data` below:
+      cols_input <- colnames(data)
       data <- do.call(
         fn,
         c(list(data), digits_vals, helper_vals, setting_vals, list(...))
@@ -483,10 +485,16 @@ function_map_seq <- function(
           }
         ))
         # Still with the usual columns, classes, and attribute, so that
-        # `audit_seq()` etc. accept it. Columns of `data` named like the result
-        # columns are dropped, as the re-tests drop all columns that play no
-        # role in the test:
-        out <- data[0L, !colnames(data) %in% c("diff_var", "case", "var")] |>
+        # `audit_seq()` etc. accept it. The same columns as the re-tests
+        # return: the input to the test, i.e. everything left of the key
+        # result column, and the columns `fn()` added. Other columns of `data`
+        # play no role in the test and are dropped, as the re-tests drop them:
+        cols_data <- colnames(data)
+        is_tested <- seq_along(cols_data) <= match(name_key_result, cols_data)
+        is_result <- !cols_data %in% cols_input
+        is_kept <- (is_tested | is_result) &
+          !cols_data %in% c("diff_var", "case", "var")
+        out <- data[0L, is_kept] |>
           tibble::add_column(diff_var = integer(0L), case = integer(0L)) |>
           list()
         var <- character(0L)

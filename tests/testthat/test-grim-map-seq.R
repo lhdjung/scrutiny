@@ -1610,6 +1610,13 @@ test_that("output without inconsistent cases keeps its shape and class", {
   empty |> nrow()     |> expect_equal(0L)
   empty |> colnames() |> expect_equal(colnames(full))
   empty |> class()    |> expect_equal(class(full))
+
+  # Columns of `data` that play no role in the test are dropped either way,
+  # while the columns `fn()` adds are kept:
+  empty_extra <- pigs1[c(1, 1), ] |> dplyr::mutate(extra = "e") |> grim_map_seq(digits_x = 2, items_averaged = 1, show_rec = TRUE) |> suppressWarnings()
+  full_extra  <- pigs1            |> dplyr::mutate(extra = "e") |> grim_map_seq(digits_x = 2, items_averaged = 1, show_rec = TRUE)
+  empty_extra |> colnames() |> expect_equal(colnames(full_extra))
+  full_extra  |> colnames() |> expect_no_match("extra")
   empty |> audit_seq()       |> colnames() |> expect_equal(colnames(audit_seq(full)))
   empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n", "items_averaged"))
   # The dispersed variables are recorded, so the columns follow `var`:
