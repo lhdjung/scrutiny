@@ -193,6 +193,28 @@ is_enum_default <- function(default) {
 }
 
 
+# The whole sets behind the enum defaults among `formals`, as a named list:
+eval_enum_defaults <- function(formals, env) {
+  is_enum <- vapply(formals, is_enum_default, logical(1L), USE.NAMES = FALSE)
+  lapply(formals[is_enum], eval, env)
+}
+
+
+# Resolve the enums among `vals` that were given as their whole default set,
+# as a wrapper forwarding its own default does, to the first string, as
+# `rlang::arg_match()` would. Everything downstream -- the length check, the
+# `*_scalar()` function, the "scrutiny" attribute -- then sees one string.
+# `defaults` is from `eval_enum_defaults()`:
+resolve_enums <- function(vals, defaults) {
+  for (name in intersect(names(vals), names(defaults))) {
+    if (identical(vals[[name]], defaults[[name]])) {
+      vals[[name]] <- vals[[name]][[1L]]
+    }
+  }
+  vals
+}
+
+
 #' Check that no dots argument is misspelled
 #'
 #' `check_factory_dots()` is called within mappers made by [`function_map()`],

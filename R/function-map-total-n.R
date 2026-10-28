@@ -332,8 +332,10 @@ function_map_total_n <- function(
   n_min_fn <- if (is.function(.n_min)) .n_min else NULL
   n_min_default <- if (is.function(.n_min)) NULL else .n_min
 
-  # The settings of `.fn` with their defaults, for `n_min_fn()`:
+  # The settings of `.fn` with their defaults, for `n_min_fn()`, and the
+  # whole sets of its enums, to resolve one given as such:
   defaults_setting <- eval_defaults(setting_formals, environment(.fn))
+  enum_defaults <- eval_enum_defaults(setting_formals, environment(.fn))
 
   # The total-n mapper's own settings are recorded next to those of `.fn` and
   # compared to these defaults:
@@ -378,6 +380,9 @@ function_map_total_n <- function(
           setting_vals[arg_setting] <- list(get(arg_setting))
         }
       }
+      # An enum given as its whole set is one string from here on, as in
+      # `fn()`, so that `n_min_fn()` below sees what `fn()` would record:
+      setting_vals <- resolve_enums(setting_vals, `!!`(enum_defaults))
 
       # The default `n_min` may depend on the settings; see `n_min_fn` above.
       # It is also the default that the recorded `n_min` is compared to:

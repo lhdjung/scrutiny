@@ -57,6 +57,13 @@ map_value_sets <- function(fn, along, type = "logical") {
   names_along <- along[along %in% args_supplied]
   names_scalar <- args_supplied[!args_supplied %in% along]
 
+  # An enum such as `sd_meaning` given as its whole default set is one string,
+  # as in the mappers, before the length check below would reject it:
+  vals <- resolve_enums(
+    vals,
+    eval_enum_defaults(formals_wrapper[names_scalar], frame)
+  )
+
   # Arguments that say *how* to test rather than *what* describe the call as a
   # whole: one call cannot use two rounding methods, and `x` is either a
   # percentage or it isn't.

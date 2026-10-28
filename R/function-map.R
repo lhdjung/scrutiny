@@ -309,7 +309,7 @@ function_map <- function(
 
   # The whole sets, for the manufactured function to recognize one given as
   # such (`eval_defaults()` below resolves them to their first string):
-  enum_defaults <- lapply(formals_promoted[args_enum], eval, environment(.fn))
+  enum_defaults <- eval_enum_defaults(formals_promoted[args_enum], environment(.fn))
 
   # For the `default` column of the "scrutiny" attribute:
   defaults_const <- eval_defaults(
@@ -463,12 +463,13 @@ function_map <- function(
       # attribute records one string:
       enum_defaults <- `!!`(enum_defaults)
       for (arg in args_enum) {
-        if (
-          eval(call("missing", as.name(arg))) ||
-            identical(get(arg), enum_defaults[[arg]])
-        ) {
-          assign(arg, get(arg)[[1L]])
+        if (eval(call("missing", as.name(arg)))) {
+          assign(arg, enum_defaults[[arg]][[1L]])
         }
+      }
+      enum_vals <- resolve_enums(mget(args_enum), enum_defaults)
+      for (arg in args_enum) {
+        assign(arg, enum_vals[[arg]])
       }
 
       `!!!`(code_check_lengths)

@@ -141,7 +141,8 @@ test_that("arguments that describe the test as a whole must be length 1", {
       rounding = c("up", "down"),
       threshold = c(5, 6),
       symmetric = c(TRUE, FALSE),
-      formula = c("exact", "mean_n")
+      # Not the whole default set in its own order; see below:
+      formula = c("mean_n", "exact")
     )
   )
 
@@ -153,6 +154,12 @@ test_that("arguments that describe the test as a whole must be length 1", {
       do.call(fn, args) |> expect_error("must be length 1")
     }
   }
+
+  # Except an enum given as its whole default set, e.g. by a wrapper that
+  # forwards its own default, which is its first value, as in the mappers:
+  5.21 |> grimmer(1.21, 28, 2, 2, 1, sd_meaning = SD_MEANINGS) |> expect_equal(grimmer(5.21, 1.21, 28, 2, 2, 1))
+  0.30 |> debit(0.46, 10, 2, 2, formula = DEBIT_FORMULAS)     |> expect_equal(debit(0.30, 0.46, 10, 2, 2))
+  5.21 |> grimmer(1.21, 28, 2, 2, 1, sd_meaning = SD_MEANINGS[2:3]) |> expect_error("must be length 1")
 
   # The error says which arguments *are* vectorized, and points at the mapper:
   5.19 |>
