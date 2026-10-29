@@ -44,17 +44,17 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, `grim_values()`, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
 
-- In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full: `items = 2` is now an error rather than a partial match. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, digits_x = c(2, 1), n = "total", items_averaged = 1)`.
+- In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, digits_x = c(2, 1), n = "total", items_averaged = 1)`.
 
 - scrutiny uses the base pipe `|>`, no longer exports `%>%`, and requires R >= 4.1.0.
 
-- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `debit_map(formula)`. A `digits_*` column of `data` that disagrees with the argument is an error, as are two key arguments that name the same column. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` no longer prints a message.
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `debit_map(formula)`. A `digits_*` column of `data` that disagrees with the argument is an error. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(percent = TRUE)` keeps `x` as a percentage instead of converting it to a proportion with a message.
 
 - The sequence and total-n mappers, such as `grim_map_seq()`, have an explicit argument for every setting of their basic mapper, such as `rounding` or `sd_meaning`, with the same default. These used to be passed through the dots, which must now be empty. Existing calls are unaffected.
 
 - `debit_map()`'s `show_rec` defaults to `FALSE`, as in `grim_map()`; `debit_plot()` reconstructs the values itself. `debit_map()` output no longer has a `rounding` column. `grimmer_map()` no longer has `show_reason`: the `reason` column is always returned. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
-- `audit()` on sequence or total-n mapper output calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `grim_binomial()` and `grim_plot_rates()` reject such output for the same reason. `audit_cols_minimal()` lost its `name_test` argument.
+- `audit()` on sequence or total-n mapper output calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_cols_minimal()` lost its `name_test` argument.
 
 - Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column.
 
@@ -116,7 +116,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - Under `rounding = "up"` or `"down"`, GRIMMER's SD check and parity check now apply to the same candidate sum of squares, so `grimmer(x = 0.11, sd = 0.87, digits_x = 2, digits_sd = 2, items_averaged = 1, n = 64, rounding = "up")` is `FALSE`. Thanks to Ian Hussey (#85).
 
-- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. Instead of running indefinitely for a very large `n`, it throws an error if more than a million integer sums are compatible with the reported mean.
+- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. It throws an error if more than a million integer sums are compatible with the reported mean.
 
 - `audit()` no longer counts a case without a test result as inconsistent, and computes `exp_incon`, `ratio`, `mean_x`, and `mean_sd` over the cases with a result instead of returning `NA` if one has none.
 
@@ -128,13 +128,13 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `audit_seq()` reports the verdicts that the sequence mapper recorded instead of re-testing reconstructed data, which could drop `percent`, `threshold`, or `symmetric` and flip the verdict. It works with a `dispersion` of length 1, with output that has no rows, and with cases whose sequence `out_min` or `out_max` emptied. A consistent reported value set included by `include_reported = TRUE` counts once in `hits_total`, not once per dispersed variable.
 
-- `*_map_seq()` functions disperse means and SDs down to zero, and means below it; they used to stop one decimal unit above zero. With `include_consistent = TRUE`, they skip cases without a test result. If there is nothing to disperse, they warn and return a tibble with no rows but the usual columns. `diff_var` is an integer column.
+- `*_map_seq()` functions disperse means and SDs down to zero, and means below it; they used to stop one decimal unit above zero. With `include_consistent = TRUE`, they skip cases without a test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns, not one without columns.
 
 - `seq_disperse()` rounds its values to the decimal level of `by`, so that long sequences don't accumulate floating-point error (#83). It applies `out_min` and `out_max` to `from` as well, and no longer includes `from` twice when `dispersion` contains 0.
 
 - `*_map_total_n()` functions use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total for any `dispersion`. Functions made by `function_map_total_n()` work when created in another package (#69). An even total split into two equal groups is tested once rather than twice, so `audit_total_n()` no longer counts one split too many. `audit_total_n()` leaves undecidable splits out of `scenarios_total`, and its `hit_rate` is `NA` for a case with no decidable split.
 
-- `*_map_total_n()` functions return the other columns of `data`, and warn about a total that leaves no pair of group sizes within `n_min` and `n_max` instead of dropping it silently. A helper argument such as `items_averaged` must be a single value there; a vector was paired with the wrong groups in the `"back"` direction. The `constant` values stay with their groups in the `"back"` direction, too. Input columns named like the result columns (`n_change`, `both_consistent`, `case`, `dir`, and `constant` if given) or the reported values (`x`, `sd`) are an error instead of being overwritten. Grouped input is tested like ungrouped input.
+- `*_map_total_n()` functions return the other columns of `data`, and warn about a total that leaves no pair of group sizes within `n_min` and `n_max` instead of failing. A helper argument such as `items_averaged` must be a single value there; a vector was paired with the wrong groups in the `"back"` direction. The `constant` values stay with their groups in the `"back"` direction, too. Input columns named like the result columns (`n_change`, `both_consistent`, `case`, `dir`, and `constant` if given) or the reported values (`x`, `sd`) are an error instead of being overwritten. Grouped input is tested like ungrouped input.
 
 - `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, and `grimmer_map_total_n()` and `debit_map_total_n()` default to `n_min = 2`, since a group of 1 has no sample SD. Under `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`, where it has one, both tiers go down to 1.
 
@@ -142,7 +142,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `decimal_places()` handles scientific notation, counts numeric values correctly when `sep` is not `"."`, and returns `NA` for `NaN`, infinite values, and the string `"NA"`.
 
-- `restore_zeros()` handles scientific notation, reads a number as `decimal_places()` does (so `1e-300` has 300 decimal places, not 315), no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`. `restore_zeros_df()` no longer warns about a column without decimal places, such as `n`, or a single row.
+- `restore_zeros()` handles scientific notation, no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`. `restore_zeros_df()` no longer warns about a column without decimal places, such as `n`, or a single row.
 
 ### Other
 
@@ -158,7 +158,7 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 
 - `debit_plot()` draws the DEBIT lines for the smallest and largest sample size and shades the band between them; it used to draw a single line from a recycled `n` column. Its x-axis is labeled as the mean, and `data` without rows is an error.
 
-- Mappers can be called via `lapply()` or `purrr::map()`, and a key column name such as `x = "mean"` can be passed in a variable. `.name_key_result` works in all three function factories. `function_map_seq()` works for a mapper with a single reported variable. `is_map_df()` and the related predicates recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
+- A key column name such as `x = "mean"` can be passed in a variable. `.name_key_result` works in all three function factories. `function_map_seq()` works for a mapper with a single reported variable. `is_map_df()` and the related predicates recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
 
 - `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2.
 
