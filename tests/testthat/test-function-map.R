@@ -1004,5 +1004,5 @@ test_that("an enum given as its whole default set is recorded as its first value
   df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
   df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map(digits_x = 2, digits_sd = 1) |> unclass_scr())
   df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map_seq(digits_x = 2, digits_sd = 1) |> unclass_scr())
-  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("must be one of")
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("must be length 1")
 })

@@ -319,7 +319,7 @@ test_that("arguments after the dots can't be abbreviated", {
 test_that("`percent` must be a single `TRUE` or `FALSE`", {
   # These used to fail in `if ()` with base R's message:
   1.4 |> grim(20, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("must be length 1")
 })
 
 test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
