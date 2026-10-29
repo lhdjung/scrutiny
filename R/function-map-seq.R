@@ -85,6 +85,9 @@ function_map_seq_proto <- function(
 #'
 #'   See `vignette("consistency-tests-in-depth")`, section *Sequence mapper*.
 #'
+#'   `function_map_seq()` is a developer tool: it may change in a minor
+#'   release, with a NEWS entry.
+#'
 #' @param .fn A basic mapper function such as [`grim_map()`], typically made
 #'   by [`function_map()`]. It must return its input data frame with a logical
 #'   column named by `.name_key_result` added.

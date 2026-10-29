@@ -92,6 +92,9 @@ it.
 
 See \code{vignette("consistency-tests-in-depth")}, section \emph{Creating basic
 mappers with \code{function_map()}}.
+
+\code{function_map()} is a developer tool: it may change in a minor release,
+with a NEWS entry.
 }
 \details{
 The new function has an argument for every argument of \code{.fn} that

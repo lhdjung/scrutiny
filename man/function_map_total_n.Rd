@@ -69,6 +69,9 @@ hypothetical group sizes that add up to the total, and tests the reported
 statistics against each pair.
 
 See \code{vignette("consistency-tests-in-depth")}, section \emph{Total-n mapper}.
+
+\code{function_map_total_n()} is a developer tool: it may change in a minor
+release, with a NEWS entry.
 }
 \details{
 To export a factory-made function from another package, follow the

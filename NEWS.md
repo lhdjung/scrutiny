@@ -1,14 +1,16 @@
 # scrutiny 1.0.0
 
-scrutiny 1.0.0 is a major release with many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code; the error messages say how.
+scrutiny 1.0.0 is a major release with many new features and bugfixes, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code; the error messages say how.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER no longer flags many consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" for details.
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all basic mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's verdicts on testable value sets are unchanged, GRIMMER no longer flags many consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" below for details.
+
+The tests, their three mapper tiers, and `audit()` are the stable core of this release. Every function newly added in 1.0.0 is experimental, marked by a badge on its help page, and may change in a minor release. The same applies to the developer tools, such as `function_map()`.
 
 ## Breaking changes
 
 ### Numeric inputs
 
-- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)`, and must be whole numbers from 0 to 15. Together with the integer digits of `x` or `sd`, they may not exceed the 15 significant digits that a double holds.
+- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)`, and must be whole numbers from 0 to 15. (See "Function interfaces" below on `items_averaged`.) Together with the integer digits of `x` or `sd`, they may not exceed the 15 significant digits that a double holds.
 
 - Mappers return `digits_x` and `digits_sd` as columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
@@ -105,8 +107,6 @@ The consistency tests now use exact integer arithmetic, several rounding procedu
 - New `rounding` strings `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`, and `"ties_even"`. Each names a complete tie-breaking rule (`"ties_away"` is `"up"` with `symmetric = TRUE`), so combining one of these strings with `symmetric` is an error.
 
 - `function_map()` gains `.args_by_row`, `.args_fixed`, `.cols_helper`, `.cols_derived`, a working `.col_names`, and `.reported_variadic` for tests in which the data determine the number of key columns (#42). `function_map_seq()` gains `.var_bounds`, which sets the dispersion limits per variable, so that a mean can go below zero while `n` stays at least 1.
-
-- All functions new in 1.0.0 are experimental. The developer tools, such as `function_map()`, may change in minor releases.
 
 ## Bug fixes
 

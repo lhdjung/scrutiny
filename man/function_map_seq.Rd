@@ -92,6 +92,9 @@ a few steps up and down and tests each resulting value set, as
 dispersed.
 
 See \code{vignette("consistency-tests-in-depth")}, section \emph{Sequence mapper}.
+
+\code{function_map_seq()} is a developer tool: it may change in a minor
+release, with a NEWS entry.
 }
 \details{
 The arguments of \code{function_map_seq()} set the defaults of the

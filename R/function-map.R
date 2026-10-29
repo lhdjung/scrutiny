@@ -8,6 +8,9 @@
 #'   See `vignette("consistency-tests-in-depth")`, section *Creating basic
 #'   mappers with `function_map()`*.
 #'
+#'   `function_map()` is a developer tool: it may change in a minor release,
+#'   with a NEWS entry.
+#'
 #' @param .fn Single-case function to apply to each row. It must return a
 #'   single logical value or, if `.col_names` is specified, a list of values
 #'   with the key result first.
