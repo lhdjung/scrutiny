@@ -317,6 +317,10 @@ function_map <- function(
     environment(.fn)
   )
 
+  # Settings whose default is a single value must stay one. Another `.fn` may
+  # have a setting such as `bounds = NULL` or `scale = c(1, 7)`:
+  args_single <- names(defaults_const)[lengths(defaults_const) == 1L]
+
   # The by-row arguments, in practice `digits_*`, have no defaults, so they go
   # right after `data`, in the same position in every mapper. This must come
   # after `args_required`, which pairs `formals_promoted` with `args_promoted`
@@ -551,9 +555,9 @@ function_map <- function(
       }
 
       # The other settings describe the call as a whole, too, so each is a
-      # single value. The enums have been resolved above, so one given as its
-      # whole set passes:
-      for (arg in names(args_const_vals)) {
+      # single value if its default is one. The enums have been resolved above,
+      # so one given as its whole set passes:
+      for (arg in intersect(names(args_const_vals), `!!`(args_single))) {
         check_setting_length(
           arg,
           args_const_vals[[arg]],

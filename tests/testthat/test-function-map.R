@@ -787,6 +787,17 @@ test_that("the other settings must be length 1 in every tier", {
 })
 
 
+test_that("a setting whose default is not a single value may stay that way", {
+  # d540b95 required every setting to be length 1, which broke these:
+  df <- tibble::tibble(y = 1, n = 2)
+  bounds_map <- function_map(.fn = function(y, n, bounds = NULL) TRUE, .reported = c("y", "n"), .name_test = "Bounds")
+  scale_map  <- function_map(.fn = function(y, n, scale = c(1, 7)) TRUE, .reported = c("y", "n"), .name_test = "Scale")
+  df |> bounds_map()                   |> _$consistency |> expect_true()
+  df |> scale_map()                    |> _$consistency |> expect_true()
+  df |> scale_map(scale = c(1, 5))     |> _$consistency |> expect_true()
+})
+
+
 test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # Anything wrong with the arguments themselves fails on the first row just as
   # it would on any other, so the mapper applies the test to that row on its
