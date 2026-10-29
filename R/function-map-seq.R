@@ -329,7 +329,12 @@ function_map_seq <- function(
       digits_vals <- list()
       for (arg_digits in `!!`(digits_args_names)) {
         if (!eval(call("missing", as.name(arg_digits)))) {
-          digits_vals[arg_digits] <- list(get(arg_digits))
+          # As integer, since the step between dispersed values is
+          # `10^-digits`:
+          digits_vals[arg_digits] <- arg_digits |>
+            get() |>
+            as_integer_if_lossless() |>
+            list()
         }
       }
 
@@ -512,7 +517,7 @@ function_map_seq <- function(
       # argument has a default and was not given, `fn()`'s output decides
       # whether there is a column.
       for (digits_arg in names(digits_vals)) {
-        out[[digits_arg]] <- as_integer_if_lossless(digits_vals[[digits_arg]])
+        out[[digits_arg]] <- digits_vals[[digits_arg]]
       }
       out <- out |>
         dplyr::relocate(

@@ -309,7 +309,10 @@ function_map <- function(
 
   # The whole sets, for the manufactured function to recognize one given as
   # such (`eval_defaults()` below resolves them to their first string):
-  enum_defaults <- eval_enum_defaults(formals_promoted[args_enum], environment(.fn))
+  enum_defaults <- eval_enum_defaults(
+    formals_promoted[args_enum],
+    environment(.fn)
+  )
 
   # For the `default` column of the "scrutiny" attribute:
   defaults_const <- eval_defaults(
@@ -517,11 +520,10 @@ function_map <- function(
           args_vals[[arg]] <- data[[arg]]
         }
         if (!is.null(args_vals[[arg]])) {
-          cols_tested[[arg]] <- recycle_digits(
-            args_vals[[arg]],
-            nrow(data),
-            arg
-          )
+          # As integer, so that the output column is the value tested:
+          cols_tested[[arg]] <- args_vals[[arg]] |>
+            as_integer_if_lossless() |>
+            recycle_digits(nrow(data), arg)
           # A column of `data` by the same name is replaced by the argument's
           # values (see `other_cols` below), which is only right if the two
           # agree, as they do when a mapper's output is tested again:
@@ -629,11 +631,9 @@ function_map <- function(
         cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
       }
 
-      # The `digits_*` columns are whole numbers, too:
       cols_by_row <- cols_tested[args_by_row[
         args_by_row %in% names(args_vals)
-      ]] |>
-        lapply(as_integer_if_lossless)
+      ]]
 
       cols_result <- write_result_cols(results, col_names)
 

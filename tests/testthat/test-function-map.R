@@ -798,6 +798,17 @@ test_that("a setting whose default is not a single value may stay that way", {
 })
 
 
+test_that("integer `n` and `digits_*` columns are rounded, not truncated", {
+  # `100 * 0.29` is 28.999999999999996, which was shown as 28 next to the
+  # verdict for 29:
+  tibble::tibble(x = 5.31, n = 100 * 0.29) |> grim_map(digits_x = 2, items_averaged = 1) |> _$n |> expect_identical(29L)
+  # A `digits_x` just below 2 was shown as 1, and the seq mapper's re-tests
+  # then found the column and the argument at odds:
+  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2 - 1e-9, items_averaged = 1)     |> _$digits_x |> expect_identical(2L)
+  tibble::tibble(x = 5.19, n = 40) |> grim_map_seq(digits_x = 2 - 1e-9, items_averaged = 1) |> _$digits_x |> unique() |> expect_identical(2L)
+})
+
+
 test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # Anything wrong with the arguments themselves fails on the first row just as
   # it would on any other, so the mapper applies the test to that row on its

@@ -209,7 +209,13 @@ check_values_size <- function(size, what, values) {
     with {.arg digits_x}."
   }
   limit <- format(VALUES_MAX, big.mark = ",", scientific = FALSE)
-  values <- vapply(values, format, character(1L), scientific = FALSE, digits = 15L)
+  values <- vapply(
+    values,
+    format,
+    character(1L),
+    scientific = FALSE,
+    digits = 15L
+  )
   value_set <- paste0("`", names(values), " = ", values, "`", collapse = ", ")
   abort_in_export(
     "Too many achievable {what} for {.fn {name_last_export()}}.",
@@ -314,10 +320,11 @@ sd_min_n <- function(sd_meaning) {
 
 #' Coerce a sample-size column to integer, but only if that is lossless
 #'
-#' @description Mappers store the `n` column as integer, since a sample size is
-#'   a whole number. The coercion is skipped if any value is fractional or
-#'   beyond `.Machine$integer.max`, which `as.integer()` would turn into `NA`
-#'   next to a verdict computed from the real value.
+#' @description Mappers store the `n` and `digits_*` columns as integer, since
+#'   they are whole numbers. The coercion is skipped if `n` is not numeric, or
+#'   if any value is fractional or beyond `.Machine$integer.max`, which
+#'   `as.integer()` would turn into `NA` next to a verdict computed from the
+#'   real value. A value within tolerance of a whole number is rounded to it.
 #'
 #' @param n Numeric vector; the `n` column.
 #'
@@ -327,10 +334,12 @@ sd_min_n <- function(sd_meaning) {
 #' @noRd
 as_integer_if_lossless <- function(n) {
   if (
-    all(is_whole_number(n) | is.na(n)) &&
+    is.numeric(n) &&
+      all(is_whole_number(n) | is.na(n)) &&
       all(abs(n) <= .Machine$integer.max, na.rm = TRUE)
   ) {
-    as.integer(n)
+    # Rounded, not truncated: `100 * 0.29` is 28.999999999999996.
+    as.integer(round(n))
   } else {
     n
   }
