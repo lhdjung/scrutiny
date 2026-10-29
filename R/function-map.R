@@ -625,9 +625,11 @@ function_map <- function(
         cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
       }
 
+      # The `digits_*` columns are whole numbers, too:
       cols_by_row <- cols_tested[args_by_row[
         args_by_row %in% names(args_vals)
-      ]]
+      ]] |>
+        lapply(as_integer_if_lossless)
 
       cols_result <- write_result_cols(results, col_names)
 

@@ -512,7 +512,7 @@ function_map_seq <- function(
       # argument has a default and was not given, `fn()`'s output decides
       # whether there is a column.
       for (digits_arg in names(digits_vals)) {
-        out[[digits_arg]] <- digits_vals[[digits_arg]]
+        out[[digits_arg]] <- as_integer_if_lossless(digits_vals[[digits_arg]])
       }
       out <- out |>
         dplyr::relocate(
