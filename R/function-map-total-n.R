@@ -387,6 +387,12 @@ function_map_total_n <- function(
       enum_defaults <- `!!`(enum_defaults)
       setting_vals <- resolve_enums(setting_vals, enum_defaults)
       for (arg in intersect(names(setting_vals), names(enum_defaults))) {
+        check_setting_length(
+          arg,
+          setting_vals[[arg]],
+          c(reported_reduplicated, "n", `!!`(digits_args_names)),
+          name_last_export()
+        )
         eval(call("arg_match_in_export", as.name(arg), enum_defaults[[arg]]))
       }
 

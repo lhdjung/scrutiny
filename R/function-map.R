@@ -388,18 +388,6 @@ function_map <- function(
     }
   )
 
-  # Spliced in as symbols too: `check_lengths_congruent()` names offenders by
-  # deparsing its call. By-row arguments are exempt, and so are those without
-  # a default, which may be missing here and must reach `fn()` as such:
-  args_check_lengths <- setdiff(args_const, args_required)
-  code_check_lengths <- if (length(args_check_lengths) > 1L) {
-    list(rlang::expr(
-      check_lengths_congruent(list(`!!!`(lapply(args_check_lengths, as.name))))
-    ))
-  } else {
-    NULL
-  }
-
   all_classes <- c(
     class_name_test(.name_test, "_map"),
     .name_class
@@ -471,8 +459,6 @@ function_map <- function(
       for (arg in args_enum) {
         assign(arg, enum_vals[[arg]])
       }
-
-      `!!!`(code_check_lengths)
 
       # A helper column is returned if it was given, as a column of `data` or
       # as an argument. One that `fn()` only has a default for is not:
@@ -561,6 +547,18 @@ function_map <- function(
           args_const_vals$rounding,
           args_const_vals$threshold,
           args_const_vals$symmetric
+        )
+      }
+
+      # The other settings describe the call as a whole, too, so each is a
+      # single value. The enums have been resolved above, so one given as its
+      # whole set passes:
+      for (arg in names(args_const_vals)) {
+        check_setting_length(
+          arg,
+          args_const_vals[[arg]],
+          c(reported_variadic, reported, args_by_row, args_helper),
+          name_last_export()
         )
       }
 
@@ -752,8 +750,6 @@ function_map <- function(
     code_key_arg_checks,
     code_variadic,
     code_cols_helper,
-    code_check_lengths,
-    args_check_lengths,
     all_classes
   )
 

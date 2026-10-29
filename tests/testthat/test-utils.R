@@ -89,46 +89,6 @@ nephews <- c("Huey", "Dewey", "Louie")
 norberts <- c("Lammert", "Röttgen")
 nikes <- c("Air Max", "Zoom Freak", "Phantom")
 
-n_list <- list(numbers, nephews, norberts, nikes)
-
-test_that("`check_lengths_congruent()` throws an error when it should", {
-  list(numbers, nephews, norberts, nikes) |> check_lengths_congruent() |> expect_error()
-  list(numbers, nephews, norberts)        |> check_lengths_congruent() |> expect_error()
-  list(numbers, nephews, nikes)           |> check_lengths_congruent() |> expect_error()
-  list(numbers, norberts, nikes)          |> check_lengths_congruent() |> expect_error()
-  list(nephews, norberts, nikes)          |> check_lengths_congruent() |> expect_error()
-})
-
-test_that("`check_lengths_congruent()` throws a warning when it should", {
-  list(nephews, nikes)     |> check_lengths_congruent(warn = TRUE) |> expect_warning()
-  list(numbers, numbers)   |> check_lengths_congruent(warn = TRUE) |> expect_warning()
-  list(nephews, nephews)   |> check_lengths_congruent(warn = TRUE) |> expect_warning()
-  list(norberts, norberts) |> check_lengths_congruent(warn = TRUE) |> expect_warning()
-  list(nikes, nikes)       |> check_lengths_congruent(warn = TRUE) |> expect_warning()
-})
-
-
-test_that("`check_lengths_congruent()` remains silent when it should", {
-  list(nephews, nikes)     |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-  list(numbers, numbers)   |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-  list(nephews, nephews)   |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-  list(norberts, norberts) |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-  list(nikes, nikes)       |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-})
-
-
-# Not aligning pipes here because the lengths are too different
-test_that("`check_lengths_congruent()` remains silent when it should", {
-  list(nephews, nikes) |> check_lengths_congruent(warn = FALSE) |> expect_silent()
-  list("a", "b", c("c", "d", "e")) |> check_lengths_congruent() |> expect_silent()
-  list("a", "b") |> check_lengths_congruent() |> expect_silent()
-  list(1, 2, 3, 4, 5) |> check_lengths_congruent() |> expect_silent()
-  list("a", "b", "c", "d", "e") |> check_lengths_congruent() |> expect_silent()
-  list(1, c(1, 2), 3, 4, 5) |> check_lengths_congruent() |> expect_silent()
-  list("a", c("a", "b"), "c", "d", "e") |> check_lengths_congruent() |> expect_silent()
-})
-
-
 test_that("`check_length()` throws an error when it should", {
   numbers |> check_length(1) |> expect_error()
   nephews |> check_length(1) |> expect_error()
@@ -163,41 +123,6 @@ test_that("`check_type()` throws an error if the type is wrong", {
   nephews  |> check_type("double")    |> expect_error()
   norberts |> check_type("integer")   |> expect_error()
   nikes    |> check_type("logical")   |> expect_error()
-})
-
-
-# `check_lengths_congruent()` ---------------------------------------------
-
-test_that("`check_lengths_congruent()` accepts arguments of equal length", {
-  # Two arguments of the same length are congruent -- that is the whole point of
-  # the check -- so they warn about being paired but must not error. Up to
-  # scrutiny 1.0.0 they did error whenever a length-1 argument sat between them
-  # in the list, because the deduplication of lengths was indexed by the lengths
-  # of *all* arguments rather than of those longer than 1, and so silently did
-  # nothing. `reround_to_fraction(c(0.4, 0.6), denominator = 2, digits = c(1,
-  # 2))` hit exactly that.
-  a2 <- 1:2
-  b2 <- 3:4
-  s1 <- 1
-
-  list(a2, b2, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
-  list(a2, s1, b2, s1, s1) |> check_lengths_congruent() |> suppressWarnings() |> expect_no_error()
-
-  list(a2, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
-  list(s1, s1, s1) |> check_lengths_congruent() |> expect_no_condition()
-
-  # The pairing warning still fires for the congruent case:
-  list(a2, b2) |> check_lengths_congruent() |> expect_warning()
-})
-
-test_that("`check_lengths_congruent()` rejects genuinely unequal lengths", {
-  a2 <- 1:2
-  b2 <- 3:4
-  c3 <- 1:3
-
-  list(a2, c3) |> check_lengths_congruent() |> expect_error()
-  list(a2, 1, c3, 1) |> check_lengths_congruent() |> expect_error()
-  list(a2, b2, c3) |> check_lengths_congruent() |> expect_error(regexp = "c3")
 })
 
 

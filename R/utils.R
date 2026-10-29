@@ -220,6 +220,26 @@ check_values_size <- function(size, what, values) {
 }
 
 
+# A setting describes the test as a whole, so it must be a single value.
+# `along` names the arguments that may differ between value sets, and
+# `name_mapper` the function to call once per value, if there is one:
+check_setting_length <- function(name, value, along, name_mapper) {
+  if (length(value) == 1L) {
+    return(invisible())
+  }
+  abort_in_export(
+    "{.arg {name}} must be length 1, not {length(value)}.",
+    "x" = "It describes the test as a whole, so it cannot vary from one \\
+    value set to the next.",
+    "i" = "Only {.arg {along}} may differ between value sets.",
+    "i" = if (exists(name_mapper, mode = "function")) {
+      "To test value sets that differ in {.arg {name}}, call \\
+      {.fn {name_mapper}} once for each of its values."
+    }
+  )
+}
+
+
 #' Can a value set be decided at all, going by `n` and `items_averaged`?
 #'
 #' @description All three consistency tests reason about integer data: GRIM
@@ -624,108 +644,6 @@ error_items_missing <- function() {
 #' @noRd
 add_class <- function(x, new_class) {
   `class<-`(x, value = c(new_class, class(x)))
-}
-
-
-#' Check whether lengths are congruent
-#'
-#' `check_lengths_congruent()` takes a list of a function's arguments. If two
-#' or more of them have different lengths greater than 1, it throws an error.
-#' If they have the same length greater than 1, it warns that their values get
-#' paired.
-#'
-#' @param var_list List of variables that were passed to the enclosing function
-#'   as arguments.
-#' @param error Logical (length 1). Should an error be thrown if lengths are not
-#'   congruent? Default is `TRUE`.
-#' @param warn Logical (length 1). If no error is thrown, should a warning be
-#'   issued if appropriate? Default is `TRUE`.
-#'
-#' @return No return value; might throw error or warning.
-#'
-#' @noRd
-check_lengths_congruent <- function(var_list, error = TRUE, warn = TRUE) {
-  var_lengths <- lengths(var_list)
-  var_list_gt1 <- var_list[var_lengths > 1L]
-
-  if (length(var_list_gt1) > 1L) {
-    # Capturing the argument names costs some thirty times everything else here,
-    # and only this branch needs them. `reround()` calls this every time, so it
-    # must not happen unconditionally.
-    #
-    # `substitute()` rather than `enexprs()`: `lengths()` above has forced the
-    # promise, and `enexprs()` then returns the *values*, losing the names.
-    # `substitute()` reads `PRCODE`, which survives forcing.
-    var_names <- as.list(substitute(var_list))[-1L]
-    var_names <- as.character(var_names)
-    var_names_gt1 <- var_names[var_lengths > 1L]
-    vnames_gt1_all <- var_names_gt1 # for the warning
-
-    # Only one argument of each distinct length needs to reach the error
-    # condition. Deduplicate among the lengths greater than 1, so that the
-    # index lines up with `var_list_gt1`:
-    length_dup <- duplicated(var_lengths[var_lengths > 1L])
-    var_list_gt1 <- var_list_gt1[!length_dup]
-    var_names_gt1 <- var_names_gt1[!length_dup]
-
-    if (error && (length(var_list_gt1) > 1L)) {
-      x <- var_list_gt1[[1L]]
-      y <- var_list_gt1[[2L]]
-      x_name <- var_names_gt1[[1L]]
-      y_name <- var_names_gt1[[2L]]
-
-      residues_names <- var_names[!var_names %in% c(x_name, y_name)]
-
-      msg_error <- c(
-        "`{x_name}` and `{y_name}` must have the same length \\
-        unless either has length 1.",
-        "*" = "`{x_name}` has length {length(x)}.",
-        "*" = "`{y_name}` has length {length(y)}."
-      )
-
-      if (length(residues_names) > 0L) {
-        residues_names <- paste0("`", residues_names, "`")
-        msg_error <- append(
-          msg_error,
-          c("i" = "This also applies to {residues_names}.")
-        )
-      }
-
-      abort_in_export(msg_error)
-    }
-
-    # Same length greater than 1 for all of them:
-    if (warn) {
-      x_name <- vnames_gt1_all[[1L]]
-      y_name <- vnames_gt1_all[[2L]]
-
-      l_vnames <- length(vnames_gt1_all)
-
-      if (l_vnames > 2L) {
-        msg_example <- ", for example,"
-      } else {
-        msg_example <- ""
-      }
-
-      if (l_vnames == 2L) {
-        one_both_all <- "one or both"
-        var_count <- ""
-      } else {
-        one_both_all <- "all (or all but one)"
-        var_count <- l_vnames
-      }
-
-      vnames_gt1_all <- paste0("`", vnames_gt1_all, "`")
-
-      cli::cli_warn(c(
-        "Values of {vnames_gt1_all} get paired.",
-        "!" = "Are you sure that{msg_example} each `{x_name}` value \\
-        should correspond to a different `{y_name}` value?",
-        ">" = "It might be better if {one_both_all} of these {var_count} \\
-        variables have length 1."
-      ))
-    }
-  }
 }
 
 

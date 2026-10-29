@@ -67,21 +67,9 @@ map_value_sets <- function(fn, along, type = "logical") {
   # Arguments that say *how* to test rather than *what* describe the call as a
   # whole: one call cannot use two rounding methods, and `x` is either a
   # percentage or it isn't.
+  name_mapper <- paste0(name_last_export(), "_map")
   for (name in names_scalar) {
-    value <- vals[[name]]
-    if (length(value) != 1L) {
-      name_mapper <- paste0(name_last_export(), "_map")
-      abort_in_export(
-        "{.arg {name}} must be length 1, not {length(value)}.",
-        "x" = "It describes the test as a whole, so it cannot vary from \\
-        one value set to the next.",
-        "i" = "Only {.arg {along}} are vectorized.",
-        "i" = if (exists(name_mapper, mode = "function")) {
-          "To test value sets that differ in {.arg {name}}, call \\
-          {.fn {name_mapper}} once for each of its values."
-        }
-      )
-    }
+    check_setting_length(name, vals[[name]], along, name_mapper)
   }
 
   # roundwork checks the rounding arguments once per value set, but its errors

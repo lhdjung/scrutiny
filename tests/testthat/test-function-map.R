@@ -767,6 +767,26 @@ test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
 })
 
 
+test_that("the other settings must be length 1 in every tier", {
+  # Not rlang's "must be one of ..., not \"se\"" for an enum, which used to
+  # pass a congruence check that allowed one setting longer than 1:
+  for (mapper in list(
+    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, ...),
+    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
+    function(...) grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, ...),
+    function(...) grimmer_map_total_n(
+      tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.2, sd2 = 1.3, n = 40L),
+      digits_x = 2, digits_sd = 2, items_averaged = 1, ...
+    )
+  )) {
+    mapper(sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be length 1, not 2")
+    mapper(sd_meaning = SD_MEANINGS) |> expect_no_error()
+  }
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |>
+    expect_error("`percent` must be length 1, not 2")
+})
+
+
 test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # Anything wrong with the arguments themselves fails on the first row just as
   # it would on any other, so the mapper applies the test to that row on its
