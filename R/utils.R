@@ -209,7 +209,7 @@ check_values_size <- function(size, what, values) {
     with {.arg digits_x}."
   }
   limit <- format(VALUES_MAX, big.mark = ",", scientific = FALSE)
-  values <- vapply(values, format, character(1L), scientific = FALSE)
+  values <- vapply(values, format, character(1L), scientific = FALSE, digits = 15L)
   value_set <- paste0("`", names(values), " = ", values, "`", collapse = ", ")
   abort_in_export(
     "Too many achievable {what} for {.fn {name_last_export()}}.",
