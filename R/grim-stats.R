@@ -149,7 +149,12 @@ grim_total <- function(
   }
 
   # Recycle as `grim()` does, so that a length mismatch is an error:
-  vals <- list(x = x, n = n, digits_x = digits_x, items_averaged = items_averaged)
+  vals <- list(
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items_averaged = items_averaged
+  )
   length_out <- recycle_length_common(lengths(vals), names(vals))
   x <- rep_len(x, length_out)
   n <- rep_len(n, length_out)

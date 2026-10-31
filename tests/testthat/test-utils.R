@@ -51,7 +51,6 @@ test_that("`is_whole_number()` returns correct values", {
 })
 
 
-
 df_test <- tibble::tibble(
   a = c(1, 2, 3, 1, 2, 3),
 )

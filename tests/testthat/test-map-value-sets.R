@@ -16,7 +16,12 @@ args_along <- list(
 args_valid <- list(
   grim = list(x = 5.19, n = 32, digits_x = 2, items_averaged = 1),
   grimmer = list(
-    x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1
+    x = 5.23,
+    sd = 2.55,
+    n = 31,
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1
   ),
   debit = list(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
 )

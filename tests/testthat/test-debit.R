@@ -284,7 +284,13 @@ oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
   if (is_tie && rounding == "even") {
     c(twice - 1, twice + 1) / 2 / 10^digits
   } else {
-    roundwork::reround(value, digits, rounding, threshold = 4, symmetric = symmetric)
+    roundwork::reround(
+      value,
+      digits,
+      rounding,
+      threshold = 4,
+      symmetric = symmetric
+    )
   }
 }
 

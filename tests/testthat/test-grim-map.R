@@ -337,7 +337,11 @@ grim_rounds_back <- function(x, n, digits, rounding, threshold = 5) {
   width <- ceiling(n * 10^-digits) + 3
   sums <- seq(floor(x * n) - width, ceiling(x * n) + width)
   granules_rounded <- (sums / n) |>
-    roundwork::reround(digits = digits, rounding = rounding, threshold = threshold) |>
+    roundwork::reround(
+      digits = digits,
+      rounding = rounding,
+      threshold = threshold
+    ) |>
     suppressWarnings()
   any(abs(granules_rounded - x) < 1e-11, na.rm = TRUE)
 }
