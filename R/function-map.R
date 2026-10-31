@@ -515,6 +515,11 @@ function_map <- function(
         cols_tested[[arg]] <- data[[arg]]
       }
 
+      # Tested as the whole numbers they are accepted as; see `round_whole()`:
+      for (arg in intersect(ARGS_WHOLE, names(cols_tested))) {
+        cols_tested[[arg]] <- round_whole(cols_tested[[arg]])
+      }
+
       for (arg in args_by_row) {
         # An argument with a default that was not given takes its values from
         # a column by its name, if `data` has one:
@@ -622,14 +627,14 @@ function_map <- function(
         purrr_error_indexed = rethrow_row_error
       )
 
-      # The key columns of the output, then the helper columns that were given:
-      cols_key <- c(cols_variadic, as.list(data[reported]))
+      # The key columns of the output, then the helper columns that were given,
+      # as tested (`n` as integer, which prints better):
+      cols_key <- c(cols_variadic, cols_tested[reported])
 
       for (arg in args_helper_given) {
-        cols_key[[arg]] <- data[[arg]]
+        cols_key[[arg]] <- cols_tested[[arg]]
       }
 
-      # `n` is a whole number, which prints better as integer:
       if (!is.null(cols_key[["n"]])) {
         cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
       }

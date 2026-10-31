@@ -318,6 +318,20 @@ sd_min_n <- function(sd_meaning) {
 }
 
 
+# Round the values within `WHOLE_NUMBER_TOLERANCE` of a whole number to it, so
+# that a value is tested as the whole number it is accepted as: `100 * 0.29` is
+# 28.999999999999996, which `is_decidable_n_items()` takes for 29, but the
+# arithmetic would use as is, and `disperse_total()` would split as odd. Other
+# values, such as a fractional `n`, are left for the tests to reject:
+round_whole <- function(x) {
+  if (is.double(x)) {
+    whole <- which(is_whole_number(x))
+    x[whole] <- round(x[whole])
+  }
+  x
+}
+
+
 #' Coerce a sample-size column to integer, but only if that is lossless
 #'
 #' @description Mappers store the `n` and `digits_*` columns as integer, since
@@ -338,8 +352,7 @@ as_integer_if_lossless <- function(n) {
       all(is_whole_number(n) | is.na(n)) &&
       all(abs(n) <= .Machine$integer.max, na.rm = TRUE)
   ) {
-    # Rounded, not truncated: `100 * 0.29` is 28.999999999999996.
-    as.integer(round(n))
+    as.integer(round_whole(n))
   } else {
     n
   }

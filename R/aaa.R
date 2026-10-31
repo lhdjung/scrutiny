@@ -17,6 +17,13 @@
 WHOLE_NUMBER_TOLERANCE <- .Machine$double.eps^0.5
 
 
+# The arguments of the tests that are whole numbers. `round_whole()` rounds
+# them where the tolerance accepts them, so that `100 * 0.29` is tested as 29,
+# the number it is shown as, not as 28.999999999999996 (see `is_whole_number()`).
+
+ARGS_WHOLE <- c("n", "items_averaged", "digits_x", "digits_sd")
+
+
 # The values of `sd_meaning` in GRIMMER and DEBIT: what a value reported as an
 # SD really is. The sample SD divides by `n - 1`, the population SD by `n`,
 # and `"sd_sample_or_pop"` accepts a value set that passes under one or

@@ -14,7 +14,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Mappers return `digits_x` and `digits_sd` as columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
-- The `n` column of mapper output is an integer column if all its values are whole numbers within the integer range.
+- The `n` column of mapper output is an integer column if all its values are whole numbers within the integer range. A value within floating-point noise of a whole number, such as `100 * 0.29`, is tested and shown as that whole number, in the tests and mappers as well as in the `*_explain()` functions and `disperse_total()`.
 
 ### Test results
 

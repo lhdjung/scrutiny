@@ -494,6 +494,7 @@ function_map_total_n <- function(
       # 2 is the smallest total that splits into two groups. A missing total
       # can't be split either, and `disperse_total()` would fail on it with a
       # message about something else:
+      data$n <- round_whole(data$n)
       offenders <-
         data$n[is.na(data$n) | !is_whole_number(data$n) | data$n < 2]
 

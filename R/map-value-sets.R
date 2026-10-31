@@ -57,6 +57,11 @@ map_value_sets <- function(fn, along, type = "logical") {
   names_along <- along[along %in% args_supplied]
   names_scalar <- args_supplied[!args_supplied %in% along]
 
+  # Tested as the whole numbers they are accepted as; see `round_whole()`:
+  for (name in intersect(ARGS_WHOLE, names_along)) {
+    vals[[name]] <- round_whole(vals[[name]])
+  }
+
   # An enum such as `sd_meaning` given as its whole default set is one string,
   # as in the mappers, before the length check below would reject it:
   vals <- resolve_enums(

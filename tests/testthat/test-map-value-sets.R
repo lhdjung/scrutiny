@@ -227,3 +227,13 @@ test_that("`grim()` and `grimmer()` take `items_averaged`", {
       grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
     ))
 })
+
+
+test_that("a value within tolerance of a whole number is tested as that number", {
+  # `is_whole_number()` accepted `2 - 1e-9`, but the arithmetic used it as is,
+  # and GRIMMER and DEBIT compared it to their minimum `n` of 2:
+  1.5 |> grim(2 - 1e-9, digits_x = 1, items_averaged = 1, rounding = "ceiling")      |> expect_true()
+  1.5 |> grim(2, digits_x = 1 - 1e-9, items_averaged = 1 + 1e-9, rounding = "ceiling") |> expect_true()
+  1.5 |> grimmer(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1)     |> expect_true()
+  0.5 |> debit(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                           |> expect_false()
+})

@@ -56,6 +56,8 @@ grimmer_explain <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  n <- round_whole(n)
+  items_averaged <- round_whole(items_averaged)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)

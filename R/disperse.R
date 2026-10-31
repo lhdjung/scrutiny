@@ -255,6 +255,7 @@ disperse_total <- function(
       "i" = "It is a total sample size, to be split into two group sizes."
     )
   }
+  n <- round_whole(n)
 
   # Main part ---
 

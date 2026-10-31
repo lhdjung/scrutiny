@@ -48,6 +48,7 @@ debit_explain <- function(
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
+  n <- round_whole(n)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)

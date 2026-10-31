@@ -234,3 +234,10 @@ test_that("`grimmer_explain()` squares a negative sum as a whole", {
 test_that("a single score averaged from items is not \"each of the 1 scores\"", {
   5.5 |> grim_explain(1, digits_x = 1, items_averaged = 2) |> format() |> paste(collapse = " ") |> expect_match("The single score")
 })
+
+
+test_that("a near-whole `n` is explained as the whole number, as the tests test it", {
+  1.5 |> grim_explain(2 - 1e-9, digits_x = 1, items_averaged = 1, rounding = "ceiling") |> format() |> expect_identical(format(grim_explain(1.5, 2, digits_x = 1, items_averaged = 1, rounding = "ceiling")))
+  1.5 |> grimmer_explain(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1) |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+  0.5 |> debit_explain(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
+})

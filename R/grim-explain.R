@@ -50,6 +50,8 @@ grim_explain <- function(
   if (missing(items_averaged)) {
     error_items_missing()
   }
+  n <- round_whole(n)
+  items_averaged <- round_whole(items_averaged)
   check_length(items_averaged, 1L)
 
   # `paste()` would write a number like 100000 as 1e+05:

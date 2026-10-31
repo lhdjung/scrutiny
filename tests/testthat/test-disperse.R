@@ -111,3 +111,10 @@ test_that("an odd total's limits are checked as given", {
   51 |> disperse_total(n_min = c(1, 2)) |> expect_error("It is `1` and `2`")
   51 |> disperse_total(n_min = "2")     |> expect_error("single number")
 })
+
+
+test_that("a total within tolerance of a whole number is split as that number", {
+  # `40 - 1e-9` passed the whole-number check but was split as odd, into 19.5
+  # and 20.5:
+  (40 - 1e-9) |> disperse_total() |> expect_equal(disperse_total(40))
+})
