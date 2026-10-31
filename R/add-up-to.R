@@ -1,0 +1,68 @@
+# Single-case function behind `add_up_to()` and `add_up_to_map()`.
+add_up_to_scalar <- function(summands, total) {
+  # `total` first: `add_up_to()` wraps `summands` in a list before handing a
+  # call with a missing `total` down here, and the error should be about that:
+  if (!is.numeric(total) && !is.na(total)) {
+    check_type(total, c("double", "integer"))
+  }
+  if (!is.numeric(summands) && !all(is.na(summands))) {
+    check_type(summands, c("double", "integer"))
+  }
+
+  values <- c(summands, total)
+
+  # Counts are whole numbers, and a sum of whole numbers is exact, so `==` needs
+  # no tolerance -- up to `2^53`, beyond which a double skips whole numbers. A
+  # sum of decimals is not exact (`0.1 + 0.2 != 0.3`), and a fractional count
+  # describes no group, so such a case is undecidable rather than given a
+  # verdict that floating-point error could decide:
+  if (
+    !all(is.finite(values)) ||
+      any(abs(values - round(values)) >= WHOLE_NUMBER_TOLERANCE) ||
+      max(sum(abs(summands)), abs(total)) >= 2^53
+  ) {
+    return(NA)
+  }
+
+  sum(summands) == total
+}
+
+
+#' Do reported counts add up to their total?
+#'
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `add_up_to()` checks whether reported subgroup sizes, or other
+#'   counts, sum to the reported total.
+#'
+#'   The function is vectorized over cases, but [`add_up_to_map()`] is more
+#'   convenient for testing many cases.
+#'
+#' @param summands Integer. The counts of one case, or a list with one such
+#'   vector per case.
+#' @param total Integer. The reported total, one per case.
+#'
+#' @return Logical. `TRUE` if the counts add up to `total`, `FALSE` if not,
+#'   and `NA` if a value is missing or not a whole number, or if the counts or
+#'   the total reach `2^53`, beyond which a sum is no longer exact.
+#'
+#' @include utils.R
+#'
+#' @export
+#'
+#' @examples
+#' add_up_to(c(40, 37, 43), total = 120)
+#' add_up_to(c(40, 37, 44), total = 120)
+#'
+#' # Several cases:
+#' add_up_to(list(c(40, 37, 43), c(10, 12)), total = c(120, 23))
+add_up_to <- function(summands, total) {
+  # A plain vector is one case; `map_value_sets()` maps over list elements:
+  if (!is.list(summands)) {
+    summands <- list(summands)
+  }
+  map_value_sets(
+    fn = add_up_to_scalar,
+    along = c("summands", "total")
+  )
+}

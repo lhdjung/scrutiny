@@ -2,110 +2,116 @@
 % Please edit documentation in R/debit-map-total-n.R
 \name{debit_map_total_n}
 \alias{debit_map_total_n}
-\title{Use DEBIT with hypothetical group sizes}
+\title{Apply DEBIT with hypothetical group sizes}
 \usage{
 debit_map_total_n(
   data,
+  digits_x = NULL,
+  digits_sd = NULL,
   x1 = NULL,
   x2 = NULL,
   sd1 = NULL,
   sd2 = NULL,
+  n = NULL,
+  ...,
+  formula = c("exact", "mean_n"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  show_rec = FALSE,
   dispersion = 0:5,
-  n_min = 1L,
+  n_min = NULL,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL,
-  ...
+  constant = NULL
 )
 }
 \arguments{
-\item{data}{Data frame with string columns \code{x1}, \code{x2}, \code{sd1}, and \code{sd2}, as
-well as numeric column \code{n}. The first two are reported group means. \code{sd1}
-and \code{sd2} are reported group SDs. \code{n} is the reported total sample size. It
-is not very important whether a value is in \code{x1} or in \code{x2} because, after
-the first round of tests, the function switches roles between \code{x1} and
-\code{x2}, and reports the outcomes both ways. The same applies to \code{sd1} and
-\code{sd2}. However, do make sure the \verb{x*} and \verb{sd*} values are paired
-accurately, as reported.}
+\item{data}{Data frame with numeric columns \code{x1}, \code{x2}, \code{sd1}, \code{sd2}, and
+\code{n}: the two group means, the two group SDs, and the total sample size.
+Which group is 1 does not matter, since both pairings with the group sizes
+are tested, but \code{x1} must belong with \code{sd1} and \code{x2} with \code{sd2}.}
 
-\item{x1, x2, sd1, sd2}{Optionally, specify these arguments as column names in
-\code{data}.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in the means
+and SDs, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for both
+groups, or two numbers, one per group. They apply to every row of \code{data};
+if the decimal places of a group differ by row, call the function on each
+set of rows separately.}
 
-\item{dispersion}{Numeric. Steps up and down from half the \code{n} values.
-Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and down.}
+\item{x1, x2, sd1, sd2, n}{Optionally, the names of the columns in \code{data} that
+contain these values, if they differ from the defaults.}
 
-\item{n_min}{Numeric. Minimal group size. Default is 1.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
+\code{\link[=debit]{debit()}}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
+as further columns; see \emph{Value}. Default is \code{FALSE}.}
+
+\item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
+Default is \code{0:5}, i.e., the even split and five steps away from it.}
+
+\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}, which stands
+for 2 under \code{sd_meaning = "sd_sample"} or \code{"se"}, since a sample SD
+divides by \code{n - 1}, so a group of 1 has no test result; and for 1 under
+\code{"sd_pop"} or \code{"sd_sample_or_pop"}, where it does.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{constant}{Optionally, add a length-2 vector or a list of length-2
-vectors (such as a data frame with exactly two rows) to accompany the pairs
-of dispersed values. Default is \code{NULL}, i.e., no constant values.}
-
-\item{constant_index}{Integer (length 1). Index of \code{constant} or the first
-\code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
-will go to the right of \code{n_change}.}
-
-\item{...}{Arguments passed down to \code{\link[=debit_map]{debit_map()}}.}
+\item{constant}{Optionally, values that belong to the two groups, such as
+their labels: a length-2 vector for the groups of \code{x1} and \code{x2}, or a list
+of such vectors. Each becomes a column, as in \code{\link[=disperse_total]{disperse_total()}}, and its
+values stay with their groups in both directions. Default is \code{NULL}.}
 }
 \value{
-A tibble with these columns:
-\itemize{
-\item \code{x} and \code{sd}, the group-wise reported input statistics, are repeated in
-row pairs.
-\item \code{n} is dispersed from half the input \code{n}, with \code{n_change} tracking the
-differences.
-\item \code{both_consistent} flags scenarios where both reported \code{x} and \code{sd} values
-are consistent with the hypothetical \code{n} values.
-\item \code{case} corresponds to the row numbers of the input data frame.
-\item \code{dir} is \code{"forth"} in the first half of rows and \code{"back"} in the second
-half. \code{"forth"} means that \code{x2} and \code{sd2} from the input are paired with the
-larger dispersed \code{n}, whereas \code{"back"} means that \code{x1} and \code{sd1} are paired
-with the larger dispersed \code{n}.
-\item Other columns from \code{debit_map()} are preserved.
-}
+A tibble like that of \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with \code{x} and \code{sd}
+columns for the reported values, \code{dir} recording which group is paired
+with the larger group size (the equal split of an even total appears under
+\code{"forth"} only), the other columns of \code{\link[=debit_map]{debit_map()}} output, and the
+other columns of \code{data}.
 }
 \description{
-\code{debit_map_total_n()} extends DEBIT to cases where only group
-means and standard deviations (SDs) were reported, not group sizes.
+Some studies report group means and standard deviations of
+binary data but only the total sample size, not the group sizes. For two
+groups, \code{debit_map_total_n()} tests hypothetical splits of the total, as
+\code{\link[=grim_map_total_n]{grim_map_total_n()}} does.
 
-The function is analogous to \code{\link[=grim_map_total_n]{grim_map_total_n()}} and
-\code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}}, relying on the same infrastructure.
+Call \code{\link[=audit_total_n]{audit_total_n()}} on the output for summary statistics.
 }
 \section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
- You can call
-\code{\link[=audit_total_n]{audit_total_n()}} following up on \code{debit_map_total_n()}
-to get a tibble with summary statistics. It will have these columns:
+ \code{audit_total_n()} on
+\code{debit_map_total_n()} output returns a tibble with one row per case and
+these columns:
 \itemize{
-\item \code{x1}, \code{x2}, \code{sd1}, \code{sd2}, and \code{n} are the original inputs.
-\item \code{hits_total} is the number of scenarios in which all of
-\code{x1}, \code{x2}, \code{sd1}, and \code{sd2} are DEBIT-consistent. It is the sum
-of \code{hits_forth} and \code{hits_back} below.
-\item \code{hits_forth} is the number of both-consistent cases that result
-from pairing \code{x2} and \code{sd2} with the larger dispersed \code{n} value.
-\item \code{hits_back} is the same, except \code{x1} and \code{sd1} are
-paired with the larger dispersed \code{n} value.
-\item \code{scenarios_total} is the total number of test scenarios,
-whether or not both \code{x1} and \code{sd1} as well as \code{x2} and \code{sd2}
-are DEBIT-consistent.
-\item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
+\item \code{x1}, \code{x2}, \code{sd1}, \code{sd2}, and \code{n}: the reported values.
+\item \code{hits_total}: the number of splits in which both groups are
+DEBIT-consistent, summing \code{hits_forth} and \code{hits_back}.
+\item \code{hits_forth}: the number of such splits with \code{x2} and \code{sd2} paired with
+the larger group.
+\item \code{hits_back}: the same with \code{x1} and \code{sd1} paired with the larger group.
+\item \code{scenarios_total}: the number of splits tested, leaving out those that
+could not be decided.
+\item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no split could
+be decided.
 }
-
-Call \code{\link[=audit]{audit()}} following \code{\link[=audit_total_n]{audit_total_n()}} to summarize results
-even further.
 }
 
 \examples{
-# Run `debit_map_total_n()` on data like these:
 df <- tibble::tribble(
   ~x1,  ~x2,  ~sd1,  ~sd2,  ~n,
-  "0.30", "0.28", "0.17", "0.10", 70,
-  "0.41", "0.39", "0.09", "0.15", 65
+  0.30, 0.28, 0.17, 0.10, 70,
+  0.41, 0.39, 0.09, 0.15, 65
 )
-df
 
-debit_map_total_n(df)
+debit_map_total_n(df, digits_x = 2, digits_sd = 2)
+
+df |>
+  debit_map_total_n(digits_x = 2, digits_sd = 2) |>
+  audit_total_n()
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
@@ -117,6 +123,6 @@ Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
 Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{\link[=function_map_total_n]{function_map_total_n()}}, which created the present function using
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which created this function from
 \code{\link[=debit_map]{debit_map()}}.
 }

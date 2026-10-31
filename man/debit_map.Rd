@@ -6,76 +6,93 @@
 \usage{
 debit_map(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
+  ...,
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  show_rec = TRUE,
-  extra = Inf
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  show_rec = FALSE
 )
 }
 \arguments{
-\item{data}{Data frame.}
+\item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}. Any other columns are
+returned alongside the results.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
+whole column or one number per row of \code{data}.}
 
-\item{rounding, threshold, symmetric}{Arguments passed on to \code{\link[=debit]{debit()}}, with
-the same defaults.}
+\item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
 
-\item{show_rec}{If set to \code{FALSE}, the resulting tibble only includes the
-columns \code{x}, \code{sd}, \code{n}, and \code{consistency}. Default is \code{TRUE}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
-\item{extra}{Not currently used.}
+\item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
+\code{\link[=debit]{debit()}}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
+as further columns; see \emph{Value}. Default is \code{FALSE}.}
 }
 \value{
-A tibble with (at least) these columns --
+A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
-\item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}.
+\item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
+\item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}. \code{NA} for a case
+that cannot be decided, such as one with a missing value.
 
-By default, the tibble also includes the rounding method, boundary values,
-and information about the boundary values being inclusive or not. The
-tibble has the \code{scr_debit_map} class, which is recognized by the \code{audit()}
-generic.
+If \code{show_rec} is \code{TRUE}, further columns hold the reconstructed values:
+the bounds of \code{sd} and \code{x} (\code{sd_lower}, \code{sd_upper}, \code{x_lower}, \code{x_upper}) with
+\code{sd_incl_lower} and \code{sd_incl_upper} saying whether the SD bounds are
+inclusive; and \code{sum_lower} and \code{sum_upper}, the least and the greatest
+number of ones among \code{n} values whose mean would be reported as \code{x}. Under
+\code{formula = "exact"}, a value set is consistent exactly if some \code{k} from
+\code{sum_lower} to \code{sum_upper} has an SD within the bounds of \code{sd}.
+
+The tibble has the class \code{scrutiny_debit_map}, which is recognized by
+\code{\link[=audit]{audit()}} and \code{\link[=debit_plot]{debit_plot()}}.
 }
 }
 \description{
-Call \code{debit_map()} to use DEBIT on multiple combinations of
-mean, sample standard deviation, and sample size of binary distributions.
-Mapping function for \code{\link[=debit]{debit()}}.
+\code{debit_map()} applies \code{\link[=debit]{debit()}} to every row of a data frame
+with means, standard deviations, and sample sizes of binary data.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics and
+\code{\link[=debit_plot]{debit_plot()}} to visualize it.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for the
-\code{\link[=audit]{audit()}} generic, so you can call \code{\link[=audit]{audit()}} following \code{debit_map()}.
-It returns a tibble with these columns ---
+ \code{audit()} on \code{debit_map()} output
+returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: the number of DEBIT-inconsistent cases.
-\item \code{all_cases}: the total number of cases.
-\item \code{incons_rate}: the rate of inconsistent cases.
-\item \code{mean_x}: the mean \code{x} (mean) value.
-\item \code{mean_sd}: the mean \code{sd} value.
-\item \code{distinct_n}: the number of distinct \code{n} values.
+\item \code{all_cases}: total number of value sets.
+\item \code{incon_cases}: number of DEBIT-inconsistent value sets.
+\item \code{emp_incon}: proportion of DEBIT-inconsistent value sets.
+\item \code{mean_x}: mean of the \code{x} values.
+\item \code{mean_sd}: mean of the \code{sd} values.
+\item \code{distinct_n}: number of distinct \code{n} values.
 }
 }
 
 \examples{
-# Call `debit_map()` on binary summary
-# data such as these:
+# Call `debit_map()` on binary summary data such as these:
 pigs3
 
-# The `consistency` column shows
-# whether the values to its left
-# are DEBIT-consistent:
-pigs3 \%>\%
-  debit_map()
+# The `consistency` column shows whether the
+# values to its left are DEBIT-consistent:
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2)
 
 # Get test summaries with `audit()`:
-pigs3 \%>\%
-  debit_map() \%>\%
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   audit()
 }
 \references{

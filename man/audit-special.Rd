@@ -11,50 +11,44 @@ audit_seq(data)
 audit_total_n(data)
 }
 \arguments{
-\item{data}{A data frame that inherits one of the classes named below.}
+\item{data}{A data frame returned by one of the functions below.}
 }
 \value{
-A tibble (data frame) with test summary statistics.
+A tibble with summary statistics.
 }
 \description{
-\code{audit_seq()} and \code{audit_total_n()} summarize the results of
-functions that end on \verb{_seq} and \verb{_total_n}, respectively.
-
-See below for a record of such functions. Go to the documentation of any of
-them to learn about the way its output is processed by \code{audit_seq()} or
-\code{audit_total_n()}.
-}
-\details{
-All functions named below that end on \verb{_seq} were made by
-\code{function_map_seq()}. All that end on \verb{_total_n} were made by
-\code{function_map_total_n()}.
+\code{audit_seq()} summarizes the output of functions made by
+\code{\link[=function_map_seq]{function_map_seq()}}, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, and \code{audit_total_n()}
+that of functions made by \code{\link[=function_map_total_n]{function_map_total_n()}}, such as
+\code{\link[=grim_map_total_n]{grim_map_total_n()}}. The columns of each summary are described in the
+documentation of the respective function. \code{\link[=audit]{audit()}} calls them on such
+output, so it can be used instead.
 }
 \section{Before \code{audit_seq()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_seq()} \tab \code{"scr_grim_map_seq"} \cr
-   \code{grimmer_map_seq()} \tab \code{"scr_grimmer_map_seq"} \cr
-   \code{debit_map_seq()} \tab \code{"scr_debit_map_seq"} \cr
+   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"scrutiny_grim_map_seq"} \cr
+   \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"scrutiny_grimmer_map_seq"} \cr
+   \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"scrutiny_debit_map_seq"} \cr
+   \code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} \tab \code{"scrutiny_is_percentage_of_map_seq"} \cr
 }
 }
 
 \section{Before \code{audit_total_n()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_total_n()} \tab \code{"scr_grim_map_total_n"} \cr
-   \code{grimmer_map_total_n()} \tab \code{"scr_grimmer_map_total_n"} \cr
-   \code{debit_map_total_n()} \tab \code{"scr_debit_map_total_n"} \cr
+   \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"scrutiny_grim_map_total_n"} \cr
+   \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"scrutiny_grimmer_map_total_n"} \cr
+   \code{\link[=debit_map_total_n]{debit_map_total_n()}} \tab \code{"scrutiny_debit_map_total_n"} \cr
 }
 }
 
 \examples{
-# For GRIM-testing with dispersed inputs:
-out <- pigs1 \%>\%
-  grim_map_seq() \%>\%
+out <- pigs1 |>
+  grim_map_seq(digits_x = 2, items_averaged = 1) |>
   audit_seq()
 out
 
-# Follow up on `audit_seq()` or
-# `audit_total_n()` with `audit()`:
+# `audit()` summarizes the summary:
 audit(out)
 }

@@ -1,162 +1,257 @@
-
 #' Count decimal places
 #'
-#' @description `decimal_places()` counts the decimal places in a numeric
-#'   vector, or in a string vector that can be coerced to numeric.
+#' @description `decimal_places()` counts the decimal places of a numeric
+#'   vector, or of a string vector coercible to numeric.
 #'
-#'   `decimal_places_scalar()` is much faster but only takes a single input. It
-#'   is useful as a helper within other single-case functions.
-#'
-#' @section Trailing zeros: If trailing zeros matter, don't convert numeric
-#'   values to strings: In numeric values, any trailing zeros have already been
-#'   dropped, and any information about them was lost (e.g., `3.70` returns
-#'   `3.7`). Enter those values as strings instead, such as `"3.70"` instead of
-#'   `3.70`. However, you can restore lost trailing zeros with
+#' @section Trailing zeros: A numeric value has lost its trailing zeros: `3.70`
+#'   is stored as `3.7` and has one decimal place. If trailing zeros matter,
+#'   enter the values as strings, such as `"3.70"`, or restore them with
 #'   [`restore_zeros()`] if the original number of decimal places is known.
 #'
-#'   If you need to enter many such values as strings, consider using
-#'   [`tibble::tribble()`] and drawing quotation marks around all values in a
-#'   `tribble()` column at once via RStudio's multiple cursors.
-
-#' @details Decimal places in numeric values can't be counted accurately if the
-#'   number has 15 or more characters in total, including the integer part and
-#'   the decimal point. A possible solutions is to enter the number as a string
-#'   to count all digits. (Converting to string is not sufficient -- those
-#'   numbers need to be *entered* in quotes.)
+#' @details The function counts the run of digits after the first `sep`,
+#'   after trimming whitespace and applying any exponent: `"5.30%"` has two
+#'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing and
+#'   non-finite values have `NA` decimal places, as do the string `"NA"` and
+#'   strings that [`as.numeric()`] reads as an infinity or `NaN`.
 #'
-#'   The functions ignore any whitespace at the end of a string, so they won't
-#'   mistake spaces for decimal places.
-
-#' @param x Numeric (or string that can be coerced to numeric). Object with
-#'   decimal places to count.
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#'   Numeric values with more than 15 significant digits cannot be counted
+#'   accurately; enter such numbers as strings.
 #'
-#' @return Integer. Number of decimal places in `x`.
+#' @param x Numeric, or a string coercible to numeric.
+#' @param sep String. The separator between integer part and mantissa, matched
+#'   literally. Default is `"."`. Only applies to strings; numbers are always
+#'   written with a point.
+#'
+#' @return Integer. The number of decimal places of each element of `x`.
 #'
 #' @include utils.R
 #'
 #' @rdname decimal_places
 #' @export
-
-#' @seealso [`decimal_places_df()`], which applies `decimal_places()` to all
-#'   numeric-like columns in a data frame.
-
+#'
+#' @seealso [`decimal_places_df()`] for data frames.
+#'
 #' @examples
-#' # `decimal_places()` works on both numeric values
-#' # and strings...
 #' decimal_places(x = 2.851)
 #' decimal_places(x = "2.851")
 #'
-#' # ... but trailing zeros are only counted within
-#' # strings:
+#' # Trailing zeros are only counted in strings:
 #' decimal_places(x = c(7.3900, "7.3900"))
 #'
-#' # This doesn't apply to non-trailing zeros; these
-#' # behave just like any other digit would:
-#' decimal_places(x = c(4.08, "4.08"))
-#'
-#' # Whitespace at the end of a string is not counted:
+#' # Whitespace at the end of a string is ignored:
 #' decimal_places(x = "6.0     ")
-#'
-#' # `decimal_places_scalar()` is much faster,
-#' # but only works with a single number or string:
-#' decimal_places_scalar(x = 8.13)
-#' decimal_places_scalar(x = "5.024")
 
-decimal_places <- function(x, sep = "\\.") {
-  out <- stringr::str_split(stringr::str_trim(x), sep, 2L)
-  out <- purrr::modify_if(out, !is.na(out), stringr::str_length)
-  out <- purrr::modify_if(
-    out, function(x) length(x) == 1L && !is.na(x), function(x) 0L
+decimal_places <- function(x, sep = ".") {
+  sep <- sep_literal(sep)
+
+  # Strings are matched against the tokens rather than run through
+  # `as.numeric()`, which would also reject strings like `"5.30%"`. Values
+  # decided here are blanked out so that nothing below meets a missing value:
+  if (is.numeric(x)) {
+    non_finite <- !is.finite(x)
+    x <- number_to_string(x)
+    # R writes a number with a point, whatever `sep` the strings use:
+    sep <- "."
+  } else {
+    x <- trim_space(x)
+    non_finite <- x %in% c(NA, "NA") | is_non_finite_token(x)
+  }
+  x[non_finite] <- ""
+
+  # An exponent moves the decimal point (`"1e-05"` has five decimal places,
+  # `"1.5e3"` none), so it is split off and applied to the count below. One
+  # beyond the integer range makes the count `NA`:
+  pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
+  has_exponent <- pos_exponent > 0L
+  exponent <- integer(length(x))
+  exponent[has_exponent] <- x[has_exponent] |>
+    substring(pos_exponent[has_exponent] + 1L) |>
+    as.integer() |>
+    suppressWarnings()
+  x[has_exponent] <- substr(
+    x[has_exponent],
+    1L,
+    pos_exponent[has_exponent] - 1L
   )
 
-  as.integer(unlist(
-    purrr::map_if(out, function(x) length(x) > 1L, `[`, 2L),
-    use.names = FALSE
-  ))
+  # Only the digit run right after the first separator counts: `"1.2.3"` has
+  # one decimal place. `decimal_places_scalar()` takes the same steps, and a
+  # generated corpus in test-decimal-places.R holds the two together:
+  pos_sep <- regexpr(sep, x, fixed = TRUE)
+  mantissa <- substring(x, pos_sep + nchar(sep))
+  mantissa[pos_sep < 0L] <- ""
+  out <- mantissa |>
+    regexpr(pattern = "^[0-9]*") |>
+    attr("match.length")
+
+  out <- pmax(out - exponent, 0L)
+  out[non_finite] <- NA_integer_
+  out
 }
 
 
+# `as.character()` uses scientific notation when it is shorter (`100000` is
+# `"1e+05"`), so such numbers are written out in full here, to be counted and
+# compared to other spellings. Near the ends of the double range it can use all
+# 15 digits where fewer stand for the same number (`1e-300` gives
+# `"9.99999999999999e-301"`), so the fewest digits that round-trip are searched
+# for. The common case costs one fixed-string match:
+number_to_string <- function(x) {
+  out <- as.character(x)
+  for (i in grep("e", out, fixed = TRUE)) {
+    digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[i])))
+    if (digits >= 15L) {
+      for (digits in 1:15) {
+        if (as.numeric(format(x[i], digits = digits)) == x[i]) {
+          break
+        }
+      }
+    }
+    out[i] <- format(
+      x[i],
+      digits = digits,
+      scientific = FALSE,
+      decimal.mark = "."
+    )
+  }
+  out
+}
 
-#' @rdname decimal_places
-#' @export
 
-# Faster, single-case (scalar) function to be used as a helper within other
-# single-case functions:
-decimal_places_scalar <- function(x, sep = "\\.") {
-  if (is.na(x)) {
+# Strings for comparing values of any type, as the `duplicate_*()` functions
+# do: a number is written out in full, so that `100000L`, `100000`, and
+# `"100000"` are one value, as are `0.0001` and `"0.0001"`. `NaN` is a missing
+# value, as everywhere in the package, not the string `"NaN"`:
+value_to_string <- function(x) {
+  if (!is.numeric(x)) {
+    return(as.character(x))
+  }
+  out <- number_to_string(x)
+  out[is.nan(x)] <- NA_character_
+  out
+}
+
+
+# Faster version of `decimal_places()` for a single value, used inside other
+# single-case functions. It must agree with `decimal_places()`, which a
+# generated corpus in test-decimal-places.R checks.
+decimal_places_scalar <- function(x, sep = ".") {
+  # Branching on `is.character()` spares a number the token check and the
+  # trimming, which only a string can need:
+  if (is.character(x)) {
+    x <- trim_space(x)
+    if (is.na(x) || x == "NA" || is_non_finite_token(x)) {
+      return(NA_integer_)
+    }
+  } else if (is.finite(x)) {
+    x <- number_to_string(x)
+    sep <- "."
+  } else {
     return(NA_integer_)
   }
-  out <- stringr::str_length(stringr::str_extract(
-    x, paste0("(?<=", sep, ")\\d+")
-  ))
-  if (is.na(out)) {
+
+  # See `decimal_places()` on exponents. Almost no value has one, so a
+  # fixed-string search spares most of them the regular expression:
+  pos_exponent <- -1L
+  if (grepl("e", x, fixed = TRUE) || grepl("E", x, fixed = TRUE)) {
+    pos_exponent <- regexpr("[eE][+-]?[0-9]+$", x)
+  }
+
+  exponent <- 0L
+  if (pos_exponent > 0L) {
+    exponent <- x |>
+      substring(pos_exponent + 1L) |>
+      as.integer() |>
+      suppressWarnings()
+    x <- substr(x, 1L, pos_exponent - 1L)
+  }
+
+  sep <- sep_literal(sep)
+  pos_sep <- regexpr(sep, x, fixed = TRUE)
+
+  out <- if (pos_sep < 0L) {
     0L
   } else {
-    out
+    x |>
+      substring(pos_sep + nchar(sep)) |>
+      regexpr(pattern = "^[0-9]*") |>
+      attr("match.length")
   }
+
+  max(out - exponent, 0L)
 }
 
 
 #' Count decimal places in a data frame
 #'
-#' For every value in a column, `decimal_places_df()` counts its decimal places.
-#' By default, it operates on all columns that are coercible to numeric.
+#' `decimal_places_df()` replaces every value in the selected columns by its
+#' number of decimal places. By default, it operates on all columns coercible
+#' to numeric.
 #'
 #' @param data Data frame.
-#' @param cols Select columns from `data` using
+#' @param cols Columns to operate on, selected with
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-#'   Default is `everything()`, but restricted by `check_numeric_like`.
-#' @param check_numeric_like Logical. If `TRUE` (the default), the function only
-#'   operates on numeric columns and other columns coercible to numeric, as
-#'   determined by [`is_numeric_like()`].
-#' @param sep Substring that separates the mantissa from the integer part.
-#'   Default is `"\\."`, which renders a decimal point.
+#'   Default is `everything()`, restricted by `check_numeric_like`.
+#' @param check_numeric_like Logical. If `TRUE` (the default), only columns
+#'   that [`is_numeric_like()`] accepts are processed.
+#' @param sep String. The separator between integer part and mantissa, matched
+#'   literally. Default is `"."`.
 #'
-#' @return Data frame. The values of the selected columns are replaced by the
-#'   numbers of their decimal places.
+#' @return Data frame with the selected columns replaced by their counts of
+#'   decimal places.
 #'
-#' @seealso Wrapped functions: [`decimal_places()`], [`dplyr::across()`].
+#' @seealso [`decimal_places()`].
 #'
 #' @export
 #'
 #' @examples
-#' # Coerce all columns to string:
-#' iris <- iris %>%
-#'   tibble::as_tibble() %>%
+#' iris <- iris |>
+#'   tibble::as_tibble() |>
 #'   dplyr::mutate(across(everything(), as.character))
 #'
-#' # The function will operate on all
-#' # numeric-like columns but not on `"Species"`:
-#' iris %>%
+#' # All numeric-like columns, but not `Species`:
+#' iris |>
 #'   decimal_places_df()
 #'
-#' # Operate on some select columns only
-#' # (from among the numeric-like columns):
-#' iris %>%
+#' # Selected columns only:
+#' iris |>
 #'   decimal_places_df(cols = starts_with("Sepal"))
 
-decimal_places_df <- function(data, cols = everything(),
-                              check_numeric_like = TRUE, sep = "\\.") {
-  if (check_numeric_like) {
-    selection2 <- rlang::expr(where(is_numeric_like))
-  } else {
-    selection2 <- rlang::expr(dplyr::everything())
-  }
+decimal_places_df <- function(
+  data,
+  cols = everything(),
+  check_numeric_like = TRUE,
+  sep = "."
+) {
+  sep_literal_value <- sep_literal(sep)
 
-  names_of_numeric_like_cols <- data %>%
-    dplyr::select(where(is_numeric_like)) %>%
-    colnames()
+  # The function works on whole columns, and grouping would get in the way:
+  # `dplyr::select()` re-adds the grouping columns, and `across()` runs per
+  # group. The output is ungrouped:
+  data <- dplyr::ungroup(data)
+  quo_cols <- rlang::enquo(cols)
+  names_selected <- quo_cols |>
+    tidyselect::eval_select(data) |>
+    names()
 
-  data_names <- colnames(data)
+  # Only columns that `cols` selected are worth a warning:
+  is_numeric_like_selected <- vapply(
+    data[names_selected],
+    is_numeric_like_col,
+    logical(1L),
+    sep = sep_literal_value
+  )
+  names_wrong_cols <- names_selected[!is_numeric_like_selected]
 
-  if (!identical(names_of_numeric_like_cols, data_names)) {
-    names_wrong_cols <- data_names[!data_names %in% names_of_numeric_like_cols]
+  if (length(names_wrong_cols) > 0L) {
     if (check_numeric_like) {
       msg_exclusion <- paste0(c("was", "were"), " excluded")
+      names_selected <- names_selected[is_numeric_like_selected]
     } else {
-      msg_exclusion <- "didn't have any decimal places counted"
+      msg_exclusion <- c(
+        "had its decimal places counted anyway",
+        "had their decimal places counted anyway"
+      )
     }
     warn_wrong_columns_selected(
       names_wrong_cols,
@@ -166,10 +261,44 @@ decimal_places_df <- function(data, cols = everything(),
     )
   }
 
-  dplyr::mutate(data, dplyr::across(
-    .cols = {{ cols }} & !!selection2,
-    .fns  = function(x) decimal_places(x = x, sep = sep)
-  ))
-
+  data |>
+    dplyr::mutate(dplyr::across(
+      .cols = all_of(names_selected),
+      .fns = function(x) decimal_places(x = x, sep = sep)
+    ))
 }
 
+
+# `sep` and its relatives in `restore_zeros()` are literal strings. An escaped
+# character such as `"\\."`, valid when they were regular expressions, is read
+# as that character.
+sep_literal <- function(sep) {
+  if (!is.character(sep) || length(sep) != 1L || is.na(sep)) {
+    name <- deparse(substitute(sep))
+    abort_in_export(
+      "`{name}` must be a single string.",
+      "x" = "It is {wrong_spec_string(sep)}."
+    )
+  }
+  sub("^\\\\(.)$", "\\1", sep)
+}
+
+
+# `decimal_places()` and `decimal_places_scalar()` read strings through these
+# two, so that they cannot drift apart.
+#
+# `\s` is ASCII whitespace, `"\v"` and `"\f"` included. `\p{Z}` adds Unicode
+# spaces such as the no-break space, common in tables copied from PDFs.
+trim_space <- function(x) {
+  gsub("^[\\s\\p{Z}]+|[\\s\\p{Z}]+$", "", x, perl = TRUE)
+}
+
+# The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.
+# `chartr()` folds the ASCII letters of these tokens and nothing else, so unlike
+# `tolower()` it does not depend on the locale. A number too large for a double,
+# such as `"1e400"`, is read as an infinity as well:
+is_non_finite_token <- function(x) {
+  chartr("AFINTY", "afinty", x) %in%
+    NON_FINITE_TOKENS |
+    is.infinite(suppressWarnings(as.numeric(x)))
+}

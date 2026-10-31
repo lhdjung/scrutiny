@@ -1,37 +1,32 @@
-
 #' @include audit.R grim-map.R
 #' @export
 
-audit.scr_grim_map <- function(data) {
+audit.scrutiny_grim_map <- function(data, ...) {
+  check_cols_needed(data, c("consistency", "exp_incon"))
+  out <- audit_cols_minimal(data)
 
-  # Compute the summary values of interest ---
-
-  # 1. the number of GRIM-inconsistent cases;
-  # 2. the total number of cases;
-  # 3. the proportion of GRIM-inconsistent cases:
-  out <- audit_cols_minimal(data, "GRIM")
-
-  # 4. the average of GRIM probabilitys:
-  mean_grim_prob <- data %>%
-    dplyr::summarise(mean_grim_prob = mean(.data$probability)) %>%
-    as.numeric()
-
-  # 5. the ratio of the proportion of GRIM-inconsistent cases to the average of
-  # GRIM probabilities:
-  incons_rate <- out[[3L]]
-  incons_to_prob <- incons_rate / mean_grim_prob
-
-  # 6. the number of GRIM-testable cases:
-  testable_cases <- data %>%
-    dplyr::filter(.data$probability > 0) %>%
+  testable_cases <- data |>
+    dplyr::filter(.data$exp_incon > 0) |>
     nrow()
 
-  # 7. the proportion of GRIM-testable cases:
-  all_cases <- out[[2L]]
-  testable_rate <- testable_cases / all_cases
+  # An undecidable case has no `exp_incon` either, and must not turn the whole
+  # summary into `NA`:
+  exp_incon <- mean(data$exp_incon, na.rm = TRUE)
 
-  # Finally, collect all of these values in a resulting tibble --
-  tibble::tibble(
-    out, mean_grim_prob, incons_to_prob, testable_cases, testable_rate
+  # Both rates must be taken over the same, decidable cases:
+  decidable <- !is.na(data$consistency) & !is.na(data$exp_incon)
+  ratio <- mean(!data$consistency[decidable]) / mean(data$exp_incon[decidable])
+
+  tibble::new_tibble(
+    x = list(
+      all_cases = out$all_cases,
+      testable_cases = testable_cases,
+      incon_cases = out$incon_cases,
+      emp_incon = out$emp_incon,
+      exp_incon = exp_incon,
+      ratio = ratio
+    ),
+    nrow = 1L,
+    class = NULL
   )
 }

@@ -2,36 +2,30 @@
 % Please edit documentation in R/reverse-map-total-n.R
 \name{reverse_map_total_n}
 \alias{reverse_map_total_n}
-\title{Reverse the \verb{*_map_total_n()} process}
+\title{Reconstruct the input of a total-n mapper}
 \usage{
 reverse_map_total_n(data)
 }
 \arguments{
-\item{data}{Data frame that inherits the \code{"scr_map_total_n"} class.}
+\item{data}{Data frame with the \code{"scrutiny_map_total_n"} class.}
 }
 \value{
-The reconstructed tibble (data frame) which a factory-made
-\verb{*_map_total_n()} function took as its \code{data} argument.
+A tibble with the reported columns, such as \code{x1}, \code{x2}, and \code{n},
+one row per case.
 }
 \description{
-\code{reverse_map_total_n()} takes the output of a function created
-by \code{\link[=function_map_total_n]{function_map_total_n()}} and reconstructs the original data frame.
-
-See \code{\link[=audit_total_n]{audit_total_n()}}, which takes \code{reverse_map_total_n()} as a basis.
+\code{reverse_map_total_n()} takes the output of a function made by
+\code{\link[=function_map_total_n]{function_map_total_n()}} and reconstructs the data frame it was called
+on. \code{\link[=audit_total_n]{audit_total_n()}} builds on it.
 }
 \examples{
-# Originally reported summary data...
 df <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1,  ~x2,  ~n,
+  3.43, 5.28, 90,
+  2.97, 4.42, 103
 )
-df
 
-# ...GRIM-tested with dispersed `n` values...
-out <- grim_map_total_n(df)
-out
+out <- grim_map_total_n(df, digits_x = 2, items_averaged = 1)
 
-# ...and faithfully reconstructed:
 reverse_map_total_n(out)
 }

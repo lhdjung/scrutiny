@@ -1,4 +1,3 @@
-
 # Expected output ---------------------------------------------------------
 
 iris_exp <- tibble::tibble(
@@ -40,7 +39,7 @@ nums_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `duplicate_count()` works correctly by default", {
-  iris   %>% duplicate_count() %>% audit() %>% expect_equal(iris_exp)
-  mtcars %>% duplicate_count() %>% audit() %>% expect_equal(mtcars_exp)
-  nums   %>% duplicate_count() %>% audit() %>% expect_equal(nums_exp)
+  iris   |> duplicate_count() |> audit() |> expect_equal(iris_exp)
+  mtcars |> duplicate_count() |> audit() |> expect_equal(mtcars_exp)
+  nums   |> duplicate_count() |> audit() |> expect_equal(nums_exp)
 })

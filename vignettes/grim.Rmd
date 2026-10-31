@@ -2,9 +2,6 @@
 title: "GRIM"
 output:
   rmarkdown::html_vignette
-    # fig_width: 6
-    # fig_height: 5.5
-    
 vignette: >
   %\VignetteIndexEntry{GRIM}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,431 +14,366 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-pkgload::load_all()
+# Print enough significant digits that values like `10.46` are not
+# abbreviated to `10.5` in the output tibbles:
+options(pillar.sigfig = 4)
 ```
 
-```{r setup, message=FALSE}
+```{r setup, include = FALSE}
 library(scrutiny)
 ```
 
-Granularity-related inconsistency of means, or GRIM, is a test for the mathematical consistency of reported means or proportions with the corresponding sample size [@brown_grim_2017]. It can be applied to summary statistics of discrete numerical distributions. GRIM answers a simple question: Is it possible that a granular distribution has both the reported mean or percentage and the reported sample size?
+Granularity-related inconsistency of means, or GRIM, tests whether a reported mean or percentage of integer data is possible given the reported sample size [@brown_grim_2017]. The mean of $n$ integers is a whole number divided by $n$, so only certain values can occur. If none of these values would have been reported as the reported mean, given its number of decimal places, the mean and the sample size are GRIM-inconsistent.
 
-This vignette covers scrutiny's implementation of the GRIM test. It has the following sections --- to get started, though, you only need the first one:
-
-1.  The basic `grim()` function and a specialized mapping function, `grim_map()`.
-
-2.  Testing sequences of means or proportions.
-
-3.  The `audit()` method for summarizing `grim_map()`'s results.
-
-4.  The visualization function `grim_plot()`.
-
-5.  Statistical benchmarks, such as granularity and the probability of GRIM inconsistency.
+This vignette covers scrutiny's implementation: `grim()` and `grim_map()` for the test itself, `audit()` for summaries, `grim_plot_grid()` for visualization, `grim_map_seq()` and `grim_map_total_n()` for testing values around the reported ones, and the GRIM statistics behind the `exp_incon` column.
 
 ## Basic GRIM testing
 
-### Few cases: `grim()`
+### Single cases: `grim()`
 
-To test if a reported mean of 5.27 on a granular scale is GRIM-consistent with a sample size of 43, run this:
+To test whether a mean of 5.27 is consistent with a sample size of 43:
 
 ```{r}
-grim(x = "5.27", n = 43)
+grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
 ```
 
-Note that `x`, the reported mean, needs to be a string. The reason is that strings preserve trailing zeros, which can be crucial for GRIM-testing. Numeric values don't, and even converting them to strings won't help. A workaround for larger numbers of such values, `restore_zeros()`, is discussed in `vignette("wrangling")`.
+`digits_x` is the number of decimal places the mean was reported with. It cannot be inferred from the value, because a mean reported as 5.30 is stored as `5.3`.
 
-`grim()` has some further parameters, but all of them can be used from within `grim_map()`. The other parameters will be discussed in that context because `grim_map()` is often the more useful function in practice. Furthermore, although `grim()` is vectorized, `grim_map()` is more safe and convenient for testing multiple combinations of means/proportions and sample sizes.
+`items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below. Neither argument has a default, since the verdict depends on both.
+
+`grim()` is vectorized, but for more than a few cases, `grim_map()` is more convenient.
 
 ### Many cases: `grim_map()`
 
-If you want to GRIM-test more than a handful of cases, the recommended way is to enter them into a data frame and to run `grim_map()` on the data frame. Two different ways to do that are discussed in `vignette("wrangling")`, but here, I will only describe an easily accessible solution for a single table.
-
-Copy summary data from a PDF file and paste them into `tibble::tribble()`, which is available via scrutiny:
+Enter the reported values into a data frame and call `grim_map()` on it. One way to enter them is to copy a column from a PDF and paste it into `tibble::tribble()`; see `vignette("wrangling")`.
 
 ```{r}
 flying_pigs1 <- tibble::tribble(
-  ~x,
-"8.97",
-"2.61",
-"7.26",
-"3.64",
-"9.26",
-"10.46",
-"7.39"
-) %>% 
+  ~x    ,
+   8.97 ,
+   2.61 ,
+   7.26 ,
+   3.64 ,
+   9.26 ,
+  10.46 ,
+   7.39
+) |>
   dplyr::mutate(n = 28)
+
+grim_map(flying_pigs1, digits_x = 2, items_averaged = 1)
 ```
 
-Use RStudio's multiple cursors to draw quotation marks around all the `x` values, and to set commas at the end. See `vignette("wrangling")`, section *With copy and paste*, if you are not sure how to do that.
-
-Now, simply run `grim_map()` on that data frame:
-
-```{r, error=TRUE}
-grim_map(flying_pigs1)
-```
-
-The `x` and `n` columns are the same as in the input. By default, the number of `items` composing the mean is assumed to be 1. The main result, `consistency`, is the GRIM consistency of the former three columns. On the `probability` column, see section *The probability of GRIM inconsistency*.
+`x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `exp_incon` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* below.
 
 ### Scale items
 
-If a mean is composed of multiple items, set the `items` parameter to that number. Below are hypothetical means of a three-items scale. With the single-item default, half of these are wrongly flagged as inconsistent:
+If a mean is the average of several items, it is a multiple of $1 / (n \cdot \text{items})$ rather than of $1 / n$. Give the number of items, not of scale points, as `items_averaged`: a mean over three 7-point items has `items_averaged = 3`. Taken as single items, half of these means from a three-item scale are wrongly flagged:
 
-```{r, error=TRUE}
+```{r}
 jpap_1 <- tibble::tribble(
-   ~x,
-  "5.90",
-  "5.71",
-  "3.50",
-  "3.82",
-  "4.61",
-  "5.24",
-) %>% 
+  ~x   ,
+  5.90 ,
+  5.71 ,
+  3.50 ,
+  3.82 ,
+  4.61 ,
+  5.24 ,
+) |>
   dplyr::mutate(n = 40)
 
-jpap_1 %>% 
-  grim_map()  # default is wrong here!
+jpap_1 |>
+  grim_map(digits_x = 2, items_averaged = 1)
+
+jpap_1 |>
+  grim_map(digits_x = 2, items_averaged = 3)
 ```
 
-Yet, all of them are consistent if the correct number of items is stated:
+An `items_averaged` column of `data` lets the number vary by row:
 
-```{r, error=TRUE}
-jpap_1 %>% 
-  grim_map(items = 3)
-```
-
-It is also possible to include an `items` column in the data frame instead:
-
-```{r, error=TRUE}
+```{r}
 jpap_2 <- tibble::tribble(
-   ~x,    ~items,
-  "6.92",  1,
-  "3.48",  1,
-  "1.59",  2,
-  "2.61",  2,
-  "4.04",  3,
-  "4.50",  3,
-) %>% 
-  mutate(n = 30)
+  ~x   , ~items_averaged ,
+  6.92 ,              1 ,
+  3.48 ,              1 ,
+  1.59 ,              2 ,
+  2.61 ,              2 ,
+  4.04 ,              3 ,
+  4.50 ,              3 ,
+) |>
+  dplyr::mutate(n = 30)
 
-jpap_2 %>% 
-  grim_map()
+jpap_2 |>
+  grim_map(digits_x = 2)
 ```
 
-### Percentage conversion
+### Percentages
 
-An underappreciated strength of GRIM is testing percentages. Since these are actually decimal numbers inflated by a factor of 100, percentages come with two "free" decimal places. However, percentages are often reported with decimal places beyond those two, which increases the probability of GRIM-inconsistencies unless true values were correctly reported.
-
-Both `grim()` and `grim_map()` have a `percent` parameter which, if set to `TRUE`, divides the `x` values by 100 and increases the decimal count by two, so that percentages can be tested just like means:
+A percentage with one decimal place is a proportion with three. `percent = TRUE` divides `x` by 100 and adds 2 to `digits_x`, so these percentages are tested as proportions with three decimal places:
 
 ```{r}
 jpap_3 <- tibble::tribble(
-  ~x,     ~n,
-  "32.5",  438,
-  "35.6",  455,
-  "21.7",  501,
-  "39.3",  516,
+  ~x   , ~n  ,
+  32.5 , 438 ,
+  35.6 , 455 ,
+  21.7 , 501 ,
+  39.3 , 516 ,
 )
 
-jpap_3 %>% 
-  grim_map(percent = TRUE)
+jpap_3 |>
+  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
+
+GRIM is therefore much more powerful for percentages than for means with the same number of decimal places.
+
+A percentage can average several items, too: the mean percent correct on a test of `k` questions is a multiple of $1 / (n \cdot k)$, as is a pooled proportion of successes over `k` trials per participant. Set `items_averaged = k` in such cases.
 
 ### Reconstructed values
 
-Set `show_rec` to `TRUE` if you want the values that were reconstructed during GRIM-testing to be displayed in the output. They will be columns prefixed with `rec_`:
+With `show_rec = TRUE`, the output includes the numbers on which the test result is based:
 
 ```{r}
-pigs1 %>% 
-  grim_map(show_rec = TRUE) %>% 
-  dplyr::select(4:8)   # output cut down for printing
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE) |>
+  dplyr::select(4:10) # output cut down for printing
 ```
 
-The additional columns are ---
+- `rec_sum` is `x * n * items_averaged`, the sum implied by the reported mean. The sum of integer data is a whole number, which `rec_sum` generally is not.
+- `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would have been reported as `x`. A value set is consistent if and only if `sum_lower <= sum_upper`. If it is inconsistent, they are the whole numbers just above and below `rec_sum`, so their difference is always 1 and says nothing about how far off the mean is.
+- `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items_averaged`. They show how far the reported mean is from an achievable one. With `percent = TRUE`, they are percentages like `x`.
 
--   `rec_sum`: the sum total from which the mean or proportion was ostensibly derived.
+### Achievable means
 
--   `rec_x_upper`: the upper reconstructed `x` value.
-
--   `rec_x_lower`: the lower reconstructed `x` value.
-
--   `rec_x_upper_rounded_up`: the `rec_x_upper` value rounded up.
-
--   `rec_x_upper_rounded_down`: the `rec_x_upper` value rounded down.
-
--   `rec_x_lower_rounded_up`: the `rec_x_lower` value rounded up.
-
--   `rec_x_lower_rounded_down`: the `rec_x_lower` value rounded down.
-
-The last four columns depend on `rounding`. Here, they follow the default `"up_or_down"`, leading to two columns for each of `rec_x_upper` and `rec_x_lower`. With a singular `rounding` procedure, such as `"up"`, there would only be one column each, and thus, two in total. The difference between these numbers is not greatly important, however, because rounding up and down mostly delivers the same results.
-
-Internally, GRIM-consistency is determined by whether or not a stated `x` value is near-identical to either `rec_x_upper_rounded` or `rec_x_lower_rounded`. This algorithm follows the charitable and conservative protocol outlined by Brown and Heathers (2017). The `rec_*` columns were inspired by @bauer_expression_2021's Table 1 but present values in slightly different ways.
-
-## Summarizing results with `audit()`
-
-Following up on a call to `grim_map()`, the generic function `audit()` summarizes GRIM test results:
+`grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`, each with the whole-number sum behind it:
 
 ```{r}
-flying_pigs1 %>% 
-  grim_map() %>% 
-  audit() %>% 
-  dplyr::select(1:5)   # output cut down for printing
+grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: none
 ```
 
-These columns are ---
+`grim_closest()` returns the achievable mean nearest to `x`. If `x` is consistent, that is the nearest one that would be reported as `x`:
 
-1.  `incons_cases`: number of GRIM-inconsistent value sets.
-
-2.  `all_cases`: total number of value sets.
-
-3.  `incons_rate`: proportion of GRIM-inconsistent value sets.
-
-4.  `mean_grim_prob`: average probability of GRIM inconsistency.
-
-5.  `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
-
-6.  `testable_cases`: number of GRIM-testable value sets (i.e., those with a positive probability).
-
-7.  `testable_rate`: proportion of GRIM-testable value sets.
-
-## Visualizing results with `grim_plot()`
-
-There is a specialized visualization function for GRIM test results, `grim_plot()`:
-
-```{r, error=TRUE, fig.width=6, fig.height=5.5}
-jpap_5 <- tibble::tribble(
-  ~x,        ~n,
-  "7.19",    28,
-  "4.56",    34,
-  "0.42",    27,
-  "1.31",    25,
-  "3.48",    34,
-  "4.27",    29,
-  "6.21",    30,
-  "3.11",    18,
-  "5.39",    36,
-  "5.66",    18,
-)
-
-
-jpap_5 %>% 
-  grim_map() %>% 
-  grim_plot()
+```{r}
+grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
-`grim_plot()` can only be called on `grim_map()`'s output. It will fail otherwise:
+Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns one row per achievable mean, and `case` says which value set it belongs to. An inconsistent value set has no rows:
 
-```{r, error=TRUE}
-grim_plot(mtcars)
+```{r}
+grim_values(x = c(5.19, 5.19, 5.19), n = c(32, 300, 28), digits_x = 2, items_averaged = 1)
 ```
 
-With its unusual optics, this plot will probably not fit everyone's taste. The results of `grim_plot()` are like those of error detection in general: They are not pretty, but they put the unvarnished truth on display.
+To line the values up with the data they came from, number its rows as `case` and join. An inner join leaves out the inconsistent rows, and `suffix` keeps the achievable `x` apart from the reported one:
 
-The plot is strictly based on the laws governing GRIM. Its background raster shows all consistent (light) and inconsistent (dark) value pairs for two decimal places. Empirical values are shown in blue if consistent and red if inconsistent. Color settings and other ggplot2-typical options are available via arguments. Read about them at `grim_plot()`'s documentation.
+```{r}
+pigs1 |>
+  dplyr::mutate(case = dplyr::row_number()) |>
+  dplyr::inner_join(
+    grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1),
+    by = "case",
+    suffix = c("", "_achievable")
+  )
+```
 
-You might notice the light vertical lines at $n = 40$ and $n = 80$: Few values are flagged as inconsistent here. This reflects `grim_map()`'s charitable default of accepting values rounded either up *or* down from 5. If a different `rounding` specification is chosen in the `grim_map()` call, the plot raster will adjust automatically (although it will often be the same as before):
+Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM cannot detect anything. The number of achievable means can then become very large, which is why `grim_map()` does not return them.
+
+## Summaries with `audit()`
+
+`audit()` summarizes the output of `grim_map()`:
+
+```{r}
+flying_pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  audit()
+```
+
+- `all_cases`, `testable_cases`: the number of value sets, and of those with a positive `exp_incon`.
+- `incon_cases`, `emp_incon`: the number and proportion of inconsistent value sets.
+- `exp_incon`: the mean probability of GRIM inconsistency.
+- `ratio`: the ratio of `emp_incon` to `exp_incon`, computed over the cases with a test result.
+
+## Visualization with `grim_plot_grid()`
+
+`grim_plot_grid()` takes the output of `grim_map()`:
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 %>% 
-  grim_map(rounding = "ceiling") %>% 
-  grim_plot()
+jpap_5 <- tibble::tribble(
+  ~x   , ~n ,
+  7.19 , 28 ,
+  4.56 , 34 ,
+  0.42 , 27 ,
+  1.31 , 25 ,
+  3.48 , 34 ,
+  4.27 , 29 ,
+  6.21 , 30 ,
+  3.11 , 18 ,
+  5.39 , 36 ,
+  5.66 , 18 ,
+)
+
+jpap_5 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_plot_grid()
 ```
 
-All `rounding` values other than `up_from`, `down_from`, and `up_from_or_down_from` are supported.
+Each value set is plotted at its sample size (x-axis) and the fractional part of its mean (y-axis), in blue if consistent and red if not. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (light) or not (dark). It depends on the number of decimal places, which `grim_plot_grid()` reads from the `digits_x` column, and on the rounding method, which the mapper recorded in its output:
 
-Speed is not much of a concern here because all the rasters are based on data already stored within the package (in [R/sysdata.rda](https://github.com/lhdjung/scrutiny/blob/main/R/sysdata.rda)), so they don't need to be generated on the spot every time the function is called. See R/data-gen.R for the way they were generated.
+```{r, fig.width=6, fig.height=5.5}
+jpap_5 |>
+  grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
+  grim_plot_grid()
+```
 
-## Testing numeric sequences with `grim_map_seq()`
+In the first plot, the light vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. Rasters are precomputed for one and two decimal places and for every rounding method except `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`. With three or more decimal places, a gradient is shown instead.
 
-GRIM analysts might be interested in a mean or percentage value's numeric neighborhood. Suppose you found multiple GRIM inconsistencies as in our example `pigs1` data. You might wonder whether they are due to small reporting or computing errors.
+`grim_plot_grid()` takes the output of any GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 
-Use `grim_map_seq()` to GRIM-test the values surrounding the reported means and sample sizes:
+### A single value set: `grim_plot_values()`
+
+`grim_plot_values()` draws the test for one value set, which helps to explain a verdict. Each tooth of the comb is a mean that could have been reported with `digits_x` decimal places; the tall teeth are the means that a sample of size `n` can have. The reported value is marked above the comb, and the strip behind the teeth is the range of unrounded means that would have been reported as `x`. The value set is consistent if a tall tooth stands within the strip:
+
+```{r, fig.width=7, fig.height=3}
+grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+```
+
+With `n = 26`, the same mean is consistent:
+
+```{r, fig.width=7, fig.height=3}
+grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+```
+
+`grimmer_plot_values()` is the same figure over standard deviations; see `vignette("grimmer")`.
+
+## Values around the reported ones: `grim_map_seq()`
+
+An inconsistency may come from a small error in reporting or computing. `grim_map_seq()` varies `x` and `n` a few steps up and down, one at a time, and tests each resulting value set:
 
 ```{r}
-out_seq1 <- grim_map_seq(pigs1)
+out_seq1 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1)
 out_seq1
 ```
 
+By default, only inconsistent value sets are dispersed. `case` is the row in the input data, `var` the variable that was varied, and `diff_var` the number of steps from the reported value.
+
 ### Summaries with `audit_seq()`
 
-As this output is a little unwieldy, run `audit_seq()` on the results:
+`audit_seq()` summarizes this output per case. `audit()` calls it on such output, too:
 
 ```{r}
 audit_seq(out_seq1)
 ```
 
-Here is what the output columns mean:
+- `x` and `n` are the reported values, and `consistency` their test result.
+- `hits_total`, `hits_x`, `hits_n`: the number of consistent value sets found, in total and by varying each variable.
+- `diff_x`: the distance from `x` to the nearest consistent value, in dispersion steps. `diff_x_up` and `diff_x_down` are the distances to the nearest consistent value above and below. The `diff_n*` columns are the same for `n`.
 
--   `x` and `n` are the original inputs, reconstructed and tested for `consistency` here.
-
--   `hits` is the number of GRIM-consistent value combinations found within the specified `dispersion` range.
-
--   `diff_x` reports the absolute difference between `x` and the next consistent dispersed value (in dispersion steps, not the actual numeric difference). `diff_x_up` and `diff_x_down` report the difference to the next higher or lower consistent value, respectively.
-
--   `diff_n`, `diff_n_up`, and `diff_n_down` do the same for `n`.
-
-The default for `dispersion` is `1:5`, for five steps up and down. When the `dispersion` sequence gets longer, the number of hits tends to increase:
+The default `dispersion` is `1:5`, for five steps up and down. With more steps, more hits are typically found:
 
 ```{r}
-out_seq2 <- grim_map_seq(pigs1, dispersion = 1:10)
+out_seq2 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, dispersion = 1:10)
 audit_seq(out_seq2)
 ```
 
-### Visualizing GRIM-tested sequences
+### Plotting dispersed values
 
-It's curious what happens when we plot the output of `grim_map_seq()`. Like regular GRIM plots, however, it does give us a sense of how many tested values are consistent:
-
-```{r, fig.width=6, fig.height=5.5}
-grim_plot(out_seq1)
-```
-
-The crosses appear because `grim_map_seq()` creates sequences around both `x` and `n`. Restrict this process to any one of these with the `var` argument:
+`grim_plot_grid()` accepts this output. Each reported value set appears as a cross: the horizontal arm consists of the dispersed `n` values, the vertical arm of the dispersed `x` values:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_x <- grim_map_seq(pigs1, var = "x")
-out_seq1_only_n <- grim_map_seq(pigs1, var = "n")
-
-grim_plot(out_seq1_only_x)
-grim_plot(out_seq1_only_n)
+grim_plot_grid(out_seq1)
 ```
 
-## Handling unknown group sizes with `grim_map_total_n()`
+Restrict the dispersion to one variable with `var`:
 
-### Problems from underreporting
+```{r, fig.width=6, fig.height=5.5}
+out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, var = "n")
+grim_plot_grid(out_seq1_only_n)
+```
 
-Unfortunately, some studies that report group averages don't report the corresponding group sizes --- only a total sample size. This makes any direct GRIM-testing impossible because only `x` values are known, not `n` values. All that is feasible here in terms of GRIM is to take a number around half the total sample size, go up and down from it, and check which *hypothetical* group sizes are consistent with the reported group means. `grim_map_total_n()` semi-automates this process, motivated by a recent GRIM analysis [@bauer_expression_2021].
+## Unknown group sizes: `grim_map_total_n()`
 
-The study examined by @bauer_expression_2021 reported means of 5.3 and 4.71 for a total sample size of 40. With equal group sizes (i.e., 20 in each group), only 5.3 is GRIM-consistent, not 4.71. However, Bauer and Francis looked for a plausible scenario in which both means were consistent. They checked if those scenarios came about if the 40 participants were distributed across the two groups in slightly different ways.
+Some studies report group means but only the total sample size. GRIM can then test hypothetical group sizes: start from an even split, move one participant at a time from one group to the other, and record which splits make both means consistent. `grim_map_total_n()` does this, following an analysis by @bauer_expression_2021.
 
-More precisely, they went from a 20/20 group split to a 19/21 split, then to an 18/22 split, and finally to a 17/23 split. In the latter scenario, both means are consistent if 17 is paired with 4.71 and 23 with 5.3.
-
-### Semi-automated solution
-
-Instead of going about this manually, call `grim_map_total_n()`, followed by `audit_total_n()` for summarizing the results. It will find two further plausible scenarios in which both means are consistent; more on that below.
+The study they examined reported means of 4.71 and 5.3 for a total of 40 participants. With 20 in each group, only 5.3 is consistent. Bauer and Francis moved to 19/21, 18/22, and 17/23, and found that both means are consistent at 17/23 with 4.71 in the smaller group.
 
 ```{r}
-df <- tibble::tibble(x1 = "4.71", x2 = "5.3", n = 40)
+df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
 
-# Detailed results:
-df_tested <- grim_map_total_n(df)
+df_tested <- grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)
 df_tested
 
-# Summary:
 audit_total_n(df_tested)
 ```
 
-Each "hit" is a scenario in which both `x1` and `x2` are GRIM-consistent with one of the two hypothetical group sizes. By default (`dispersion = 0:5`), the function goes five steps up and down from `n`.
+A hit is a split in which both means are consistent with their hypothetical group sizes. The default `dispersion = 0:5` goes five steps away from the even split.
 
-### Testing both ways
+The two means were reported with different numbers of decimal places, so `digits_x` has one value per group. Testing 5.3 as if it were 5.30 would be stricter than the test Bauer and Francis conducted.
 
-@bauer_expression_2021 only took those scenarios into account in which 4.71 was combined with the respective smaller group and 5.3 with the larger one, so 17/23 is the only "hit" they found (my term). However, the converse way of assigning hypothetical group sizes to the reported means would be equally justified. `grim_map_total_n()`, therefore, conducts two sets of GRIM tests: one for each way of pairing means and group sizes.
-
-It thus finds the group sizes 19/21 and 16/24 to be GRIM-consistent if 5.3 is combined with the smaller group and 4.71 with the larger one (i.e., with pairing reversed from Bauer and Francis' analysis). In the `audit_total_n()` summary of the function's output, results from original pairing are named `hits_forth`, those from reversed pairing are named `hits_back`, and their sum is named `hits_total`.
-
-This example only features one case --- the `df` tibble has just a single row. It could have any number of rows, though; and `grim_map_total_n()` would determine and count the "hits" for each of them. See the *Examples* section of `grim_map_total_n()`'s documentation.
+`grim_map_total_n()` tests both ways of pairing the means with the group sizes. Bauer and Francis only paired 4.71 with the smaller group; the reverse pairing yields two more hits, at 19/21 and 16/24. In the summary, `hits_forth` counts the hits from the first pairing, `hits_back` those from the reverse one, and `hits_total` their sum.
 
 ## GRIM statistics
 
 ### The probability of GRIM inconsistency
 
-#### General description
-
-The `probability` column in a tibble returned by `grim_map()` is the probability of GRIM inconsistency, i.e.:
+The `exp_incon` column of `grim_map()` is, for the simplest rounding methods,
 
 $$
-P = max(0, \frac{10^D - NL}{10^D})
+P = \max\left(0, \frac{10^D - NL}{10^D}\right)
 $$
 
-where $D$ is the number of decimal places in $X$ (the mean or proportion), $N$ is the sample size, and $L$ is the number of scale items. The fraction will never be greater than 1, and the $max()$ function limits it at 0.
+where $D$ is the number of decimal places, $N$ the sample size, and $L$ the number of items. This is the probability that a mean with $D$ decimal places but random decimal digits is GRIM-inconsistent with $N$ and $L$. If it is 0, GRIM cannot detect any inconsistency.
 
-Consider a mean $X$ that was ostensibly derived from integer data. It has $D$ decimal places, but is otherwise random: the integer part is irrelevant in any case, and the exact digits that occupy the $D$ decimal places are ignored. $P$, then, is the probability that $X$ is GRIM-inconsistent. Naturally, $P$ is also the proportion of inconsistent value sets with $D$ decimal places, a sample size of $N$, and $L$ scale items.
-
-In real-world scenarios, one would not usually assume $X$ to be random at the outset of an investigation, but this can be interesting as a contrasting assumption. If a study has many GRIM-inconsistent value sets with very high probabilities of inconsistency, it may suggest that the anomalies are not explained by small deviations from true values (although `grim_map_seq()` is more informative on this point). Rather, such a finding could raise concerns that these statistics did not come about as part of a regular research process.
-
-#### Functions
-
-`grim_probability()` takes the arguments `x`, `n`, `items`, and `percent` as in `grim()` and `grim_map()`. As before, `x` must be a string to capture any trailing zeros:
+The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_exp_incon()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
 
 ```{r}
-grim_probability(x = "1.40", n = 72)
-
-grim_probability(x = "5.93", n = 80, items = 3)
-
-# Enter `x` as a string to preserve trailing zeros:
-grim_probability(x = "84.27", n = 40, percent = TRUE)
+grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+grim_exp_incon(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
+grim_exp_incon(x = 84.27, n = 40, digits_x = 2, items_averaged = 1, percent = TRUE)
 ```
 
-`grim_map()` displays a `probability` column that shows the probability of GRIM inconsistency. It is derived using `grim_probability()`.
-
-In addition, `grim_total()` takes the same arguments but returns only the numerator of the fraction in the above formula:
+`grim_total()` returns a count instead of a proportion: the number of the $10^D$ possible fractional parts that are inconsistent:
 
 ```{r}
-grim_total(x = "1.40", n = 72)
-
-grim_total(x = "5.93", n = 80, items = 3)
-
-grim_total(x = "84.27", n = 40, percent = TRUE)  # Enter `x` as string to preserve trailing zero
+grim_total(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
 ```
 
-The result is the total number of GRIM-inconsistent value sets with the given parameters. However, this is generally less useful than `grim_probability()`: the result is only comparable across different numbers of decimal places when normalized by $10^D$.
+The formula is implicit in @brown_grim_2017, who note (p. 367) that with two decimal places and $N < 100$, a random mean is consistent in about $N$% of cases.
 
-#### Origins
+### A study's rate of inconsistency
 
-The formula for the probability of GRIM inconsistency is arguably implicit in Brown and Heathers' (2017) paper on GRIM. The numerator is a transformation of the formula presented on p. 364, and the authors discuss a common special case of the probability (interpreted as a proportion) on p. 367:
-
-> With reporting to two decimal places, for a sample size $N < 100$ [and a single item], a random mean value will be consistent in approximately $N$% of cases.
-
-Assuming $N = 70$ and inserting all of these values into the above formula returns
-
-$$
-max(0, \frac{10^2-70×1}{10^2}) = 0.3
-$$
-
-so that a random mean will be inconsistent in about 30% of cases and, conversely, consistent in about 70%.
-
-Here is the same in code (assuming an arbitrary mean with two decimal places):
+Correctly reported means are always consistent, so a study's rate of inconsistent value sets should be zero. If the decimal digits of its means were random, that rate would be expected to be the mean of the `exp_incon` column. `grim_binomial()` tests whether the rate of *consistent* value sets is above what random digits would produce. It uses the Poisson binomial distribution, since the probability differs between value sets, and returns the observed consistency rate with a Clopper-Pearson confidence interval:
 
 ```{r}
-grim_probability(x = "0.99", n = 70)
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_binomial()
 ```
 
-### Granularity and scale items
-
-The granularity of a non-continuous distribution is the minimal amount by which two means or proportions of the distribution can differ. It is derived from the sample size and the number of scale items. The number of items, in turn, naturally follows from the distribution's sample size and granularity.
-
-#### Formulas
-
-The granularity ($G$) formula is
-
-$$
-G = \frac{1}{NL}
-$$
-
-where $N$ is the sample size and $L$ is the number of items.
-
-The scale items formula is the converse:
-
-$$
-L = \frac{1}{NG}
-$$
-
-#### Functions
-
-Consider an ordinal distribution with 80 observations and five items. To get its granularity, run this:
+`grim_binomial_power()` computes the power of this test for a given number of value sets, so you can judge whether the test is informative before interpreting its p-value:
 
 ```{r}
-grim_granularity(n = 80, items = 5)
+grim_binomial_power(p0 = 0.5, p1 = 0.9, k = 10)
 ```
 
-Now, imagine a distribution with 50 observations and a granularity of 0.01. To get the number of its items (actual or effective), use this code:
+Both functions are experimental. `grim_plot_rates()` shows the same comparison for several studies. Each point is a study, placed at its observed rate of inconsistency against the rate that random means would show; the point area is the number of testable value sets. A study on the dotted line at zero is as expected, and one on the dashed diagonal is as inconsistent as random digits:
 
-```{r}
-grim_items(n = 50, gran = 0.01)
+```{r, eval = rlang::is_installed("ggrepel"), fig.width=6, fig.height=5}
+codes <- c(
+  "B", "B", "C", "C", "A", "C",
+  "A", "D", "A", "A", "A", "A"
+)
+
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  dplyr::mutate(study = codes) |>
+  grim_plot_rates(study = study)
 ```
 
-As the number of items itself has a granularity of 1, a call to `grim_items()` that doesn't return whole numbers indicates a problem in earlier computations. A warning to that effect will be displayed:
+### Granularity
+
+The granularity of a scale is the smallest difference between two means it can produce, $G = 1 / (NL)$. `grim_granularity()` computes it:
 
 ```{r}
-grim_items(n = c(50, 65, 93), gran = 0.02)
+grim_granularity(n = 80, items_averaged = 5)
 ```
 
 # References

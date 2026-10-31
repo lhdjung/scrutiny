@@ -3,7 +3,7 @@
 \name{seq_disperse}
 \alias{seq_disperse}
 \alias{seq_disperse_df}
-\title{Sequence generation with dispersion at decimal level}
+\title{Sequences dispersed around a value}
 \usage{
 seq_disperse(
   from,
@@ -12,10 +12,8 @@ seq_disperse(
   offset_from = 0L,
   out_min = "auto",
   out_max = NULL,
-  string_output = TRUE,
   include_reported = TRUE,
-  track_diff_var = FALSE,
-  track_var_change = deprecated()
+  track_diff_var = FALSE
 )
 
 seq_disperse_df(
@@ -26,111 +24,83 @@ seq_disperse_df(
   .offset_from = 0L,
   .out_min = "auto",
   .out_max = NULL,
-  .string_output = TRUE,
   .include_reported = TRUE,
-  .track_diff_var = FALSE,
-  .track_var_change = FALSE
+  .track_diff_var = FALSE
 )
 }
 \arguments{
-\item{from, .from}{Numeric (or string coercible to numeric). Starting point of
-the sequence.}
+\item{from, .from}{Numeric, or a string coercible to numeric. The value to
+disperse from.}
 
-\item{by, .by}{Numeric. Step size of the sequence. If not set, inferred
-automatically. Default is \code{NULL}.}
+\item{by, .by}{Numeric. Step size. Default is \code{NULL}, in which case it is one
+unit of the last decimal place of \code{from}. A number does not keep trailing
+zeros, so \code{5.30} steps by \code{0.1}: give \code{by = 0.01}, or \code{from} as the string
+\code{"5.30"}.}
 
-\item{dispersion, .dispersion}{Numeric. Vector that determines the steps up
-and down, starting at \code{from} (or \code{.from}, respectively) and proceeding on
-the level of its last decimal place. Default is \code{1:5}, i.e., five steps up
-and down.}
+\item{dispersion, .dispersion}{Numeric. Whole numbers of steps up and down
+from \code{from}. Default is \code{1:5}.}
 
-\item{offset_from, .offset_from}{Integer. If set to a non-zero number, the
-starting point will be offset by that many units on the level of the last
-decimal digit. Default is \code{0}.}
+\item{offset_from, .offset_from}{Integer. Moves the starting point by that
+many steps. Default is \code{0}.}
 
-\item{out_min, .out_min, out_max, .out_max}{If specified, output will be
-restricted so that it's not below \code{out_min} or above \code{out_max}. Defaults
-are \code{"auto"} for \code{out_min}, i.e., a minimum of one decimal unit above zero;
-and \code{NULL} for \code{out_max}, i.e., no maximum.}
+\item{out_min, .out_min, out_max, .out_max}{Limits on the values, including
+\code{from} itself. \code{out_min} defaults to \code{"auto"}, one step above zero, which
+suits a count but not a quantity that can reach zero or be negative; use
+\code{NULL} for an unbounded quantity such as a mean, or \code{0} for one bounded
+at zero such as a standard deviation. \code{out_max} defaults to \code{NULL}, no
+maximum. (The \verb{*_map_seq()} functions choose limits per variable; see
+\code{.var_bounds} in \code{\link[=function_map_seq]{function_map_seq()}}.)}
 
-\item{string_output, .string_output}{Logical or string. If \code{TRUE} (the
-default), the output is a string vector. Decimal places are then padded
-with zeros to match \code{from}'s number of decimal places. \code{"auto"} works like
-\code{TRUE} if and only if \code{from} (\code{.from}) is a string.}
+\item{include_reported, .include_reported}{Logical. Should \code{from} itself be
+part of the sequence? Default is \code{TRUE}.}
 
-\item{include_reported, .include_reported}{Logical. Should \code{from} (\code{.from})
-itself be part of the sequence built around it? Default is \code{TRUE} for the
-sake of continuity, but this can be misleading if the focus is on the
-dispersed values, as opposed to the input.}
-
-\item{track_diff_var, .track_diff_var}{Logical. In \code{seq_disperse()}, ignore
-this argument. In \code{seq_disperse_df()}, default is \code{TRUE}, which creates the
-\code{"diff_var"} output column.}
-
-\item{track_var_change, .track_var_change}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-Renamed to \code{track_diff_var} / \code{.track_diff_var}.}
+\item{track_diff_var, .track_diff_var}{Logical. Should the number of steps
+from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
+\code{seq_disperse()} returns a list of the sequence and the steps, and
+\code{seq_disperse_df()} adds a \code{diff_var} column.}
 
 \item{...}{Further columns, added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Only in
 \code{seq_disperse_df()}.}
 }
 \value{
 \itemize{
-\item \code{seq_disperse()} returns a string vector by default
-(\code{string_output = TRUE}) and a numeric vector otherwise.
-\item \code{seq_disperse_df()} returns a tibble (data frame). The sequence is stored
-in the \code{x} column. \code{x} is string by default (\code{.string_output = TRUE}),
-numeric otherwise. Other columns might have been added via the dots
-(\code{...}).
+\item \code{seq_disperse()} returns a numeric vector, which is integer if \code{from}
+is an integer and the steps are whole numbers. With \code{track_diff_var =   TRUE}, it returns a list of that vector and an integer vector of steps.
+\item \code{seq_disperse_df()} returns a tibble with the sequence in the \code{x}
+column, the steps in \code{diff_var} if requested, and any columns added via
+the dots.
 }
 }
 \description{
-\code{seq_disperse()} creates a sequence around a given number. It
-goes a specified number of steps up and down from it. Step size depends on
-the number's decimal places. For example, \code{7.93} will be surrounded by
-values like \code{7.91}, \code{7.92}, and \code{7.94}, \code{7.95}, etc.
+\code{seq_disperse()} creates a sequence of values around \code{from},
+a given number of steps up and down, where a step is one unit of the last
+decimal place: \code{7.93} is surrounded by \code{7.91}, \code{7.92}, \code{7.94}, \code{7.95}, and
+so on.
 
-\code{seq_disperse_df()} is a variant that creates a data frame. Further columns
-can be added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Regular arguments are the same as
-in \code{seq_disperse()}, but with a dot before each.
+\code{seq_disperse_df()} returns the sequence as a data frame column, with
+further columns added as in \code{\link[tibble:tibble]{tibble::tibble()}}. Its arguments are those
+of \code{seq_disperse()} with a leading dot.
 }
 \details{
-Unlike \code{\link[=seq_endpoint]{seq_endpoint()}} and friends, the present functions don't
-necessarily return continuous or even regular sequences. The greater
-flexibility is due to the \code{dispersion} (\code{.dispersion}) argument, which
-takes any numeric vector. By default, however, the output sequence is
-regular and continuous.
-
-Underlying this difference is the fact that \code{seq_disperse()} and
-\code{seq_disperse_df()} do not wrap around \code{\link[base:seq]{base::seq()}}, although they are
-otherwise similar to \code{\link[=seq_endpoint]{seq_endpoint()}} and friends.
+Unlike \code{\link[base:seq]{base::seq()}}, these functions need not return a regular
+sequence: \code{dispersion} can be any numeric vector.
 }
 \examples{
-# Basic usage:
 seq_disperse(from = 4.02)
 
-# If trailing zeros don't matter,
-# the output can be numeric:
-seq_disperse(from = 4.02, string_output = FALSE)
+# A number loses trailing zeros, so state the step size:
+seq_disperse(from = 5.30, by = 0.01)
 
-# Control steps up and down with
-# `dispersion` (default is `1:5`):
+# More steps:
 seq_disperse(from = 4.02, dispersion = 1:10)
 
-# Sequences might be discontinuous...
-disp1 <- seq(from = 2, to = 10, by = 2)
-seq_disperse(from = 4.02, dispersion = disp1)
+# Irregular steps:
+seq_disperse(from = 4.02, dispersion = c(2, 3, 7))
 
-# ...or even irregular:
-disp2 <- c(2, 3, 7)
-seq_disperse(from = 4.02, dispersion = disp2)
-
-# The data fame variant supports further
-# columns added as in `tibble::tibble()`:
+# The data frame variant takes further columns:
 seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
-Conceptually, \code{seq_disperse()} is a blend of two function families:
-those around \code{\link[=seq_endpoint]{seq_endpoint()}} and those around \code{\link[=disperse]{disperse()}}. The
-present functions were originally conceived for \code{seq_disperse_df()} to be a
-helper within the \code{\link[=function_map_seq]{function_map_seq()}} implementation.
+\code{\link[=disperse]{disperse()}}, which \code{seq_disperse()} combines aspects of with
+\code{\link[base:seq]{base::seq()}}.
 }

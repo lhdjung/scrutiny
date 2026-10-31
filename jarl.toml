@@ -1,0 +1,4 @@
+[lint.duplicated_arguments]
+# `abort_in_export()` passes `...` to `cli::cli_abort()`, so bullets like
+# `"x" = ` repeat by design, as in cli functions, which jarl skips already.
+extend-skipped-functions = ["abort_in_export"]

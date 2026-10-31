@@ -1,92 +1,54 @@
-
-
 test_that("The `globalVariables()` call returns these variables as strings", {
-  utils::globalVariables(c(
+  c(
     ".", "where", "desc", "all_of", "contains", "everything", "x", "items",
     "frac"
-  )) %>% expect_type("character")
+  ) |>
+    utils::globalVariables() |>
+    expect_type("character")
 })
 
 
 test_that("`wrong_spec_string()` returns a string", {
-  wrong_spec_string(4) %>% expect_type("character")
-})
-
-
-sd_rec_scalar <- reconstruct_sd_scalar("mean_n", "0.3", 30, 12, 15)
-
-test_that("`reconstruct_sd_scalar()` returns correct values", {
-  sd_rec_scalar %>% expect_type("double")
-  sd_rec_scalar %>% expect_equal(0.4660916)
-})
-
-
-sd_rec <- reconstruct_sd("mean_n", "0.3", 30, 12, 15)
-
-test_that("`reconstruct_sd()` returns correct values", {
-  sd_rec %>% expect_type("double")
-  sd_rec %>% expect_equal(0.4660916)
+  4 |> wrong_spec_string() |> expect_type("character")
 })
 
 
 test_that("`integer_places()` returns correct values", {
-  integer_places(1.2)     %>% expect_equal(1)
-  integer_places(11.2)    %>% expect_equal(2)
-  integer_places(111.2)   %>% expect_equal(3)
-  integer_places(1111.2)  %>% expect_equal(4)
-  integer_places(11111.2) %>% expect_equal(5)
+  1.2     |> integer_places() |> expect_equal(1)
+  11.2    |> integer_places() |> expect_equal(2)
+  111.2   |> integer_places() |> expect_equal(3)
+  1111.2  |> integer_places() |> expect_equal(4)
+  11111.2 |> integer_places() |> expect_equal(5)
 
-  integer_places(1.22222) %>% expect_equal(1)
-  integer_places(11.2222) %>% expect_equal(2)
-  integer_places(111.222) %>% expect_equal(3)
-  integer_places(1111.22) %>% expect_equal(4)
-  integer_places(11111.2) %>% expect_equal(5)
+  1.22222 |> integer_places() |> expect_equal(1)
+  11.2222 |> integer_places() |> expect_equal(2)
+  111.222 |> integer_places() |> expect_equal(3)
+  1111.22 |> integer_places() |> expect_equal(4)
+  11111.2 |> integer_places() |> expect_equal(5)
 })
-
-
-test_that("`straighten_out()` returns correct values", {
-  straighten_out(1, 2, 3)           %>% expect_equal(list(1, 2, 3))
-  straighten_out("a", "b", "c")     %>% expect_equal(list("a", "b", "c"))
-  straighten_out(TRUE, FALSE, TRUE) %>% expect_equal(list(TRUE, FALSE, TRUE))
-})
-
 
 
 test_that("`an_a()` returns correct values", {
-  an_a("start") %>% expect_equal("a")
-  an_a("end")   %>% expect_equal("an")
+  "start" |> an_a() |> expect_equal("a")
+  "end"   |> an_a() |> expect_equal("an")
 })
 
 
-
 test_that("`an_a_type()` returns correct values", {
-  an_a_type("bla") %>% expect_equal("a string")
-  an_a_type(4)     %>% expect_equal("a double (numeric value)")
+  "bla" |> an_a_type() |> expect_equal("a string")
+  4     |> an_a_type() |> expect_equal("a double (numeric value)")
 })
 
 
 test_that("`is_whole_number()` returns correct values", {
-  is_whole_number(1)   %>% expect_true()
-  is_whole_number(985) %>% expect_true()
-  is_whole_number(37)  %>% expect_true()
+  1   |> is_whole_number() |> expect_true()
+  985 |> is_whole_number() |> expect_true()
+  37  |> is_whole_number() |> expect_true()
 
-  is_whole_number(0.2)    %>% expect_false()
-  is_whole_number(25.05)  %>% expect_false()
-  is_whole_number(75.489) %>% expect_false()
+  0.2    |> is_whole_number() |> expect_false()
+  25.05  |> is_whole_number() |> expect_false()
+  75.489 |> is_whole_number() |> expect_false()
 })
-
-
-
-parcel_letters_expected <- c(
-  "a", "c", "e", "g", "i", "k", "m", "o", "q", "s", "u", "w", "y"
-)
-
-test_that("`parcel_nth_elements()` returns correct values", {
-  parcel_nth_elements(letters, 2) %>% expect_equal(parcel_letters_expected)
-  parcel_nth_elements(1:10, 2) %>% expect_equal(c(1, 3, 5, 7, 9))
-  parcel_nth_elements(1:10, 5) %>% expect_equal(c(1, 6))
-})
-
 
 
 df_test <- tibble::tibble(
@@ -94,136 +56,218 @@ df_test <- tibble::tibble(
 )
 
 
-df_test_2 <- tibble::tibble(
-  a = 1,
-  b = 2,
-  c = 3
-) %>%
-  reverse_column_order()
-
-df_expected_2 <- tibble::tibble(
-  c = 3,
-  b = 2,
-  a = 1
-)
-
-test_that("`reverse_column_order()` returns correct values", {
-  df_test_2 %>% expect_equal(df_expected_2)
-})
-
-
-
-vec_test_1 <- 1:50 %>%
-  as.double() %>%
+vec_test_1 <- 1:50 |>
+  as.double() |>
   censor(25, 40)
 
-vec_expected_1 <- rep(25, 25) %>%
-  append(26:39) %>%
+vec_expected_1 <- rep(25, 25) |>
+  append(26:39) |>
   append(rep(40, 11))
 
 test_that("`censor()` returns correct values", {
-  vec_test_1 %>% expect_equal(vec_expected_1)
+  vec_test_1 |> expect_equal(vec_expected_1)
 })
 
 
+vec_test_2 <- 1:7 |> add_class("silly test")
 
-
-vec_test_2 <- 1:7
-vec_test_2 <- add_class(vec_test_2, "silly test")
-
-df_test_3 <- add_class(df_test, "dummy class")
-df_test_4 <- add_class(df_test, c("dummy class 1", "dummy class 2"))
+df_test_3 <- df_test |> add_class("dummy class")
+df_test_4 <- df_test |> add_class(c("dummy class 1", "dummy class 2"))
 
 test_that("`add_class()` really does add one or more classes", {
-  vec_test_2 %>% expect_s3_class("silly test")
-  df_test_3  %>% expect_s3_class("dummy class")
-  df_test_4  %>% expect_s3_class("dummy class 1")
-  df_test_4  %>% expect_s3_class("dummy class 2")
+  vec_test_2 |> expect_s3_class("silly test")
+  df_test_3  |> expect_s3_class("dummy class")
+  df_test_4  |> expect_s3_class("dummy class 1")
+  df_test_4  |> expect_s3_class("dummy class 2")
 })
-
 
 
 # Vectors with lengths 5, 3, 2, and 3 (they are all > 1):
-numbers  <- 1:5
-nephews  <- c("Huey", "Dewey", "Louie")
+numbers <- 1:5
+nephews <- c("Huey", "Dewey", "Louie")
 norberts <- c("Lammert", "Röttgen")
-nikes    <- c("Air Max", "Zoom Freak", "Phantom")
-
-n_list <- list(numbers, nephews, norberts, nikes)
-
-test_that("`check_lengths_congruent()` throws an error when it should", {
-  check_lengths_congruent(list(numbers, nephews, norberts, nikes)) %>% expect_error()
-  check_lengths_congruent(list(numbers, nephews, norberts)) %>% expect_error()
-  check_lengths_congruent(list(numbers, nephews, nikes)) %>% expect_error()
-  check_lengths_congruent(list(numbers, norberts, nikes)) %>% expect_error()
-  check_lengths_congruent(list(nephews, norberts, nikes)) %>% expect_error()
-})
-
-test_that("`check_lengths_congruent()` throws a warning when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = TRUE) %>% expect_warning()
-  check_lengths_congruent(list(numbers, numbers), warn = TRUE) %>% expect_warning()
-  check_lengths_congruent(list(nephews, nephews), warn = TRUE) %>% expect_warning()
-  check_lengths_congruent(list(norberts, norberts), warn = TRUE) %>% expect_warning()
-  check_lengths_congruent(list(nikes, nikes), warn = TRUE) %>% expect_warning()
-})
-
-
-test_that("`check_lengths_congruent()` remains silent when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = FALSE) %>% expect_silent()
-  check_lengths_congruent(list(numbers, numbers), warn = FALSE) %>% expect_silent()
-  check_lengths_congruent(list(nephews, nephews), warn = FALSE) %>% expect_silent()
-  check_lengths_congruent(list(norberts, norberts), warn = FALSE) %>% expect_silent()
-  check_lengths_congruent(list(nikes, nikes), warn = FALSE) %>% expect_silent()
-})
-
-
-test_that("`check_lengths_congruent()` remains silent when it should", {
-  check_lengths_congruent(list(nephews, nikes), warn = FALSE) %>% expect_silent()
-  check_lengths_congruent(list("a", "b", c("c", "d", "e"))) %>% expect_silent()
-  check_lengths_congruent(list("a", "b")) %>% expect_silent()
-  check_lengths_congruent(list(1, 2, 3, 4, 5)) %>% expect_silent()
-  check_lengths_congruent(list("a", "b", "c", "d", "e")) %>% expect_silent()
-  check_lengths_congruent(list(1, c(1, 2), 3, 4, 5)) %>% expect_silent()
-  check_lengths_congruent(list("a", c("a", "b"), "c", "d", "e")) %>% expect_silent()
-})
-
-
+nikes <- c("Air Max", "Zoom Freak", "Phantom")
 
 test_that("`check_length()` throws an error when it should", {
-  check_length(numbers, 1) %>% expect_error()
-  check_length(nephews, 1) %>% expect_error()
+  numbers |> check_length(1) |> expect_error()
+  nephews |> check_length(1) |> expect_error()
 })
 
 test_that("`check_length()` remains silent when it should", {
-  check_length(numbers, 5) %>% expect_silent()
-  check_length(nephews, 3) %>% expect_silent()
+  numbers |> check_length(5) |> expect_silent()
+  nephews |> check_length(3) |> expect_silent()
 })
 
 
-
 test_that("`check_type()` remains silent when the type is correct", {
-  numbers  %>% check_type("integer")   %>% expect_silent()
-  nephews  %>% check_type("character") %>% expect_silent()
-  norberts %>% check_type("character") %>% expect_silent()
-  nikes    %>% check_type("character") %>% expect_silent()
+  numbers  |> check_type("integer")   |> expect_silent()
+  nephews  |> check_type("character") |> expect_silent()
+  norberts |> check_type("character") |> expect_silent()
+  nikes    |> check_type("character") |> expect_silent()
 })
 
 
 test_that("`check_type()` remains silent when the correct type is
           contained in a string vector of length > 1, along with
           wrong types", {
-  numbers  %>% check_type(c("integer",   "THESE")) %>% expect_silent()
-  nephews  %>% check_type(c("character", "TYPES")) %>% expect_silent()
-  norberts %>% check_type(c("character", "ARE"  )) %>% expect_silent()
-  nikes    %>% check_type(c("character", "WRONG")) %>% expect_silent()
+  numbers  |> check_type(c("integer",   "THESE")) |> expect_silent()
+  nephews  |> check_type(c("character", "TYPES")) |> expect_silent()
+  norberts |> check_type(c("character", "ARE"  )) |> expect_silent()
+  nikes    |> check_type(c("character", "WRONG")) |> expect_silent()
 })
-
 
 
 test_that("`check_type()` throws an error if the type is wrong", {
-  numbers  %>% check_type("character") %>% expect_error()
-  nephews  %>% check_type("double")    %>% expect_error()
-  norberts %>% check_type("integer")   %>% expect_error()
-  nikes    %>% check_type("logical")   %>% expect_error()
+  numbers  |> check_type("character") |> expect_error()
+  nephews  |> check_type("double")    |> expect_error()
+  norberts |> check_type("integer")   |> expect_error()
+  nikes    |> check_type("logical")   |> expect_error()
 })
 
+
+# `check_newly_numeric()` decides whether `x` can be written with `digits`
+# decimal places. It used to answer by counting the decimal places in the string
+# representation of `x`, which cost three regular expressions per key value per
+# row and made it the most expensive part of a mapper call (#92). The fast path
+# added there is one-sided: `round()` settles the values that pass, and anything
+# it leaves undecided falls through to the old string comparison, so the two
+# must agree on every verdict.
+
+passes_check_newly_numeric <- function(x, digits) {
+  tryCatch(
+    {
+      check_newly_numeric(x, digits)
+      TRUE
+    },
+    condition = function(cnd) FALSE
+  )
+}
+
+
+test_that("`check_newly_numeric()` accepts a value that fits `digits`", {
+  5.19  |> check_newly_numeric(2) |> expect_silent()
+  5.19  |> check_newly_numeric(5) |> expect_silent()
+  5     |> check_newly_numeric(0) |> expect_silent()
+  0     |> check_newly_numeric(0) |> expect_silent()
+  -5.19 |> check_newly_numeric(2) |> expect_silent()
+
+  # These are not the doubles for `0.3` and `0.8`, so the fast path cannot
+  # settle them; the string comparison behind it can, and does:
+  (0.1 + 0.2) |> check_newly_numeric(1) |> expect_silent()
+  (0.1 + 0.7) |> check_newly_numeric(1) |> expect_silent()
+})
+
+
+test_that("`check_newly_numeric()` rejects a value with more decimal places", {
+  5.195  |> check_newly_numeric(2) |> expect_error()
+  -5.195 |> check_newly_numeric(2) |> expect_error()
+  2.675  |> check_newly_numeric(2) |> expect_error()
+
+  # A tiny value is not a whole number scaled up, however close to zero it is:
+  1e-20 |> check_newly_numeric(2) |> expect_error()
+
+  # A negative `digits` is not a way to demand whole hundreds:
+  500 |> check_newly_numeric(-2) |> expect_error()
+
+  # The 15 significant digits include the integer digits:
+  33.33333333333333 |> check_newly_numeric(14) |> expect_error("significant digits")
+  33.33333333333333 |> check_newly_numeric(13) |> expect_silent()
+  123456789012345   |> check_newly_numeric(0)  |> expect_silent()
+  1234567890123456  |> check_newly_numeric(0)  |> expect_error("significant digits")
+  123456789012345.5 |> check_newly_numeric(1)  |> expect_error("significant digits")
+  # Just below a power of 10, where `log10()` would round up; these have 15:
+  999999999999999   |> check_newly_numeric(0)  |> expect_silent()
+  99999.9999999999  |> check_newly_numeric(10) |> expect_silent()
+  1e15              |> check_newly_numeric(0)  |> expect_error("has 16")
+  1234567.89        |> check_newly_numeric(9)  |> expect_error("has 16")
+})
+
+
+test_that("`check_newly_numeric()` agrees with counting decimal places", {
+  set.seed(1010)
+
+  x <- c(
+    0, 1, -1, 5.19, -5.19, 0.1 + 0.2, 0.1 + 0.7, 2.675, 1e-20, 1e-16, 1 / 3,
+    pi, 1234567890.5, 1e6 + 0.5, 1e-4, 1e-5, 1e5, 8.7,
+    runif(30, -1e5, 1e5) |> round(3),
+    runif(30, -1, 1) |> round(7),
+    runif(15, -10, 10)
+  )
+
+  for (digits in 0:5) {
+    fast <- vapply(x, passes_check_newly_numeric, logical(1L), digits = digits)
+    counted <- digits >= vapply(x, decimal_places_scalar, integer(1L))
+    fast |> expect_equal(counted)
+  }
+})
+
+
+# `is_decidable_n_items()` states the one condition under which a value set can
+# be decided at all, and it states it twice: with `&&` for the single values the
+# `*_scalar()` functions pass it once per row, and with `&` for the columns
+# `grim_exp_incon()` passes it once per call. The two must not drift apart.
+
+test_that("`is_decidable_n_items()` agrees between its two paths", {
+  grid <- expand.grid(
+    n = c(28, 1, 2, 0, -5, 20.5, 28.0000000001, NA, NaN, Inf, -Inf),
+    items = c(1, 2, 3, 0, 1.5, -1, NA, Inf),
+    min_n = c(1, 2)
+  )
+
+  for (min_n in c(1, 2)) {
+    rows <- grid[grid$min_n == min_n, ]
+
+    scalar <- rows |> nrow() |> seq_len() |> vapply(
+      function(i) is_decidable_n_items(rows$n[i], rows$items[i], min_n),
+      logical(1L)
+    )
+
+    # Vectors take the other branch, whole columns at a time:
+    vectorized <- is_decidable_n_items(rows$n, rows$items, min_n)
+    scalar |> expect_identical(vectorized)
+
+    # Neither is ever `NA`, whatever went in:
+    vectorized |> anyNA() |> expect_false()
+  }
+})
+
+
+test_that("`is_decidable_n_items()` recycles like the vector path", {
+  c(28, 20.5) |> is_decidable_n_items(1)         |> expect_identical(c(TRUE, FALSE))
+  28          |> is_decidable_n_items(c(1, 1.5)) |> expect_identical(c(TRUE, FALSE))
+  numeric(0)  |> is_decidable_n_items(1)         |> expect_identical(logical(0))
+})
+
+
+test_that("every `sd_meaning` and `formula` default spells out its constant", {
+  # The scalar functions check against `SD_MEANINGS` and `DEBIT_FORMULAS`, so a
+  # default that lists other values would offer choices that fail:
+  constants <- list(sd_meaning = SD_MEANINGS, formula = DEBIT_FORMULAS)
+  ns <- asNamespace("scrutiny")
+  n_checked <- 0L
+  for (name in ls(ns)) {
+    fn <- get(name, envir = ns)
+    if (!is.function(fn)) {
+      next
+    }
+    defaults <- formals(fn)
+    for (arg in intersect(names(defaults), names(constants))) {
+      # Internal helpers take a single, resolved value, or one with no default:
+      if (identical(defaults[[arg]], quote(expr = )) || is.character(defaults[[arg]])) {
+        next
+      }
+      defaults[[arg]] |> eval() |> expect_equal(constants[[arg]], info = paste0(name, "(", arg, ")"))
+      n_checked <- n_checked + 1L
+    }
+  }
+  # `sd_meaning` in the scalar, vectorized, and explain functions of GRIMMER and
+  # DEBIT, `grimmer_plot_values()`, `grimmer_values()` and its scalar function,
+  # and all six mappers; `formula` in DEBIT's three functions and three mappers:
+  n_checked |> expect_equal(21L)
+})
+
+test_that("a mapper records an enum setting it was not given as its first value", {
+  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
+  out |> scrutiny_args() |> _$formula |> expect_equal("exact")
+})

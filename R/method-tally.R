@@ -1,10 +1,12 @@
-
 #' @include audit.R
 #' @export
 
-audit.scr_dup_tally <- function(data) {
-  # Select the logical test columns (i.e., every second column):
-  data_dup <- data[is_even(seq_len(ncol(data)))]
-  # Summarize these columns:
+audit.scrutiny_dup_tally <- function(data, ...) {
+  # The logical test columns are every second one:
+  is_test_col <- data |>
+    ncol() |>
+    seq_len() |>
+    is_even()
+  data_dup <- data[is_test_col]
   audit_summary_stats(data_dup, everything(), total = TRUE)
 }

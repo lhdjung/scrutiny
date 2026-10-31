@@ -1,89 +1,95 @@
-
-#' Reverse the `*_map_seq()` process
+#' Reconstruct the input of a sequence mapper
 #'
-#' @description `reverse_map_seq()` takes the output of a function created by
-#'   [`function_map_seq()`] and reconstructs the original data frame.
+#' @description `reverse_map_seq()` takes the output of a function made by
+#'   [`function_map_seq()`] and reconstructs the data frame it was called on.
+#'   [`audit_seq()`] builds on it.
 #'
-#'   See [`audit_seq()`], which takes `reverse_map_seq()` as a basis.
-#'
-#' @param data Data frame that inherits the `"scr_map_seq"` class.
+#' @param data Data frame with the `"scrutiny_map_seq"` class.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
-#' @return The reconstructed tibble (data frame) which a factory-made
-#'   `*_map_seq()` function took as its `data` argument.
+#' @return A tibble with the tested columns, one row per case.
 #'
 #' @examples
-#' # Originally reported summary data...
 #' pigs1
 #'
-#' # ...GRIM-tested with varying inputs...
-#' out <- grim_map_seq(pigs1, include_consistent = TRUE)
+#' out <- grim_map_seq(
+#'   pigs1,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   include_consistent = TRUE
+#' )
 #'
-#' # ...and faithfully reconstructed:
 #' reverse_map_seq(out)
 
-
 reverse_map_seq <- function(data) {
-
-  # Check that `data` is a tibble returned by a function that had been
-  # manufactured using `function_map_seq()`:
-  if (!inherits(data, "scr_map_seq")) {
-    cli::cli_abort(c(
+  if (!inherits(data, "scrutiny_map_seq")) {
+    abort_in_export(
       "!" = "`data` must be the output of \\
       a function like `grim_map_seq()`.",
       "x" = "It isn't.",
       "i" = "Such functions were created by `function_map_seq()`."
-    ))
+    )
   }
 
-  check_dispersion_linear(data)
+  check_dispersion_linear(data, "reverse_map_seq")
 
-  var <- data %>%
-    select_tested_cols() %>%
+  # The tested columns are those left of the key result column, whose name the
+  # sequence mapper records:
+  name_key_result <- attr(data, "scrutiny", exact = TRUE)$name_key_result
+  if (is.null(name_key_result)) {
+    name_key_result <- "consistency"
+  }
+
+  var <- data |>
+    select_tested_cols(before = name_key_result) |>
     colnames()
 
-  var_unique <- var
-
-  if (length(var_unique) == 1L) {
-    data_var <- list(data)
-    data_var <- append(data_var, data_var)
-    names(data_var) <- c(var_unique, "scr_split_dummy")
-  } else {
-    data_var <- split(data, list(data$var))
-    data_var <- data_var[var_unique]  # order by `var`
-    if (length(unique(data$var)) < length(data_var)) {
-      length_diff <- length(data_var) - length(unique(data$var))
-      data_var_fill <- rep(data_var[1L], length_diff)
-      data_var <- append(data_var, data_var_fill)
-      data_var <- Filter(length, data_var)
-    }
+  # With no inconsistent case, the sequence mapper returns no rows:
+  if (nrow(data) == 0L) {
+    return(tibble::new_tibble(as.list(data)[var], nrow = 0L))
   }
 
-  data_nested <- data %>%
-    dplyr::nest_by(case, var) %>%
-    dplyr::arrange(var)
+  # The step size of each variable's dispersion: one unit of the last decimal
+  # place as given by a `digits_*` column, not guessed from the values. `n`
+  # steps by whole numbers. Anything else falls back to
+  # `index_case_from_diff()`'s inference from the sequence:
+  step_by_var <- function(var_name) {
+    if (var_name == "n") {
+      return(1)
+    }
+    digits_col <- paste0("digits_", var_name)
+    if (any(digits_col == colnames(data))) {
+      return(1 / (10^data[[digits_col]][[1L]]))
+    }
+    NULL
+  }
 
-  data_nested <- split(data_nested, data_nested$var)[var]
-  data_nested <- dplyr::bind_rows(data_nested)
+  # Every row of a case carries the reported values of all variables except the
+  # one it disperses. Each reported value is therefore read off the rows that
+  # leave it untouched, and only recovered from its own dispersion when there
+  # are none. This keeps the cases aligned even if `out_min` or `out_max`
+  # clipped a variable's dispersion to nothing for one case. A case without
+  # any rows is not in the output, as in `audit_seq()`.
+  cases <- split(data, data$case)
 
-  data_index_case <- data_nested %>%
-    dplyr::mutate(
-      scr_index_case = list(data[var]),
-      scr_index_case = list(index_case_interpolate(scr_index_case[[1L]]))
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(var, scr_index_case)
+  cols <- lapply(var, function(v) {
+    by <- step_by_var(v)
+    cases |>
+      lapply(function(d) {
+        untouched <- d$var != v
+        if (any(untouched)) {
+          d[[v]][untouched][[1L]]
+        } else {
+          index_case_from_diff(x = d[[v]], diff_var = d$diff_var, by = by)
+        }
+      }) |>
+      purrr::list_c()
+  })
 
-  data_index_case %>%
-    tidyr::pivot_wider(
-      names_from  = var,
-      values_from = scr_index_case,
-      values_fn   = list
-    ) %>%
-    tidyr::unnest(cols = everything()) %>%
-    tidyr::unnest(cols = everything()) # yes, this is weird
+  cols |>
+    rlang::set_names(var) |>
+    tibble::as_tibble()
 }
-

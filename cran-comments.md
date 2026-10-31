@@ -1,7 +1,11 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
 
-A NOTE on the description field of the DESCRIPTION file might refer to:
-- The DOI <doi:10.1177/1948550616673876>, which is valid (but might be flagged).
-- The names of two authors of the references ('Allard' and 'Heathers').
+* The NOTE lists three URLs that answer automated requests with 403 Forbidden
+  (Medium and PeerJ block non-browser clients). All of them open in a browser
+  and are kept as sources.
+
+## Reverse dependencies
+
+There are no reverse dependencies.

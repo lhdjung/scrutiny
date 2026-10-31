@@ -9,85 +9,159 @@ grimmer(
   x,
   sd,
   n,
-  items = 1,
-  show_reason = FALSE,
+  digits_x,
+  digits_sd,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
-\item{x}{String. The reported mean value.}
+\item{x}{Numeric. The reported mean.}
 
-\item{sd}{String. The reported standard deviation.}
+\item{sd}{Numeric. The reported standard deviation.}
 
 \item{n}{Integer. The reported sample size.}
 
-\item{items}{Integer. The number of items composing the \code{x} and \code{sd} values.
-Default is \code{1}, the most common case.}
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{show_reason}{Logical. For internal use only. If set to \code{TRUE}, the
-output is a list of length-2 lists which also contain the reasons for
-inconsistencies. Don't specify this manually; instead, use \code{show_reason} in
-\code{\link[=grimmer_map]{grimmer_map()}}. See there for explanation. Default is \code{FALSE}.}
+\item{digits_sd}{Integer. The number of decimal places in \code{sd}, including
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}, which accepts either direction. See
+\code{vignette("rounding-options", package = "roundwork")}.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
+\item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
+\code{"up_from_or_down_from"}, the point within a step at which rounding
+switches direction, in tenths of a step. Default is \code{5}. Ignored
+otherwise.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
+their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"ties_*"} rounding method, which already fixes the direction; see
+\code{\link[roundwork:reround]{roundwork::reround()}}.}
+
+\item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
+default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
+or Excel's \code{STDEV.S}. \code{"sd_pop"} is the population SD, which divides by
+\code{n}, as in NumPy's \code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+accepts a value set that is consistent as one or the other. \code{"se"} is the
+standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
+if it were an SD. See \emph{SD meaning}.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items} are mutually
-consistent, \code{FALSE} if not.
+Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
+consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
+value is missing or infinite, or if \code{n} or \code{items_averaged} is not a
+positive whole number. A sample SD divides by \code{n - 1}, so under
+\code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at
+least 2.
 }
 \description{
-\code{grimmer()} checks if reported mean and SD values of integer
-data are mathematically consistent with the reported sample size and the
-number of items that compose the mean value. It works much like \code{\link[=grim]{grim()}}.
+\code{grimmer()} checks whether a reported mean and standard
+deviation of integer data are consistent with the reported sample size and
+the number of items that compose them. It extends \code{\link[=grim]{grim()}}: the mean
+must pass GRIM, and the SD must then be reachable from one of the integer
+sums that GRIM admits.
 
-The function is vectorized, but it is recommended to use \code{\link[=grimmer_map]{grimmer_map()}}
-for testing multiple cases.
+The function is vectorized, but \code{\link[=grimmer_map]{grimmer_map()}} is more convenient for
+testing many cases.
 }
 \details{
-GRIMMER was originally devised by Anaya (2016). The present
-implementation follows Allard's (2018) refined Analytic-GRIMMER algorithm.
-It uses a variant of Analytic-GRIMMER first implemented in
-\href{https://lukaswallrich.github.io/rsprite2/reference/GRIMMER_test.html}{\code{rsprite2::GRIMMER_test()}}
-that can be applied to multi-item scales.
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items_averaged} are
+vectorized and recycled to a common length by the tidyverse rules. All
+other arguments must have length 1.
 
-The scrutiny version embeds GRIMMER in the broader system of consistency
-testing, as laid out in
-\href{https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.html}{\emph{Consistency
-tests in depth}}. The \code{grimmer()} function
-is a vectorized (multiple-case) version of this basic implementation. For
-more context and variable name translations, see the top of the R/grimmer.R
-source file.
+The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
+does \code{rsprite2::GRIMMER_test()}, with a stricter first test: the sum of
+squares must be one that \code{n} whole numbers with the reconstructed sum can
+have. For \code{n >= 5}, this means at least the smallest such sum of squares;
+for smaller \code{n}, some larger ones are impossible, too. With this test,
+\code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has the
+reported mean and SD. The one exception is \code{rounding = "even"}, or its
+synonym \code{"ties_even"}, which takes a value on a rounding bound to round
+either way, as in
+\code{\link[roundwork:unround]{roundwork::unround()}}, so it may also accept a value set that a sample
+only rounds to if ties are broken the other way. GRIMMER was first
+proposed by Anaya (2016).
+
+For data on a bounded scale, such as a Likert scale, see the
+\href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
+decides exactly whether a mean and SD are possible within the bounds.
 }
+\section{SD meaning}{
+ The sample and population SDs differ by a factor of
+\code{sqrt(n / (n - 1))}, which matters most at small \code{n}, where GRIMMER is
+most powerful. A population SD tested as a sample SD will often seem
+inconsistent, so \code{sd_meaning} lets you check whether a value set is
+consistent only under the other convention.
+
+\code{"sd_sample_or_pop"} is \code{TRUE} if the value set is consistent as a sample
+SD or as a population SD, and \code{FALSE} if it is neither. A single value has
+no sample SD, so at \code{n = 1}, \code{"sd_sample_or_pop"} is the same as
+\code{"sd_pop"}. The \code{reason} column of \code{\link[=grimmer_map]{grimmer_map()}} names the convention a
+value set passed under, trying the sample SD first.
+
+\code{"sd_sample_or_pop"} accepts far more SDs than either convention alone, so
+it is not the default. It also judges each value set on its own, although a
+single study usually computed all its SDs the same way. To tell which
+convention fits a set of values, test them under \code{"sd_sample"} and
+\code{"sd_pop"} separately.
+
+Some papers report a standard error as if it were an SD. \code{"se"} tests
+whether a value set is consistent under that premise. The SE was rounded,
+not the SD, so the SD may lie anywhere in the SE's rounding range times
+\code{sqrt(n)}. This range is wide: from about \code{n = 20} on, nearly every value
+set whose mean passes GRIM is consistent under \code{"se"}. Such a result says
+little, and it is no evidence that an SE was reported.
+
+\code{"se"} is the SE of this group's mean, computed from its own sample SD and
+\code{n}. Model-based SEs, such as those of estimated marginal means, or SEs
+based on a pooled variance, are not. A value set that is inconsistent
+under \code{"se"} may still have been reported with one of them.
+}
+
 \examples{
 # A mean of 5.23 is not consistent with an SD of 2.55
 # and a sample size of 35:
-grimmer(x = "5.23", sd = "2.55", n = 35)
+grimmer(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 
 # However, mean and SD are consistent with a
 # sample size of 31:
-grimmer(x = "5.23", sd = "2.55", n = 31)
+grimmer(
+  x = 5.23,
+  sd = 2.55,
+  n = 31,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1
+)
 
 # For a scale composed of two items:
-grimmer(x = "2.74", sd = "0.96", n = 63, items = 2)
+grimmer(
+  x = 2.74,
+  sd = 0.96,
+  n = 63,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 2
+)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -97,4 +171,8 @@ https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-dev
 Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 reported measures of variability. \emph{PeerJ Preprints.}
 https://peerj.com/preprints/2400v1/
+}
+\seealso{
+\code{\link[=grimmer_map]{grimmer_map()}} for data frames, \code{\link[=grimmer_values]{grimmer_values()}} for the
+means and SDs behind a consistent value set.
 }

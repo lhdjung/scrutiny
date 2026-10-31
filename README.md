@@ -1,6 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- Knit with devtools::build_readme(), not rmarkdown::render() or the -->
+
+<!-- "Knit" button -- those load the installed package, not the current -->
+
+<!-- source, and can silently render stale/incorrect output. -->
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lhdjung/scrutiny/actions/workflows/R-CMD-check.yaml)
@@ -9,21 +15,20 @@ coverage](https://codecov.io/gh/lhdjung/scrutiny/branch/main/graph/badge.svg)](h
 
 <!-- badges: end -->
 
-# scrutiny: Error detection in science
+# <a href="https://lhdjung.github.io/scrutiny/"><img src="man/figures/logo.png" align="left" height="150" alt="scrutiny website" /></a> scrutiny
 
-The goal of scrutiny is to test published summary statistics for
-consistency using techniques like GRIM and to check their plausibility.
-The package makes these methods easy to use in a tidyverse-friendly way.
-It hopes to help the new field of error detection go mainstream.
+scrutiny tests published summary statistics for consistency using
+techniques like GRIM, GRIMMER, and DEBIT. It makes these methods easy to
+use in a tidyverse-friendly way, hoping to help forensic meta-science go
+mainstream.
 
 You can use the most important parts in the [Error
 detection](https://errors.shinyapps.io/scrutiny) Shiny app instead.
 
-Besides ready-made tests, scrutiny features a complete system for
-implementing new consistency tests. It also has duplication analysis,
-more general infrastructure for implementing error detection techniques,
-as well as specialized data wrangling functions. See the *Articles* tab
-for vignettes.
+Besides ready-made tests, scrutiny has a system for implementing new
+consistency tests, duplicate analysis, and data wrangling helpers. See
+the [articles](https://lhdjung.github.io/scrutiny/articles/) for
+details.
 
 Install the package from CRAN:
 
@@ -39,9 +44,9 @@ remotes::install_github("lhdjung/scrutiny")
 
 ## Get started
 
-Here is how to GRIM-test all values in a data frame. When using
-`grim_map()`, the `consistency` column tells you if the means (`x`) and
-sample sizes (`n`) are mutually consistent.
+GRIM-test all values in a data frame with `grim_map()`. The
+`consistency` column says whether each mean (`x`) is consistent with its
+sample size (`n`).
 
 ``` r
 library(scrutiny)
@@ -49,38 +54,39 @@ library(scrutiny)
 # Example data:
 pigs1
 #> # A tibble: 12 × 2
-#>    x         n
-#>    <chr> <dbl>
-#>  1 7.22     32
-#>  2 4.74     25
-#>  3 5.23     29
-#>  4 2.57     24
-#>  5 6.77     27
-#>  6 2.68     28
-#>  7 7.01     29
-#>  8 7.38     26
-#>  9 3.14     27
-#> 10 6.89     31
-#> 11 5.00     25
-#> 12 0.24     28
+#>        x     n
+#>    <dbl> <dbl>
+#>  1  7.22    32
+#>  2  4.74    25
+#>  3  5.23    29
+#>  4  2.57    24
+#>  5  6.77    27
+#>  6  2.68    28
+#>  7  7.01    29
+#>  8  7.38    26
+#>  9  3.14    27
+#> 10  6.89    31
+#> 11  5       25
+#> 12  0.24    28
 
 # GRIM-testing for data frames:
-grim_map(pigs1)
-#> # A tibble: 12 × 4
-#>    x         n consistency probability
-#>    <chr> <dbl> <lgl>             <dbl>
-#>  1 7.22     32 TRUE               0.68
-#>  2 4.74     25 FALSE              0.75
-#>  3 5.23     29 FALSE              0.71
-#>  4 2.57     24 FALSE              0.76
-#>  5 6.77     27 FALSE              0.73
-#>  6 2.68     28 TRUE               0.72
-#>  7 7.01     29 FALSE              0.71
-#>  8 7.38     26 TRUE               0.74
-#>  9 3.14     27 FALSE              0.73
-#> 10 6.89     31 FALSE              0.69
-#> 11 5.00     25 TRUE               0.75
-#> 12 0.24     28 FALSE              0.72
+grim_map(pigs1, digits_x = 2, items_averaged = 1)
+#> # A tibble: 12 × 6
+#> # GRIM: default settings
+#>        x     n items_averaged digits_x consistency exp_incon
+#>    <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#>  1  7.22    32              1        2 TRUE             0.64
+#>  2  4.74    25              1        2 FALSE            0.75
+#>  3  5.23    29              1        2 FALSE            0.71
+#>  4  2.57    24              1        2 FALSE            0.72
+#>  5  6.77    27              1        2 FALSE            0.73
+#>  6  2.68    28              1        2 TRUE             0.72
+#>  7  7.01    29              1        2 FALSE            0.71
+#>  8  7.38    26              1        2 TRUE             0.74
+#>  9  3.14    27              1        2 FALSE            0.73
+#> 10  6.89    31              1        2 FALSE            0.69
+#> 11  5       25              1        2 TRUE             0.75
+#> 12  0.24    28              1        2 FALSE            0.72
 ```
 
 Test percentages instead of means:
@@ -88,77 +94,75 @@ Test percentages instead of means:
 ``` r
 pigs2
 #> # A tibble: 6 × 2
-#>   x         n
-#>   <chr> <dbl>
-#> 1 67.4    150
-#> 2 54.2    150
-#> 3 54.0    150
-#> 4 69.8    150
-#> 5 68.1    150
-#> 6 55.4    150
+#>       x     n
+#>   <dbl> <dbl>
+#> 1  67.4   150
+#> 2  54.2   150
+#> 3  54     150
+#> 4  69.8   150
+#> 5  68.1   150
+#> 6  55.4   150
 
-grim_map(pigs2, percent = TRUE)
-#> ℹ `x` converted from percentage
-#> # A tibble: 6 × 4
-#>   x         n consistency probability
-#>   <chr> <dbl> <lgl>             <dbl>
-#> 1 0.674   150 FALSE              0.85
-#> 2 0.542   150 FALSE              0.85
-#> 3 0.540   150 TRUE               0.85
-#> 4 0.698   150 FALSE              0.85
-#> 5 0.681   150 FALSE              0.85
-#> 6 0.554   150 FALSE              0.85
+grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
+#> # A tibble: 6 × 6
+#> # GRIM: percent = TRUE
+#>       x     n items_averaged digits_x consistency exp_incon
+#>   <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#> 1  67.4   150              1        1 FALSE            0.85
+#> 2  54.2   150              1        1 FALSE            0.85
+#> 3  54     150              1        1 TRUE             0.85
+#> 4  69.8   150              1        1 FALSE            0.85
+#> 5  68.1   150              1        1 FALSE            0.85
+#> 6  55.4   150              1        1 FALSE            0.85
 ```
 
-You can choose how the means are reconstructed for testing — below,
-rounded up from 5. When visualizing results, the plot will adjust
-automatically. Blue dots are consistent values, red dots are
-inconsistent ones:
+Choose how the means were rounded — below, up from 5. The plot adjusts
+to the rounding method. Blue tiles are consistent, red tiles
+inconsistent:
 
 ``` r
-pigs1 %>% 
-  grim_map(rounding = "up") %>% 
-  grim_plot()
+pigs1 |>
+  grim_map(rounding = "up", digits_x = 2, items_averaged = 1) |>
+  grim_plot_grid()
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" alt="" width="75%" />
 
-Similarly, use DEBIT to test means and standard deviations of binary
-data:
+Use DEBIT to test means and standard deviations of binary data:
 
 ``` r
 pigs3
 #> # A tibble: 7 × 3
-#>   x     sd        n
-#>   <chr> <chr> <dbl>
-#> 1 0.53  0.50   1683
-#> 2 0.44  0.50   1683
-#> 3 0.77  0.42   1683
-#> 4 0.19  0.35   1683
-#> 5 0.34  0.47   1683
-#> 6 0.93  0.25   1683
-#> 7 0.12  0.33   1683
+#>       x    sd     n
+#>   <dbl> <dbl> <dbl>
+#> 1  0.53  0.5   1683
+#> 2  0.44  0.5   1683
+#> 3  0.77  0.42  1683
+#> 4  0.19  0.35  1683
+#> 5  0.34  0.47  1683
+#> 6  0.93  0.25  1683
+#> 7  0.12  0.33  1683
 
-pigs3 %>% 
-  debit_map()
-#> # A tibble: 7 × 11
-#>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-#>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-#> 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425
-#> 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#> 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475
-#> 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255
-#> 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335
-#> # ℹ 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2)
+#> # A tibble: 7 × 6
+#> # DEBIT: default settings
+#>       x    sd     n digits_x digits_sd consistency
+#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>      
+#> 1  0.53  0.5   1683        2         2 TRUE       
+#> 2  0.44  0.5   1683        2         2 TRUE       
+#> 3  0.77  0.42  1683        2         2 TRUE       
+#> 4  0.19  0.35  1683        2         2 FALSE      
+#> 5  0.34  0.47  1683        2         2 TRUE       
+#> 6  0.93  0.25  1683        2         2 TRUE       
+#> 7  0.12  0.33  1683        2         2 TRUE
 
-pigs3 %>% 
-  debit_map() %>% 
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="75%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" alt="" width="75%" />
 
 ## Guiding ideas
 
@@ -178,7 +182,29 @@ pigs3 %>%
 
 — Eric A. Stewart (six retractions; quoted in Pickett 2020, p. 178)
 
-# References
+## AI usage since 1.0.0
+
+Almost all scrutiny code before version 1.0.0 was written by me. No
+version before 0.6.0 contained any appreciable amount of AI-generated
+code. The first CRAN version, 0.2.2, was released even before ChatGPT
+was.
+
+However, version 1.0.0 brought vast improvements largely because I used
+LLMs (mostly Claude) to write most of the new code. Not only did this
+fix many bugs, iron out API quirks, enable new features, and improve
+performance, but it also made testing in scrutiny much more thorough.
+Unit tests are now dramatically more comprehensive than they used to be,
+with grid sweeps that test key functions over entire ranges of
+systematically constructed inputs. This has increased my confidence that
+the code is correct.
+
+I loved maintaining scrutiny as a hand-crafted passion project, but LLMs
+now write code well enough that refusing to use them would have been a
+huge missed opportunity. Even the Linux kernel [allows for AI
+usage](https://docs.kernel.org/process/coding-assistants.html) now, so I
+am in good company.
+
+## References
 
 Pickett, J. T. (2020). The Stewart Retractions: A Quantitative and
 Qualitative Analysis. *Econ Journal Watch*, *17*(1), 152–190.

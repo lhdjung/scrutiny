@@ -5,113 +5,163 @@
 \title{Create new \verb{*_map()} functions}
 \usage{
 function_map(
-  .fun,
-  .reported,
+  .fn,
+  .reported = NULL,
   .name_test,
   .name_key_result = "consistency",
   .name_class = NULL,
   .args_disabled = NULL,
+  .args_by_row = NULL,
+  .args_fixed = NULL,
+  .cols_helper = NULL,
   .col_names = NULL,
-  .col_control = NULL,
-  .col_filler = NULL,
+  .cols_derived = NULL,
+  .reported_variadic = NULL,
   ...
 )
 }
 \arguments{
-\item{.fun}{Single-case consistency testing function that will be applied to
-each row in a data frame. The function must return a single logical value,
-i.e., \code{TRUE}, \code{FALSE}, or \code{NA}.}
+\item{.fn}{Single-case function to apply to each row. It must return a
+single logical value or, if \code{.col_names} is specified, a list of values
+with the key result first.}
 
-\item{.reported}{String. Names of the columns to be tested.}
+\item{.reported}{String. Names of the arguments of \code{.fn} that take the
+reported values, such as \code{c("x", "n")}. These become the key columns. May
+be \code{NULL} if \code{.reported_variadic} is specified.}
 
-\item{.name_test}{String (length 1). Plain-text name of the consistency test,
-such as \code{"GRIM"}.}
+\item{.name_test}{String (length 1). Plain-text name of the test, such as
+\code{"GRIM"}.}
 
-\item{.name_key_result}{(Experimental) Optionally, a single string that will
-be the name of the key result column in the output. Default is
-\code{"consistency"}.}
+\item{.name_key_result}{(Experimental) String (length 1). Name of the key
+result column. Default is \code{"consistency"}.}
 
-\item{.name_class}{String. Optionally, one or more classes to be added to the
-output data frame. Default is \code{NULL}, i.e., no extra class (but see
-\emph{Details}).}
+\item{.name_class}{String. Optionally, one or more classes to add to the
+output. Default is \code{NULL}; see \emph{Details} for the class that is always
+added.}
 
-\item{.args_disabled}{Optionally, a string vector with names of arguments of
-the \verb{*_scalar()} function that don't work with the factory-made function.
-If the user  tries to specify these arguments, an informative error will be
-thrown.}
+\item{.args_disabled}{Optionally, names of arguments of \code{.fn} that the new
+function should not have. Specifying one of them is an error.}
 
-\item{.col_names}{(Experimental) Optionally, a string vector with the names
-of additional columns that are derived from the \verb{*_scalar()} function.
-Requires \code{.col_control} and \code{.col_filler} specifications.}
+\item{.args_by_row}{Optionally, names of arguments of \code{.fn} that may vary
+by row, such as \code{"digits_x"}. The new function takes a single value or one
+per row of \code{data} for each, and returns them as columns.}
 
-\item{.col_control}{(Experimental) Optionally, a single string with the name
-of the \verb{*_scalar()} function's logical argument that controls if the
-columns named in \code{.col_names} will be displayed.}
+\item{.args_fixed}{Optionally, a named list of values that are always passed
+to \code{.fn}, such as \code{list(show_reason = TRUE)}. The new function has no
+arguments for them; specifying one is an error.}
 
-\item{.col_filler}{(Experimental) Optionally, a vector specifying the values
-of \code{.col_names} columns in rows where the \verb{*_scalar()} function only
-returned the \code{consistency} value.}
+\item{.cols_helper}{Optionally, names of arguments of \code{.fn} that may also be
+given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
+returned after the key columns if it was given, as a column or as an
+argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
+
+\item{.col_names}{Optionally, names of the columns that a list returned by
+\code{.fn} unpacks into, as with \code{show_rec = TRUE}. The first name must be
+\code{.name_key_result}. If \code{data} has no rows, only the key result column is
+created.}
+
+\item{.cols_derived}{Optionally, a named list of functions that compute
+further columns from the same per-row input, such as
+\code{list(exp_incon = grim_exp_incon)}. Each gets only the arguments it
+has formals for. The columns follow the key result column.}
+
+\item{.reported_variadic}{Optionally, a single string naming an argument of
+\code{.fn} that takes the values of one row as a vector. The new function gets
+an argument by that name, without a default, that selects any number of
+columns with tidyselect syntax. See \emph{Details}.}
 
 \item{...}{These dots must be empty.}
 }
 \value{
-A factory-made function with these arguments:
+A function with these arguments:
 \itemize{
-\item \code{data}: Data frame with all the columns named in \code{.reported}. It must
-have columns named after the key arguments in \code{.fun}. Other columns are
-permitted.
-\item Arguments named after the \code{.reported} values. They can be specified as the
-names of \code{data} columns so that the function will rename that column using
-the \code{.reported} name.
-\item \code{reported}, \code{fun}, \code{name_class}: Same as when calling \code{function_map()} but
-spelled without dots. You can override these defaults when calling the
-factory-made function.
-\item \code{...}: Arguments passed down to \code{.fun}. This does not include the
-column-identifying arguments derived from \code{.reported}.
+\item \code{data}: a data frame with the key columns. Other columns are permitted.
+\item The \code{.args_by_row} arguments, such as \code{digits_x}.
+\item If \code{.reported_variadic} was given, an argument by that name.
+\item One argument per \code{.reported} value, for naming a column of \code{data} that
+holds that value under another name.
+\item \code{...}: must be empty. Every argument after it must be named in full.
+\item The other arguments of \code{.fn}, with the same defaults; see \emph{Details}.
 }
 }
 \description{
-\code{function_map()} creates new basic mapper functions for
-consistency tests, such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=debit_map]{debit_map()}}.
+\code{function_map()} creates a basic mapper: a function that
+applies a single-case test such as \code{grim_scalar()} to every row of a data
+frame. \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, and \code{\link[=debit_map]{debit_map()}} are made by
+it.
 
-For context, see \href{https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#creating-basic-mappers-with-function_map}{\emph{Creating basic mappers with \code{function_map()}}}.
+See \code{vignette("consistency-tests-in-depth")}, section \emph{Creating basic
+mappers with \code{function_map()}}.
+
+\code{function_map()} is a developer tool: it may change in a minor release,
+with a NEWS entry.
 }
 \details{
-The output tibble returned by the factory-made function will inherit
-one or two classes independently of the \code{.name_class} argument:
-\itemize{
-\item It will inherit a class named \code{"scr_{tolower(.name_test)}_map"}; for
-example, the class is \code{"scr_grim_map"} if \code{.name_test} is \code{"GRIM"}.
-\item If a \code{rounding} argument is specified via \code{...}, or else if \code{.fun} has a
-\code{rounding} argument with a default, the output tibble will inherit a class
-named \code{"scr_rounding_{rounding}"}; for example,
-\code{"scr_rounding_up_or_down"}.
-}
+The new function has an argument for every argument of \code{.fn} that
+is not named in \code{.reported}, \code{.reported_variadic}, \code{.args_disabled}, or
+\code{.args_fixed}, with the same default.
+
+\code{.reported_variadic} is for a test whose number of key columns depends on
+the data, such as whether the values in any number of columns add up to
+the value in another one. \code{.fn} takes those values as a single vector,
+and the new function selects the columns with tidyselect; see \emph{Examples}.
+The selection must not be empty and must not include a column that already
+has a role in the test. The selected columns are returned as themselves.
+Such a mapper cannot be wrapped by \code{\link[=function_map_seq]{function_map_seq()}} or
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which derive their arguments from \code{.reported}.
+
+The output has the class \code{"scrutiny_{tolower(.name_test)}_map"}, e.g.,
+\code{"scrutiny_grim_map"}, in addition to any \code{.name_class}. The arguments that
+applied to the whole call, such as \code{rounding}, are recorded on the output;
+see \code{\link[=scrutiny_meta]{scrutiny_meta()}}.
 }
 \section{Value returned by the factory-made function}{
- A tibble that includes
-\code{"consistency"}: a logical column showing whether the values to its left
-are mutually consistent (\code{TRUE}) or not (\code{FALSE}).
+ A tibble with the
+\code{.reported_variadic} columns, the \code{.reported} columns, the helper columns
+that were given, the \code{.args_by_row} columns, and the key result column
+(\code{consistency} by default), which is \code{TRUE} for consistent value sets and
+\code{FALSE} for inconsistent ones. Any \code{.cols_derived} columns, any
+\code{.col_names} columns, and the other columns of \code{data} follow, in that
+order.
 }
 
 \examples{
-# Basic test implementation for "SCHLIM",
-# a mock test with no real significance:
+# A single-case function for SCHLIM, a mock test:
 schlim_scalar <- function(y, n) {
   (y / 3) > n
 }
 
-# Let the function factory produce
-# a mapper function for SCHLIM:
+# The mapper:
 schlim_map <- function_map(
-  .fun = schlim_scalar,
+  .fn = schlim_scalar,
   .reported = c("y", "n"),
   .name_test = "SCHLIM"
 )
 
-# Example data:
 df1 <- tibble::tibble(y = 16:25, n = 3:12)
-
-# Call the "factory-made" function:
 schlim_map(df1)
+
+# A test over any number of columns: do the parts add up to the total?
+# The single-case function takes the parts as one vector...
+sum_check_scalar <- function(parts, total, tolerance = 0) {
+  abs(sum(parts) - total) <= tolerance
+}
+
+# ...which `.reported_variadic` names:
+sum_check_map <- function_map(
+  .fn = sum_check_scalar,
+  .reported = "total",
+  .reported_variadic = "parts",
+  .name_test = "SUMCHECK"
+)
+
+df2 <- tibble::tibble(
+  item_1 = c(10, 20, 30),
+  item_2 = c(5, 5, 5),
+  item_3 = c(1, 2, 3),
+  total  = c(16, 27, 40)
+)
+
+# The `parts` argument selects columns with tidyselect syntax:
+sum_check_map(df2, parts = starts_with("item"))
 }

@@ -8,9 +8,9 @@
 A tibble (data frame) with 5 rows and 3 columns, describing various
 body measures of the fictional pigs. The columns are:
 \describe{
-\item{snout}{String. Snout width.}
-\item{tail}{String. Tail length.}
-\item{wings}{String. Wingspan.}
+\item{snout}{Numeric. Snout width.}
+\item{tail}{Numeric. Tail length.}
+\item{wings}{Numeric. Wingspan.}
 }
 }
 \usage{
@@ -25,7 +25,7 @@ duplicates. The dataset can be used to demonstrate the functionality of
 \verb{duplicate_*()} functions such as \code{duplicate_count()}.
 }
 \seealso{
-\code{pigs1} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
+\code{\link{pigs1}} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
 percentages, \code{\link{pigs3}} for using DEBIT, and \code{\link{pigs5}} for GRIMMER-testing.
 }
 \keyword{datasets}

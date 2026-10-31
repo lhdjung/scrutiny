@@ -6,97 +6,92 @@
 \usage{
 grimmer_map(
   data,
-  items = 1,
-  merge_items = TRUE,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
-  show_reason = TRUE,
+  ...,
+  items_averaged,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
-\item{data}{Data frame with columns \code{x}, \code{sd}, \code{n}, and optionally \code{items}
-(see documentation for \code{grim()}). Any other columns in \code{data} will be
-returned alongside GRIMMER test results.}
+\item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}, and optionally
+\code{items_averaged}. Any other columns are returned alongside the results.}
 
-\item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
-the number of items composing the \code{x} and \code{sd} values. Default is \code{1}, the
-most common case.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
+whole column or one number per row of \code{data}.}
 
-\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
-column in the output. Instead, values from an \code{items} column or argument
-will be multiplied with values in the \code{n} column. This is only for
-presentation and does not affect test results.}
+\item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
-\item{show_reason}{Logical (length 1). Should there be a \code{reason} column that
-shows the reasons for inconsistencies and \code{"Passed all"} for consistent
-values? Default is \code{FALSE}. See below for reference.}
+\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIMMER testing; see documentation for \code{\link[=grimmer]{grimmer()}}.}
+\item{rounding, threshold, symmetric, sd_meaning}{Passed on to
+\code{\link[=grimmer]{grimmer()}}.}
 }
 \value{
-A tibble with these columns --
+A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
-\item \code{consistency}: GRIMMER consistency of \code{x}, \code{n}, and \code{items}.
-\item \code{reason}: If consistent, \code{"Passed all"}. If inconsistent, it says which
-test was failed (see below).
-\item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
+\item \code{items_averaged}: the number of items averaged into each score.
+\item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
+\item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items_averaged}.
+\code{NA} for a case that cannot be decided, such as one with a missing value.
+\item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed, or
+why the case cannot be decided.
+\item Any other columns from \code{data}.
 }
 
-The \code{reason} columns refers to GRIM and the three GRIMMER tests (Allard
-2018). Briefly, these are:
+The \code{reason} column refers to GRIM and the GRIMMER tests of Allard (2018):
 \enumerate{
-\item The reconstructed sum of squared observations must be a whole number.
-\item The reconstructed SD must match the reported one.
-\item The parity of the reconstructed sum of squared observations must match the
-parity of the reconstructed sum of integers of which the reported means
-are fractions; i.e., either both are even or both are odd.
+\item The reconstructed sum of squared observations must be a whole number,
+and one that \code{n} whole numbers with the reconstructed sum can reach: at
+least the sum of squares of these numbers as close together as possible.
+For \code{n < 5}, some larger sums of squares are impossible, too.
+\item The reconstructed SD must match the reported one. Test 1 implies this,
+so it is never a reason.
+\item The parity of the reconstructed sum of squared observations must match
+that of the reconstructed sum of the values.
 }
 
-The tibble has the \code{scr_grimmer_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic. It also has the \code{scr_grim_map} class, so it can be
-visualized by \code{\link[=grim_plot]{grim_plot()}}.
+A negative \code{sd} gives \code{"Negative SD"}.
+
+Under \code{sd_meaning = "sd_sample_or_pop"}, a consistent value set gives
+\code{"Passed all (sample SD)"} or, if it passes as a population SD only,
+\code{"Passed all (population SD)"}. If the two conventions fail for different
+reasons, the \code{reason} names both, and \code{\link[=audit]{audit()}} counts the sample SD's,
+as under the default \code{sd_meaning}.
+
+The tibble has the class \code{scrutiny_grimmer_map}, which is recognized by
+\code{\link[=audit]{audit()}} and \code{\link[=grim_plot_grid]{grim_plot_grid()}}.
 }
 \description{
-Call \code{grimmer_map()} to GRIMMER-test any number of combinations
-of mean, standard deviation, sample size, and number of items. Mapping
-function for GRIMMER testing.
+\code{grimmer_map()} applies \code{\link[=grimmer]{grimmer()}} to every row of a data
+frame with means, standard deviations, and sample sizes.
 
-For summary statistics, call \code{\link[=audit]{audit()}} on the results. Visualize results
-using \code{\link[=grim_plot]{grim_plot()}}, as with GRIM results.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics. \code{\link[=grim_plot_grid]{grim_plot_grid()}}
+accepts it as well.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for \code{\link[=audit]{audit()}},
-so you can call \code{\link[=audit]{audit()}} following \code{grimmer_map()} to get a summary of
-\code{grimmer_map()}'s results. It is a tibble with a single row and these
-columns --
+ \code{audit()} on \code{grimmer_map()} output
+returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: number of GRIMMER-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
-\item \code{incons_rate}: proportion of GRIMMER-inconsistent value sets.
-\item \code{fail_grim}: number of value sets that fail the GRIM test.
-\item \code{fail_test1}: number of value sets that fail the first GRIMMER test (see
-below).
-\item \code{fail_test2}: number of value sets that fail the second GRIMMER test.
-\item \code{fail_test3}: number of value sets that fail the third GRIMMER test.
-}
-
-The \code{reason} columns refers to the three GRIMMER tests (see Allard 2018).
-These are:
-\enumerate{
-\item The reconstructed sum of squared observations must be a whole number.
-\item The reconstructed SD must match the reported one.
-\item The parity of the reconstructed sum of squared observations must match the
-parity of the reconstructed sum of integers of which the reported means
-are fractions; i.e., either both are even or both are odd.
+\item \code{incon_cases}: number of GRIMMER-inconsistent value sets.
+\item \code{emp_incon}: proportion of GRIMMER-inconsistent value sets.
+\item \code{fail_grim}: number of value sets that fail GRIM.
+\item \code{fail_test1}, \code{fail_test3}: number of value sets that fail GRIMMER's
+first or third test. Test 2 is implied by test 1, so it never fails.
 }
 }
 
@@ -104,15 +99,14 @@ are fractions; i.e., either both are even or both are odd.
 # Use `grimmer_map()` on data like these:
 pigs5
 
-# The `consistency` column shows whether
-# the values to its left are GRIMMER-consistent.
-# If they aren't, the `reason` column says why:
-pigs5 \%>\%
-  grimmer_map()
+# The `consistency` column shows whether the values to its left are
+# GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
+pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
 
 # Get summaries with `audit()`:
-pigs5 \%>\%
-  grimmer_map() \%>\%
+pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   audit()
 }
 \references{

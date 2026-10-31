@@ -1,4 +1,3 @@
-
 # Example input -----------------------------------------------------------
 
 df1 <- mtcars
@@ -22,21 +21,102 @@ df3 <- tibble::tibble(
 df1_exp <- tibble::tibble(
   x = rep(
     c(
-      "cyl", "vs", "gear", "vs", "am", "cyl", "drat", "mpg", "drat", "mpg", "cyl",
-      "disp", "hp", "drat", "wt", "qsec", "vs", "am"
+      "cyl",
+      "vs",
+      "gear",
+      "vs",
+      "am",
+      "cyl",
+      "drat",
+      "mpg",
+      "drat",
+      "mpg",
+      "cyl",
+      "disp",
+      "hp",
+      "drat",
+      "wt",
+      "qsec",
+      "vs",
+      "am"
     ),
     c(
-      1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 9L, 7L, 8L, 7L, 3L, 5L,
-      4L, 1L, 1L
+      1L,
+      1L,
+      1L,
+      1L,
+      1L,
+      1L,
+      1L,
+      1L,
+      2L,
+      9L,
+      7L,
+      8L,
+      7L,
+      3L,
+      5L,
+      4L,
+      1L,
+      1L
     )
   ),
   y = c(
-    "carb", "am", "carb", "carb", "carb", "gear", "wt", "qsec", "gear", "carb",
-    "cyl", "disp", "hp", "drat", "wt", "vs", "am", "gear", "carb", "disp", "hp",
-    "drat", "wt", "qsec", "vs", "am", "hp", "drat", "wt", "qsec", "vs", "am",
-    "gear", "carb", "drat", "wt", "qsec", "vs", "am", "gear", "carb", "qsec",
-    "vs", "am", "qsec", "vs", "am", "gear", "carb", "vs", "am", "gear", "carb",
-    "gear", "gear"
+    "carb",
+    "am",
+    "carb",
+    "carb",
+    "carb",
+    "gear",
+    "wt",
+    "qsec",
+    "gear",
+    "carb",
+    "cyl",
+    "disp",
+    "hp",
+    "drat",
+    "wt",
+    "vs",
+    "am",
+    "gear",
+    "carb",
+    "disp",
+    "hp",
+    "drat",
+    "wt",
+    "qsec",
+    "vs",
+    "am",
+    "hp",
+    "drat",
+    "wt",
+    "qsec",
+    "vs",
+    "am",
+    "gear",
+    "carb",
+    "drat",
+    "wt",
+    "qsec",
+    "vs",
+    "am",
+    "gear",
+    "carb",
+    "qsec",
+    "vs",
+    "am",
+    "qsec",
+    "vs",
+    "am",
+    "gear",
+    "carb",
+    "vs",
+    "am",
+    "gear",
+    "carb",
+    "gear",
+    "gear"
   ),
   count = rep(
     c(32L, 27L, 14L, 13L, 11L, 3L, 2L, 1L, 0L),
@@ -48,12 +128,13 @@ df1_exp <- tibble::tibble(
     c(1, 0.84375, 0.4375, 0.40625, 0.34375, 0.09375, 0.0625, 0.03125, 0),
     rep(c(2L, 1L, 2L, 45L), c(1L, 6L, 1L, 1L))
   ),
-  rate_y = rep(
-    c(1, 0.84375, 0.4375, 0.40625, 0.34375, 0.09375, 0.0625, 0.03125, 0),
-    rep(c(2L, 1L, 2L, 45L), c(1L, 6L, 1L, 1L))
-  ),
-) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+  # Counted from the `y` side, e.g., only 12 of the 32 `carb` values (the 4s,
+  # 6s, and 8s) are also `cyl` values:
+  rate_y = c(12, 32, 13, 7, 7, 12, 2, 2, 15, 3, rep(0, 45)) / 32,
+) |>
+  structure(
+    class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame")
+  )
 
 
 df2_exp <- tibble::tibble(
@@ -64,8 +145,10 @@ df2_exp <- tibble::tibble(
   total_y = c(5L, 3L, 3L),
   rate_x = c(0.6, 0.2, 0.2),
   rate_y = c(0.6, 0.3333333333333333148296, 0.3333333333333333148296),
-) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+) |>
+  structure(
+    class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame")
+  )
 
 df2_ignore_exp <- tibble::tibble(
   x = c("a", "a", "b"),
@@ -75,8 +158,10 @@ df2_ignore_exp <- tibble::tibble(
   total_y = c(4L, 3L, 3L),
   rate_x = c(0.5, 0.25, 0.25),
   rate_y = c(0.5, 0.3333333333333333148296, 0.3333333333333333148296),
-) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+) |>
+  structure(
+    class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame")
+  )
 
 df3_exp <- tibble::tibble(
   x = c("a", "b", "a"),
@@ -86,19 +171,40 @@ df3_exp <- tibble::tibble(
   total_y = c(4L, 2L, 2L),
   rate_x = c(0.5, 0.5, 0.25),
   rate_y = c(0.5, 1, 0.5),
-) %>%
-  structure(class = c("scr_dup_count_colpair", "tbl_df", "tbl", "data.frame"))
+) |>
+  structure(
+    class = c("scrutiny_dup_count_colpair", "tbl_df", "tbl", "data.frame")
+  )
 
 
 # Testing -----------------------------------------------------------------
 
 test_that("`duplicate_count_colpair()` works correctly by default", {
-  df1 %>% duplicate_count_colpair() %>% expect_equal(df1_exp)
-  df2 %>% duplicate_count_colpair() %>% expect_equal(df2_exp)
-  df3 %>% duplicate_count_colpair() %>% expect_equal(df3_exp)
+  df1 |> duplicate_count_colpair() |> expect_equal(df1_exp)
+  df2 |> duplicate_count_colpair() |> expect_equal(df2_exp)
+  df3 |> duplicate_count_colpair() |> expect_equal(df3_exp)
 })
 
 test_that("`duplicate_count_colpair()` with `ignore` works correctly", {
-  df2 %>% duplicate_count_colpair(ignore = 3) %>% expect_equal(df2_ignore_exp)
+  df2 |> duplicate_count_colpair(ignore = 3) |> expect_equal(df2_ignore_exp)
 })
 
+test_that("`rate_y` is the proportion of `y` values duplicated in `x`", {
+  # It used to be `count / total_y`, with `count` taken from the `x` side, so
+  # it could exceed 1:
+  out <- tibble::tibble(x = c(1, 1, 1, 2), y = c(1, NA, NA, NA)) |> duplicate_count_colpair()
+  out$rate_x |> expect_equal(3 / 4)
+  out$rate_y |> expect_equal(1)
+})
+
+
+test_that("values are compared as strings, as in the other `duplicate_*()` functions", {
+  tibble::tibble(a = 0.1 + 0.2, b = 0.3) |> duplicate_count_colpair() |> dplyr::pull(count) |> expect_equal(1L)
+})
+
+
+# `as.character(100000)` is `"1e+05"`, so only the second value was a duplicate:
+test_that("numbers are compared as written out in full, not in scientific notation", {
+  tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair()                   |> dplyr::pull(count) |> expect_equal(2L)
+  tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair(ignore = "100000") |> dplyr::pull(count) |> expect_equal(1L)
+})

@@ -1,29 +1,120 @@
-
-
 df1 <- disperse(n = 20, dispersion = 0:5)
 
 test_that("The function returns a tibble", {
-  df1 %>% expect_s3_class("tbl_df")
+  df1 |> expect_s3_class("tbl_df")
 })
 
 test_that("It has the right dimensions", {
-  df1 %>% dim() %>% expect_equal(c(12, 2))
+  df1 |> dim() |> expect_equal(c(12, 2))
 })
 
 test_that("It starts with the right values", {
-  df1$n[1] %>% expect_equal(20)
-  df1$n_change[1] %>% expect_equal(0)
+  df1$n[1] |> expect_equal(20)
+  df1$n_change[1] |> expect_equal(0)
 })
 
 test_that("It ends with the right values", {
-  df1$n[12] %>% expect_equal(25)
-  df1$n_change[12] %>% expect_equal(5)
+  df1$n[12] |> expect_equal(25)
+  df1$n_change[12] |> expect_equal(5)
 })
 
 
 df2 <- disperse(0, dispersion = 0:5, n_min = 1)
 
 test_that("`n_min` controls the dimensions correctly", {
-  df2 %>% dim() %>% expect_equal(c(0, 2))
+  df2 |> dim() |> expect_equal(c(0, 2))
 })
 
+
+test_that("`dispersion` must consist of whole numbers", {
+  # `n_change` used to be truncated toward zero by `as.integer()`, so a
+  # fractional step left `n` and `n_change` describing different things.
+  10 |> disperse(dispersion = c(0.5, 1.5)) |> expect_error("whole numbers")
+  10 |> disperse(dispersion = 1.5)         |> expect_error("whole numbers")
+  # A string used to fail in base R's `round()`:
+  10 |> disperse(dispersion = "a")         |> expect_error("must be one of these types")
+})
+
+test_that("`n` and `n_change` agree", {
+  out <- disperse(n = 10)
+  (out$n - 10L) |> expect_equal(out$n_change)
+})
+
+
+test_that("`n` is integer, as it is in the mappers", {
+  # The mappers store `n` as integer because a sample size is a whole number.
+  # The dispersion helpers that feed them, and the reverse function that reads
+  # their output back, returned doubles -- so the column changed type on the
+  # way in and back out again.
+  20        |> disperse()       |> purrr::pluck("n")        |> expect_type("integer")
+  c(25, 26) |> disperse2()      |> purrr::pluck("n")        |> expect_type("integer")
+  40        |> disperse_total() |> purrr::pluck("n")        |> expect_type("integer")
+  51        |> disperse_total() |> purrr::pluck("n")        |> expect_type("integer")
+  20        |> disperse()       |> purrr::pluck("n_change") |> expect_type("integer")
+
+  tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    reverse_map_total_n() |>
+    purrr::pluck("n") |>
+    expect_type("integer")
+
+  # The values themselves are unchanged:
+  20 |>
+    disperse() |>
+    purrr::pluck("n") |>
+    expect_equal(c(20L, 20L, 19L, 21L, 18L, 22L, 17L, 23L, 16L, 24L, 15L, 25L))
+})
+
+
+test_that("`disperse_total()` requires a whole-number total", {
+  # `disperse_total(7.5)` used to return group sizes of 3.25 and 4.25.
+  7.5 |> disperse_total() |> expect_error("whole number")
+  NA  |> disperse_total() |> expect_error("whole number")
+})
+
+
+test_that("`disperse_total()` returns no rows if the limits leave no pairs", {
+  # `seq(1, 0, by = 2)` used to fail here, for an odd total only:
+  out_odd <- disperse_total(51, n_min = 30)
+  out_even <- disperse_total(50, n_min = 30)
+  out_odd |> expect_equal(out_even)
+  out_odd |> nrow() |> expect_equal(0L)
+  1 |> disperse_total() |> nrow() |> expect_equal(0L)
+})
+
+
+test_that("`n`, `n_min`, and `n_max` must be numbers", {
+  # A missing limit used to turn every pair into `NA`:
+  20       |> disperse(n_max = NA)  |> expect_error("single number")
+  20       |> disperse(n_min = 1:2) |> expect_error("single number")
+  "20"     |> disperse()            |> expect_error("must be one of these types")
+  NA_real_ |> disperse()            |> expect_error("not be missing")
+  -4       |> disperse_total(n_min = NULL) |> expect_error("non-negative")
+})
+
+test_that("`disperse2()` applies the limits to the group sizes themselves", {
+  # The limits used to be compared to the midpoint, so a fractional `n_min`
+  # let a pair through that broke it:
+  c(25, 26) |> disperse2(n_min = 24.5) |> purrr::pluck("n") |> expect_equal(c(25L, 26L))
+  c(25, 26) |> disperse2(n_min = 24, dispersion = 0:2) |> purrr::pluck("n") |> expect_equal(c(25L, 26L, 24L, 27L))
+  c(25, 26) |> disperse2(n_max = 26.5, dispersion = 0:2) |> purrr::pluck("n") |> expect_equal(c(25L, 26L))
+})
+
+test_that("a partly named `constant` list gets default names for the rest", {
+  out <- disperse(20, dispersion = 0:1, constant = list(a = 1:2, 3:4))
+  out |> colnames() |> expect_equal(c("n", "n_change", "a", "constant2"))
+})
+
+
+test_that("an odd total's limits are checked as given", {
+  # The message showed `n_min + 0.5`, and a string failed in base R arithmetic:
+  51 |> disperse_total(n_min = c(1, 2)) |> expect_error("It is `1` and `2`")
+  51 |> disperse_total(n_min = "2")     |> expect_error("single number")
+})
+
+
+test_that("a total within tolerance of a whole number is split as that number", {
+  # `40 - 1e-9` passed the whole-number check but was split as odd, into 19.5
+  # and 20.5:
+  (40 - 1e-9) |> disperse_total() |> expect_equal(disperse_total(40))
+})

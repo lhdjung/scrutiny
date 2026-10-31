@@ -6,93 +6,75 @@
 \usage{
 debit_plot(
   data,
-  show_outer_boxes = TRUE,
   show_labels = TRUE,
   show_full_scale = TRUE,
-  show_theme_other = TRUE,
-  color_cons = "royalblue1",
-  color_incons = "red",
-  line_alpha = 1,
-  line_color = "black",
-  line_linetype = 1,
-  line_width = 0.5,
-  line_size = 0.5,
-  rect_alpha = 1,
-  tile_alpha = 0.15,
-  tile_height_offset = 0.025,
-  tile_width_offset = 0.025,
-  tile_height_min = 0.0375,
-  tile_width_min = 0.0385,
-  label_alpha = 0.5,
-  label_linetype = 3,
-  label_size = 3.5,
-  label_linesize = 0.75,
-  label_force = 175,
-  label_force_pull = 0.75,
-  label_padding = 0.5
+  show_theme_other = TRUE
 )
 }
 \arguments{
-\item{data}{Data frame. Result of a call to \code{\link[=debit_map]{debit_map()}}.}
+\item{data}{Data frame returned by \code{\link[=debit_map]{debit_map()}}.}
 
-\item{show_outer_boxes}{Logical. Should outer tiles surround the actual data
-points, making it easier to spot them and to assess their overlap? Default
-is \code{TRUE}.}
+\item{show_labels}{Logical. Should the value sets be labeled with
+"mean; SD"? Default is \code{TRUE}.}
 
-\item{show_labels}{Logical. Should the data points have labels (of the form
-"mean; SD")? Default is \code{TRUE}.}
+\item{show_full_scale}{Logical. If \code{TRUE}, the x-axis spans the whole DEBIT
+line, from 0 to 1, regardless of the data. Default is \code{TRUE}.}
 
-\item{show_full_scale}{Logical. Should the plot be fixed to full scale,
-showing the entire consistency line independently of the data? Default is
-\code{TRUE}.}
-
-\item{show_theme_other}{Logical. Should the theme be modified in a way
-fitting the plot structure? Default is \code{TRUE}.}
-
-\item{color_cons, color_incons}{Strings. Colors of the geoms representing
-consistent and inconsistent values, respectively.}
-
-\item{line_alpha, line_color, line_linetype, line_width, line_size}{Parameters of
-the curved DEBIT line.}
-
-\item{rect_alpha}{Parameter of the DEBIT rectangles. (Due to the nature of
-the data mapping, there can be no leeway regarding the shape or size of
-this particular geom.)}
-
-\item{tile_alpha, tile_height_offset, tile_width_offset, tile_height_min, tile_width_min}{Parameters of the outer tiles surrounding the DEBIT rectangles. Offset refers
-to the distance from the rectangles within.}
-
-\item{label_alpha, label_linetype, label_size, label_linesize, label_force, label_force_pull, label_padding}{Parameters of the labels showing mean and SD values. Passed on to
-\code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}; see there for more information.}
+\item{show_theme_other}{Logical. If \code{TRUE}, minor grid lines are removed and
+y-axis ticks are added. Default is \code{TRUE}.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Plot a distribution of binary data and their mutual DEBIT
-consistency. Call this function only on a data frame that resulted from a
-call to \code{\link[=debit_map]{debit_map()}}.
-
-Various parameters of the individual geoms can be controlled via arguments.
+\code{debit_plot()} plots the output of \code{\link[=debit_map]{debit_map()}}. Each value
+set is a rectangle spanning the rounding bounds of its mean and SD, in
+blue if consistent and red if not, against the DEBIT line: the SD of
+binary data as a function of their mean, for the given sample size.
 }
 \details{
-The labels are created via \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, so the
-algorithm is designed to minimize overlap with the tiles and other labels.
-Yet, they don't take the DEBIT line into account, and their locations are
-ultimately random. You might therefore have to resize the plot or run the
-function a few times until the labels are localized in a satisfactory way.
+The line is that of the sample SD unless \code{\link[=debit_map]{debit_map()}} was called
+with \code{sd_meaning = "sd_pop"}, which shows the population SD. Under
+\code{sd_meaning = "sd_sample_or_pop"}, the lines for both are drawn. Under
+\code{"se"}, the line is that of the SE.
 
-An alternative to the present function would be an S3 method for
-\code{\link[ggplot2:autoplot]{ggplot2::autoplot()}}. However, a standalone function such as this allows
-for customizing geom parameters and might perhaps provide better
-accessibility overall.
+The means that \code{n} binary values can have, \code{k / n}, are marked as
+points on the line. Under \code{formula = "exact"}, the default of
+\code{\link[=debit_map]{debit_map()}}, a value set is consistent if one of these points lies
+inside its rectangle. If \code{n} is large, only the points that would not be
+drawn over by others are drawn, with a message.
+
+If \code{n} varies in \code{data}, the lines for the smallest and largest \code{n} are
+drawn and the band between them is shaded; it contains the lines for all
+other \code{n}.
+
+A rectangle can be too small to see, so each is drawn over a point at the
+reported mean and SD. Value sets with \code{NA} in a column needed for drawing
+are left out with a warning.
+
+The labels come from \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, which places them at
+random to minimize overlap. Resizing the plot or running the function
+again may give better placements.
+
+Colors come from one scale for \code{colour} and \code{fill}, mapped to
+\code{consistency}. Add another to change them, as in the examples.
 }
 \examples{
-# Run `debit_plot()` on the output
-# of `debit_map()`:
-pigs3 \%>\%
-  debit_map() \%>\%
+\dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
   debit_plot()
+
+# Other colors:
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_plot() +
+  ggplot2::scale_colour_manual(
+    values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+    aesthetics = c("colour", "fill"),
+    guide = "none"
+  )
+\dontshow{\}) # examplesIf}
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A

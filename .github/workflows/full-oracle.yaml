@@ -1,0 +1,32 @@
+# Runs the test suite with the slow oracles switched on, such as the exhaustive
+# DEBIT oracle in tests/testthat/test-debit.R. Too slow for every push.
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+name: full-oracle
+
+jobs:
+  full-oracle:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      SCRUTINY_FULL_ORACLE: "true"
+      NOT_CRAN: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat, any::pkgload, local::.
+          needs: check
+
+      - name: Run tests
+        run: testthat::test_local(stop_on_failure = TRUE)
+        shell: Rscript {0}

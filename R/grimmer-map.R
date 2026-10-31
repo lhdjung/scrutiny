@@ -1,70 +1,67 @@
-
 #' GRIMMER-test many cases at once
 #'
-#' @description Call `grimmer_map()` to GRIMMER-test any number of combinations
-#'   of mean, standard deviation, sample size, and number of items. Mapping
-#'   function for GRIMMER testing.
+#' @description `grimmer_map()` applies [`grimmer()`] to every row of a data
+#'   frame with means, standard deviations, and sample sizes.
 #'
-#'   For summary statistics, call [`audit()`] on the results. Visualize results
-#'   using [`grim_plot()`], as with GRIM results.
+#'   Call [`audit()`] on the output for summary statistics. [`grim_plot_grid()`]
+#'   accepts it as well.
 #'
-#' @param data Data frame with columns `x`, `sd`, `n`, and optionally `items`
-#'   (see documentation for `grim()`). Any other columns in `data` will be
-#'   returned alongside GRIMMER test results.
-#' @param items Integer. If there is no `items` column in `data`, this specifies
-#'   the number of items composing the `x` and `sd` values. Default is `1`, the
-#'   most common case.
-#' @param x,sd,n Optionally, specify these arguments as column names in `data`.
-#' @param show_reason Logical (length 1). Should there be a `reason` column that
-#'   shows the reasons for inconsistencies and `"Passed all"` for consistent
-#'   values? Default is `FALSE`. See below for reference.
-#' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIMMER testing; see documentation for [`grimmer()`].
-#' @inheritParams grim_map
-
-#' @return A tibble with these columns --
+#' @param data Data frame with columns `x`, `sd`, and `n`, and optionally
+#'   `items_averaged`. Any other columns are returned alongside the results.
+#' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
+#'   `sd`, including trailing zeros. There are no defaults, since a numeric
+#'   value does not keep them (`1.40` is `1.4`). Either a single number for the
+#'   whole column or one number per row of `data`.
+#' @param x,sd,n Optionally, the names of the columns in `data` that contain
+#'   these values, if they differ from the defaults.
+#' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
+#' @param rounding,threshold,symmetric,sd_meaning Passed on to
+#'   [`grimmer()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
+#'
+#' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
-#' - `consistency`: GRIMMER consistency of `x`, `n`, and `items`.
-#' - `reason`: If consistent, `"Passed all"`. If inconsistent, it says which
-#'   test was failed (see below).
-#' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
+#' - `items_averaged`: the number of items averaged into each score.
+#' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
+#' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items_averaged`.
+#'   `NA` for a case that cannot be decided, such as one with a missing value.
+#' - `reason`: `"Passed all"` if consistent; otherwise the test that failed, or
+#'   why the case cannot be decided.
+#' - Any other columns from `data`.
 #'
-#' The `reason` columns refers to GRIM and the three GRIMMER tests (Allard
-#' 2018). Briefly, these are:
+#' The `reason` column refers to GRIM and the GRIMMER tests of Allard (2018):
 #'
-#' 1. The reconstructed sum of squared observations must be a whole number.
-#' 2. The reconstructed SD must match the reported one.
-#' 3. The parity of the reconstructed sum of squared observations must match the
-#'    parity of the reconstructed sum of integers of which the reported means
-#'    are fractions; i.e., either both are even or both are odd.
+#' 1. The reconstructed sum of squared observations must be a whole number,
+#'    and one that `n` whole numbers with the reconstructed sum can reach: at
+#'    least the sum of squares of these numbers as close together as possible.
+#'    For `n < 5`, some larger sums of squares are impossible, too.
+#' 2. The reconstructed SD must match the reported one. Test 1 implies this,
+#'    so it is never a reason.
+#' 3. The parity of the reconstructed sum of squared observations must match
+#'    that of the reconstructed sum of the values.
 #'
-#' The tibble has the `scr_grimmer_map` class, which is recognized by the
-#' [`audit()`] generic. It also has the `scr_grim_map` class, so it can be
-#' visualized by [`grim_plot()`].
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `grimmer_map()` to get a summary of
-#'   `grimmer_map()`'s results. It is a tibble with a single row and these
-#'   columns --
+#' A negative `sd` gives `"Negative SD"`.
 #'
-#' 1. `incons_cases`: number of GRIMMER-inconsistent value sets.
-#' 2. `all_cases`: total number of value sets.
-#' 3. `incons_rate`: proportion of GRIMMER-inconsistent value sets.
-#' 4. `fail_grim`: number of value sets that fail the GRIM test.
-#' 5. `fail_test1`: number of value sets that fail the first GRIMMER test (see
-#'     below).
-#' 6. `fail_test2`: number of value sets that fail the second GRIMMER test.
-#' 7. `fail_test3`: number of value sets that fail the third GRIMMER test.
+#' Under `sd_meaning = "sd_sample_or_pop"`, a consistent value set gives
+#' `"Passed all (sample SD)"` or, if it passes as a population SD only,
+#' `"Passed all (population SD)"`. If the two conventions fail for different
+#' reasons, the `reason` names both, and [`audit()`] counts the sample SD's,
+#' as under the default `sd_meaning`.
 #'
-#' The `reason` columns refers to the three GRIMMER tests (see Allard 2018).
-#' These are:
+#' The tibble has the class `scrutiny_grimmer_map`, which is recognized by
+#'   [`audit()`] and [`grim_plot_grid()`].
 #'
-#' 1. The reconstructed sum of squared observations must be a whole number.
-#' 2. The reconstructed SD must match the reported one.
-#' 3. The parity of the reconstructed sum of squared observations must match the
-#'    parity of the reconstructed sum of integers of which the reported means
-#'    are fractions; i.e., either both are even or both are odd.
-
+#' @section Summaries with [`audit()`]: `audit()` on `grimmer_map()` output
+#'   returns a tibble with one row and these columns:
+#'
+#' 1. `all_cases`: total number of value sets.
+#' 2. `incon_cases`: number of GRIMMER-inconsistent value sets.
+#' 3. `emp_incon`: proportion of GRIMMER-inconsistent value sets.
+#' 4. `fail_grim`: number of value sets that fail GRIM.
+#' 5. `fail_test1`, `fail_test3`: number of value sets that fail GRIMMER's
+#'    first or third test. Test 2 is implied by test 1, so it never fails.
+#'
 #' @include audit.R grimmer.R function-map.R
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -81,119 +78,24 @@
 #' # Use `grimmer_map()` on data like these:
 #' pigs5
 #'
-#' # The `consistency` column shows whether
-#' # the values to its left are GRIMMER-consistent.
-#' # If they aren't, the `reason` column says why:
-#' pigs5 %>%
-#'   grimmer_map()
+#' # The `consistency` column shows whether the values to its left are
+#' # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
+#' pigs5 |>
+#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
 #'
 #' # Get summaries with `audit()`:
-#' pigs5 %>%
-#'   grimmer_map() %>%
+#' pigs5 |>
+#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   audit()
 
-# # Test interactively:
-# data <- pigs5
-# items <- 1
-# merge_items <- TRUE
-# x <- NULL
-# sd <- NULL
-# n <- NULL
-# show_reason <- TRUE
-# rounding <- "up_or_down"
-# threshold <- 5
-# symmetric <- FALSE
-# tolerance <- .Machine$double.eps^0.5
-
-
-grimmer_map <- function(data, items = 1, merge_items = TRUE,
-                        x = NULL, sd = NULL, n = NULL,
-                        show_reason = TRUE, rounding = "up_or_down",
-                        threshold = 5, symmetric = FALSE,
-                        tolerance = .Machine$double.eps^0.5) {
-
-  if (!missing(x)) {
-    x <- rlang::enexpr(x)
-    data <- manage_key_colnames(data, x, "mean")
-  }
-
-  if (!missing(sd)) {
-    sd <- rlang::enexpr(sd)
-    data <- manage_key_colnames(data, sd, "standard deviation")
-  }
-
-  if (!missing(n)) {
-    n <- rlang::enexpr(n)
-    data <- manage_key_colnames(data, n, "sample size")
-  }
-
-  check_mapper_input_colnames(data, c("x", "sd", "n"), "GRIMMER")
-
-  # TODO: REWRITE `grimmer_map()` USING `function_map()`! THAT IS, DEVELOP
-  # `function_map()` SO THAT IT CAN HANDLE ALL THE FUNCTIONALITY THAT THIS
-  # REQUIRES! BUT FIRST, WRITE TEST FOR `grimmer_map()`!
-
-  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
-  check_tibble(data)
-
-  data <- manage_helper_col(data = data, var_arg = items, default = 1)
-
-  data_x_sd_n_items <- data[c("x", "sd", "n", "items")]
-
-
-  x <- data$x
-
-  if (merge_items) {
-    n <- data$n * data$items
-  } else {
-    n <- tibble::tibble(n = data$n, items = data$items)
-  }
-
-  if (show_reason) {
-    consistency <- purrr::pmap(
-      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
-      rounding = rounding, threshold = threshold, symmetric = symmetric,
-      tolerance = tolerance
-    )
-  } else {
-    consistency <- purrr::pmap_lgl(
-      data_x_sd_n_items, grimmer_scalar, show_reason = show_reason,
-      rounding = rounding, threshold = threshold, symmetric = symmetric,
-      tolerance = tolerance
-    )
-  }
-
-  out <- tibble::tibble(x = data$x, sd = data$sd, n, consistency) %>%
-    add_class(c("scr_grimmer_map", paste0("scr_rounding_", rounding)))
-
-  if (show_reason) {
-    unnest_consistency_cols(
-      out, col_names = c("consistency", "reason"), index = FALSE
-    )
-  } else {
-    out
-  }
-
-}
-
-
-
-# # Alternative version of `grimmer_map()`, using experimental functionality
-# from `function_map()`:
-#
-# # The `.name_class = "scr_grim_map"` specification has the purpose of allowing
-# # GRIMMER results to be visualized by `grim_plot()`:
-# grimmer_map_alt <- function_map(
-#   .fun = grimmer_scalar,
-#   .reported = c("x", "sd", "n"),
-#   .name_test = "GRIMMER",
-#   .col_names = "reason",
-#   .col_filler = "Passed all",
-#   .arg_list = list(
-#     show_reason = TRUE, rounding = "up_or_down", threshold = 5,
-#     symmetric = FALSE, tolerance = .Machine$double.eps^0.5
-#   )
-# )
-
-
-
+grimmer_map <- function_map(
+  .fn = grimmer_scalar,
+  .reported = c("x", "sd", "n"),
+  .name_test = "GRIMMER",
+  .args_by_row = c("digits_x", "digits_sd"),
+  # Unlike `grimmer()`, the mapper shows the reasons for inconsistencies by
+  # default -- they fit into a column, and `audit()` counts them:
+  .args_fixed = list(show_reason = TRUE),
+  .cols_helper = "items_averaged",
+  .col_names = c("consistency", "reason")
+)

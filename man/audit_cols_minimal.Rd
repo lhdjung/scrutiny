@@ -4,44 +4,35 @@
 \alias{audit_cols_minimal}
 \title{Compute minimal \code{audit()} summaries}
 \usage{
-audit_cols_minimal(data, name_test)
+audit_cols_minimal(data)
 }
 \arguments{
-\item{data}{Data frame returned by a mapper function, such as \code{\link[=grim_map]{grim_map()}}.}
-
-\item{name_test}{String (length 1). Short, plain-text name of the consistency
-test, such as \code{"GRIM"}. Only needed for a potential alert.}
+\item{data}{Data frame returned by a mapper function.}
 }
 \value{
-A tibble (data frame) with the columns listed above.
+A tibble with the three columns above.
 }
 \description{
-Call \code{audit_cols_minimal()} within your \code{\link[=audit]{audit()}} methods for
-the output of consistency test mapper functions such as \code{\link[=grim_map]{grim_map()}}. It
-will create a tibble with the three minimal, required columns:
+Call \code{audit_cols_minimal()} within an \code{\link[=audit]{audit()}} method for
+the output of a consistency test mapper such as \code{\link[=grim_map]{grim_map()}}. It returns
+a tibble with the three columns every such method must have:
 \enumerate{
-\item \code{incons_cases} counts the inconsistent cases, i.e., the number of rows
-in the mapper's output where \code{"consistency"} is \code{FALSE}.
-\item \code{all_cases} is the total number of rows in the mapper's output.
-\item \code{incons_rate} is the ratio of \code{incons_cases} to \code{all_cases}.
+\item \code{all_cases}: the number of rows, including undecidable ones.
+\item \code{incon_cases}: the number of rows where \code{consistency} is \code{FALSE}.
+A case the test could not decide is \code{NA} there and not counted.
+\item \code{emp_incon}: the empirical rate of inconsistency,
+\code{incon_cases / all_cases}.
 }
 
-You can still add other columns to this tibble. Either way, make sure to
-name your method correctly. See examples.
+Add further columns as needed. See \emph{Examples} for how to name the method.
 }
 \examples{
-# For a mapper function called `schlim_map()`
-# that applies a test called SCHLIM and returns
-# a data frame with the `"scr_schlim_map"` class:
-audit.scr_schlim_map <- function(data) {
-  audit_cols_minimal(data, name_test = "SCHLIM")
+# For a mapper `schlim_map()` that applies a test called SCHLIM and
+# returns a data frame with the class `"scrutiny_schlim_map"`:
+audit.scrutiny_schlim_map <- function(data, ...) {
+  audit_cols_minimal(data)
 }
-
-# If you like, add other summary columns
-# with `dplyr::mutate()` or similar.
 }
 \seealso{
-For context, see \code{vignette("consistency-tests-in-depth")}. In case
-you don't call \code{audit_cols_minimal()}, you should call
-\code{\link[=check_audit_special]{check_audit_special()}}.
+\code{vignette("consistency-tests-in-depth")}.
 }

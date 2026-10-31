@@ -2,132 +2,137 @@
 % Please edit documentation in R/grim-map-total-n.R
 \name{grim_map_total_n}
 \alias{grim_map_total_n}
-\title{GRIM-testing with hypothetical group sizes}
+\title{GRIM-test with hypothetical group sizes}
 \usage{
 grim_map_total_n(
   data,
+  digits_x = NULL,
   x1 = NULL,
   x2 = NULL,
+  n = NULL,
+  ...,
+  items_averaged,
+  percent = FALSE,
+  show_rec = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL,
-  ...
+  constant = NULL
 )
 }
 \arguments{
-\item{data}{Data frame with string columns \code{x1} and \code{x2}, and numeric column
-\code{n}. The first two are group mean or percentage values with unknown group
-sizes, and \code{n} is the total sample size. It is not very important whether a
-value is in \code{x1} or in \code{x2} because, after the first round of tests, the
-function switches roles between \code{x1} and \code{x2}, and reports the outcomes
-both ways.}
+\item{data}{Data frame with numeric columns \code{x1}, \code{x2}, and \code{n}: the two
+group means (or percentages) and the total sample size. Which mean is \code{x1}
+does not matter, since both pairings with the group sizes are tested.}
 
-\item{x1, x2}{Optionally, specify these arguments as column names in \code{data}.}
+\item{digits_x}{Integer. The number of decimal places in \code{x1} and \code{x2},
+including trailing zeros. There is no default, since a numeric value does
+not keep them (\code{1.40} is \code{1.4}). Either a single number for both groups,
+or two numbers, one for \code{x1} and one for \code{x2}. They apply to every row of
+\code{data}; if the decimal places of a group differ by row, call the function
+on each set of rows separately.}
 
-\item{dispersion}{Numeric. Steps up and down from half the \code{n} values.
-Default is \code{0:5}, i.e., half \code{n} itself followed by five steps up and down.}
+\item{x1, x2, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
+
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
+averaged into each score, given as an argument or as a column of \code{data}.
+There is no default.}
+
+\item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
+divided by 100 and tested with two more decimal places. Default is
+\code{FALSE}. It applies to the whole call, so test a table that mixes means
+and percentages part by part, as in the examples. The parts can be
+combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}, but plot each one on its own:
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} reads \code{percent} from the call.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
+as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
+
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}.}
+
+\item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
+Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
 \item{n_min}{Numeric. Minimal group size. Default is 1.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
 
-\item{constant}{Optionally, add a length-2 vector or a list of length-2
-vectors (such as a data frame with exactly two rows) to accompany the pairs
-of dispersed values. Default is \code{NULL}, i.e., no constant values.}
-
-\item{constant_index}{Integer (length 1). Index of \code{constant} or the first
-\code{constant} column in the output tibble. If \code{NULL} (the default), \code{constant}
-will go to the right of \code{n_change}.}
-
-\item{...}{Arguments passed down to \code{\link[=grim_map]{grim_map()}}.}
+\item{constant}{Optionally, values that belong to the two groups, such as
+their labels: a length-2 vector for the groups of \code{x1} and \code{x2}, or a list
+of such vectors. Each becomes a column, as in \code{\link[=disperse_total]{disperse_total()}}, and its
+values stay with their groups in both directions. Default is \code{NULL}.}
 }
 \value{
 A tibble with these columns:
 \itemize{
-\item \code{x}, the group-wise reported input statistic, is repeated in row pairs.
-\item \code{n} is dispersed from half the input \code{n}, with \code{n_change} tracking the
-differences.
-\item \code{both_consistent} flags scenarios where both reported \code{x} values are
-consistent with the hypothetical \code{n} values.
-\item \code{case} corresponds to the row numbers of the input data frame.
-\item \code{dir} is \code{"forth"} in the first half of rows and \code{"back"} in the second
-half. \code{"forth"} means that \code{x2} from the input is paired with the larger
-dispersed \code{n}, whereas \code{"back"} means that \code{x1} is paired with the larger
-dispersed \code{n}.
-\item Other columns from \code{\link[=grim_map]{grim_map()}} are preserved.
+\item \code{x}: the reported means, in pairs of rows.
+\item \code{n}: the hypothetical group sizes, with \code{n_change} recording the steps
+from half the total.
+\item \code{both_consistent}: whether both means of a pair are consistent with their
+hypothetical group sizes.
+\item \code{case}: the row number in \code{data}.
+\item \code{dir}: \code{"forth"} where \code{x2} is paired with the larger group size, \code{"back"}
+where \code{x1} is. The split of an even total into two equal groups is the
+same scenario either way, so it appears under \code{"forth"} only.
+\item The other columns of \code{\link[=grim_map]{grim_map()}} output, and the other columns of
+\code{data}.
 }
 }
 \description{
-When reporting group means, some published studies only report
-the total sample size but no group sizes corresponding to each mean.
-However, group sizes are crucial for GRIM-testing.
+Some studies report group means but only the total sample
+size, not the group sizes. For two groups, \code{grim_map_total_n()} tests
+hypothetical splits of the total: it starts from an even split, moves one
+participant at a time from one group to the other, and GRIM-tests both
+means against both group sizes, in both pairings.
 
-In the two-groups case, \code{grim_map_total_n()} helps in these ways:
-\itemize{
-\item It creates hypothetical group sizes. With an even total sample size, it
-incrementally moves up and down from half the total sample size. For example,
-with a total sample size of 40, it starts at 20, goes on to 19 and 21, then
-to 18 and 22, etc. With odd sample sizes, it starts from the two integers
-around half.
-\item It GRIM-tests all of these values together with the group means.
-\item It reports all the scenarios in which both "dispersed" hypothetical group
-sizes are GRIM-consistent with the group means.
-}
-
-All of this works with one or more total sample sizes at a time. Call
-\code{\link[=audit_total_n]{audit_total_n()}} for summary statistics.
+Call \code{\link[=audit_total_n]{audit_total_n()}} on the output for summary statistics.
 }
 \section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
- You can call
-\code{\link[=audit_total_n]{audit_total_n()}} following up on \code{\link[=grim_map_total_n]{grim_map_total_n()}}
-to get a tibble with summary statistics. It will have these columns:
+ \code{audit_total_n()} on
+\code{grim_map_total_n()} output returns a tibble with one row per case and
+these columns:
 \itemize{
-\item \code{x1}, \code{x2}, and \code{n} are the original inputs.
-\item \code{hits_total} is the number of scenarios in which both
-\code{x1} and \code{x2} are GRIM-consistent. It is the sum
-of \code{hits_forth} and \code{hits_back} below.
-\item \code{hits_forth} is the number of both-consistent cases that result
-from pairing \code{x2} with the larger dispersed \code{n} value.
-\item \code{hits_back} is the same, except \code{x1} is
-paired with the larger dispersed \code{n} value.
-\item \code{scenarios_total} is the total number of test scenarios,
-whether or not both \code{x1} and \code{x2}
-are GRIM-consistent.
-\item \code{hit_rate} is the ratio of \code{hits_total} to \code{scenarios_total}.
+\item \code{x1}, \code{x2}, and \code{n}: the reported values.
+\item \code{hits_total}: the number of splits in which both \code{x1} and \code{x2} are
+GRIM-consistent, summing \code{hits_forth} and \code{hits_back}.
+\item \code{hits_forth}: the number of such splits with \code{x2} paired with the larger
+group.
+\item \code{hits_back}: the same with \code{x1} paired with the larger group.
+\item \code{scenarios_total}: the number of splits tested, leaving out those that
+could not be decided.
+\item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no split could
+be decided.
 }
 
-Call \code{\link[=audit]{audit()}} following \code{\link[=audit_total_n]{audit_total_n()}} to summarize results
-even further.
+Call \code{\link[=audit]{audit()}} on \code{audit_total_n()} output to summarize these columns
+further.
 }
 
 \examples{
-# Run `grim_map_total_n()` on data like these:
 df <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1,  ~x2,  ~n,
+  3.43, 5.28, 90,
+  2.97, 4.42, 103
 )
-df
 
-grim_map_total_n(df)
+grim_map_total_n(df, digits_x = 2, items_averaged = 1)
 
-# `audit_total_n()` summaries can be more important than
-# the detailed results themselves.
-# The `hits_total` column shows all scenarios in
-# which both divergent `n` values are GRIM-consistent
-# with the `x*` values when paired with them both ways:
-df \%>\%
-  grim_map_total_n() \%>\%
+# `hits_total` counts the splits in which both means are consistent:
+df |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1) |>
   audit_total_n()
 
-# By default (`dispersion = 0:5`), the function goes
-# five steps up and down from `n`. If this sequence
-# gets longer, the number of hits tends to increase:
-df \%>\%
-  grim_map_total_n(dispersion = 0:10) \%>\%
+# More steps away from the even split tend to find more hits:
+df |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:10) |>
   audit_total_n()
 }
 \references{
@@ -142,6 +147,6 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=function_map_total_n]{function_map_total_n()}}, which created the present function using
+\code{\link[=function_map_total_n]{function_map_total_n()}}, which created this function from
 \code{\link[=grim_map]{grim_map()}}.
 }

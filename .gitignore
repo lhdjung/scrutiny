@@ -7,3 +7,17 @@ docs
 .DS_Store
 /doc/
 /Meta/
+.positai
+.claude/*
+Rplots.pdf
+tests/testthat/Rplots.pdf
+grimmer-bug*
+grimmer-proof*
+grimmer-terminating-decimals*
+special-scripts/
+code-review.md
+/.quarto/
+**/*.quarto_ipynb
+
+# testthat writes one reprex per failed expectation
+tests/testthat/_problems/

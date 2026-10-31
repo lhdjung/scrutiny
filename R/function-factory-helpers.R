@@ -1,340 +1,706 @@
-
-#' Check that key columns perfectly map onto their identifiers
+#' Check that key arguments name columns of `data`
 #'
-#' Two helpers only called within `absorb_key_args()` to check the validity of
-#' arguments supplied to the factory-made function:
+#' Two checks called within `absorb_key_args()`:
 #'
-#' - `check_factory_key_args_values()` concerns the input data frame in
-#'   conjunction with the expressions provided to identify the "key" columns in
-#'   `data` and makes sure that no values other than these column names have
-#'   been provided.
-#' - `check_factory_key_args_names()` checks that all key columns have been
-#'   identified.
+#' - `check_factory_key_args_values()` errors if a key argument names a column
+#'   that `data` doesn't have.
+#' - `check_factory_key_args_names()` errors if a key column is missing from
+#'   `data` and no key argument stands in for it.
 #'
-#' @param data Data frame passed to the factory-made function.
-#' @param key_cols_call User-provided arguments named after one or more key
-#'   columns.
-#' @param key_cols_missing,key_cols_call_names String. Vectors with names of the
-#'   key columns that are missing in `data` or that were provided by the user as
-#'   arguments, respectively.
+#' @param data Data frame passed to the mapper.
+#' @param key_cols_call Named character vector that maps key argument names to
+#'   the columns of `data` that they refer to, such as `c(x = "mean")`.
+#' @param key_cols_missing,key_cols_call_names String. Names of the key columns
+#'   that are missing from `data`, and of the key arguments the user specified.
 #'
 #' @return No return value; might throw an error.
 #'
 #' @noRd
 check_factory_key_args_values <- function(data, key_cols_call) {
-
   offenders <- key_cols_call[!key_cols_call %in% colnames(data)]
 
-  # Error condition -- one or more key arguments have been specified with values
-  # that are not actually column names of `data`:
-  if (length(offenders) > 0L) {
-    offenders_names <- glue::as_glue(names(offenders))
-    offenders_names <- wrap_in_backticks(offenders_names)
-    offenders <- wrap_in_backticks(offenders)
-    name_current_fn <- name_caller_call(n = 3L)
-    if (length(offenders) == 1L) {
-      msg_is_colname <- "is not a column name"
-    } else {
-      msg_is_colname <- "are not column names"
-    }
+  if (length(offenders) == 0L) {
+    return(NULL)
+  }
 
-    # Prepare an error message. It might be subsequently appended...
-    msg_error <- c(
-      "!" = "{offenders} {msg_is_colname} of `data`.",
-      "x" = "The {offenders_names[1L]} argument of \\
+  offenders_names <- offenders |>
+    names() |>
+    glue::as_glue() |>
+    wrap_in_backticks()
+  offenders <- wrap_in_backticks(offenders)
+  name_current_fn <- name_last_export_code()
+  if (length(offenders) == 1L) {
+    msg_is_colname <- "is not a column name"
+  } else {
+    msg_is_colname <- "are not column names"
+  }
+
+  msg_error <- c(
+    "!" = "{offenders} {msg_is_colname} of `data`.",
+    "x" = "The {offenders_names[1L]} argument of \\
       {name_current_fn} was specified as {offenders[[1L]]}, \\
       but there is no column in `data` called {offenders[[1L]]}."
-    )
+  )
 
-    # ... to point out that more than one supplied value is flawed:
-    if (length(offenders) > 1L) {
-      if (length(offenders) == 2L) {
-        msg_arg_s <- "argument"
-        msg_a <- "a "
-        msg_col <- "column"
-      } else {
-        msg_arg_s <- "arguments"
-        msg_a <- ""
-        msg_col <- "columns"
-      }
-      msg_error <- append(
-        msg_error, c(
-          "x" = "Same with the {offenders_names[-1L]} {msg_arg_s}: \\
-          `data` doesn't contain {msg_a}{offenders[-1L]} {msg_col}."
-        )
-      )
-    }
-
-    # Throw the actual error:
-    cli::cli_abort(msg_error)
-  }
-
-}
-
-
-
-check_factory_key_args_names <- function(key_cols_missing,
-                                         key_cols_call_names) {
-
-  offenders <- key_cols_missing
-  offenders <- offenders[!offenders %in% key_cols_call_names]
-
-  # Error condition -- not all of the `reported` values that are not column
-  # names of `data` have been supplied as values of the respective arguments:
-  if (length(offenders) > 0L) {
-    offenders <- wrap_in_backticks(offenders)
-
-    # Get the name of the current (i.e., factory-made) function using a helper
-    # from the utils.R file that wraps `rlang::caller_call()`:
-    msg_fun_name <- name_caller_call(n = 3L)
-
-    # Because either one or more arguments (or column names) may be missing, the
-    # wording of the error message may be either singular or plural:
-    if (length(offenders) == 1L) {
-      msg_missing <- "Column {offenders} is"
-      msg_is_are <- "is"
-      msg_needs_to_be <- "It should be a column"
-      msg_names <- "the name of the equivalent column"
-      msg_column_s <- "Column"
-      msg_argument <- "argument"
+  if (length(offenders) > 1L) {
+    if (length(offenders) == 2L) {
+      msg_arg_s <- "argument"
+      msg_a <- "a "
+      msg_col <- "column"
     } else {
-      msg_missing <- "Columns {offenders} are"
-      msg_is_are <- "are"
-      msg_needs_to_be <- "They should be columns"
-      msg_names <- "the names of the equivalent columns"
-      msg_it_them <- "them"
-      msg_column_s <- "Columns"
-      msg_argument <- "arguments"
+      msg_arg_s <- "arguments"
+      msg_a <- ""
+      msg_col <- "columns"
     }
-
-    # Throw the error:
-    cli::cli_abort(c(
-      "{msg_column_s} {offenders} {msg_is_are} \\
-          missing from `data`.",
-      "x" = "{msg_needs_to_be} of the input data frame.",
-      "i" = "Alternatively, specify the {offenders} \\
-          {msg_argument} of {msg_fun_name} as {msg_names}."
-    ))
+    msg_error <- append(
+      msg_error,
+      c(
+        "x" = "Same with the {offenders_names[-1L]} {msg_arg_s}: \\
+          `data` doesn't contain {msg_a}{offenders[-1L]} {msg_col}."
+      )
+    )
   }
 
+  abort_in_export(msg_error)
 }
 
 
+check_factory_key_args_names <- function(
+  key_cols_missing,
+  key_cols_call_names
+) {
+  offenders <- key_cols_missing |>
+    call_on(\(x) x[!x %in% key_cols_call_names])
 
-#' Check that no dots-argument is misspelled
+  if (length(offenders) == 0L) {
+    return(NULL)
+  }
+
+  offenders <- wrap_in_backticks(offenders)
+
+  msg_fn_name <- name_last_export_code()
+
+  if (length(offenders) == 1L) {
+    msg_missing <- "Column {offenders} is"
+    msg_is_are <- "is"
+    msg_needs_to_be <- "It should be a column"
+    msg_names <- "the name of the equivalent column"
+    msg_column_s <- "Column"
+    msg_argument <- "argument"
+  } else {
+    msg_missing <- "Columns {offenders} are"
+    msg_is_are <- "are"
+    msg_needs_to_be <- "They should be columns"
+    msg_names <- "the names of the equivalent columns"
+    msg_it_them <- "them"
+    msg_column_s <- "Columns"
+    msg_argument <- "arguments"
+  }
+
+  abort_in_export(
+    "{msg_column_s} {offenders} {msg_is_are} \\
+          missing from `data`.",
+    "x" = "{msg_needs_to_be} of the input data frame.",
+    "i" = "Alternatively, specify the {offenders} \\
+          {msg_argument} of {msg_fn_name} as {msg_names}."
+  )
+}
+
+
+# The settings of a mapper `fn`, such as `rounding`: its formals after the
+# dots, minus those named in `exclude`. `function_map_seq()` and
+# `function_map_total_n()` copy them with `fn`'s defaults, so that they show
+# up in `formals()`, tab completion, and the help page. A `fn` without dots has
+# no settings to copy; it gets them through the dots.
+formals_settings <- function(fn, exclude) {
+  formals_fn <- formals(fn)
+  index_dots <- match("...", names(formals_fn))
+  if (is.na(index_dots)) {
+    return(list())
+  }
+  formals_after <- formals_fn[-seq_len(index_dots)]
+  formals_after[setdiff(names(formals_after), exclude)]
+}
+
+
+# The settings of a call for the "scrutiny" attribute, as a tibble: `setting`,
+# `value` (a list), `default`, and `added_by`, the mapper whose setting it is.
+# A sequence or total-n mapper adds its own rows to the basic mapper's. A
+# setting missing from `defaults` never counts as a default.
+new_settings <- function(values, defaults, added_by) {
+  names_values <- names(values)
+  if (is.null(names_values)) {
+    names_values <- character()
+  }
+  is_default <- vapply(
+    names_values,
+    function(name) {
+      rlang::has_name(defaults, name) &&
+        isTRUE(all.equal(values[[name]], defaults[[name]]))
+    },
+    logical(1L),
+    USE.NAMES = FALSE
+  )
+  tibble::new_tibble(
+    list(
+      setting = names_values,
+      value = unname(values),
+      default = is_default,
+      added_by = rep(added_by, length(values))
+    ),
+    nrow = length(values)
+  )
+}
+
+# The defaults of `formals`, evaluated once, when a factory creates a mapper.
+# A set of strings resolves to its first, as a call does. An argument without
+# a default, or with one that can't be evaluated outside of a call, is left
+# out:
+eval_defaults <- function(formals, env) {
+  formals <- formals[!vapply(formals, rlang::is_missing, logical(1L))]
+  out <- list()
+  for (name in names(formals)) {
+    ok <- TRUE
+    value <- tryCatch(eval(formals[[name]], env), error = function(e) {
+      ok <<- FALSE
+    })
+    if (!ok) {
+      next
+    }
+    if (is_enum_default(formals[[name]])) {
+      value <- value[[1L]]
+    }
+    out[name] <- list(value)
+  }
+  out
+}
+
+# The name of a mapper, by the convention behind its class: "grim_map" for a
+# `.name_test` of "GRIM". `added_by` uses it, since a manufactured function
+# does not know the name it was assigned to:
+name_mapper <- function(name_test, suffix) {
+  sub("^scrutiny_", "", class_name_test(name_test, suffix))
+}
+
+
+# Is a formal's default a set of strings, as in `formula = c("exact",
+# "mean_n")`? See `function_map()`.
+is_enum_default <- function(default) {
+  is.call(default) &&
+    identical(default[[1L]], as.name("c")) &&
+    length(default) > 2L &&
+    all(vapply(as.list(default)[-1L], is.character, logical(1L)))
+}
+
+
+# The whole sets behind the enum defaults among `formals`, as a named list:
+eval_enum_defaults <- function(formals, env) {
+  is_enum <- vapply(formals, is_enum_default, logical(1L), USE.NAMES = FALSE)
+  lapply(formals[is_enum], eval, env)
+}
+
+
+# Resolve the enums among `vals` that were given as their whole default set,
+# as a wrapper forwarding its own default does, to the first string, as
+# `rlang::arg_match()` would. Everything downstream -- the length check, the
+# `*_scalar()` function, the "scrutiny" attribute -- then sees one string.
+# `defaults` is from `eval_enum_defaults()`:
+resolve_enums <- function(vals, defaults) {
+  for (name in intersect(names(vals), names(defaults))) {
+    if (identical(vals[[name]], defaults[[name]])) {
+      vals[[name]] <- vals[[name]][[1L]]
+    }
+  }
+  vals
+}
+
+
+#' Check that no dots argument is misspelled
 #'
-#' `check_factory_dots()` is called within each main function factory:
-#' `function_map()`, `function_map_seq()`, and `function_map_total_n()`.
+#' `check_factory_dots()` is called within mappers made by [`function_map()`],
+#' [`function_map_seq()`], and [`function_map_total_n()`]. It errors if an
+#' argument passed through the dots is not an argument of `fn`.
 #'
-#' For the `fun_name_scalar` argument, the function requires the following line
-#' in the entry area (i.e., the part of the function factory before the first
-#' version of the factory-made function is created):
-#' `fun_name <- deparse(substitute(.fun))`
-#'
-#' @param fun Function applied by the function factory.
-#' @param fun_name_scalar String (length 1). Name of `fun`.
-#' @param ... Arguments passed by the factory-made function's user to `fun`.
+#' @param fn Function applied by the mapper.
+#' @param fn_name_scalar String (length 1). Name of `fn`.
+#' @param ... The dots of the mapper.
 #'
 #' @return No return value; might throw an error.
 #'
-#' @export
-check_factory_dots <- function(fun, fun_name_scalar, ...) {
+#' @noRd
+check_factory_dots <- function(fn, fn_name_scalar, ...) {
   dots <- rlang::enexprs(...)
   dots_names <- names(dots)
-  offenders <- dots_names[!dots_names %in% names(formals(fun))]
-  if (length(offenders) > 0L) {
-    fun_name_mapper <- name_caller_call(n = 2L)
-    offenders <- paste0("`", offenders, "`")
-    if (length(offenders) == 1L) {
-      msg_arg <- "argument"
-      msg_it_they <- "It's not an"
-    } else {
-      msg_arg <- "arguments"
-      msg_it_they <- "They are not"
-    }
-    cli::cli_abort(c(
-      "Invalid {msg_arg} {offenders}.",
-      "x" = "{msg_it_they} {msg_arg} of {fun_name_mapper} \\
-      or `{fun_name_scalar}()`."
-    ))
+  offenders <- dots_names[!dots_names %in% names(formals(fn))]
+
+  if (length(offenders) == 0L) {
+    return(NULL)
   }
+
+  fn_name_mapper <- name_last_export_code()
+
+  # The dots come right after the key arguments, so an unnamed argument after
+  # them lands here with an empty name:
+  n_unnamed <- sum(offenders == "")
+  if (n_unnamed > 0L) {
+    abort_in_export(
+      "{n_unnamed} unnamed argument{?s} after the key arguments.",
+      "x" = "Every argument after `...` must be named in full.",
+      "i" = "The key arguments are the columns to test, such as `x` and `n`."
+    )
+  }
+
+  # An abbreviation, such as `items` for `items_averaged`, lands here too. `fn`
+  # has the arguments a sequence or total-n mapper passes on, such as
+  # `rounding`:
+  names_full <- union(names(formals(rlang::caller_fn())), names(formals(fn)))
+  names_meant <- unique(unlist(lapply(offenders, function(offender) {
+    names_full[startsWith(names_full, offender)]
+  })))
+
+  offenders <- paste0("`", offenders, "`")
+
+  if (length(offenders) == 1L) {
+    msg_arg <- "argument"
+    msg_it_they <- "It's not an"
+  } else {
+    msg_arg <- "arguments"
+    msg_it_they <- "They are not"
+  }
+
+  abort_in_export(
+    "Invalid {msg_arg} {offenders}.",
+    "x" = "{msg_it_they} {msg_arg} of {fn_name_mapper} \\
+      or `{fn_name_scalar}()`.",
+    "i" = if (length(names_meant) > 0L) {
+      "Did you mean {wrap_in_backticks(names_meant)}? Arguments after \\
+      `...` must be named in full."
+    }
+  )
 }
 
 
-
-#' Get an `arg_list` object
+#' Check that an argument names arguments of `.fn`
 #'
-#' That is, a named list of arguments passed by the user who called the function
-#' within which `call_arg_list()` was called.
+#' Several arguments of `function_map()`, such as `.reported` and
+#' `.args_by_row`, must name arguments of `.fn`. `check_factory_arg_names()`
+#' checks this when the mapper is created, so the error can name the factory
+#' argument at fault.
 #'
-#' @return Named list.
+#' @param names String. The values given for `arg_name`.
+#' @param formals_fn Pairlist. The formal arguments of `.fn`.
+#' @param fn_name String (length 1). Name of `.fn`.
+#' @param arg_name String (length 1). Name of the function factory's argument
+#'   that `names` was given for, such as `".reported"`.
+#'
+#' @return No return value; might throw an error.
 #'
 #' @noRd
-call_arg_list <- function() {
-  out <- as.list(rlang::caller_call())
-  out[-(1:2)]
+check_factory_arg_names <- function(names, formals_fn, fn_name, arg_name) {
+  offenders <- names[!names %in% names(formals_fn)]
+
+  if (length(offenders) == 0L) {
+    return(NULL)
+  }
+
+  offenders <- wrap_in_backticks(offenders)
+
+  if (length(offenders) == 1L) {
+    msg_arg <- "argument"
+    msg_it_they <- "It was"
+  } else {
+    msg_arg <- "arguments"
+    msg_it_they <- "They were"
+  }
+
+  abort_in_export(
+    "Function `{fn_name}()` lacks {msg_arg} {offenders}.",
+    "i" = "{msg_it_they} given as `{arg_name}` in the \\
+    `function_map()` call, where `.fn` was specified as `{fn_name}`."
+  )
 }
 
+
+#' Turn a mapper's test results into output columns
+#'
+#' A `*_scalar()` function returns a single value per row or, as with
+#' `show_rec = TRUE`, a list of values per row. `write_result_cols()` handles
+#' both.
+#'
+#' @param results List with one element per row of the mapper's input data
+#'   frame, as returned by `purrr::pmap()`.
+#' @param col_names String vector with the names of the columns that the
+#'   `*_scalar()` function's list of values unpacks into, key result first. It
+#'   is the `.col_names` argument of `function_map()`, and may be `NULL`.
+#'
+#' @return Named list of columns.
+#'
+#' @noRd
+write_result_cols <- function(results, col_names) {
+  # With no rows, there is no result to read the output's shape off, so only
+  # the key result column is created. `unlist()` below would return `NULL`, and
+  # the tibble would count a column that it doesn't have:
+  if (length(results) == 0L) {
+    out <- list(logical(0L))
+    names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
+    return(out)
+  }
+
+  lengths_results <- lengths(results)
+
+  if (all(lengths_results == 1L)) {
+    out <- list(unlist(results, use.names = FALSE))
+    names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
+    return(out)
+  }
+
+  # Without `.col_names`, there is nothing to unpack into:
+  if (is.null(col_names)) {
+    return(list(consistency = results))
+  }
+
+  offenders <- unique(lengths_results[lengths_results != length(col_names)])
+
+  if (length(offenders) > 0L) {
+    abort_in_export(
+      "The consistency test function returned {offenders[1L]} value{?s} \\
+      for at least one row.",
+      "x" = "It must return either a single value or one value per \\
+      `.col_names` name, of which there are {length(col_names)}.",
+      "i" = "`.col_names` is an argument of `function_map()`, specified \\
+      when the present function was created."
+    )
+  }
+
+  split_result_cols(results, col_names)
+}
 
 
 #' Insert key arguments into the factory-made function
 #'
-#' `insert_key_args()` extends the list of the factory-made function's
-#' parameters (i.e., its formal arguments) by the key arguments corresponding to
-#' the particular consistency test which the factory-made function will apply.
+#' `insert_key_args()` adds the key arguments, such as `x` and `n`, to the
+#' formals of a factory-made function, each with `NULL` as the default. A user
+#' whose columns have other names specifies them through these arguments, and
+#' `absorb_key_args()` renames the columns at call time.
 #'
-#' It must be used in concert with `absorb_key_args()`.
+#' @param fn Factory-made function.
+#' @param reported String. Names of the key arguments to be inserted into `fn`.
+#' @param insert_after Integer. Index of the formal of `fn` after which the key
+#'   arguments are inserted. Default is `1L`.
+#' @param variadic String (length 1) or `NULL`, the default. Optionally, the
+#'   name of a variadic key argument, which is inserted ahead of the `reported`
+#'   ones with no default: it takes a tidyselect expression, and there is no
+#'   set of columns that could be guessed at.
 #'
-#' @details The function is called in the exit area of function factories (i.e.,
-#'   the part after the first version of the factory-made function is created).
-#'   It inserts parameters named after the key columns into `fun`, with `NULL`
-#'   as the default for each.
-#'
-#'   The key columns need to be present in the input data frame. They are
-#'   expected to have the names specified in `.reported`. If they don't,
-#'   however, the user can simply specify the key column arguments as the
-#'   non-quoted names of the columns meant to fulfill these roles.
-#'
-#'   In its current form, the function is very hard to read, but this is for
-#'   performance only. An equivalent but better-readable version is outcommented
-#'   below the function.
-#'
-#' @param fun Factory-made function.
-#' @param reported String. Names of the key arguments to be inserted into `fun`.
-#' @param insert_after Integer. Index of the existing formal argument of `fun`
-#'   after which the key arguments will be inserted. Default is `1L`. For
-#'   convention's sake, this should hardly be changed.
-#'
-#' @return Function `fun` with new arguments, named after `reported`, with
+#' @return Function `fn` with new arguments, named after `reported`, with
 #'   `NULL` as the default for each.
 #'
 #' @noRd
-insert_key_args <- function(fun, reported, insert_after = 1L) {
-  `formals<-`(fun, value = append(
-    formals(fun),
-    `names<-`(rep(list(NULL), times = length(reported)), value = reported),
-    after = insert_after
-  ))
+insert_key_args <- function(fn, reported, insert_after = 1L, variadic = NULL) {
+  key_args <- rep(list(NULL), times = length(reported))
+  names(key_args) <- reported
+
+  if (!is.null(variadic)) {
+    # The empty symbol is what a formal without a default has; see `alist()`:
+    arg_variadic <- rlang::missing_arg() |>
+      list() |>
+      rlang::set_names(variadic)
+    key_args <- c(arg_variadic, key_args)
+  }
+
+  `formals<-`(
+    fn,
+    value = fn |>
+      formals() |>
+      append(key_args, after = insert_after)
+  )
 }
 
-# # Better readable version:
-# insert_key_args <- function(fun, reported, insert_after = 1L) {
-#   key_args <- rep(list(NULL), times = length(reported))
-#   names(key_args) <- reported
-#   formals(fun) <- append(formals(fun), key_args, after = insert_after)
-#   fun
-# }
+
+#' Check that a variadic key argument was specified
+#'
+#' The variadic argument of a factory-made function has no default.
+#' `check_variadic_arg()` turns the empty quosure that results from leaving it
+#' out into an error that says so.
+#'
+#' @param quo Quosure captured from the variadic argument.
+#' @param name String (length 1). Name of that argument.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_variadic_arg <- function(quo, name) {
+  if (rlang::quo_is_missing(quo)) {
+    fn_name <- name_last_export_code()
+    abort_in_export(
+      "The `{name}` argument of {fn_name} must be specified.",
+      "x" = "It has no default: which columns are tested is up to the data, \\
+      and testing all the remaining ones by default would quietly draw in \\
+      any column that is not a key column for some other reason.",
+      "i" = "Select them using tidyselect syntax, as in \\
+      `{name} = c(a, b, c)` or `{name} = starts_with(\"item\")`."
+    )
+  }
+}
 
 
+#' Check what a variadic key argument selected
+#'
+#' `tidyselect::eval_select()` guarantees that the selected columns exist, but
+#' not that they are usable as variadic key columns. They are not if:
+#'
+#' - The selection is empty. `purrr::pmap()` would report this as a recycling
+#'   failure over a variable the caller has never heard of.
+#' - The selection includes a column that already has a role in the test. It
+#'   would appear twice in the output.
+#'
+#' @param index Integer. Column positions, as returned by
+#'   `tidyselect::eval_select()`.
+#' @param data The mapper's input data frame.
+#' @param spoken_for String. Names of the columns that have a role already:
+#'   the key columns and any helper columns.
+#' @param name String (length 1). Name of the variadic argument.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
+check_variadic_cols <- function(index, data, spoken_for, name) {
+  fn_name <- name_last_export_code()
 
-#' Absorb key arguments from the user's call
+  if (length(index) == 0L) {
+    abort_in_export(
+      "The `{name}` argument of {fn_name} selected no columns.",
+      "x" = "There would be no values to test."
+    )
+  }
+
+  offenders <- intersect(colnames(data)[index], spoken_for)
+
+  if (length(offenders) == 0L) {
+    return(invisible(NULL))
+  }
+
+  name_first <- offenders[1L]
+  offenders <- wrap_in_backticks(offenders)
+
+  if (length(offenders) == 1L) {
+    msg_that_column <- "That column has"
+    msg_subject <- "it"
+    msg_object <- "it"
+    msg_one <- "one"
+  } else {
+    msg_that_column <- "Those columns have"
+    msg_subject <- "they"
+    msg_object <- "them"
+    msg_one <- "some"
+  }
+
+  abort_in_export(
+    "The `{name}` argument of {fn_name} selected {offenders}.",
+    "x" = "{msg_that_column} a role in the test already, so {msg_subject} \\
+    cannot also be tested as {msg_one} of the `{name}` values.",
+    "i" = "Exclude {msg_object} from the selection, as in \\
+    `{name} = !{name_first}`."
+  )
+}
+
+#' Rename key columns according to the key arguments
 #'
-#' If `insert_key_args()` is called in the exit area of a function factory
-#' (i.e., after the part that produces the factory-made function),
-#' `absorb_key_args()` must be called in the main part. Unlike the former, it
-#' transforms `data`, not `fun`, and should be reassigned to `data`.
+#' `absorb_key_args()` is called within mappers. If a key argument such as `x`
+#' names a column of `data`, it renames that column to the key argument's
+#' name, so that the rest of the mapper finds it.
 #'
-#' It renames key columns that have non-standard names, following user-supplied
-#' directions via the arguments automatically inserted below the function.
-#'
-#' @param data User-supplied data frame.
+#' @param data Data frame passed to the mapper.
 #' @param reported String. Names of the key arguments.
-#' @param key_cols_call User-provided arguments named after one or more key
-#'   columns.
+#' @param key_cols_call Optionally, a named character vector that maps key
+#'   argument names to the columns of `data` that they refer to, such as `c(x =
+#'   "mean")`. By default, it is read from the key arguments of the calling
+#'   mapper.
 #'
 #' @export
 #'
-#' @return Data frame `data`, possibly with one or more columns renamed.
-#'   Remember reassigning the value to `data`!
+#' @return `data`, possibly with columns renamed. Reassign the result to
+#'   `data`.
 #'
 #' @examples
-#' # Not really a meaningful example -- need to use
-#' # the function in very specific places
-#' data <- grim_map(pigs1)
-#' data <- absorb_key_args(data, c("x", "n"))
-absorb_key_args <- function(data, reported, key_cols_call) {
-  key_cols_missing <- reported[!reported %in% colnames(data)]
-  key_cols_missing <- as.character(key_cols_missing)
+#' df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
+#' absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
+absorb_key_args <- function(data, reported, key_cols_call = NULL) {
+  # The key arguments are read in the mapper's frame, not off its call: the
+  # call is `FUN(X[[i]], ...)` if the mapper was reached through `lapply()`,
+  # and names a variable rather than its value if called from another function.
+  if (is.null(key_cols_call)) {
+    fn_caller <- rlang::caller_fn()
+    env <- rlang::caller_env()
+    # `NULL` at the top level, where `formals()` would warn:
+    names_formals <- if (is.null(fn_caller)) {
+      character()
+    } else {
+      names(formals(fn_caller))
+    }
+    check_key_args_abbreviated(reported, names_formals, rlang::caller_call())
+    quos <- list()
+    for (name in intersect(reported, names_formals)) {
+      quos[[name]] <- eval(rlang::call2(rlang::enquo, rlang::sym(name)), env)
+    }
+    # A handwritten caller may pass the key arguments on through its dots:
+    if (any(names_formals == "...")) {
+      quos_dots <- eval(quote(rlang::enquos(...)), env)
+      quos <- c(quos, quos_dots[intersect(reported, names(quos_dots))])
+    }
+    key_cols_call <- capture_key_args(data, quos)
+  }
 
-  # No need to work with key arguments here if `data` has all of the expected
-  # column names:
+  # A key argument pointing at the column that already has its name is a no-op:
+  key_cols_call <- key_cols_call[key_cols_call != names(key_cols_call)]
+
+  # A column by the key argument's own name would be tested instead of the one
+  # the argument points to, which is not what the user asked for:
+  key_cols_clash <- names(key_cols_call)[
+    names(key_cols_call) %in% colnames(data)
+  ]
+  if (length(key_cols_clash) > 0L) {
+    name_arg <- key_cols_clash[[1L]]
+    name_col <- key_cols_call[[name_arg]]
+    abort_in_export(
+      "`{name_arg}` was specified as {.val {name_col}}, but `data` \\
+      already has a `{name_arg}` column.",
+      "x" = "It is unclear which of the two columns should be tested.",
+      "i" = "Rename or remove the `{name_arg}` column first."
+    )
+  }
+
+  key_cols_missing <- reported |>
+    call_on(\(x) x[!x %in% colnames(data)]) |>
+    as.character()
+
   if (length(key_cols_missing) == 0L) {
     return(data)
   }
 
   names(key_cols_missing) <- key_cols_missing
-
-  # Extract the expressions supplied by the factory-made function's user as
-  # values of the arguments that are named after `reported`. Coerce them to
-  # string because they will be needed as column names:
-  key_cols_call <- as.list(rlang::caller_call())
   key_cols_call <- key_cols_call[names(key_cols_call) %in% key_cols_missing]
   key_cols_call_names <- names(key_cols_call)
-  key_cols_call <- as.character(key_cols_call)
-  names(key_cols_call) <- key_cols_call_names
 
-  # Run specialized checks on the code supplied by the factory-made
-  # function's user to the subsequently inserted key argument parameters:
   check_factory_key_args_values(data, key_cols_call)
   check_factory_key_args_names(key_cols_missing, key_cols_call_names)
 
-  df_colnames <- tibble::tibble(
-    data = list(data),
-    name_missing = names(key_cols_missing),
-    name_call = key_cols_call
-  )
-
-  replace_colname <- function(data, name_missing, name_call) {
-    colnames(data)[colnames(data) == name_call] <- name_missing
-    data[name_missing]
+  # One column cannot stand in for two key columns:
+  if (anyDuplicated(key_cols_call) > 0L) {
+    name_col <- key_cols_call[duplicated(key_cols_call)][1L]
+    names_args <- key_cols_call_names[key_cols_call == name_col]
+    abort_in_export(
+      "{wrap_in_backticks(names_args)} must name different columns.",
+      "x" = "They all name `{name_col}`."
+    )
   }
 
-  data_renamed <- purrr::pmap_dfc(df_colnames, replace_colname)
-  data_not_renamed <- data[!colnames(data) %in% key_cols_call]
+  # Rename, then move the key columns to the front:
+  index <- match(key_cols_call, colnames(data))
+  colnames(data)[index] <- key_cols_call_names
+  data |>
+    dplyr::relocate(dplyr::all_of(unname(key_cols_missing)))
+}
 
-  data <- dplyr::bind_cols(data_renamed, data_not_renamed)
-  return(data)
+
+# Turn the key arguments, captured as named quosures, into a named character
+# vector of column names. A `NULL` argument, i.e., one not specified, is left
+# out. A bare name is a column name if `data` has such a column, otherwise the
+# string that a variable of that name holds. Any other expression must evaluate
+# to a single string.
+# The key arguments come before the dots, so R matches them partially:
+# `is_percentage_of_map(percent = TRUE)` reads as `percentage = TRUE`, and the
+# error would then blame `percentage`, which the user never named.
+check_key_args_abbreviated <- function(reported, names_formals, call) {
+  names_call <- names(call)
+  names_abbreviated <- setdiff(names_call, c("", names_formals, reported))
+  for (name in names_abbreviated) {
+    name_full <- reported[startsWith(reported, name)]
+    if (length(name_full) > 0L) {
+      abort_in_export(
+        "`{name}` is not an argument of `{name_last_export()}()`.",
+        "x" = "R reads it as `{name_full[[1L]]}`, which must be a column name.",
+        "i" = "Did you mean another argument? Write its name out in full."
+      )
+    }
+  }
+}
+
+capture_key_args <- function(data, quos) {
+  out <- character()
+  for (name in names(quos)) {
+    quo <- quos[[name]]
+    if (rlang::quo_is_null(quo)) {
+      next
+    }
+    expr <- rlang::quo_get_expr(quo)
+    value <- if (rlang::is_symbol(expr)) {
+      value_sym <- rlang::as_string(expr)
+      value_var <- rlang::env_get(
+        rlang::quo_get_env(quo),
+        value_sym,
+        default = NULL,
+        inherit = TRUE
+      )
+      if (!any(value_sym == colnames(data)) && rlang::is_string(value_var)) {
+        value_var
+      } else {
+        value_sym
+      }
+    } else {
+      rlang::eval_tidy(quo)
+    }
+    if (!rlang::is_string(value)) {
+      abort_in_export(
+        "The `{name}` argument must be a column name.",
+        "x" = "It is {.obj_type_friendly {value}}.",
+        "i" = "Specify it as a string, like `{name} = \"my_col\"`, or as a \\
+        bare column name."
+      )
+    }
+    out[[name]] <- value
+  }
+  out
 }
 
 
 #' Check that disabled arguments are not specified
 #'
-#' If the user of the function factory specified its `.args_disabled` argument,
-#' `check_args_disabled()` enforces this ban.
+#' `check_args_disabled()` is called within mappers made by [`function_map()`]
+#' or [`function_map_seq()`]. It errors if the caller specified an argument
+#' that is disabled via `.args_disabled` or fixed via `.args_fixed`.
 #'
-#' More precisely, it throws an error if the user of the factory-made function
-#' specified one or more arguments which the user of the function factory had
-#' disabled via the latter's `.args_disabled` argument. The arguments would
-#' otherwise be passed on to the function that is mapped within the factory-made
-#' function.
-#'
-#' on the use of the certain arguments of the function applied by the
-#' factory-made function.
-#'
-#' @param args_disabled String. One or more names of arguments of the function
-#'   applied within the factory-made function.
+#' @param args_disabled String. Names of the disabled arguments.
 #'
 #' @return No return value; might throw an error.
 #'
-#' @export
-#'
-#' @examples
-#' check_args_disabled(c("disabled1", "disabled2"))
-
+#' @noRd
 check_args_disabled <- function(args_disabled) {
   if (is.null(args_disabled)) {
     return(NULL)
   }
-  arg_names_caller_call <- rlang::frame_call(frame = parent.frame())
-  arg_names_caller_call <- names(arg_names_caller_call)
-  offenders <- args_disabled[args_disabled %in% arg_names_caller_call]
+  # Disabled arguments arrive through the caller's dots, or they are formals of
+  # the caller, as `dispersion` is in a sequence mapper. The names of the dots
+  # are read off the dots themselves, not off the call, which through
+  # `lapply()` is `FUN(X[[i]], ...)` and names nothing:
+  env_caller <- parent.frame()
+  names_dots <- if (exists("...", envir = env_caller, inherits = FALSE)) {
+    eval(quote(...names()), env_caller)
+  }
+  names_formals <- names(formals(sys.function(sys.parent())))
+  is_given <- vapply(
+    args_disabled,
+    function(arg) {
+      (arg %in% names_dots) ||
+        ((arg %in% names_formals) &&
+          !eval(call("missing", as.name(arg)), env_caller))
+    },
+    logical(1L),
+    USE.NAMES = FALSE
+  )
+  offenders <- args_disabled[is_given]
   if (length(offenders) > 0L) {
-    fun_name <- name_caller_call(n = 2L)
-    fun_name_bare <- name_caller_call(wrap = FALSE)
-    fun_name_bare <- as.character(fun_name_bare)
-    package_name <- utils::getAnywhere(fun_name_bare)$where
-    package_name <- as.character(package_name[1L])
-    package_name <- sub("package:", "", package_name)
+    fn_name <- name_last_export_code()
     if (length(offenders) > 3L) {
       offenders <- offenders[1:3]
       msg_among_others <- ", among others"
@@ -349,28 +715,19 @@ check_args_disabled <- function(args_disabled) {
       msg_is_are <- "is"
     }
     offenders <- wrap_in_backticks(offenders)
-    cli::cli_abort(c(
+    abort_in_export(
       "{msg_arg_s} {offenders} {msg_is_are} \\
-          disabled in {fun_name}{msg_among_others}.",
-      "i" = "This is by design. When {fun_name} was created \\
-          within {package_name} using `scrutiny::function_map()`, \\
-          this function factory's `.args_disabled` argument was \\
-          specified so as to include {offenders}.",
-      "i" = "The purpose is to prevent hidden errors that \\
-          might otherwise arise due to certain arguments not \\
-          working properly within `scrutiny::function_map()`."
-    ))
+          disabled in {fn_name}{msg_among_others}."
+    )
   }
 }
 
 
-
 #' Check that the vector of disabled arguments is unnamed
 #'
-#' `check_args_disabled_unnamed()` is a companion to `check_args_disabled()`. It
-#' must be called in a function factory's entry area. The function will throw an
-#' error if the factory's (!) user provided a named vector, rather than simply
-#' the names of the arguments to be disabled.
+#' `check_args_disabled_unnamed()` is called when a factory creates a mapper.
+#' It errors if `.args_disabled` is a named vector rather than just the names of
+#' the arguments to disable.
 #'
 #' @param args_disabled The factory's `.args_disabled` argument, specified by
 #'   the factory's user.
@@ -382,108 +739,41 @@ check_args_disabled_unnamed <- function(args_disabled) {
   if (!is.null(names(args_disabled))) {
     name <- deparse(substitute(args_disabled))
     name_names <- wrap_in_backticks(names(args_disabled))
-    name_fun <- name_caller_call(n = 2L)
+    name_fn <- name_last_export_code()
     if (length(name_names) == 1L) {
       msg_names <- "this name"
     } else {
       msg_names <- "these names"
     }
-    cli::cli_abort(c(
-      "In {name_fun}, the `{name}` argument must be \\
+    abort_in_export(
+      "In {name_fn}, the `{name}` argument must be \\
       an unnamed string vector.",
       "x" = "It has {msg_names}: {name_names}."
-    ))
+    )
   }
 }
 
 
-
-#' Inheritance tests
+#' Check what a test function returned
 #'
-#' These functions are used within `is_map_df()` and friends:
-#' - `class_with()` returns the longest (or all) of an object's classes that
-#' contain at least one user-specified substring.
-#' - `inherits_class_with()` wraps `class_with()` and tests whether its output
-#' is length 1 or more -- i.e., whether an object inherits at least 1 class with
-#' one of the specified substrings. This is conceptually similar to
-#' `inherits()`, but more flexible.
+#' `check_fn_result()` is called on the result of applying `.fn` to the
+#' first row. The key result column is logical, so `.fn` must return a single
+#' logical value, or a list that starts with one.
 #'
-#' @details `class_with()` loops through a string vector, `contains`, and tests
-#'   whether any of its values are present within any of those of another string
-#'   vector, the classes of `data`. Classes are ordered by number of characters
-#'   before the looping, such that the "longest" classes come first by default
-#'   (`order_decreasing = TRUE`).
+#' @param result What `.fn` returned.
+#' @param fn_name String. Name of `.fn`, for the message.
 #'
-#'   The first class that fits the first `contains` value is returned. If the
-#'   first `contains` value doesn't fit any of the classes, the second one is
-#'   tested, etc.
-#'
-#'   All of this makes sense because scrutiny's classes differ in complexity
-#'   (e.g., `"scr_grim_map_seq"` versus `"scr_map_seq"`), and the purpose here
-#'   is to find the most complex class with the earliest in line of the
-#'   `contains` strings. The latter should be ordered in descending order of
-#'   desirability, so that the most "desired" string comes first.
-#'
-#' @param data Object to be tested for classes (most likely a data frame).
-#' @param contains String. The presence of `contains` values in the classes of
-#'   `data` is tested via `stringr::str_detect()`. Note that the order among
-#'   `contains` values matters.
-#' @param all_classes Logical. If set to `TRUE`, returns all classes with a
-#'   length-1 `contains` value. (Other lengths will then throw an error.)
-#'   Default is `FALSE`.
-#' @param order_decreasing Logical. If `TRUE` (the default), longer classes are
-#'   tested before shorter ones.
-#'
-#' @return
-#' - For `class_with()`, a string vector.
-#' - For `inherits_class_with()`, a length-1 logical vector.
+#' @return `result`, invisibly; might throw an error.
 #'
 #' @noRd
-class_with <- function(data, contains, all_classes = FALSE,
-                       order_decreasing = TRUE) {
-  cd <- class(data)
-
-  if (all_classes) {
-    if (length(contains) > 1L) {
-      contains <- wrap_in_backticks(contains)
-      cli::cli_abort(c(
-        "`contains` has length {length(contains)}.",
-        "x" = "With `all_classes` set to `TRUE`, `contains` \\
-        cannot be longer than 1.",
-        "i" = "(Its values are {contains}.)"
-      ))
-    }
-    return(cd[stringr::str_detect(cd, contains)])
+check_fn_result <- function(result, fn_name) {
+  key <- if (is.list(result) && length(result) > 0L) result[[1L]] else result
+  if (!is.logical(key) || length(key) != 1L) {
+    abort_in_export(
+      "`{fn_name}()` must return a single logical value, or a list \\
+      starting with one.",
+      "x" = "It returned {.obj_type_friendly {result}}."
+    )
   }
-
-  cd_lengths <- vapply(cd, stringr::str_length, integer(1L), USE.NAMES = FALSE)
-  cd <- cd[order(cd_lengths, decreasing = order_decreasing)]
-
-  # Outer loop:
-  for (i in seq_along(contains)) {
-
-    # Inner loop:
-    for (j in seq_along(cd)) {
-      cd_contains_string <- stringr::str_detect(cd[j], contains[i])
-      if (cd_contains_string) {
-        return(cd[j])
-      }
-    }
-    # End of inner loop
-
-  }
-  # End of outer loop
-
-  character(0L)
+  invisible(result)
 }
-
-
-
-inherits_class_with <- function(data, contains, all_classes = FALSE,
-                                order_decreasing = TRUE) {
-  length(class_with(
-    data = data, contains = contains, all_classes = all_classes,
-    order_decreasing = order_decreasing
-  )) > 0L
-}
-

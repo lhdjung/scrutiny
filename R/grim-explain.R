@@ -1,0 +1,575 @@
+#' Explain a GRIM test step by step
+#'
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grim_explain()` tests a single mean like [`grim()`] does, but
+#'   also lays out the calculation in plain words: which true means the
+#'   reported one could stand for, which sums of the underlying whole numbers
+#'   follow from them, and whether any of these sums is possible.
+#'
+#'   The text is built from the numbers that decide the test itself, so it
+#'   always agrees with [`grim()`].
+#'
+#' @inheritParams grim
+#'
+#' @return An object of class `scrutiny_explain`: a list with the verdict as
+#'   `consistency` (`TRUE`, `FALSE`, or `NA`), the explanation's `paragraphs`,
+#'   and the `test` and its `inputs`. It prints as the explanation.
+#'
+#' @seealso [`grimmer_explain()`] and [`debit_explain()`] for the other tests,
+#'   and [`explain_map()`] for mapper output.
+#'
+#' @include grim.R
+#'
+#' @export
+#'
+#' @examples
+#' grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#'
+#' grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+#'
+#' grim_explain(
+#'   x = 71,
+#'   n = 43,
+#'   digits_x = 0,
+#'   items_averaged = 1,
+#'   percent = TRUE
+#' )
+grim_explain <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  percent = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  check_length(x, 1L)
+  check_length(n, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  n <- round_whole(n)
+  items_averaged <- round_whole(items_averaged)
+  check_length(items_averaged, 1L)
+
+  # `paste()` would write a number like 100000 as 1e+05:
+  rlang::local_options(scipen = 100L)
+
+  # A missing `digits_x` reaches `grim_scalar()`, which says how to fix it:
+  if (!missing(digits_x)) {
+    check_length(digits_x, 1L)
+  }
+  check_rounding_args(rounding, threshold, symmetric)
+
+  # Every number in the text comes from `grim_scalar()` itself or from
+  # `bound_numerators()`, the helper `sum_range()` derives the sums from, so the
+  # text cannot contradict the verdict.
+  rec <- grim_scalar(
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items_averaged = items_averaged,
+    percent = percent,
+    show_rec = TRUE,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+  consistency <- rec[[1L]]
+
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      n = n,
+      items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
+        items_averaged
+      },
+      percent = if (percent) TRUE
+    )
+    new_explanation(
+      "GRIM",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text
+    )
+  }
+
+  if (is.na(consistency)) {
+    text <- explain_undecidable(
+      values = list(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged
+      ),
+      n = n,
+      items_averaged = items_averaged
+    )
+    return(explain(text))
+  }
+
+  sum_lower <- rec[[3L]]
+  sum_upper <- rec[[4L]]
+  rec_x_upper <- rec[[5L]]
+  rec_x_lower <- rec[[6L]]
+
+  # The bounds of `x` on the scale it was reported on, i.e. as a percentage if
+  # it is one. Each is an exact numerator over `denom`, and multiplying before
+  # dividing keeps a value like 70.5 from showing up as 70.4999999999.
+  digits_num <- if (percent) digits_x + 2L else digits_x
+  x_num <- if (percent) x / 100 else x
+  scale_x <- if (percent) 100 else 1
+  bounds <- roundwork::bound_numerators(
+    x_num,
+    digits_num,
+    rounding,
+    threshold,
+    symmetric
+  )
+  x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
+  x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
+
+  n_items <- as.numeric(n) * items_averaged
+  sum_lower_exact <- format_number(
+    n_items * bounds$lower / bounds$denom,
+    digits_num
+  )
+  sum_upper_exact <- format_number(
+    n_items * bounds$upper / bounds$denom,
+    digits_num
+  )
+
+  text_bounds <- describe_reported(
+    if (percent) "percentage" else "mean",
+    x,
+    digits_x,
+    x_lower,
+    x_upper,
+    bounds$incl_lower,
+    bounds$incl_upper
+  )
+
+  # How the mean or percentage comes from a sum, and which sums it allows:
+  if (percent) {
+    n_shown <- if (items_averaged == 1) {
+      n
+    } else {
+      paste(n, "*", items_averaged, "=", n_items)
+    }
+    times <- paste0(" / 100 * ", n_items, " = ")
+    text_sums <- paste0(
+      "A percentage out of ",
+      n_shown,
+      " is a count divided by ",
+      n_items,
+      ", times 100. So the count must be "
+    )
+  } else if (n == 1 && items_averaged == 1) {
+    # No sum to calculate, so the bounds are shown as they are:
+    times <- NULL
+    text_sums <- "The mean of a single whole number is that number. So it must be "
+  } else if (items_averaged == 1) {
+    times <- paste0(" * ", n, " = ")
+    text_sums <- paste0(
+      "The mean of ",
+      n,
+      " whole numbers is their sum divided by ",
+      n,
+      ". ",
+      "So the sum must be "
+    )
+  } else {
+    times <- paste0(" * ", n_items, " = ")
+    text_sums <- paste0(
+      if (n == 1) "The single score" else paste("Each of the", n, "scores"),
+      " is the average of ",
+      items_averaged,
+      " whole-number items. ",
+      if (n == 1) "It" else "Their mean",
+      " is therefore the sum of all ",
+      n_items,
+      " item ",
+      "values divided by ",
+      n_items,
+      ", so this sum must be "
+    )
+  }
+
+  text_sums <- paste0(
+    text_sums,
+    describe_range(
+      paste0(x_lower, times, if (!is.null(times)) sum_lower_exact),
+      paste0(x_upper, times, if (!is.null(times)) sum_upper_exact),
+      bounds$incl_lower,
+      bounds$incl_upper
+    ),
+    "."
+  )
+
+  # A sum and the mean or percentage it gives, as a calculation. Shown with
+  # enough decimal places to tell it from the bounds of `x`: with `n` above
+  # `10^digits_x`, a mean like 499 / 999 would otherwise print as 0.4995, the
+  # bound it falls short of. `debit_explain()` does the same for its SDs.
+  bounds_x <- c(bounds$lower, bounds$upper) * scale_x / bounds$denom
+  divide <- function(sum) {
+    paste0(
+      sum,
+      " / ",
+      n_items,
+      if (percent) " * 100",
+      " = ",
+      format_number(sum * scale_x / n_items, digits_num, bounds_x)
+    )
+  }
+
+  rounds_to <- function(value) {
+    value |>
+      roundwork::reround(digits_x, rounding, threshold, symmetric) |>
+      format_reported(digits_x) |>
+      unique() |>
+      paste(collapse = " or ")
+  }
+
+  whole_intro <- if (percent) {
+    "A count is a whole number"
+  } else {
+    "A sum of whole numbers is itself a whole number"
+  }
+
+  if (consistency) {
+    # The sum closest to the reported value is the one shown, which keeps it
+    # away from a bound where only some rounding procedures would round it to
+    # `x`:
+    sum_shown <- min(max(round(x_num * n_items), sum_lower), sum_upper)
+
+    # Under `"even"`, a sum on a bound is a tie that `base::round()` may break
+    # either way, which is why both bounds are inclusive (see `?unround`). Show
+    # another sum from the range if there is one, and otherwise say so rather
+    # than claim a rounding that cannot be predicted:
+    is_tie <- function(sum) {
+      (rounding %in% c("even", "ties_even")) &
+        (dplyr::near(sum * bounds$denom, n_items * bounds$lower) |
+          dplyr::near(sum * bounds$denom, n_items * bounds$upper))
+    }
+    if (is_tie(sum_shown)) {
+      sums_other <- c(sum_shown + 1, sum_shown - 1)
+      sums_other <- sums_other[
+        sums_other >= sum_lower & sums_other <= sum_upper & !is_tie(sums_other)
+      ]
+      sum_shown <- c(sums_other, sum_shown)[1L]
+    }
+    text_rounds <- if (is_tie(sum_shown)) {
+      ", a tie that rounding to even may break either way"
+    } else {
+      paste0(", which rounds to ", rounds_to(sum_shown * scale_x / n_items))
+    }
+
+    in_range <- if (sum_lower == sum_upper) {
+      paste0(", and ", sum_lower, " is in this range: ")
+    } else {
+      paste0(
+        ", and the whole numbers from ",
+        sum_lower,
+        " to ",
+        sum_upper,
+        " are in this range. For example, "
+      )
+    }
+    text_whole <- paste0(
+      whole_intro,
+      in_range,
+      divide(sum_shown),
+      text_rounds,
+      "."
+    )
+  } else {
+    # The range holds no whole number, so `sum_upper` is the nearest one below
+    # it and `sum_lower` the nearest one above, and the granules are their
+    # means:
+    text_whole <- paste0(
+      whole_intro,
+      ", but there is no whole number in this range. The ",
+      "nearest ones are ",
+      sum_upper,
+      " and ",
+      sum_lower,
+      ". They give ",
+      divide(sum_upper),
+      " and ",
+      divide(sum_lower),
+      ", which round to ",
+      rounds_to(rec_x_lower),
+      " and ",
+      rounds_to(rec_x_upper),
+      ", not to ",
+      format_reported(x, digits_x),
+      "."
+    )
+  }
+
+  explain(c(text_bounds, text_sums, text_whole))
+}
+
+
+# Shared by all explanations ----------------------------------------------
+
+new_explanation <- function(
+  test,
+  inputs,
+  rounding,
+  threshold,
+  symmetric,
+  consistency,
+  text,
+  sd_meaning = "sd_sample"
+) {
+  # Only the settings that differ from the defaults are worth a mention:
+  inputs <- c(
+    inputs,
+    list(
+      rounding = if (rounding != "up_or_down") paste0("\"", rounding, "\""),
+      threshold = if (threshold != 5) threshold,
+      symmetric = if (symmetric) TRUE,
+      sd_meaning = if (sd_meaning != "sd_sample") paste0("\"", sd_meaning, "\"")
+    )
+  )
+  inputs <- Filter(Negate(is.null), inputs)
+
+  structure(
+    list(
+      test = test,
+      inputs = paste(names(inputs), "=", inputs, collapse = ", "),
+      consistency = consistency,
+      paragraphs = text
+    ),
+    class = "scrutiny_explain"
+  )
+}
+
+
+# The explanation under `sd_meaning = "sd_sample_or_pop"`: that of the sample
+# SD, and if it doesn't pass, that of the population SD as well, minus the
+# paragraphs the two share, such as the GRIM test. The verdict is then the
+# population SD's, as in `grimmer_sd_sample_or_pop()`. `explain_type()` explains
+# the test under one `sd_meaning`, and `consistency` is the verdict under
+# `"sd_sample_or_pop"`.
+explain_sd_sample_or_pop <- function(explain_type, consistency) {
+  out <- explain_type("sd_sample")
+  verdict <- out$consistency
+
+  if (!isTRUE(verdict)) {
+    population <- explain_type("sd_pop")
+    is_new <- !population$paragraphs %in% out$paragraphs
+
+    out$paragraphs <- if (is.na(population$consistency)) {
+      # Undecidable either way, and the population SD's requirements are the
+      # ones that apply:
+      population$paragraphs
+    } else if (is.na(verdict)) {
+      # Only at `n = 1` is the sample SD undecidable but the population SD
+      # not:
+      c(
+        out$paragraphs,
+        "A single value has no sample SD, but it has a population SD, which divides by n rather than n - 1.",
+        population$paragraphs[is_new]
+      )
+    } else if (any(is_new)) {
+      c(
+        out$paragraphs,
+        "The SD may also be a population SD, which divides by n rather than n - 1.",
+        population$paragraphs[is_new]
+      )
+    } else {
+      out$paragraphs
+    }
+    verdict <- population$consistency
+  }
+
+  if (!identical(verdict, consistency)) {
+    cli::cli_abort(
+      "Internal error: the explanations under \
+      `sd_meaning = \"sd_sample_or_pop\"` disagree with the test.",
+      .internal = TRUE
+    )
+  }
+
+  # `sd_meaning` is the last setting that `new_explanation()` lists:
+  out$inputs <- paste0(out$inputs, ", sd_meaning = \"sd_sample_or_pop\"")
+  out$consistency <- consistency
+  out
+}
+
+
+#' @export
+format.scrutiny_explain <- function(x, ...) {
+  verdict <- if (is.na(x$consistency)) {
+    "Undecidable"
+  } else if (x$consistency) {
+    "Consistent"
+  } else {
+    "Inconsistent"
+  }
+
+  width <- min(getOption("width"), 80L)
+
+  # Keep calculations like `166 / 32 = 5.1875` on one line: the spaces around
+  # their operators are swapped for a `~`, which the text never contains, while
+  # wrapping.
+  wrapped <- x$paragraphs |>
+    gsub(pattern = " ([-+*/=]) ", replacement = "~\\1~") |>
+    lapply(strwrap, width = width) |>
+    lapply(paste, collapse = "\n") |>
+    gsub(pattern = "~", replacement = " ", fixed = TRUE)
+
+  x$test |>
+    paste0(" test: ", x$inputs) |>
+    c(wrapped, paste("==>", verdict)) |>
+    paste(collapse = "\n\n")
+}
+
+
+#' @export
+print.scrutiny_explain <- function(x, ...) {
+  cat(format(x), "\n", sep = "")
+  invisible(x)
+}
+
+
+# Why a case is undecidable, in the order in which the tests check it. `values`
+# is a named list of the values that must not be missing.
+explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
+  for (name in names(values)) {
+    if (is.na(values[[name]])) {
+      return(paste0(name, " is missing, so there is nothing to test."))
+    }
+  }
+
+  for (name in intersect(names(values), c("x", "sd"))) {
+    if (is.infinite(values[[name]])) {
+      return(paste0(
+        name,
+        " is infinite, which no real data can produce, so there is ",
+        "nothing to test."
+      ))
+    }
+  }
+
+  if (is_decidable_n_items(n, min_n = min_n)) {
+    paste0(
+      "The test needs the number of items to be a positive whole number, but ",
+      "it is ",
+      items_averaged,
+      "."
+    )
+  } else if (min_n == 2) {
+    paste0(
+      "The test needs n to be a whole number of at least 2, because the ",
+      "SD of a sample divides by n - 1. But n is ",
+      n,
+      "."
+    )
+  } else {
+    paste0(
+      "The test needs n to be a positive whole number, but it is ",
+      n,
+      "."
+    )
+  }
+}
+
+
+# A reported value with all of its decimal places, trailing zeros included:
+format_reported <- function(x, digits) {
+  if (anyNA(x) || is.na(digits)) {
+    as.character(x)
+  } else {
+    formatC(x, format = "f", digits = digits)
+  }
+}
+
+
+# A computed value, with up to `digits + 2` decimal places (at least four), so
+# that the bounds of a value reported with `digits` come out in full. A
+# fraction must not look whole, though, nor like one of the `bounds` it is
+# compared to, or the text would contradict itself next to a number that is
+# said to be outside of it. Such a value gets the fewest more places that set it
+# apart:
+format_number <- function(x, digits = 0L, bounds = numeric()) {
+  x |>
+    vapply(round_apart, numeric(1L), max(4L, digits + 2L), bounds) |>
+    vapply(format, character(1L), scientific = FALSE, digits = 15L, trim = TRUE)
+}
+
+
+round_apart <- function(x, places, bounds) {
+  # A value that really is whole or at a bound may look like it:
+  avoid <- c(round(x), bounds)
+  avoid <- avoid[avoid != x]
+
+  shown <- round(x, places)
+  while (places < 15L && shown %in% round(avoid, places)) {
+    places <- places + 1L
+    shown <- round(x, places)
+  }
+  shown
+}
+
+
+# The sentence on a reported value and the range it could have been rounded
+# from:
+describe_reported <- function(
+  name,
+  x,
+  digits,
+  lower,
+  upper,
+  incl_lower,
+  incl_upper
+) {
+  places <- if (digits == 0) {
+    "no decimal places"
+  } else if (digits == 1) {
+    "1 decimal place"
+  } else {
+    paste(digits, "decimal places")
+  }
+
+  paste0(
+    "The ",
+    name,
+    " was reported as ",
+    format_reported(x, digits),
+    ", with ",
+    places,
+    # A single-point range, as under `"anti_trunc"` at zero, is no "anything":
+    if (incl_lower && incl_upper && lower == upper) {
+      ". Before rounding, it can only have been "
+    } else {
+      ". Before rounding, it could have been anything "
+    },
+    describe_range(lower, upper, incl_lower, incl_upper),
+    "."
+  )
+}
+
+
+# A range in words, with each bound included or not:
+describe_range <- function(lower, upper, incl_lower, incl_upper) {
+  if (incl_lower && incl_upper) {
+    if (lower == upper) {
+      return(paste("exactly", lower))
+    }
+    paste("from", lower, "to", upper)
+  } else if (incl_lower) {
+    paste0("from ", lower, " up to, but not including, ", upper)
+  } else if (incl_upper) {
+    paste0("above ", lower, ", up to and including ", upper)
+  } else {
+    paste("above", lower, "and below", upper)
+  }
+}

@@ -1,88 +1,78 @@
-
 #' GRIM-test many cases at once
 #'
-#' @description Call `grim_map()` to GRIM-test any number of combinations of
-#'   mean/proportion, sample size, and number of items. Mapping function for
-#'   GRIM-testing.
+#' @description `grim_map()` applies [`grim()`] to every row of a data frame
+#'   with means (or percentages) and sample sizes.
 #'
-#'   Set `percent` to `TRUE` if the `x` values are percentages. This will
-#'   convert `x` values to decimals and adjust the decimal count accordingly.
+#'   Set `percent` to `TRUE` if `x` contains percentages, and `show_rec` to
+#'   `TRUE` to see the reconstructed values behind each verdict. Call
+#'   [`audit()`] on the output for summary statistics and [`grim_plot_grid()`] to
+#'   visualize it.
 #'
-#'   Display intermediary numbers from GRIM-testing in columns by setting
-#'   `show_rec` to `TRUE`.
+#' @param data Data frame with columns `x` and `n`, and optionally
+#'   `items_averaged`. Any other columns are returned alongside the results.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default, since a numeric value does not keep
+#'   them (`1.40` is `1.4`). Either a single number for the whole column or
+#'   one number per row of `data`.
+#' @param x,n Optionally, the names of the columns in `data` that contain these
+#'   values, if they differ from the defaults.
+#' @param items_averaged Integer. As in [`grim()`]: the number of items
+#'   averaged into each score, not the number of scale points. Give it as an
+#'   argument or as a column of `data`; there is no default. It is returned as
+#'   a column.
+#' @param percent Logical. If `TRUE`, the `x` values are percentages: they are
+#'   divided by 100 and tested with two more decimal places. Default is
+#'   `FALSE`. It applies to the whole call, so test a table that mixes means
+#'   and percentages part by part, as in the examples. The parts can be
+#'   combined with [`dplyr::bind_rows()`], but plot each one on its own:
+#'   [`grim_plot_grid()`] reads `percent` from the call.
+#' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
+#'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
+#' @param rounding,threshold,symmetric Passed on to [`grim()`].
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
 #'
-#'   For summary statistics, call [`audit()`] on the results.
-#'
-#' @param data Data frame with columns `x`, `n`, and optionally `items` (see
-#'   documentation for [`grim()`]. By default, any other columns in `data` will
-#'   be returned alongside GRIM test results (see `extra` below).
-#' @param items Integer. If there is no `items` column in `data`, this specifies
-#'   the number of items composing the `x` values. Default is 1, the most common
-#'   case.
-#' @param merge_items Logical. If `TRUE` (the default), there will be no `items`
-#'   column in the output. Instead, values from an `items` column or argument
-#'   will be multiplied with values in the `n` column. This is only for
-#'   presentation and does not affect test results.
-#' @param percent Logical. Set `percent` to `TRUE` if the `x` values are
-#'   percentages. This will convert them to decimal numbers and adjust the
-#'   decimal count (i.e., increase it by 2). It also affects the `ratio` column.
-#'   Default is `FALSE`.
-#' @param x,n Optionally, specify these arguments as column names in `data`.
-#' @param show_rec Logical. If set to `TRUE`, the reconstructed numbers from
-#'   GRIM-testing are shown as columns. See section *Reconstructed numbers*
-#'   below. Default is `FALSE`.
-#' @param show_prob `r lifecycle::badge("deprecated")` Logical. No longer
-#'   supported: now, there is always a `probability` column. (It replaces the
-#'   earlier `ratio` column.)
-#' @param rounding,threshold,symmetric,tolerance Further parameters of
-#'   GRIM-testing; see documentation for [`grim()`].
-#' @param testables_only Logical. If `testables_only` is set to `TRUE`, only
-#'   GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
-#'   Default is `FALSE`.
-#' @param extra String or integer. The other column(s) from `data` to be
-#'   returned in the output tibble alongside test results, referenced by their
-#'   name(s) or number(s). Default is `Inf`, which returns all columns. To
-#'   return none of them, set `extra` to 0.
-
-#' @return A tibble with these columns --
+#' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.
-#' - `consistency`: GRIM consistency of `x`, `n`, and `items`.
-#' - `probability`: the probability of GRIM inconsistency; see
-#' [`grim_probability()`].
-#' - `<extra>`: any columns from `data` other than `x`, `n`, and `items`.
+#' - `items_averaged`: the number of items averaged into each score.
+#' - `digits_x`: the number of decimal places in `x`, as given.
+#' - `consistency`: GRIM consistency of `x`, `n`, and `items_averaged`. `NA` for
+#'   a case that cannot be decided, such as one with a missing value.
+#' - `exp_incon`: the probability of GRIM inconsistency; see
+#'   [`grim_exp_incon()`].
+#' - Any other columns from `data`.
 #'
-#'   The tibble has the `scr_grim_map` class, which is recognized by the
-#'   [`audit()`] generic.
-
-#' @section Reconstructed numbers: If `show_rec` is set to `TRUE`, the output
-#'   includes the following additional columns:
+#'   The tibble has the class `scrutiny_grim_map`, which is recognized by
+#'   [`audit()`] and [`grim_plot_grid()`].
 #'
-#' - `rec_sum`: the sum total from which the mean or proportion was ostensibly
-#'   derived.
-#' - `rec_x_upper`: the upper reconstructed `x` value.
-#' - `rec_x_lower`: the lower reconstructed `x` value.
-#' - `rec_x_upper_rounded`: the rounded `rec_x_upper` value.
-#' - `rec_x_lower_rounded`: the rounded `rec_x_lower` value.
+#' @section Reconstructed numbers: With `show_rec = TRUE`, the output has these
+#'   further columns, the same ones for every rounding method:
 #'
-#' With the default for `rounding`, `"up_or_down"`, each of the last two columns
-#' is replaced by two columns that specify the rounding procedures (i.e.,
-#' `"_up"` and `"_down"`).
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `grim_map()` to get a summary of
-#'   `grim_map()`'s results. It is a tibble with one row and these columns --
+#' - `rec_sum`: the product of `x` and `n` (times `items_averaged`), i.e., the
+#'   sum total implied by the reported mean. It is generally not a whole number.
+#' - `sum_lower`, `sum_upper`: the least and the greatest whole-number sum total
+#'   that would have been reported as `x`. A value set is consistent exactly if
+#'   `sum_lower` is not greater than `sum_upper`. If it is inconsistent, the two
+#'   are the whole numbers on either side of `rec_sum`, so their gap is always 1
+#'   and does not measure how far off the reported values are.
+#' - `rec_x_upper`, `rec_x_lower`: the two achievable means closest to `x`,
+#'   i.e., `rec_sum` rounded up and down, divided by `n` (times
+#'   `items_averaged`). With `percent = TRUE`, these are percentages like `x`;
+#'   the sum columns are not affected.
 #'
-#' 1. `incons_cases`: number of GRIM-inconsistent value sets.
-#' 2. `all_cases`: total number of value sets.
-#' 3. `incons_rate`: proportion of GRIM-inconsistent value sets.
-#' 4. `mean_grim_prob`: average probability of GRIM inconsistency.
-#' 5. `incons_to_prob`: ratio of `incons_rate` to `mean_grim_prob`.
-#' 6. `testable_cases`: number of GRIM-testable value sets (i.e., those with a
-#' positive `probability`).
-#' 7. `testable_rate`: proportion of GRIM-testable value sets.
-
-#' @include audit.R grim.R manage-extra-cols.R restore-zeros.R
-
+#' @section Summaries with [`audit()`]: `audit()` on `grim_map()` output
+#'   returns a tibble with one row and these columns:
+#'
+#' 1. `all_cases`: total number of value sets.
+#' 2. `testable_cases`: number of value sets with a positive `exp_incon`.
+#' 3. `incon_cases`: number of GRIM-inconsistent value sets.
+#' 4. `emp_incon`: proportion of GRIM-inconsistent value sets.
+#' 5. `exp_incon`: mean probability of GRIM inconsistency.
+#' 6. `ratio`: ratio of `emp_incon` to `exp_incon`, both computed over the
+#'    value sets that could be decided.
+#'
+#' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
+#'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 #'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
@@ -94,227 +84,49 @@
 #' # Use `grim_map()` on data like these:
 #' pigs1
 #'
-#' # The `consistency` column shows
-#' # whether the values to its left
-#' # are GRIM-consistent:
-#' pigs1 %>%
-#'   grim_map()
+#' # The `consistency` column shows whether the
+#' # values to its left are GRIM-consistent:
+#' pigs1 |>
+#'   grim_map(digits_x = 2, items_averaged = 1)
 #'
-#' # Display intermediary numbers from
-#' # GRIM-testing with `show_rec = TRUE`:
-#' pigs1 %>%
-#'   grim_map(show_rec = TRUE)
+#' # Show the reconstructed numbers:
+#' pigs1 |>
+#'   grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
 #'
 #' # Get summaries with `audit()`:
-#' pigs1 %>%
-#'   grim_map() %>%
+#' pigs1 |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
+#'
+#' # A table of means and percentages, tested part by part:
+#' df <- tibble::tibble(
+#'   x = c(5.19, 71),
+#'   n = c(32, 43),
+#'   is_percent = c(FALSE, TRUE)
+#' )
+#' dplyr::bind_rows(
+#'   df |>
+#'     dplyr::filter(!is_percent) |>
+#'     grim_map(digits_x = 2, items_averaged = 1),
+#'   df |>
+#'     dplyr::filter(is_percent) |>
+#'     grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
+#' )
 
-
-# Note: All the arguments passed on to the internal testing function
-# `grim_scalar()` are listed here as well as in the internal call to
-# `purrr::pmap_lgl(grim)` or `purrr::pmap(grim)` instead of simply being passed
-# via `...` so that starting to type them will trigger RStudio's autocomplete.
-
-
-grim_map <- function(data, items = 1, merge_items = TRUE, percent = FALSE,
-                     x = NULL, n = NULL, show_rec = FALSE,
-                     show_prob = deprecated(),
-                     rounding = "up_or_down", threshold = 5,
-                     symmetric = FALSE, tolerance = .Machine$double.eps^0.5,
-                     testables_only = FALSE, extra = Inf) {
-
-  # If any two arguments called right below are length > 1, they need to have
-  # the same length. Otherwise, the call will fail. But even so, there will be a
-  # warning that values will get paired:
-  check_lengths_congruent(list(
-    items, percent, rounding, threshold, symmetric, tolerance
-  ))
-
-  # Warn if the user specified a deprecated argument:
-  if (lifecycle::is_present(show_prob)) {
-    lifecycle::deprecate_warn(
-      when = "0.5.0",
-      what = "grim_map(show_prob)",
-      details = c(
-        "The \"probability\" column has replaced the \\
-        \"ratio\" column, so now it is always displayed, \\
-        and `show_prob` no longer has any effect."
-      )
-    )
-  }
-
-  # Check if the user specified the arguments named after the key columns, `x`
-  # and `n`. If so, the user-supplied value for that argument will be checked
-  # against the column names of `data`. If the value is one of those column
-  # names, that column is renamed to the respective key argument. Otherwise,
-  # there is an error.
-  if (!missing(x)) {
-    x <- rlang::enexpr(x)
-    data <- manage_key_colnames(data, x, "mean/proportion")
-  }
-
-  if (!missing(n)) {
-    n <- rlang::enexpr(n)
-    data <- manage_key_colnames(data, n, "sample size")
-  }
-
-
-  # TODO: Optimize `grim_map()` for performance!
-
-
-  # Check the column names of `data`:
-  check_mapper_input_colnames(data, c("x", "n"), "GRIM")
-  check_tibble(data)
-
-  data <- manage_helper_col(data = data, var_arg = items, default = 1)
-
-  # Create `other_cols`, which contains all extra columns from `data` (i.e.,
-  # those which play no role in the GRIM test), and run it through a specified
-  # helper function:
-  other_cols <- manage_extra_cols(
-    data, extra, dplyr::select(data, -x, -n, -items)
-  )
-
-  # Prepare a data frame for the GRIM computations below (steps 4 and 5):
-  data_x_n_items <- dplyr::select(data, x, n, items)
-
-
-  # Create the columns of the resulting tibble --
-
-  # 1.-3.: Define `x`, `n`, and `items` as the respective columns from `data`
-  # (these only come into play in the resulting tibble). The `items` column is
-  # disabled by default of `merge_items`. Instead, its values are merged into
-  # the `n` column:
-  x <- data$x
-
-  if (merge_items) {
-    n <- data$n * data$items
-  } else {
-    n <- tibble::tibble(n = data$n, items = data$items)
-  }
-
-  # 4.: GRIM-test all sets of `x`, `n`, and `items` by mapping `grim_scalar()`.
-  # Instead of using the dots, `...`, the function manually passes the remaining
-  # arguments down to `grim_scalar()` so that starting to type these arguments
-  # will trigger RStudio's autocomplete. The particular mapping function,
-  # `purrr::pmap_lgl()` or `purrr::pmap()`, depends on whether intermediary
-  # numbers were chosen to be shown in the resulting tibble because the former
-  # only returns a logical value whereas the latter returns a list:
-  if (show_rec) {
-    consistency <- purrr::pmap(
-      data_x_n_items, grim_scalar, percent = percent,
-      show_rec = show_rec, rounding = rounding,
-      threshold = threshold, symmetric = symmetric,
-      tolerance = tolerance
-    )
-  } else {
-    consistency <- purrr::pmap_lgl(
-      data_x_n_items, grim_scalar, percent = percent,
-      show_rec = show_rec, rounding = rounding,
-      threshold = threshold, symmetric = symmetric,
-      tolerance = tolerance
-    )
-  }
-
-  # 5.: Compute the GRIM probabilities for all of the same value sets via
-  # `grim_probability()`, which also gets the `percent` argument passed on to:
-  probability <- purrr::pmap_dbl(
-    .l = data_x_n_items,
-    .f = grim_probability,
-    percent = percent
-  )
-
-  # 6.-?: Any number of other columns from `data` (via the `other_cols` object).
-
-
-  # Create a tibble with results that also includes extra columns from the input
-  # data frame (`other_cols`) unless the `extra` argument has been set to 0 --
-  if (is.null(extra)) {
-    # (Number:)               1  2       3            4
-    results <- tibble::tibble(x, n, consistency, probability)
-  } else {
-    # (Number:)               1  2       3            4          5(-?)
-    results <- tibble::tibble(x, n, consistency, probability, other_cols)
-  }
-
-  # In case the user had set `show_rec` to `TRUE` for displaying the
-  # reconstructed values from `grim_scalar()`'s internal computations, these
-  # were stored in `consistency` until now. The `consistency` column, then, is a
-  # list-column of 6 or 8 values per cell, depending on `rounding`. These
-  # numbers are now unnested (i.e., turned into their own columns) and
-  # given their respective proper names:
-  if (show_rec) {
-    # The first four names are common to both the short and the long version:
-    name1 <- "consistency"
-    name2 <- "rec_sum"
-    name3 <- "rec_x_upper"
-    name4 <- "rec_x_lower"
-    length_2ers <- c("up_or_down", "up_from_or_down_from", "ceiling_or_floor")
-    if (any(rounding %in% length_2ers)) {
-      rounding_split <- rounding %>%
-        stringr::str_split("_or_") %>%
-        unlist(use.names = FALSE)
-      # These names are for the long version only; the short version has
-      # different names 5 and 6, and it has no names 7 and 8 at all:
-      name5 <- paste0("rec_x_upper_rounded_", rounding_split[1L])
-      name6 <- paste0("rec_x_upper_rounded_", rounding_split[2L])
-      name7 <- paste0("rec_x_lower_rounded_", rounding_split[1L])
-      name8 <- paste0("rec_x_lower_rounded_", rounding_split[2L])
-      col_names <- c(
-        name1, name2, name3, name4,
-        name5, name6, name7, name8
-      )
-    } else {
-      # The alternative names 5 and 6 for the short version:
-      name5 <- "rec_x_upper_rounded"
-      name6 <- "rec_x_lower_rounded"
-      col_names <- c(
-        name1, name2, name3, name4,
-        name5, name6  # no 7 and 8 here!
-      )
-    }
-
-    results <- results %>%
-      unnest_consistency_cols(col_names, index = TRUE) %>%
-      dplyr::relocate(probability, .after = consistency)
-  }
-
-  # Prepare to add the "scr_grim_map" class that `audit()` will recognize, as
-  # well as a class that is informative about the rounding procedure used for
-  # reconstructing `x`:
-  classes_to_add <- c("scr_grim_map", paste0("scr_rounding_", rounding))
-
-  # Mediate between `seq_endpoint_df()` or `seq_distance_df()`, on the one hand,
-  # and `seq_test_ranking()`, on the other:
-  if (inherits(data, "scr_seq_df")) {
-    classes_to_add <- c("scr_seq_test", classes_to_add)
-  }
-
-  class(results) <- c(classes_to_add, class(results))
-
-  # If `x` is a percentage, divide it by 100 to adjust its value. The resulting
-  # decimal numbers will then be the values actually used in GRIM-testing; i.e.,
-  # within `grim_scalar()`. Also, issue an alert to the user about the
-  # percentage conversion:
-  if (percent) {
-    digits_original <- decimal_places(results$x)
-
-    results$x <- as.numeric(results$x) / 100
-    results$x <- results$x %>%
-      restore_zeros(width = digits_original + 2L) %>%
-      suppressWarnings()
-
-    class(results) <- c("scr_percent_true", class(results))
-    cli::cli_alert_info("`x` converted from percentage")
-  }
-
-  # Finally, return either all of the results or only the GRIM-testable ones:
-  if (testables_only) {
-    dplyr::filter(results, probability > 0)
-  } else {
-    results
-  }
-
-}
-
+grim_map <- function_map(
+  .fn = grim_scalar,
+  .reported = c("x", "n"),
+  .name_test = "GRIM",
+  .args_by_row = "digits_x",
+  .cols_helper = "items_averaged",
+  .col_names = c(
+    "consistency",
+    "rec_sum",
+    "sum_lower",
+    "sum_upper",
+    "rec_x_upper",
+    "rec_x_lower"
+  ),
+  # Not returned by `grim_scalar()`, which would change what `grim()` returns:
+  .cols_derived = list(exp_incon = grim_exp_incon)
+)

@@ -7,7 +7,7 @@
 \format{
 A tibble (data frame) with 6 rows and 2 columns. The columns are:
 \describe{
-\item{x}{String. Percentages.}
+\item{x}{Numeric. Percentages.}
 \item{n}{Numeric. Sample sizes.}
 }
 }
@@ -20,13 +20,11 @@ A tibble (data frame).
 \description{
 A fictional dataset with percentages and sample sizes of flying pigs. It can
 be used to demonstrate the functionality of \code{grim_map()}, particularly its
-\code{percent} argument, and functions building up on it.
+\code{percent} argument, and functions built on it.
 }
 \seealso{
-\code{pigs1} for GRIM-testing means instead of percentages, \code{\link{pigs3}} for
-DEBIT-testing, and \code{\link{pigs4}} for detecting duplicates.
-
-\code{pigs1} for GRIM-testing means, \code{\link{pigs3}} for DEBIT-testing,
-\code{\link{pigs4}} for detecting duplicates, and \code{\link{pigs5}} for GRIMMER-testing.
+\code{\link{pigs1}} for GRIM-testing means instead of percentages, \code{\link{pigs3}}
+for DEBIT-testing, \code{\link{pigs4}} for detecting duplicates, and \code{\link{pigs5}} for
+GRIMMER-testing.
 }
 \keyword{datasets}

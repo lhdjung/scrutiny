@@ -6,6 +6,8 @@
 \alias{scrutiny-package}
 \title{scrutiny: Error Detection in Science}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Test published summary statistics for consistency (Brown and Heathers, 2017, \doi{10.1177/1948550616673876}; Allard, 2018, \url{https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/}; Heathers and Brown, 2019, \url{https://osf.io/5vb3u/}). The package also provides infrastructure for implementing new error detection techniques.
 }
 \seealso{

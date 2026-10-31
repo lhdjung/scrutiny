@@ -1,47 +1,119 @@
-
-
 df1 <- pigs3
-df1_tested <- debit_map(df1)
+df1_tested <- df1 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
 
 
 test_that("the output is a tibble", {
-  df1_tested %>% expect_s3_class("tbl_df")
+  df1_tested |> expect_s3_class("tbl_df")
 })
 
 test_that("values are correctly tested for DEBIT-consistency", {
-  df1_tested$consistency[df1_tested$consistency] %>% expect_length(6L)
+  df1_tested$consistency[df1_tested$consistency] |> expect_length(6L)
 })
 
-test_that("`show_rec` controls the number of columns", {
-  pigs3 %>% debit_map(show_rec = TRUE ) %>% ncol() %>% expect_equal(11)
-  pigs3 %>% debit_map(show_rec = FALSE) %>% ncol() %>% expect_equal(4)
+test_that("the reconstructed values are returned under `show_rec` only", {
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                  |> ncol() |> expect_equal(6)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE) |> ncol() |> expect_equal(14)
+})
+
+
+test_that("key columns can be identified by other names", {
+  df1_renamed <- df1 |>
+    dplyr::rename(mean_col = x, sd_col = sd, n_col = n)
+  df1_renamed |>
+    debit_map(digits_x = 2, digits_sd = 2, x = mean_col, sd = sd_col, n = n_col, show_rec = TRUE) |>
+    expect_equal(df1_tested)
 })
 
 
 test_that("an error is thrown if `extra` is misspecified", {
-  pigs3 %>% debit_map(extra = blubb)   %>% expect_error()
-  pigs3 %>% debit_map(extra = "blubb") %>% expect_error()
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = blubb)   |> expect_error()
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = "blubb") |> expect_error()
 })
 
 
 df1_expected <- tibble::tibble(
-  x = c("0.53", "0.44", "0.77", "0.19", "0.34", "0.93", "0.12"),
-  sd = c("0.50", "0.50", "0.42", "0.35", "0.47", "0.25", "0.33"),
+  x = c(0.53, 0.44, 0.77, 0.19, 0.34, 0.93, 0.12),
+  sd = c(0.50, 0.50, 0.42, 0.35, 0.47, 0.25, 0.33),
   n = rep(1683L, 7L),
+  digits_x = rep(2, 7L),
+  digits_sd = rep(2, 7L),
   consistency = rep(c(TRUE, FALSE, TRUE), c(3L, 1L, 3L)),
-  rounding = rep("up_or_down", 7L),
-  sd_lower = c(0.495, 0.495, 0.415, 0.345, 0.4649999999999999689138, 0.245, 0.325),
+  sd_lower = c(
+    0.495,
+    0.495,
+    0.415,
+    0.345,
+    0.4649999999999999689138,
+    0.245,
+    0.325
+  ),
   sd_incl_lower = rep(TRUE, 7L),
   sd_upper = c(0.505, 0.505, 0.425, 0.355, 0.475, 0.255, 0.335),
   sd_incl_upper = rep(TRUE, 7L),
-  x_lower = c(0.525, 0.435, 0.765, 0.185, 0.335, 0.925, 0.1149999999999999911182),
-  x_upper = c(0.535, 0.445, 0.775, 0.195, 0.3450000000000000288658, 0.935, 0.125),
-) %>%
+  x_lower = c(
+    0.525,
+    0.435,
+    0.765,
+    0.185,
+    0.335,
+    0.925,
+    0.1149999999999999911182
+  ),
+  x_upper = c(
+    0.535,
+    0.445,
+    0.775,
+    0.195,
+    0.3450000000000000288658,
+    0.935,
+    0.125
+  ),
+  sum_lower = c(884, 733, 1288, 312, 564, 1557, 194),
+  sum_upper = c(900, 748, 1304, 328, 580, 1573, 210),
+) |>
   structure(
-    class = c("scr_debit_map", "scr_rounding_up_or_down", "tbl_df", "tbl", "data.frame")
+    scrutiny = list(
+      settings = settings_tbl(
+        list(
+          formula = "exact",
+          rounding = "up_or_down",
+          threshold = 5,
+          symmetric = FALSE,
+          sd_meaning = "sd_sample",
+          show_rec = TRUE
+        ),
+        c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
+        "debit_map"
+      )
+    ),
+    class = c(
+      "scrutiny_debit_map",
+      "tbl_df",
+      "tbl",
+      "data.frame"
+    )
   )
 
 test_that("`debit_map()` has correct output", {
-  df1_tested %>% expect_equal(df1_expected)
+  df1_tested |> expect_equal(df1_expected)
 })
 
+
+# DEBIT works on binary data, so both `x` and `sd` live in [0, 1]. `debit()`
+# rejects anything outside that range, which used to make `debit_map_seq()`
+# fail outright as soon as a reported value sat close enough to a bound for the
+# dispersion to cross it.
+
+test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
+  out_high <- tibble::tibble(x = 0.98, sd = 0.14, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
+  out_high$x |> max() |> expect_equal(1)
+
+  out_low <- tibble::tibble(x = 0.03, sd = 0.17, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
+  out_low$x |> min() |> expect_equal(0)
+
+  out_sd <- tibble::tibble(x = 0.5, sd = 0.99, n = 100) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE)
+  out_sd$sd |> max() |> expect_equal(1)
+})

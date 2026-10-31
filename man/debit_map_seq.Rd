@@ -2,103 +2,108 @@
 % Please edit documentation in R/debit-map-seq.R
 \name{debit_map_seq}
 \alias{debit_map_seq}
-\title{Using DEBIT with dispersed inputs}
+\title{Apply DEBIT to values around the reported ones}
 \usage{
 debit_map_seq(
   data,
+  digits_x = NULL,
+  digits_sd = NULL,
   x = NULL,
   sd = NULL,
   n = NULL,
-  var = Inf,
+  ...,
+  formula = c("exact", "mean_n"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  show_rec = FALSE,
+  var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
-  out_max = NULL,
+  out_max = "auto",
   include_reported = FALSE,
-  include_consistent = FALSE,
-  ...
+  include_consistent = FALSE
 )
 }
 \arguments{
-\item{data}{A data frame that \code{debit_map()} could take.}
+\item{data}{A data frame that \code{\link[=debit_map]{debit_map()}} could take.}
 
-\item{x, sd, n}{Optionally, specify column names in \code{data} as these arguments.}
+\item{digits_x, digits_sd}{Integer (length 1). The number of decimal places in
+\code{x} and \code{sd}, including trailing zeros. There are no defaults, since a
+numeric value does not keep them (\code{1.40} is \code{1.4}). They also set the step
+sizes for dispersing \code{x} and \code{sd}.}
 
-\item{var}{String. Names of the columns that will be dispersed. Default is
+\item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
+
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
+\code{\link[=debit]{debit()}}.}
+
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
+as further columns; see \emph{Value}. Default is \code{FALSE}.}
+
+\item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}
 
-\item{dispersion}{Numeric. Sequence with steps up and down from the \code{var}
-inputs. It will be adjusted to these values' decimal levels. For example,
-with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}, for five
-steps up and down.}
+\item{dispersion}{Numeric. Steps up and down from the reported values, in
+units of the last decimal place. Default is \code{1:5}.}
 
-\item{out_min, out_max}{If specified, output will be restricted so that it's
-not below \code{out_min} or above \code{out_max}. Defaults are \code{"auto"} for
-\code{out_min}, i.e., a minimum of one decimal unit above zero; and \code{NULL} for
-\code{out_max}, i.e., no maximum.}
+\item{out_min, out_max}{Limits on the dispersed values. Both default to
+\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}) and \code{x} and \code{sd} between 0 and 1. A
+number applies to every dispersed variable, and \code{NULL} removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
-included in the sequences originating from them? Default is \code{FALSE} because
-this might be redundant and bias the results.}
+part of the sequences? Default is \code{FALSE}.}
 
-\item{include_consistent}{Logical. Should the function also process
-consistent cases (from among those reported), not just inconsistent ones?
-Default is \code{FALSE} because the focus should be on clarifying
-inconsistencies.}
-
-\item{...}{Arguments passed down to \code{debit_map()}.}
+\item{include_consistent}{Logical. Should consistent value sets be dispersed
+as well, not just inconsistent ones? Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) with detailed test results.
+A tibble with the columns of \code{\link[=debit_map]{debit_map()}} output plus
+\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}.
 }
 \description{
-\code{debit_map_seq()} applies DEBIT with values surrounding the input values.
-This provides an easy and powerful way to assess whether small errors in
-computing or reporting may be responsible for DEBIT inconsistencies in
-published statistics.
+\code{debit_map_seq()} varies the reported means, standard
+deviations, and sample sizes a few steps up and down and applies DEBIT to
+each resulting value set. This shows whether a small error in reporting or
+computing could explain an inconsistency.
+
+Call \code{\link[=audit_seq]{audit_seq()}} on the output for summary statistics.
 }
 \section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
- You can call \code{\link[=audit_seq]{audit_seq()}}
-following \code{debit_map_seq()}. It will return a data frame with these
-columns:
+ \code{audit_seq()} on \code{debit_map_seq()}
+output returns a tibble with one row per case and these columns:
 \itemize{
-\item \code{x}, \code{sd}, and \code{n} are the original inputs,
-tested for \code{consistency} here.
-\item \code{hits_total} is the total number of DEBIT-consistent value sets
-found within the specified \code{dispersion} range.
-\item \code{hits_x} is the number of DEBIT-consistent value sets
-found by varying \code{x}.
-\item Accordingly with \code{sd} and \code{hits_sd} as well as \code{n} and \code{hits_n}.
-\item (Note that any consistent reported cases will be counted by the
-\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent} are
-set to \code{TRUE}.)
-\item \code{diff_x} reports the absolute difference between \code{x} and the next
-consistent dispersed value (in dispersion steps, not the actual numeric
-difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
-next higher or lower consistent value, respectively.
-\item \code{diff_sd}, \code{diff_sd_up}, and \code{diff_sd_down} do the same for \code{sd}.
-\item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
+\item \code{x}, \code{sd}, and \code{n}: the reported values, with their \code{consistency}.
+\item \code{hits_total}: the number of DEBIT-consistent value sets found within the
+\code{dispersion} range.
+\item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying each
+variable. If both \code{include_reported} and \code{include_consistent} are \code{TRUE},
+a consistent reported value set is counted as well: once per variable
+here, and once in \code{hits_total}.
+\item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
+value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the
+distances to the nearest consistent value above and below.
+\item \verb{diff_sd*} and \verb{diff_n*}: the same for \code{sd} and \code{n}.
 }
 
-Call \code{\link[=audit]{audit()}} following \code{audit_seq()} to summarize results even further.
-It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the number
-and rate of times that a difference could not be computed because of a lack
-of corresponding hits within the \code{dispersion} range.
+Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
 }
 
 \examples{
-# `debit_map_seq()` can take any input
-# that `debit_map()` can take:
+# `debit_map_seq()` takes the same input as `debit_map()`:
 pigs3
 
-# Results from testing some few rows:
-out <- pigs3 \%>\%
-  dplyr::slice(3:4) \%>\%
-  debit_map_seq()
-
+out <- pigs3 |>
+  dplyr::slice(3:4) |>
+  debit_map_seq(digits_x = 2, digits_sd = 2)
 out
 
-# Case-wise summaries with `audit_seq()`
-# can be more important than the raw results:
-out \%>\%
+# Case-wise summaries:
+out |>
   audit_seq()
 }

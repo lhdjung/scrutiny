@@ -1,82 +1,38 @@
-
-#' GRIMMER-testing with hypothetical group sizes
+#' GRIMMER-test with hypothetical group sizes
 #'
-#' @description When reporting group means, some published studies only report
-#'   the total sample size but no group sizes corresponding to each mean.
-#'   However, group sizes are crucial for GRIMMER-testing.
+#' @description Some studies report group means and standard deviations but
+#'   only the total sample size, not the group sizes. For two groups,
+#'   `grimmer_map_total_n()` tests hypothetical splits of the total, as
+#'   [`grim_map_total_n()`] does.
 #'
-#'   In the two-groups case, `grimmer_map_total_n()` helps in these ways:
-
-#' - It creates hypothetical group sizes. With an even total sample size, it
-#' incrementally moves up and down from half the total sample size. For example,
-#' with a total sample size of 40, it starts at 20, goes on to 19 and 21, then
-#' to 18 and 22, etc. With odd sample sizes, it starts from the two integers
-#' around half.
-#' - It GRIMMER-tests all of these values together with the group means.
-#' - It reports all the scenarios in which both "dispersed" hypothetical group
-#' sizes are GRIMMER-consistent with the group means.
+#'   Call [`audit_total_n()`] on the output for summary statistics.
 #'
-#' All of this works with one or more total sample sizes at a time. Call
-#' [`audit_total_n()`] for summary statistics.
-
-#' @param data Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as
-#'   well as numeric column `n`. The first two are reported group means. `sd1`
-#'   and `sd2` are reported group SDs. `n` is the reported total sample size. It
-#'   is not very important whether a value is in `x1` or in `x2` because, after
-#'   the first round of tests, the function switches roles between `x1` and
-#'   `x2`, and reports the outcomes both ways. The same applies to `sd1` and
-#'   `sd2`. However, do make sure the `x*` and `sd*` values are paired
-#'   accurately, as reported.
-#' @param x1,x2,sd1,sd2 Optionally, specify these arguments as column names in
-#'   `data`.
-#' @param dispersion Numeric. Steps up and down from half the `n` values.
-#'   Default is `0:5`, i.e., half `n` itself followed by five steps up and down.
-#' @param n_min Numeric. Minimal group size. Default is 1.
-#' @param n_max Numeric. Maximal group size. Default is `NULL`, i.e., no
-#'   maximum.
-#' @inheritParams disperse_total
-#' @param ... Arguments passed down to [`grimmer_map()`].
-
+#' @param data Data frame with numeric columns `x1`, `x2`, `sd1`, `sd2`, and
+#'   `n`: the two group means, the two group SDs, and the total sample size.
+#'   Which group is 1 does not matter, since both pairings with the group sizes
+#'   are tested, but `x1` must belong with `sd1` and `x2` with `sd2`.
+#' @param digits_x,digits_sd Integer. The number of decimal places in the means
+#'   and SDs, including trailing zeros. There are no defaults, since a numeric
+#'   value does not keep them (`1.40` is `1.4`). Either a single number for both
+#'   groups, or two numbers, one per group. They apply to every row of `data`;
+#'   if the decimal places of a group differ by row, call the function on each
+#'   set of rows separately.
+#' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
+#'   contain these values, if they differ from the defaults.
+#' @param items_averaged Integer. As in [`grimmer_map()`]: the number of items
+#'   averaged into each score, given as an argument or as a column of `data`.
+#'   There is no default.
+#' @param n_min Numeric. Minimal group size. Default is `NULL`, which stands
+#'   for 2 under `sd_meaning = "sd_sample"` or `"se"`, since a sample SD
+#'   divides by `n - 1`, so a group of 1 has no test result; and for 1 under
+#'   `"sd_pop"` or `"sd_sample_or_pop"`, where it does.
+#' @param ... These dots must be empty. Every argument after them must be
+#'   named in full.
+#' @inheritParams grimmer_map
+#' @inheritParams grim_map_total_n
+#'
 #' @include function-map-total-n.R
 #'
-#' @references Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It
-#'   Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
-#'   *Psychological Science*, 32(12), 2042–2043.
-#'   https://journals.sagepub.com/doi/10.1177/09567976211058727
-
-#' @seealso [`function_map_total_n()`], which created the present function using
-#'   [`grimmer_map()`].
-
-#' @return A tibble with these columns:
-#' - `x`, the group-wise reported input statistic, is repeated in row pairs.
-#' - `n` is dispersed from half the input `n`, with `n_change` tracking the
-#' differences.
-#' - `both_consistent` flags scenarios where both reported `x` values are
-#' consistent with the hypothetical `n` values.
-#' - `case` corresponds to the row numbers of the input data frame.
-#' - `dir` is `"forth"` in the first half of rows and `"back"` in the second
-#' half. `"forth"` means that `x2` from the input is paired with the larger
-#' dispersed `n`, whereas `"back"` means that `x1` is paired with the larger
-#' dispersed `n`.
-#' - Other columns from [`grimmer_map()`] are preserved. See there for an
-#' explanation of the `reason` column.
-
-#' @section Summaries with [`audit_total_n()`]: You can call
-#'   [`audit_total_n()`] following up on `grimmer_map_total_n()`
-#'   to get a tibble with summary statistics. It will have these columns:
-#'  - `x1`, `x2`, `sd1`, `sd2`, and `n` are the original inputs.
-#'  - `hits_total` is the number of scenarios in which all of
-#'  `x1`, `x2`, `sd1`, and `sd2` are GRIMMER-consistent. It is the sum
-#'  of `hits_forth` and `hits_back` below.
-#'  - `hits_forth` is the number of both-consistent cases that result
-#'  from pairing `x2` and `sd2` with the larger dispersed `n` value.
-#'  - `hits_back` is the same, except `x1` and `sd1` are
-#'  paired with the larger dispersed `n` value.
-#'  - `scenarios_total` is the total number of test scenarios,
-#'  whether or not both `x1` and `sd1` as well as `x2` and `sd2`
-#'  are GRIMMER-consistent.
-#'  - `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
-
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.
 #'   https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-deviations/
@@ -85,40 +41,59 @@
 #'   Dark? Recalling Moral Behavior Changes Perception of Brightness.
 #'   *Psychological Science*, 32(12), 2042–2043.
 #'   https://journals.sagepub.com/doi/10.1177/09567976211058727
-
+#'
+#' @seealso [`function_map_total_n()`], which created this function from
+#'   [`grimmer_map()`].
+#'
+#' @return A tibble like that of [`grim_map_total_n()`], with `x` and `sd`
+#'   columns for the reported values, `dir` recording which group is paired
+#'   with the larger group size (the equal split of an even total appears under
+#'   `"forth"` only), the other columns of [`grimmer_map()`] output, and the
+#'   other columns of `data`.
+#'
+#' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on
+#'   `grimmer_map_total_n()` output returns a tibble with one row per case and
+#'   these columns:
+#'  - `x1`, `x2`, `sd1`, `sd2`, and `n`: the reported values.
+#'  - `hits_total`: the number of splits in which both groups are
+#'  GRIMMER-consistent, summing `hits_forth` and `hits_back`.
+#'  - `hits_forth`: the number of such splits with `x2` and `sd2` paired with
+#'  the larger group.
+#'  - `hits_back`: the same with `x1` and `sd1` paired with the larger group.
+#'  - `scenarios_total`: the number of splits tested, leaving out those that
+#'  could not be decided.
+#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could
+#'  be decided.
+#'
 #' @export
-
+#'
 #' @examples
-#' # Run `grimmer_map_total_n()` on data like these:
 #' df <- tibble::tribble(
-#'   ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
-#'   "3.43", "5.28", "1.09", "2.12", 70,
-#'   "2.97", "4.42", "0.43", "1.65", 65
+#'   ~x1,  ~x2,  ~sd1, ~sd2, ~n,
+#'   3.43, 5.28, 1.09, 2.12, 70,
+#'   2.97, 4.42, 0.43, 1.65, 65
 #' )
-#' df
 #'
-#' grimmer_map_total_n(df)
+#' grimmer_map_total_n(df, digits_x = 2, digits_sd = 2, items_averaged = 1)
 #'
-#' # `audit_total_n()` summaries can be more important than
-#' # the detailed results themselves.
-#' # The `hits_total` column shows all scenarios in
-#' # which both divergent `n` values are GRIMMER-consistent
-#' # with the `x*` values when paired with them both ways:
-#' df %>%
-#'   grimmer_map_total_n() %>%
+#' # `hits_total` counts the splits in which both groups are consistent:
+#' df |>
+#'   grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   audit_total_n()
 #'
-#' # By default (`dispersion = 0:5`), the function goes
-#' # five steps up and down from `n`. If this sequence
-#' # gets longer, the number of hits tends to increase:
-#' df %>%
-#'   grimmer_map_total_n(dispersion = 0:10) %>%
+#' # More steps away from the even split tend to find more hits:
+#' df |>
+#'   grimmer_map_total_n(
+#'     digits_x = 2,
+#'     digits_sd = 2,
+#'     items_averaged = 1,
+#'     dispersion = 0:10
+#'   ) |>
 #'   audit_total_n()
-
 
 grimmer_map_total_n <- function_map_total_n(
-  .fun = grimmer_map,
+  .fn = grimmer_map,
   .reported = c("x", "sd"),
-  .name_test = "GRIMMER"
+  .name_test = "GRIMMER",
+  .n_min = function(args) sd_min_n(args$sd_meaning)
 )
-

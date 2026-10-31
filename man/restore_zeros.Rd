@@ -5,7 +5,13 @@
 \alias{restore_zeros_df}
 \title{Restore trailing zeros}
 \usage{
-restore_zeros(x, width = NULL, sep_in = "\\\\.", sep_out = sep_in)
+restore_zeros(
+  x,
+  width = NULL,
+  sep_in = ".",
+  sep_out = sep_in,
+  check_width = c("capped", "never")
+)
 
 restore_zeros_df(
   data,
@@ -13,114 +19,84 @@ restore_zeros_df(
   check_numeric_like = TRUE,
   check_decimals = FALSE,
   width = NULL,
-  sep_in = "\\\\.",
-  sep_out = NULL,
-  ...
+  sep_in = ".",
+  sep_out = sep_in,
+  check_width = c("capped", "never")
 )
 }
 \arguments{
-\item{x}{Numeric (or string coercible to numeric). Vector of numbers that
-might have lost trailing zeros.}
+\item{x}{Numeric, or a string coercible to numeric. A value that is not
+coercible, such as \code{"5\%"}, becomes \code{NA} with a warning.}
 
-\item{width}{Integer. Number of decimal places the mantissas should have,
-including the restored zeros. If specified, \code{width} needs to be length 1 or
-the same length as \code{x}. Default is \code{NULL}, in which case the number of
-characters in the longest mantissa will be used instead.}
+\item{width}{Integer. Number of decimal places the output should have.
+Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
+decimal places in \code{x}.}
 
-\item{sep_in}{Substring that separates the input's mantissa from its integer
-part. Default is \code{"\\\\."}, which renders a decimal point.}
+\item{sep_in}{String. The separator between integer part and mantissa in
+the input, matched literally. Default is \code{"."}.}
 
-\item{sep_out}{Substring that will be returned in the output to separate the
-mantissa from the integer part. By default, \code{sep_out} is the same as
-\code{sep_in}.}
+\item{sep_out}{String. The separator in the output. Default is \code{sep_in}.}
 
-\item{data}{Data frame or matrix. Only in \code{restore_zeros_df()}, and instead
-of \code{x}.}
+\item{check_width}{String (length 1). What to do if a value has more decimal
+places than \code{width}? \code{"capped"} (the default) throws an error; \code{"never"}
+lets it pass.}
 
-\item{cols}{Only in \code{restore_zeros_df()}. Select columns from \code{data} using
+\item{data}{Data frame or matrix. Only in \code{restore_zeros_df()}.}
+
+\item{cols}{Columns to operate on, selected with
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-Default is \code{everything()}, which selects all columns that pass the test of
-\code{check_numeric_like}.}
+Default is \code{everything()}, restricted by \code{check_numeric_like}. Only in
+\code{restore_zeros_df()}.}
 
-\item{check_numeric_like}{Logical. Only in \code{restore_zeros_df()}. If \code{TRUE}
-(the default), the function will skip columns that are not numeric or
-coercible to numeric, as determined by \code{\link[=is_numeric_like]{is_numeric_like()}}.}
+\item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
+that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. Only in
+\code{restore_zeros_df()}.}
 
-\item{check_decimals}{Logical. Only in \code{restore_zeros_df()}. If set to
-\code{TRUE}, the function will skip columns where no values have any decimal
-places. Default is \code{FALSE}.}
-
-\item{...}{Only in \code{restore_zeros_df()}. These dots must be empty.}
+\item{check_decimals}{Logical. If \code{TRUE}, columns without any decimal places
+are skipped. Default is \code{FALSE}. Only in \code{restore_zeros_df()}.}
 }
 \value{
 \itemize{
-\item For \code{restore_zeros()}, a string vector. At least some of the strings
-will have newly restored zeros, unless (1) all input values had the same
-number of decimal places, and (2) \code{width} was not specified as a number
-greater than that single number of decimal places.
+\item For \code{restore_zeros()}, a string vector.
 \item For \code{restore_zeros_df()}, a data frame.
 }
 }
 \description{
-\code{restore_zeros()} takes a vector with values that might have
-lost trailing zeros, most likely from being registered as numeric. It turns
-each value into a string and adds trailing zeros until the mantissa hits
-some limit.
+\code{restore_zeros()} formats numbers as strings with a given number
+of decimal places, padding with zeros. By default, the target is the number
+of decimal places of the value that has the most. Do not rely on this
+default without checking it, since the longest mantissa may itself have
+lost trailing zeros.
 
-The default for that limit is the number of digits in the longest mantissa
-of the vector's values. The length of the integer part plays no role.
-
-Don't rely on the default limit without checking: The original width could
-have been larger because the longest extant mantissa might itself have lost
-trailing zeros.
-
-\code{restore_zeros_df()} is a variant for data frames. It wraps
-\code{restore_zeros()} and, by default, applies it to all columns that are
-coercible to numeric.
+\code{restore_zeros_df()} applies it to the columns of a data frame, by default
+all those coercible to numeric.
 }
 \details{
-These functions exploit the fact that groups of summary values such
-as means or percentages are often reported to the same number of decimal
-places. If such a number is known but values were not entered as strings,
-trailing zeros will be lost. In this case, \code{restore_zeros()} or
-\code{restore_zeros_df()} will be helpful to prepare data for consistency
-testing functions such as \code{\link[=grim_map]{grim_map()}} or \code{\link[=grimmer_map]{grimmer_map()}}.
+Groups of reported values usually share a number of decimal places.
+If that number is known but the values were entered as numbers, these
+functions put the trailing zeros back.
+
+Displayed numbers are often rounded, so a value may have more decimal
+places than it shows. \code{x |> decimal_places() |> max()} gives the actual
+maximum.
+
+As in \code{\link[=decimal_places]{decimal_places()}}, numeric values with more than 15 significant
+digits cannot be padded accurately; enter such numbers as strings.
 }
-\section{Displaying decimal places}{
- You might not see all decimal places of
-numeric values in a vector, and consequently wonder if \code{restore_zeros()},
-when applied to the vector, adds too many zeros. That is because displayed
-numbers, unlike stored numbers, are often rounded.
-
-For a vector \code{x}, you can count the characters of the longest mantissa from
-among its values like this:
-
-\code{x \%>\% decimal_places() \%>\% max()}
-}
-
 \examples{
-# By default, the target width is that of
-# the longest mantissa:
 vec <- c(212, 75.38, 4.9625)
-vec \%>\%
-  restore_zeros()
 
-# Alternatively, supply a number via `width`:
-vec \%>\%
-  restore_zeros(width = 6)
+# By default, pad to the longest mantissa:
+restore_zeros(vec)
 
-# For better printing:
+# Or to a given width:
+restore_zeros(vec, width = 6)
+
 iris <- tibble::as_tibble(iris)
 
-# Apply `restore_zeros()` to all numeric
-# columns, but not to the factor column:
-iris \%>\%
-  restore_zeros_df()
+# All numeric columns, but not the factor:
+restore_zeros_df(iris)
 
-# Select columns as in `dplyr::select()`:
-iris \%>\%
-  restore_zeros_df(starts_with("Sepal"), width = 3)
-}
-\seealso{
-Wrapped functions: \code{\link[=sprintf]{sprintf()}}.
+# Selected columns:
+restore_zeros_df(iris, starts_with("Sepal"), width = 3)
 }

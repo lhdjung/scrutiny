@@ -6,118 +6,104 @@
 \usage{
 grim_map(
   data,
-  items = 1,
-  merge_items = TRUE,
-  percent = FALSE,
+  digits_x,
   x = NULL,
   n = NULL,
+  ...,
+  items_averaged,
+  percent = FALSE,
   show_rec = FALSE,
-  show_prob = deprecated(),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5,
-  testables_only = FALSE,
-  extra = Inf
+  symmetric = FALSE
 )
 }
 \arguments{
-\item{data}{Data frame with columns \code{x}, \code{n}, and optionally \code{items} (see
-documentation for \code{\link[=grim]{grim()}}. By default, any other columns in \code{data} will
-be returned alongside GRIM test results (see \code{extra} below).}
+\item{data}{Data frame with columns \code{x} and \code{n}, and optionally
+\code{items_averaged}. Any other columns are returned alongside the results.}
 
-\item{items}{Integer. If there is no \code{items} column in \code{data}, this specifies
-the number of items composing the \code{x} values. Default is 1, the most common
-case.}
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default, since a numeric value does not keep
+them (\code{1.40} is \code{1.4}). Either a single number for the whole column or
+one number per row of \code{data}.}
 
-\item{merge_items}{Logical. If \code{TRUE} (the default), there will be no \code{items}
-column in the output. Instead, values from an \code{items} column or argument
-will be multiplied with values in the \code{n} column. This is only for
-presentation and does not affect test results.}
+\item{x, n}{Optionally, the names of the columns in \code{data} that contain these
+values, if they differ from the defaults.}
 
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if the \code{x} values are
-percentages. This will convert them to decimal numbers and adjust the
-decimal count (i.e., increase it by 2). It also affects the \code{ratio} column.
-Default is \code{FALSE}.}
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
 
-\item{x, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}: the number of items
+averaged into each score, not the number of scale points. Give it as an
+argument or as a column of \code{data}; there is no default. It is returned as
+a column.}
 
-\item{show_rec}{Logical. If set to \code{TRUE}, the reconstructed numbers from
-GRIM-testing are shown as columns. See section \emph{Reconstructed numbers}
-below. Default is \code{FALSE}.}
+\item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
+divided by 100 and tested with two more decimal places. Default is
+\code{FALSE}. It applies to the whole call, so test a table that mixes means
+and percentages part by part, as in the examples. The parts can be
+combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}, but plot each one on its own:
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} reads \code{percent} from the call.}
 
-\item{show_prob}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Logical. No longer
-supported: now, there is always a \code{probability} column. (It replaces the
-earlier \code{ratio} column.)}
+\item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
+as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
 
-\item{rounding, threshold, symmetric, tolerance}{Further parameters of
-GRIM-testing; see documentation for \code{\link[=grim]{grim()}}.}
-
-\item{testables_only}{Logical. If \code{testables_only} is set to \code{TRUE}, only
-GRIM-testable cases (i.e., those with a positive GRIM ratio) are included.
-Default is \code{FALSE}.}
-
-\item{extra}{String or integer. The other column(s) from \code{data} to be
-returned in the output tibble alongside test results, referenced by their
-name(s) or number(s). Default is \code{Inf}, which returns all columns. To
-return none of them, set \code{extra} to 0.}
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}.}
 }
 \value{
-A tibble with these columns --
+A tibble with these columns:
 \itemize{
 \item \code{x}, \code{n}: the inputs.
-\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items}.
-\item \code{probability}: the probability of GRIM inconsistency; see
-\code{\link[=grim_probability]{grim_probability()}}.
-\item \verb{<extra>}: any columns from \code{data} other than \code{x}, \code{n}, and \code{items}.
+\item \code{items_averaged}: the number of items averaged into each score.
+\item \code{digits_x}: the number of decimal places in \code{x}, as given.
+\item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items_averaged}. \code{NA} for
+a case that cannot be decided, such as one with a missing value.
+\item \code{exp_incon}: the probability of GRIM inconsistency; see
+\code{\link[=grim_exp_incon]{grim_exp_incon()}}.
+\item Any other columns from \code{data}.
 
-The tibble has the \code{scr_grim_map} class, which is recognized by the
-\code{\link[=audit]{audit()}} generic.
+The tibble has the class \code{scrutiny_grim_map}, which is recognized by
+\code{\link[=audit]{audit()}} and \code{\link[=grim_plot_grid]{grim_plot_grid()}}.
 }
 }
 \description{
-Call \code{grim_map()} to GRIM-test any number of combinations of
-mean/proportion, sample size, and number of items. Mapping function for
-GRIM-testing.
+\code{grim_map()} applies \code{\link[=grim]{grim()}} to every row of a data frame
+with means (or percentages) and sample sizes.
 
-Set \code{percent} to \code{TRUE} if the \code{x} values are percentages. This will
-convert \code{x} values to decimals and adjust the decimal count accordingly.
-
-Display intermediary numbers from GRIM-testing in columns by setting
-\code{show_rec} to \code{TRUE}.
-
-For summary statistics, call \code{\link[=audit]{audit()}} on the results.
+Set \code{percent} to \code{TRUE} if \code{x} contains percentages, and \code{show_rec} to
+\code{TRUE} to see the reconstructed values behind each verdict. Call
+\code{\link[=audit]{audit()}} on the output for summary statistics and \code{\link[=grim_plot_grid]{grim_plot_grid()}} to
+visualize it.
 }
 \section{Reconstructed numbers}{
- If \code{show_rec} is set to \code{TRUE}, the output
-includes the following additional columns:
+ With \code{show_rec = TRUE}, the output has these
+further columns, the same ones for every rounding method:
 \itemize{
-\item \code{rec_sum}: the sum total from which the mean or proportion was ostensibly
-derived.
-\item \code{rec_x_upper}: the upper reconstructed \code{x} value.
-\item \code{rec_x_lower}: the lower reconstructed \code{x} value.
-\item \code{rec_x_upper_rounded}: the rounded \code{rec_x_upper} value.
-\item \code{rec_x_lower_rounded}: the rounded \code{rec_x_lower} value.
+\item \code{rec_sum}: the product of \code{x} and \code{n} (times \code{items_averaged}), i.e., the
+sum total implied by the reported mean. It is generally not a whole number.
+\item \code{sum_lower}, \code{sum_upper}: the least and the greatest whole-number sum total
+that would have been reported as \code{x}. A value set is consistent exactly if
+\code{sum_lower} is not greater than \code{sum_upper}. If it is inconsistent, the two
+are the whole numbers on either side of \code{rec_sum}, so their gap is always 1
+and does not measure how far off the reported values are.
+\item \code{rec_x_upper}, \code{rec_x_lower}: the two achievable means closest to \code{x},
+i.e., \code{rec_sum} rounded up and down, divided by \code{n} (times
+\code{items_averaged}). With \code{percent = TRUE}, these are percentages like \code{x};
+the sum columns are not affected.
 }
-
-With the default for \code{rounding}, \code{"up_or_down"}, each of the last two columns
-is replaced by two columns that specify the rounding procedures (i.e.,
-\code{"_up"} and \code{"_down"}).
 }
 
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for \code{\link[=audit]{audit()}},
-so you can call \code{\link[=audit]{audit()}} following \code{grim_map()} to get a summary of
-\code{grim_map()}'s results. It is a tibble with one row and these columns --
+ \code{audit()} on \code{grim_map()} output
+returns a tibble with one row and these columns:
 \enumerate{
-\item \code{incons_cases}: number of GRIM-inconsistent value sets.
 \item \code{all_cases}: total number of value sets.
-\item \code{incons_rate}: proportion of GRIM-inconsistent value sets.
-\item \code{mean_grim_prob}: average probability of GRIM inconsistency.
-\item \code{incons_to_prob}: ratio of \code{incons_rate} to \code{mean_grim_prob}.
-\item \code{testable_cases}: number of GRIM-testable value sets (i.e., those with a
-positive \code{probability}).
-\item \code{testable_rate}: proportion of GRIM-testable value sets.
+\item \code{testable_cases}: number of value sets with a positive \code{exp_incon}.
+\item \code{incon_cases}: number of GRIM-inconsistent value sets.
+\item \code{emp_incon}: proportion of GRIM-inconsistent value sets.
+\item \code{exp_incon}: mean probability of GRIM inconsistency.
+\item \code{ratio}: ratio of \code{emp_incon} to \code{exp_incon}, both computed over the
+value sets that could be decided.
 }
 }
 
@@ -125,21 +111,34 @@ positive \code{probability}).
 # Use `grim_map()` on data like these:
 pigs1
 
-# The `consistency` column shows
-# whether the values to its left
-# are GRIM-consistent:
-pigs1 \%>\%
-  grim_map()
+# The `consistency` column shows whether the
+# values to its left are GRIM-consistent:
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1)
 
-# Display intermediary numbers from
-# GRIM-testing with `show_rec = TRUE`:
-pigs1 \%>\%
-  grim_map(show_rec = TRUE)
+# Show the reconstructed numbers:
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
 
 # Get summaries with `audit()`:
-pigs1 \%>\%
-  grim_map() \%>\%
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
+
+# A table of means and percentages, tested part by part:
+df <- tibble::tibble(
+  x = c(5.19, 71),
+  n = c(32, 43),
+  is_percent = c(FALSE, TRUE)
+)
+dplyr::bind_rows(
+  df |>
+    dplyr::filter(!is_percent) |>
+    grim_map(digits_x = 2, items_averaged = 1),
+  df |>
+    dplyr::filter(is_percent) |>
+    grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

@@ -1,47 +1,27 @@
-
-# For each element of `x`, this helper determines if that element is also to be
-# found in `y`. Then, it counts the number of times for which this test returned
-# `TRUE`, i.e., the number of elements of `x` that are also elements of `y`.
-# Indexing deeply into the inputs means that it should only be used inside of
-# `duplicate_count_colpair()`, for which it is a tailor-made helper. Note that a
-# single vector is mapped -- in purrr terms, this would be `map_lgl()` as
-# opposed to `map2_lgl()`:
-
-dup_count_pairwise <- function(x, y) {
-  length(which(vapply(
-    x[1L][[1L]], function(e1, e2) any(e1 == e2), logical(1L), y[1L][[1L]]
-  )))
-}
-
-
-
-#' Count duplicate values by column
+#' Count duplicate values by column pair
 #'
-#' `duplicate_count_colpair()` takes a data frame and checks each combination of
-#' columns for duplicates. Results are presented in a tibble, ordered by the
-#' number of duplicates.
+#' `duplicate_count_colpair()` counts, for every pair of columns in a data
+#' frame, the values that occur in both. Results are ordered by that count,
+#' in descending order.
 #'
-#' @param data Data frame.
-#' @param ignore Optionally, a vector of values that should not be checked for
-#'   duplicates.
-#' @param show_rates Logical. If `TRUE` (the default), adds columns `rate_x` and
-#'   `rate_y`. See value section. Set `show_rates` to `FALSE` for higher
-#'   performance.
-
-#' @return A tibble (data frame) with these columns –
-#' - `x` and `y`: Each line contains a unique combination of `data`'s columns,
-#'   stored in the `x` and `y` output columns.
-#' - `count`: Number of "duplicates", i.e., values that are present in both `x`
-#'   and `y`.
-#' - `total_x`, `total_y`, `rate_x`, and `rate_y` (added by default): `total_x`
-#'   is the number of non-missing values in the column named under `x`. Also,
-#'   `rate_x` is the proportion of `x` values that are duplicated in `y`, i.e.,
-#'   `count / total_x`. Likewise with `total_y` and `rate_y`. The two `rate_*`
-#'   columns will be equal unless `NA` values are present.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for [`audit()`],
-#'   so you can call [`audit()`] following `duplicate_count_colpair()`. It
-#'   returns a tibble with summary statistics.
+#' @param data Data frame with at least two columns.
+#' @param ignore Optionally, a vector of values not to count.
+#' @param show_rates Logical. If `TRUE` (the default), add `total_x`,
+#'   `total_y`, `rate_x`, and `rate_y`; see *Value*. `FALSE` is faster.
+#'
+#' @return A tibble with these columns:
+#' - `x`, `y`: a pair of columns of `data`, one pair per row.
+#' - `count`: the number of values of `x` that also occur in `y`. Missing and
+#'   ignored values are not counted.
+#' - `total_x`, `total_y`: the number of values in `x` and `y` that are
+#'   neither missing nor ignored.
+#' - `rate_x`: the proportion of `x` values that occur in `y`, i.e., `count /
+#'   total_x`. `rate_y`: the proportion of `y` values that occur in `x`. This
+#'   differs from `count / total_y` if a value repeats within a column.
+#'
+#' @section Summaries with [`audit()`]: `audit()` on
+#'   `duplicate_count_colpair()` output returns summary statistics for the
+#'   numeric columns.
 #'
 #' @export
 #'
@@ -49,66 +29,83 @@ dup_count_pairwise <- function(x, y) {
 #'
 #' @seealso
 #' - [`duplicate_count()`] for a frequency table.
-#' - [`duplicate_tally()`] to show instances of a value next to each instance.
-#' - [`janitor::get_dupes()`] to search for duplicate rows.
-#' - [`corrr::colpair_map()`], a versatile tool for pairwise column analysis which
-#' the present function wraps.
+#' - [`duplicate_tally()`] for counts next to each value.
+#' - [`janitor::get_dupes()`] for duplicate rows.
 #'
 #' @examples
-#' # Basic usage:
-#' mtcars %>%
+#' mtcars |>
 #'   duplicate_count_colpair()
 #'
-#' # Summaries with `audit()`:
-#' mtcars %>%
-#'   duplicate_count_colpair() %>%
+#' mtcars |>
+#'   duplicate_count_colpair() |>
 #'   audit()
 
-
-# # Full example input:
-# data <- df <- tibble::tibble(
-#   a = c(1, 2, 3, NA, 5), b = c(NA, 3L, 4L, 5L, 6L), c = c(3L, 4L, NA, NA, NA)
-# )
-# ignore <- 3
-# show_rates <- TRUE
-
-
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
-
   if (!is.data.frame(data)) {
-    cli::cli_abort("`data` must be a data frame.")
+    abort_in_export("`data` must be a data frame.")
   } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
-    data <- tibble::as_tibble(data)
+    data <- data |>
+      tibble::as_tibble()
   }
+
+  if (ncol(data) < 2L) {
+    abort_in_export(
+      "`data` must have at least two columns.",
+      "x" = "It has {ncol(data)}.",
+      "i" = "`duplicate_count_colpair()` compares columns to each other."
+    )
+  }
+
+  # Values are compared as strings, as in the other `duplicate_*()` functions,
+  # so that `0.1 + 0.2` duplicates `0.3` here as it does there:
+  values <- data |>
+    lapply(function(x) value_to_string(x[!is.na(x)]))
 
   if (!is.null(ignore)) {
-    data <- lapply(data, function(x) x[!x %in% ignore])
+    ignore <- value_to_string(ignore)
+    values <- values |>
+      lapply(function(x) x[!x %in% ignore])
   }
 
-  data <- data %>%
-    lapply(function(x) list(x[!is.na(x)])) %>%
-    tibble::as_tibble()
+  # Column-major, so each column is paired with the later ones only:
+  pairs <- utils::combn(names(values), 2L)
 
-  out <- data %>%
-    corrr::colpair_map(dup_count_pairwise) %>%
-    corrr::shave() %>%
-    corrr::stretch(na.rm = TRUE, remove.dups = FALSE) %>%
-    dplyr::arrange(dplyr::desc(.data$r)) %>%
-    dplyr::rename(count = "r") %>%
-    add_class("scr_dup_count_colpair")
+  count_x <- pairs |>
+    ncol() |>
+    seq_len() |>
+    vapply(
+      # How many elements of `x` are also found in `y`. `%in%` coerces mixed
+      # types the same way as `==`, but without a quadratic scan:
+      function(i) {
+        sum(values[[pairs[1L, i]]] %in% values[[pairs[2L, i]]])
+      },
+      integer(1L)
+    )
+
+  out <- tibble::tibble(x = pairs[1L, ], y = pairs[2L, ], count = count_x) |>
+    dplyr::arrange(dplyr::desc(.data$count)) |>
+    add_class("scrutiny_dup_count_colpair")
 
   if (!show_rates) {
     return(out)
   }
 
-  total_values <- vapply(data, function(x) length(x[[1L]]), integer(1L))
+  total_values <- lengths(values)
 
-  dplyr::mutate(
-    out,
-    total_x = unname(total_values[.data$x]),
-    total_y = unname(total_values[.data$y]),
-    rate_x  = .data$count / .data$total_x,
-    rate_y  = .data$count / .data$total_y
+  # `count` is counted from the `x` side, so the `y` side needs its own count:
+  # with `x = c(1, 1, 1)` and `y = 1`, three `x` values are duplicated in `y`,
+  # but only one `y` value is duplicated in `x`.
+  count_y <- purrr::map2_int(
+    out$x,
+    out$y,
+    function(x, y) sum(values[[y]] %in% values[[x]])
   )
-}
 
+  out |>
+    dplyr::mutate(
+      total_x = unname(total_values[.data$x]),
+      total_y = unname(total_values[.data$y]),
+      rate_x = .data$count / .data$total_x,
+      rate_y = count_y / .data$total_y
+    )
+}

@@ -1,0 +1,237 @@
+#' Remove scrutiny classes
+#'
+#' Strip any and all scrutiny classes from `x`: those classes that start on
+#' `"scrutiny_"`. The function's name follows `base::unclass()`.
+#'
+#' @param x Any object, but typically a tibble.
+#'
+#' @return `x`, but without `"scrutiny_"` classes.
+#'
+#' @noRd
+unclass_scr <- function(x) {
+  class(x) <- class(x)[!stringr::str_detect(class(x), "^scrutiny_")]
+  attr(x, "scrutiny") <- NULL
+  x
+}
+
+
+# The settings that the `"scrutiny"` attribute records, written out by hand
+# rather than with `new_settings()`:
+settings_tbl <- function(values, default, added_by) {
+  tibble::tibble(
+    setting = names(values),
+    value = unname(values),
+    default = default,
+    added_by = added_by
+  )
+}
+
+# The settings of `grim_map()` under the defaults:
+grim_args_default <- list(
+  percent = FALSE,
+  show_rec = FALSE,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+)
+grim_settings_default <- settings_tbl(grim_args_default, TRUE, "grim_map")
+
+
+# The whole `"scrutiny"` attribute of `grim_map_seq()` output:
+meta_seq <- function(
+  results_reported,
+  percent = FALSE,
+  var = c("x", "n"),
+  include_reported = FALSE
+) {
+  settings_seq <- list(
+    var = var,
+    dispersion = 1:5,
+    out_min = "auto",
+    out_max = "auto",
+    include_reported = include_reported,
+    include_consistent = FALSE
+  )
+  list(
+    settings = dplyr::bind_rows(
+      settings_tbl(
+        utils::modifyList(grim_args_default, list(percent = percent)),
+        c(!percent, TRUE, TRUE, TRUE, TRUE),
+        "grim_map"
+      ),
+      settings_tbl(
+        settings_seq,
+        c(
+          identical(var, c("x", "n")),
+          TRUE,
+          TRUE,
+          TRUE,
+          !include_reported,
+          TRUE
+        ),
+        "grim_map_seq"
+      )
+    ),
+    results_reported = results_reported,
+    name_key_result = "consistency",
+    dispersion_linear = TRUE
+  )
+}
+
+
+#' Censor left and right
+#'
+#' `censor()` is used in some of scrutiny's unit tests. The `left` and `right`
+#' arguments should only be length 1, although this is not checked.
+#'
+#' @param x Numeric.
+#' @param left Numeric. Lower bound. Any elements of `x` that are less than
+#'   `left` will be replaced by `left`.
+#' @param right Numeric. Upper bound. Any elements of `x` that are greater than
+#'   `right` will be replaced by `right`.
+#'
+#' @return Numeric vector of length `length(x)`.
+#'
+#' @noRd
+censor <- function(x, left, right) {
+  x[x < left] <- left
+  x[x > right] <- right
+  x
+}
+
+
+#' Count integer places
+#'
+#' Used in unit testing. Analogous to `decimal_places()`.
+#'
+#' @param x Numeric (or string that can be coerced to numeric). Object with
+#'   integer places to count.
+#'
+#' @return Integer.
+#'
+#' @noRd
+integer_places <- function(x) {
+  out <- x |>
+    stringr::str_trim() |>
+    stringr::str_split_fixed("\\.", n = 2L)
+
+  stringr::str_length(out[, 1L])
+}
+
+
+#' Remove the integer part, keeping the decimal part
+#'
+#' `trunc_reverse()` reduces a number to its decimal portion. It is the opposite
+#' of `trunc()`: Whereas `trunc(3.45)` returns `3,` `trunc_reverse(3.45)`
+#' returns `0.45`.
+#'
+#' This is used in some unit tests.
+#'
+#' @param x Decimal number.
+#'
+#' @return Decimal part of `x`.
+#'
+#' @noRd
+trunc_reverse <- function(x) {
+  x - trunc(x)
+}
+
+
+#' Catch an error condition
+#'
+#' `rlang::catch_cnd()` returns whatever condition is signaled first, and cli
+#' signals a `cli_message` of its own while formatting, so it tends to return
+#' that instead of the error. This catches the error and nothing else.
+#'
+#' @param expr Expression that is expected to throw an error.
+#'
+#' @return The error condition object.
+#'
+#' @noRd
+tryCatch_error <- function(expr) {
+  tryCatch(expr, error = function(e) e)
+}
+
+
+#' An error's message as one plain string
+#'
+#' For assertions about what a message does *not* say, which testthat's
+#' `expect_error()` has no form for.
+#'
+#' @param err Error condition object, from `tryCatch_error()`.
+#'
+#' @return String (length 1), without ANSI escapes.
+#'
+#' @noRd
+error_message_full <- function(err) {
+  err |> conditionMessage() |> paste(collapse = " ") |> cli::ansi_strip()
+}
+
+
+#' Seed for a random sweep
+#'
+#' Fixed on CRAN, so that a check there is reproducible, and new on every other
+#' run, so that the sweep reaches new points over time instead of acting like a
+#' fixed grid. Tests put the seed into their failure messages; setting the
+#' `SCRUTINY_SEED` environment variable replays it.
+#'
+#' @param fixed Integer. The seed to use on CRAN.
+#'
+#' @return Integer (length 1).
+#'
+#' @noRd
+sweep_seed <- function(fixed) {
+  replay <- Sys.getenv("SCRUTINY_SEED")
+  if (nzchar(replay)) {
+    return(as.integer(replay))
+  }
+  if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+    return(fixed)
+  }
+  # Not `sample.int()`: earlier `set.seed()` calls would make it predictable.
+  as.integer((as.numeric(Sys.time()) * 1000) %% .Machine$integer.max)
+}
+
+
+# Every pair of a sum and a sum of squares that `k` numbers from `vals` can
+# have, for `k` up to `n_max`, built up one number at a time from the empty
+# sample, with sums in rows and sums of squares in columns. It shares nothing
+# with `grimmer()`: no rounding bounds, no candidate sums, only integer
+# arithmetic. Means from 1 to 5 and SDs up to 2.5 keep every value of up to 8
+# numbers within `-6:12`, so the pairs are complete there.
+grimmer_reachable_pairs <- function(vals = -6:12, n_max = 8L) {
+  s_min <- min(vals) * n_max
+  rows <- max(vals) * n_max - s_min + 1L
+  cols <- max(vals^2) * n_max + 1L
+
+  reach <- matrix(FALSE, rows, cols)
+  reach[1L - s_min, 1L] <- TRUE
+  pairs <- vector("list", n_max)
+  for (k in seq_len(n_max)) {
+    reach_next <- matrix(FALSE, rows, cols)
+    for (v in vals) {
+      from_row <- max(1L, 1L - v):min(rows, rows - v)
+      from_col <- seq_len(cols - v^2)
+      to_row <- from_row + v
+      to_col <- from_col + v^2
+      reach_next[to_row, to_col] <-
+        reach_next[to_row, to_col] | reach[from_row, from_col]
+    }
+    reach <- reach_next
+    found <- which(reach, arr.ind = TRUE)
+    pairs[[k]] <- list(s = found[, 1L] + s_min - 1L, q = found[, 2L] - 1L)
+  }
+  pairs
+}
+
+
+# The oracle for `loeschian_between()`, which generates these numbers instead:
+# Is `m == x^2 + x * y + y^2` for some whole `x` and `y`? Equivalently, is
+# `4 * m - 3 * y^2` a square (that of `2 * x + y`) for some `y`?
+is_loeschian <- function(m) {
+  if (m < 0) {
+    return(FALSE)
+  }
+  y <- 0:floor(sqrt(4 * m / 3))
+  any(round(sqrt(4 * m - 3 * y^2))^2 == 4 * m - 3 * y^2)
+}

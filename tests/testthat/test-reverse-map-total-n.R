@@ -1,25 +1,71 @@
-
-
+# fmt: skip
 df1 <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1  , ~x2  , ~n  ,
+  3.43 , 5.28 ,  90 ,
+  2.97 , 4.42 , 103
 )
 
 df2 <- tibble::tibble(
-  x1 = runif(150,  1, 100) %>% round(2) %>% as.character(),
-  x2 = runif(150, 50, 150) %>% round(2) %>% as.character(),
-  n  = runif(150, 20, 120) %>% round()
+  x1 = runif(150, 1, 100) |> round(2),
+  x2 = runif(150, 50, 150) |> round(2),
+  n = runif(150, 20, 120) |> round()
 )
 
-df1_tested <- grim_map_total_n(df1)
-df2_tested <- grim_map_total_n(df2)
+df1_tested <- grim_map_total_n(df1, digits_x = 2, items_averaged = 1)
+df2_tested <- grim_map_total_n(df2, digits_x = 2, items_averaged = 1)
 
 df1_rec <- reverse_map_total_n(df1_tested)
 df2_rec <- reverse_map_total_n(df2_tested)
 
 
 test_that("The reconstructed data frames are identical to the original ones", {
-  expect_equal(df1, df1_rec)
-  expect_equal(df2, df2_rec)
+  df1 |> expect_equal(df1_rec)
+  df2 |> expect_equal(df2_rec)
+})
+
+
+test_that("The reconstruction does not depend on the first dispersion step", {
+  # The total was taken as twice the second group size, right only for `0`:
+  df <- tibble::tibble(x1 = c(3.43, 5.14), x2 = c(3.6, 2.95), n = c(43L, 40L))
+  df |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 1:5) |>
+    reverse_map_total_n() |>
+    expect_equal(df)
+})
+
+
+test_that("`items_averaged` is not multiplied into the reconstructed total", {
+  df <- tibble::tibble(x1 = 3.43, x2 = 4.20, n = 71L)
+  out <- grim_map_total_n(df, digits_x = 2, items_averaged = 2)
+  out$n[1:2] |> expect_equal(c(35L, 36L))
+  out$items_averaged |> unique() |> expect_equal(2)
+  out |> reverse_map_total_n() |> expect_equal(df)
+  out |> audit_total_n() |> purrr::pluck("n") |> expect_equal(71L)
+})
+
+
+test_that("0-row output is reconstructed as 0 rows, keeping column types", {
+  out <- grim_map_total_n(
+    tibble::tibble(x1 = 3.4, x2 = 4.2, n = 3L),
+    digits_x = 1,
+    items_averaged = 1,
+    n_min = 2
+  ) |>
+    suppressWarnings()
+  out$x |> expect_type("double")
+  rec <- reverse_map_total_n(out)
+  rec |> nrow() |> expect_equal(0L)
+  rec$x1 |> expect_type("double")
+  out |> audit_total_n() |> nrow() |> expect_equal(0L)
+})
+
+
+test_that("incomplete mapper output is rejected", {
+  # The first two rows of each case used to be paired up whatever they were:
+  out <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1)
+  out[-1, ]                           |> reverse_map_total_n() |> expect_error("in full")
+  out[-c(2, 3), ]                     |> reverse_map_total_n() |> expect_error("in full")
+  out |> dplyr::filter(consistency)   |> reverse_map_total_n() |> expect_error("in full")
+  out |> dplyr::arrange(n)            |> reverse_map_total_n() |> expect_error("in order")
 })

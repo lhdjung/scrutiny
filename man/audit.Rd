@@ -4,50 +4,62 @@
 \alias{audit}
 \title{Summarize scrutiny objects}
 \usage{
-audit(data)
+audit(data, ..., .by = NULL)
 }
 \arguments{
-\item{data}{A data frame that inherits one of the classes named below.}
+\item{data}{A data frame returned by one of the functions below.}
+
+\item{...}{These dots must be empty.}
+
+\item{.by}{Optionally, columns of \code{data} to summarize by, selected as in
+\code{\link[dplyr:select]{dplyr::select()}}, such as \code{.by = study}. Each group is summarized on
+its own, and the output has a row for each, starting with the grouping
+columns. Groups appear in the order of their first row. Use this rather
+than \code{\link[dplyr:group_by]{dplyr::group_by()}}, which removes the class that \code{audit()}
+dispatches on.}
 }
 \value{
-A tibble (data frame) with test summary statistics.
+A tibble with summary statistics.
 }
 \description{
-\code{audit()} summarizes the results of scrutiny functions like
-\code{\link[=grim_map]{grim_map()}} that perform tests on data frames.
+\code{audit()} summarizes the output of scrutiny functions that test
+data frames, such as \code{\link[=grim_map]{grim_map()}}. It is an S3 generic with methods for
+the functions listed below. The columns of each summary are described in
+the documentation of the respective function.
 
-See below for a record of such functions. Go to the documentation of any of
-them to learn about its \code{audit()} method.
-}
-\details{
-\code{audit()} is an S3 generic. It looks up the (invisible) scrutiny
-class of a tibble returned by any function named below. You don't need to
-deal with the classes directly. Behind the scenes, they mediate between
-these functions and their associated summary statistics.
+On the output of a sequence or total-n mapper, such as \code{\link[=grim_map_seq]{grim_map_seq()}},
+it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{audit_total_n()}}.
 }
 \section{Run before \code{audit()}}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{\link[=grim_map]{grim_map()}} \tab \code{"scr_grim_map"} \cr
-   \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scr_grimmer_map"} \cr
-   \code{\link[=debit_map]{debit_map()}} \tab \code{"scr_debit_map"} \cr
-   \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scr_dup_count"} \cr
-   \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scr_dup_count_colpair"} \cr
-   \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scr_dup_tally"} \cr
-   \code{\link[=duplicate_detect]{duplicate_detect()}} \tab \code{"scr_dup_detect"} \cr
-   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scr_audit_seq"} \cr
-   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scr_audit_total_n"} \cr
+   \code{\link[=grim_map]{grim_map()}} \tab \code{"scrutiny_grim_map"} \cr
+   \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scrutiny_grimmer_map"} \cr
+   \code{\link[=debit_map]{debit_map()}} \tab \code{"scrutiny_debit_map"} \cr
+   \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} \tab \code{"scrutiny_is_percentage_of_map"} \cr
+   \code{\link[=add_up_to_map]{add_up_to_map()}} \tab \code{"scrutiny_add_up_to_map"} \cr
+   \verb{*_map_seq()} functions \tab \code{"scrutiny_map_seq"} \cr
+   \verb{*_map_total_n()} functions \tab \code{"scrutiny_map_total_n"} \cr
+   \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
+   \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
+   \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr
+   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scrutiny_audit_seq"} \cr
+   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scrutiny_audit_total_n"} \cr
 }
 }
 
 \examples{
-# For basic GRIM-testing:
-pigs1 \%>\%
-  grim_map() \%>\%
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 
-# For duplicate detection:
-pigs4 \%>\%
-  duplicate_count() \%>\%
+pigs4 |>
+  duplicate_count() |>
   audit()
+
+# Summaries by group:
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  dplyr::mutate(study = rep(c("A", "B", "C"), each = 4)) |>
+  audit(.by = study)
 }
