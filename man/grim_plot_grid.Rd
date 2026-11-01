@@ -69,12 +69,10 @@ all.
 marks every combination of sample size and fractional part that is
 inconsistent with a dark tile. It depends on the number of decimal places,
 which is read from the \code{digits_x} column of \code{data}, and on the rounding
-method, which is read from the \code{grim_map()} call. Rasters are precomputed
-for every rounding method except \code{"up_from"}, \code{"down_from"}, and
-\code{"up_from_or_down_from"}; with these, \code{grim_plot_grid()} errors unless
-\code{show_raster = FALSE}. With three or more decimal places, the tiles
-would be too small, so a gradient shows the probability of inconsistency
-instead.
+method, which is read from the \code{grim_map()} call. \code{\link[=grim_raster]{grim_raster()}}
+returns the raster as a tibble. With three or more decimal places, the
+tiles would be too small, so a gradient shows the probability of
+inconsistency instead.
 
 A raster only applies to one number of decimal places, so \code{grim_plot_grid()}
 errors if \code{digits_x} varies across rows. Use \code{split_by_digits = TRUE} to

@@ -24,15 +24,15 @@ places and one rounding method. It is the background raster of
 \code{\link[=grim_plot_grid]{grim_plot_grid()}} as a tibble, for studying GRIM's properties directly.
 }
 \details{
-The grid covers sample sizes from 1 to \code{10^digits}, where GRIM
-stops ruling out any mean, and fractional parts in steps of
-\code{1 / 10^digits}, without zero. All means are positive, so \code{symmetric} makes
-no difference.
+The grid covers sample sizes from 1 to \code{10^digits}, where GRIM stops
+ruling out any mean, and fractional parts in steps of \code{1 / 10^digits},
+without zero. All fractional parts of means are positive, so \code{symmetric}
+makes no difference.
 
 Rasters for one or two decimal places are precomputed for every rounding
 method that has no \code{threshold}. All others are computed on demand, which
-takes some seconds for three decimal places. Four or more would mean a
-grid of 100 million cells, so \code{digits} is at most 3.
+takes some seconds for three decimal places. Four or more would mean a grid
+of 100 million cells, so \code{digits} is at most 3.
 }
 \examples{
 grim_raster(digits = 1)

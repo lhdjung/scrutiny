@@ -265,7 +265,7 @@ test_that("`grim_plot_grid()` falls back to `rounding` if `data` has none record
   data <- tibble::tibble(x = 5.19, n = 28, digits_x = 2, consistency = TRUE)
   class(data) <- c("scrutiny_grim_map", class(data))
   data |> grim_plot_grid() |> expect_s3_class("ggplot")
-  data |> grim_plot_grid(rounding = "up_from", show_raster = TRUE) |> expect_error("No background raster")
+  data |> grim_plot_grid(rounding = "up_from", show_raster = TRUE) |> expect_s3_class("ggplot")
 })
 
 

@@ -7,15 +7,15 @@
 #'   places and one rounding method. It is the background raster of
 #'   [`grim_plot_grid()`] as a tibble, for studying GRIM's properties directly.
 #'
-#' @details The grid covers sample sizes from 1 to `10^digits`, where GRIM
-#'   stops ruling out any mean, and fractional parts in steps of
-#'   `1 / 10^digits`, without zero. All means are positive, so `symmetric` makes
-#'   no difference.
+#' @details The grid covers sample sizes from 1 to `10^digits`, where GRIM stops
+#'   ruling out any mean, and fractional parts in steps of `1 / 10^digits`,
+#'   without zero. All fractional parts of means are positive, so `symmetric`
+#'   makes no difference.
 #'
 #'   Rasters for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which
-#'   takes some seconds for three decimal places. Four or more would mean a
-#'   grid of 100 million cells, so `digits` is at most 3.
+#'   takes some seconds for three decimal places. Four or more would mean a grid
+#'   of 100 million cells, so `digits` is at most 3.
 #'
 #' @param digits Integer. Number of decimal places, from 1 to 3.
 #' @param rounding,threshold The same as in [`grim()`].
@@ -34,28 +34,31 @@
 grim_raster <- function(digits, rounding = "up_or_down", threshold = 5) {
   check_length(digits, 1L)
   check_digits_whole(digits)
+
   if (is.na(digits) || digits < 1 || digits > 3) {
     abort_in_export(
       "`digits` must be 1, 2, or 3.",
       "x" = "It is {digits}."
     )
   }
+
   digits <- as.integer(round(digits))
   check_rounding_args(rounding, threshold)
 
   # The rasters are keyed by the basic `rounding` names. `symmetric = FALSE`
-  # because all means are positive.
+  # because all fractional portions of means are positive.
   rounding <- roundwork::resolve_ties_rounding(rounding, FALSE)$rounding
 
   # Precomputed in data-raw/data-gen.R, stored in R/sysdata.rda. The `"up_from"`
   # family has no entry because it takes a `threshold`.
   raster <- GRIM_RASTERS[[paste(digits, rounding, sep = "_")]]
 
+  # For digits > 2, generate the raster dynamically. This takes time!
   if (is.null(raster)) {
-    raster <- generate_grim_raster(digits, rounding, threshold)
+    generate_grim_raster(digits, rounding, threshold)
+  } else {
+    raster
   }
-
-  raster
 }
 
 

@@ -10,12 +10,10 @@
 #'   marks every combination of sample size and fractional part that is
 #'   inconsistent with a dark tile. It depends on the number of decimal places,
 #'   which is read from the `digits_x` column of `data`, and on the rounding
-#'   method, which is read from the `grim_map()` call. Rasters are precomputed
-#'   for every rounding method except `"up_from"`, `"down_from"`, and
-#'   `"up_from_or_down_from"`; with these, `grim_plot_grid()` errors unless
-#'   `show_raster = FALSE`. With three or more decimal places, the tiles
-#'   would be too small, so a gradient shows the probability of inconsistency
-#'   instead.
+#'   method, which is read from the `grim_map()` call. [`grim_raster()`]
+#'   returns the raster as a tibble. With three or more decimal places, the
+#'   tiles would be too small, so a gradient shows the probability of
+#'   inconsistency instead.
 #'
 #'   A raster only applies to one number of decimal places, so `grim_plot_grid()`
 #'   errors if `digits_x` varies across rows. Use `split_by_digits = TRUE` to
@@ -425,38 +423,16 @@ grim_plot_grid <- function(
 
   if (show_raster) {
     if (digits <= 2L) {
-      # Data built by hand has no recorded rounding method:
-      rounding_id <- scrutiny_args(data)$rounding
-      if (is.null(rounding_id)) {
-        rounding_id <- rounding
+      # Data built by hand has no recorded rounding method or threshold. The
+      # axis is non-negative, so `grim_raster()` ignores `symmetric`; see the
+      # "Negative means" section of the docs.
+      args <- scrutiny_args(data)
+      if (!is.null(args$rounding)) {
+        rounding <- args$rounding
       }
+      threshold <- if (is.null(args$threshold)) 5 else args$threshold
 
-      # `resolve_ties_rounding()` does not check its input:
-      check_rounding_args(rounding_id)
-
-      # The rasters are keyed by the basic `rounding` names, so resolve the
-      # `"ties_*"` methods to those. `symmetric = FALSE` because the axis is
-      # non-negative: `"ties_away"` and `"ties_up"` share the `"up"` raster,
-      # `"ties_zero"` and `"ties_down"` the `"down"` one. See the "Negative
-      # means" section of the docs.
-      rounding_id <- roundwork::resolve_ties_rounding(
-        rounding_id,
-        FALSE
-      )$rounding
-
-      # Precomputed in data-raw/data-gen.R, stored in R/sysdata.rda. The
-      # `"up_from"` family has none: with a `threshold`, there is no single
-      # raster to precompute.
-      df_plot <- GRIM_RASTERS[[paste(digits, rounding_id, sep = "_")]]
-
-      if (is.null(df_plot)) {
-        abort_in_export(
-          "No background raster available for `rounding = {rounding_id}`",
-          "i" = "Use a different `rounding` specification within the \\
-          `grim_map()` call or set `show_raster` to `FALSE` within the \\
-          `grim_plot_grid()` call."
-        )
-      }
+      df_plot <- grim_raster(digits, rounding, threshold)
     } else {
       # No raster: the tiles would be too small, so a gradient is drawn
       # further down. The tile layer is still added pro forma and needs data.
