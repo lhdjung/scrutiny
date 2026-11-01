@@ -83,6 +83,8 @@ disperse <- function(
   if (is.na(n)) {
     abort_in_export("`n` must not be missing.")
   }
+  # Compared to the limits as the whole number it is shown as:
+  n <- round_whole(n)
   check_type(dispersion, c("double", "integer"))
   if (anyNA(dispersion)) {
     abort_in_export("`dispersion` must not contain missing values.")
@@ -193,6 +195,8 @@ disperse2 <- function(
   # Checks ---
 
   check_length(n, 2L)
+  # Their mean, `2.5 - 5e-10` for `2 - 1e-9` and 3, is not near-whole anymore:
+  n <- round_whole(n)
 
   if (!dplyr::near(n[2L] - n[1L], 1)) {
     cli::cli_warn(c(

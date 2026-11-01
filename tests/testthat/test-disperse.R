@@ -118,3 +118,12 @@ test_that("a total within tolerance of a whole number is split as that number", 
   # and 20.5:
   (40 - 1e-9) |> disperse_total() |> expect_equal(disperse_total(40))
 })
+
+
+test_that("a near-whole `n` is compared to the limits as that number", {
+  # `2 - 1e-9` lost the pair (1, 3) to `n_min = 1`, and `10 + 1e-9` the pair
+  # (8, 12) to `n_max = 12`, though both were shown as whole numbers:
+  (2 - 1e-9)  |> disperse(dispersion = 0:2)             |> expect_equal(disperse(2, dispersion = 0:2))
+  (10 + 1e-9) |> disperse(dispersion = 0:3, n_max = 12) |> expect_equal(disperse(10, dispersion = 0:3, n_max = 12))
+  c(2 - 1e-9, 3) |> disperse2(dispersion = 0:2)         |> expect_equal(disperse2(c(2, 3), dispersion = 0:2))
+})
