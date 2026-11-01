@@ -24,7 +24,9 @@ add_up_to_scalar <- function(summands, total) {
     return(NA)
   }
 
-  sum(summands) == total
+  # A near-whole value like `100 * 0.29` passed as whole above, so it is added
+  # up as the whole number it is shown as, not as 28.999999999999996:
+  sum(round(summands)) == round(total)
 }
 
 

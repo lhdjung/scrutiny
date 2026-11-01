@@ -31,3 +31,10 @@ test_that("counts too large to add up exactly are undecidable", {
   c(2^53, 1) |> add_up_to(2^53 + 1)   |> expect_na()
   c(2^52, 1) |> add_up_to(2^52 + 1)   |> expect_true()
 })
+
+test_that("near-whole values are added up as the whole numbers they are shown as", {
+  c(10, 19)                 |> add_up_to(100 * 0.29) |> expect_true()
+  c(10, 100 * 0.29)         |> add_up_to(39)         |> expect_true()
+  c(100 * 0.57, 100 * 0.29) |> add_up_to(86)         |> expect_true()
+  c(10, 100 * 0.29)         |> add_up_to(40)         |> expect_false()
+})

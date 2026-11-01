@@ -89,7 +89,15 @@ test_that("`n`, `n_min`, and `n_max` must be numbers", {
   20       |> disperse(n_min = 1:2) |> expect_error("single number")
   "20"     |> disperse()            |> expect_error("must be one of these types")
   NA_real_ |> disperse()            |> expect_error("not be missing")
+  Inf      |> disperse()            |> expect_error("missing or infinite")
   -4       |> disperse_total(n_min = NULL) |> expect_error("non-negative")
+  # These used to fail with raw R errors from the arithmetic:
+  c(NA, 26)    |> disperse2()      |> expect_error("missing or infinite")
+  c("25", "26") |> disperse2()     |> expect_error("must be one of these types")
+  c(TRUE, FALSE) |> disperse2()    |> expect_error("must be one of these types")
+  "40"         |> disperse_total() |> expect_error("must be one of these types")
+  TRUE         |> disperse_total() |> expect_error("must be one of these types")
+  Inf          |> disperse_total() |> expect_error("whole number")
 })
 
 test_that("`disperse2()` applies the limits to the group sizes themselves", {

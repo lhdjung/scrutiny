@@ -80,8 +80,8 @@ disperse <- function(
 
   check_length_disperse_n(n, "It must have length 1.")
   check_type(n, c("double", "integer"))
-  if (is.na(n)) {
-    abort_in_export("`n` must not be missing.")
+  if (!is.finite(n)) {
+    abort_in_export("`n` must not be missing or infinite.")
   }
   # Compared to the limits as the whole number it is shown as:
   n <- round_whole(n)
@@ -195,6 +195,10 @@ disperse2 <- function(
   # Checks ---
 
   check_length(n, 2L)
+  check_type(n, c("double", "integer"))
+  if (!all(is.finite(n))) {
+    abort_in_export("`n` must not contain missing or infinite values.")
+  }
   # Their mean, `2.5 - 5e-10` for `2 - 1e-9` and 3, is not near-whole anymore:
   n <- round_whole(n)
 
@@ -251,8 +255,13 @@ disperse_total <- function(
     to be a *single*, total sample size."
   )
 
+  # A missing `n` is reported as not a whole number, but a string is a type
+  # mistake:
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
   # The even-or-odd branch below is only exhaustive for whole numbers:
-  if (is.na(n) || !is_whole_number(n) || n < 0) {
+  if (!is.finite(n) || !is_whole_number(n) || n < 0) {
     abort_in_export(
       "`n` must be a non-negative whole number.",
       "x" = "It is {n}.",
