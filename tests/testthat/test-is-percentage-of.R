@@ -72,3 +72,13 @@ test_that("an abbreviated key argument is an error, not a partial match", {
   df |> is_percentage_of_map(digits_percentage = 0, percent = TRUE) |> expect_error("`percent` is not an argument")
   df |> is_percentage_of_map(digits_percentage = 0, percentage = "percentage") |> expect_no_error()
 })
+
+
+test_that("a near-whole count or decimal count is tested as the whole number", {
+  # `absolute` passed the whole-number check but was compared to the range of
+  # counts as is, so `100 * 0.29` was not 29. A near-whole `digits_percentage`
+  # was used as is, too:
+  (100 * 0.29) |> is_percentage_of(72.5, 40, digits_percentage = 1)        |> expect_true()
+  10           |> is_percentage_of(31.3, 32, digits_percentage = 1 - 1e-9) |> expect_true()
+  tibble::tibble(absolute = 100 * 0.29, percentage = 72.5, n = 40) |> is_percentage_of_map(digits_percentage = 1) |> _$consistency |> expect_true()
+})
