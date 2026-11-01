@@ -335,10 +335,11 @@ round_whole <- function(x) {
 #' Coerce a whole-number column to integer, but only if that is lossless
 #'
 #' @description Mappers store the `ARGS_WHOLE` columns, such as `n`, and the
-#'   `digits_*` columns as integer, since they are whole numbers. The coercion is skipped if `n` is not numeric, or
-#'   if any value is fractional or beyond `.Machine$integer.max`, which
-#'   `as.integer()` would turn into `NA` next to a verdict computed from the
-#'   real value. A value within tolerance of a whole number is rounded to it.
+#'   `digits_*` columns as integer, since they are whole numbers. The coercion
+#'   is skipped if `n` is not numeric, or if any value is fractional or beyond
+#'   `.Machine$integer.max`, which `as.integer()` would turn into `NA` next to
+#'   a verdict computed from the real value. A value within tolerance of a
+#'   whole number is rounded to it.
 #'
 #' @param n Numeric vector; a whole-number column such as `n`.
 #'
