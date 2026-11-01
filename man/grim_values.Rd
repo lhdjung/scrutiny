@@ -89,7 +89,7 @@ include ties that
 \code{grim_values(1.3, 20, 1, 1, rounding = "even")} returns 1.25 and 1.35
 along with 1.3.
 
-With \code{items_averaged > 1}, the whole numbers are the respondents' totals
+With \code{items_averaged > 1}, the integers are the respondents' totals
 across the items, so \code{sum} is the sum of the totals.
 }
 \examples{

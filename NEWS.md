@@ -12,7 +12,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)`, and must be whole numbers from 0 to 15. (See "Function interfaces" below on `items_averaged`.) Together with the integer digits of `x` or `sd`, they may not exceed the 15 significant digits that a double holds.
 
-- Mappers return `digits_x` and `digits_sd` as columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
+- Mappers return `digits_x` and `digits_sd` as integer columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
 - The `n`, `items_averaged`, and `absolute` columns of mapper output are integer columns if all their values are whole numbers within the integer range.
 
@@ -154,7 +154,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `duplicate_count()` uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`.
 
-- `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector of only `NA` unless the answer is the same whatever the values, and test strings and factors by their numeric values.
+- `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector with `NA`s only if the answer depends on the missing values (any one or two values are linear), and test strings and factors by their numeric values.
 
 - `grim_plot_grid()` plots negative means at the fractional part of their absolute value, plots percentages with the decimal places they were tested with, works with `show_raster = FALSE`, extends its x-axis to the data when `n` is not given, uses its `rounding` argument for data without a recorded rounding method, and warns about any rows it leaves out instead of suppressing all warnings. It only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well.
 

@@ -27,8 +27,8 @@ with the key result first.}
 
 \item{.reported}{String. Names of the arguments of \code{.fn} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
-be \code{NULL} if \code{.reported_variadic} is specified. Columns named \code{n},
-\code{items_averaged}, or \code{absolute}, like the decimal counts of
+be \code{NULL} if \code{.reported_variadic} is specified. A key or helper column
+named \code{n}, \code{items_averaged}, or \code{absolute}, like the decimal counts of
 \code{.args_by_row}, are taken to be whole numbers: a value within
 floating-point noise of one, such as \code{100 * 0.29}, is rounded to it before
 \code{.fn} sees it.}

@@ -16,8 +16,8 @@
 #'   with the key result first.
 #' @param .reported String. Names of the arguments of `.fn` that take the
 #'   reported values, such as `c("x", "n")`. These become the key columns. May
-#'   be `NULL` if `.reported_variadic` is specified. Columns named `n`,
-#'   `items_averaged`, or `absolute`, like the decimal counts of
+#'   be `NULL` if `.reported_variadic` is specified. A key or helper column
+#'   named `n`, `items_averaged`, or `absolute`, like the decimal counts of
 #'   `.args_by_row`, are taken to be whole numbers: a value within
 #'   floating-point noise of one, such as `100 * 0.29`, is rounded to it before
 #'   `.fn` sees it.

@@ -145,7 +145,7 @@ grimmer_values_scalar <- function(
 }
 
 
-# The mean and SD that a sum and a sum of squares of `n` whole numbers give;
+# The mean and SD that a sum and a sum of squares of `n` integers give;
 # see `sd_square_term()` for the formula. One row of `NA` for an undecidable
 # value set, so that it still has a row in the output.
 grimmer_values_tibble <- function(
@@ -169,7 +169,7 @@ grimmer_values_tibble <- function(
 #' @description `r lifecycle::badge("experimental")`
 #'
 #'   `grimmer_values()` returns every pair of a mean and an SD that a sample of
-#'   `n` whole numbers can have and that would be reported as `x` and `sd`. It
+#'   `n` integers can have and that would be reported as `x` and `sd`. It
 #'   is the counterpart of [`grim_values()`] for [`grimmer()`], which is `TRUE`
 #'   exactly if there is at least one such pair.
 #'
@@ -179,8 +179,8 @@ grimmer_values_tibble <- function(
 #'
 #' @details The sums are the whole numbers that [`grim_values()`] divides by
 #'   `n * items_averaged`. For each, the sums of squares are the whole numbers
-#'   within the rounding bounds of `sd` that `n` whole numbers with that sum can
-#'   have. With `items_averaged > 1`, the whole numbers are the respondents'
+#'   within the rounding bounds of `sd` that `n` integers with that sum can
+#'   have. With `items_averaged > 1`, the integers are the respondents'
 #'   totals across the items, so the sums are those of the totals.
 #'
 #'   The number of pairs grows with `n`, `items_averaged`, and `sd`, and

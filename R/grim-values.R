@@ -200,7 +200,7 @@ grim_closest_scalar <- function(
 #'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
 #'   along with 1.3.
 #'
-#'   With `items_averaged > 1`, the whole numbers are the respondents' totals
+#'   With `items_averaged > 1`, the integers are the respondents' totals
 #'   across the items, so `sum` is the sum of the totals.
 #'
 #' @param x Numeric. The reported mean or percentage.

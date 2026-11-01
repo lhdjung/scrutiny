@@ -65,7 +65,7 @@ no rows, and one that cannot be decided has one row of \code{NA}, as in
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 \code{grimmer_values()} returns every pair of a mean and an SD that a sample of
-\code{n} whole numbers can have and that would be reported as \code{x} and \code{sd}. It
+\code{n} integers can have and that would be reported as \code{x} and \code{sd}. It
 is the counterpart of \code{\link[=grim_values]{grim_values()}} for \code{\link[=grimmer]{grimmer()}}, which is \code{TRUE}
 exactly if there is at least one such pair.
 
@@ -76,8 +76,8 @@ compared exactly through these integers.
 \details{
 The sums are the whole numbers that \code{\link[=grim_values]{grim_values()}} divides by
 \code{n * items_averaged}. For each, the sums of squares are the whole numbers
-within the rounding bounds of \code{sd} that \code{n} whole numbers with that sum can
-have. With \code{items_averaged > 1}, the whole numbers are the respondents'
+within the rounding bounds of \code{sd} that \code{n} integers with that sum can
+have. With \code{items_averaged > 1}, the integers are the respondents'
 totals across the items, so the sums are those of the totals.
 
 The number of pairs grows with \code{n}, \code{items_averaged}, and \code{sd}, and
