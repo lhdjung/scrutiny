@@ -812,6 +812,8 @@ test_that("integer `n` and `digits_*` columns are rounded, not truncated", {
   # near-whole total as odd, into 19.5 and 20.5:
   tibble::tibble(x = 1.5, n = 2 - 1e-9)                   |> grim_map(digits_x = 1, items_averaged = 1, rounding = "ceiling")   |> _$consistency |> expect_true()
   tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling")                      |> _$consistency |> expect_true()
+  tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling")                      |> _$items_averaged |> expect_identical(1L)
+  tibble::tibble(absolute = 100 * 0.29, percentage = 72.5, n = 40) |> is_percentage_of_map(digits_percentage = 1) |> _$absolute |> expect_identical(29L)
   tibble::tibble(x = 1.5, sd = 0.71, n = 2 - 1e-9)        |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1)       |> _$consistency |> expect_true()
   near_whole <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40 - 1e-9) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()
   whole      <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40)        |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()

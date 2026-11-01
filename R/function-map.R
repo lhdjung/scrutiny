@@ -638,15 +638,16 @@ function_map <- function(
       )
 
       # The key columns of the output, then the helper columns that were given,
-      # as tested (`n` as integer, which prints better):
+      # as tested. Whole-number columns such as `n` as integer, which prints
+      # better:
       cols_key <- c(cols_variadic, cols_tested[reported])
 
       for (arg in args_helper_given) {
         cols_key[[arg]] <- cols_tested[[arg]]
       }
 
-      if (!is.null(cols_key[["n"]])) {
-        cols_key[["n"]] <- as_integer_if_lossless(cols_key[["n"]])
+      for (arg in intersect(ARGS_WHOLE, names(cols_key))) {
+        cols_key[[arg]] <- as_integer_if_lossless(cols_key[[arg]])
       }
 
       cols_by_row <- cols_tested[args_by_row[
