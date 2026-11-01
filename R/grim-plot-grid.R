@@ -10,9 +10,10 @@
 #'   marks every combination of sample size and fractional part that is
 #'   inconsistent with a dark tile. It depends on the number of decimal places,
 #'   which is read from the `digits_x` column of `data`, and on the rounding
-#'   method, which is read from the `grim_map()` call. The tiles are the rows
-#'   of [`grim_grid()`]. With three or more decimal places, they would be too
-#'   small, so a gradient shows the probability of inconsistency instead.
+#'   method, which is read from the `grim_map()` call. The tiles are the cells
+#'   of [`grim_grid()`] whose `consistency` is `FALSE`. With three or more
+#'   decimal places, they would be too small, so a gradient shows the
+#'   probability of inconsistency instead.
 #'
 #'   A raster only applies to one number of decimal places, so `grim_plot_grid()`
 #'   errors if `digits_x` varies across rows. Use `split_by_digits = TRUE` to
@@ -423,15 +424,15 @@ grim_plot_grid <- function(
   if (show_raster) {
     if (digits <= 2L) {
       # Data built by hand has no recorded rounding method or threshold. The
-      # axis is non-negative, so `grim_grid()` ignores `symmetric`; see the
-      # "Negative means" section of the docs.
+      # axis is non-negative, so `grim_grid_inconsistent()` ignores
+      # `symmetric`; see the "Negative means" section of the docs.
       args <- scrutiny_args(data)
       if (!is.null(args$rounding)) {
         rounding <- args$rounding
       }
       threshold <- if (is.null(args$threshold)) 5 else args$threshold
 
-      df_plot <- grim_grid(digits, rounding, threshold)
+      df_plot <- grim_grid_inconsistent(digits, rounding, threshold)
     } else {
       # No raster: the tiles would be too small, so a gradient is drawn
       # further down. The tile layer is still added pro forma and needs data.

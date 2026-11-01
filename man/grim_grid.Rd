@@ -2,7 +2,7 @@
 % Please edit documentation in R/grim-grid.R
 \name{grim_grid}
 \alias{grim_grid}
-\title{GRIM-inconsistent combinations of sample size and mean}
+\title{GRIM verdicts on a grid of sample sizes and means}
 \usage{
 grim_grid(digits, rounding = "up_or_down", threshold = 5)
 }
@@ -12,16 +12,18 @@ grim_grid(digits, rounding = "up_or_down", threshold = 5)
 \item{rounding, threshold}{The same as in \code{\link[=grim]{grim()}}.}
 }
 \value{
-A tibble with the columns \code{frac} (the fractional part of a mean) and
-\code{n} (the sample size), one row per GRIM-inconsistent combination.
+A tibble with one row per cell of the grid and the columns \code{frac}
+(the fractional part of a mean), \code{n} (the sample size), and \code{consistency}
+(the GRIM verdict).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{grim_grid()} returns every combination of sample size and fractional
-part of a mean that GRIM finds inconsistent, for one number of decimal
-places and one rounding method, for studying GRIM's properties directly.
-\code{\link[=grim_plot_grid]{grim_plot_grid()}} draws these cells as its background raster.
+\code{grim_grid()} tests every combination of sample size and fractional part
+of a mean with GRIM, for one number of decimal places and one rounding
+method. It is meant for studying GRIM's properties directly.
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} draws the inconsistent cells as its background
+raster.
 }
 \details{
 The grid covers sample sizes from 1 to \code{10^digits}, where GRIM stops
@@ -37,7 +39,7 @@ of 100 million cells, so \code{digits} is at most 3.
 \examples{
 grim_grid(digits = 1)
 
-# Inconsistent cells per sample size:
-grim_grid(digits = 2, rounding = "up") |>
-  dplyr::count(n)
+# Share of means ruled out per sample size:
+grim_grid(digits = 2) |>
+  dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 }

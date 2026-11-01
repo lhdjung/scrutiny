@@ -96,7 +96,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grim_grid()` returns the GRIM-inconsistent combinations of sample size and fractional part of a mean behind `grim_plot_grid()`, for studying GRIM itself. Through it, `grim_plot_grid()` now draws a raster for the `"up_from"` family of rounding methods instead of throwing an error.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM, for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. This is related to #59 but doesn't conclude the questions raised there.
 
