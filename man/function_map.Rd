@@ -28,9 +28,10 @@ with the key result first.}
 \item{.reported}{String. Names of the arguments of \code{.fn} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
 be \code{NULL} if \code{.reported_variadic} is specified. Columns named \code{n},
-\code{items_averaged}, \code{digits_x}, or \code{digits_sd} are taken to be whole
-numbers: a value within floating-point noise of one, such as \code{100 * 0.29},
-is rounded to it before \code{.fn} sees it.}
+\code{items_averaged}, or \code{absolute}, like the decimal counts of
+\code{.args_by_row}, are taken to be whole numbers: a value within
+floating-point noise of one, such as \code{100 * 0.29}, is rounded to it before
+\code{.fn} sees it.}
 
 \item{.name_test}{String (length 1). Plain-text name of the test, such as
 \code{"GRIM"}.}
@@ -47,7 +48,9 @@ function should not have. Specifying one of them is an error.}
 
 \item{.args_by_row}{Optionally, names of arguments of \code{.fn} that may vary
 by row, such as \code{"digits_x"}. The new function takes a single value or one
-per row of \code{data} for each, and returns them as columns.}
+per row of \code{data} for each, and returns them as columns. One whose name
+starts with \code{digits_} is a decimal count, rounded and returned as integer
+like \code{digits_x}.}
 
 \item{.args_fixed}{Optionally, a named list of values that are always passed
 to \code{.fn}, such as \code{list(show_reason = TRUE)}. The new function has no

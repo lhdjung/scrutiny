@@ -17,9 +17,10 @@
 #' @param .reported String. Names of the arguments of `.fn` that take the
 #'   reported values, such as `c("x", "n")`. These become the key columns. May
 #'   be `NULL` if `.reported_variadic` is specified. Columns named `n`,
-#'   `items_averaged`, `digits_x`, or `digits_sd` are taken to be whole
-#'   numbers: a value within floating-point noise of one, such as `100 * 0.29`,
-#'   is rounded to it before `.fn` sees it.
+#'   `items_averaged`, or `absolute`, like the decimal counts of
+#'   `.args_by_row`, are taken to be whole numbers: a value within
+#'   floating-point noise of one, such as `100 * 0.29`, is rounded to it before
+#'   `.fn` sees it.
 #' @param .reported_variadic Optionally, a single string naming an argument of
 #'   `.fn` that takes the values of one row as a vector. The new function gets
 #'   an argument by that name, without a default, that selects any number of
@@ -35,7 +36,9 @@
 #'   function should not have. Specifying one of them is an error.
 #' @param .args_by_row Optionally, names of arguments of `.fn` that may vary
 #'   by row, such as `"digits_x"`. The new function takes a single value or one
-#'   per row of `data` for each, and returns them as columns.
+#'   per row of `data` for each, and returns them as columns. One whose name
+#'   starts with `digits_` is a decimal count, rounded and returned as integer
+#'   like `digits_x`.
 #' @param .args_fixed Optionally, a named list of values that are always passed
 #'   to `.fn`, such as `list(show_reason = TRUE)`. The new function has no
 #'   arguments for them; specifying one is an error.
@@ -531,10 +534,14 @@ function_map <- function(
           args_vals[[arg]] <- data[[arg]]
         }
         if (!is.null(args_vals[[arg]])) {
-          # As integer, so that the output column is the value tested:
-          cols_tested[[arg]] <- args_vals[[arg]] |>
-            as_integer_if_lossless() |>
-            recycle_digits(nrow(data), arg)
+          # A whole-number argument, such as `digits_x`, as integer, so that
+          # the output column is the value tested. Any other argument as is:
+          # `tol = 1e-8` is no 0.
+          vals <- args_vals[[arg]]
+          if (arg %in% ARGS_WHOLE || startsWith(arg, "digits_")) {
+            vals <- as_integer_if_lossless(vals)
+          }
+          cols_tested[[arg]] <- recycle_digits(vals, nrow(data), arg)
           # A column of `data` by the same name is replaced by the argument's
           # values (see `other_cols` below), which is only right if the two
           # agree, as they do when a mapper's output is tested again:

@@ -819,6 +819,18 @@ test_that("integer `n` and `digits_*` columns are rounded, not truncated", {
 })
 
 
+test_that("a by-row argument that is no decimal count is not made integer", {
+  toy_map <- function_map(
+    .fn = function(x, n, tol) abs(x - n) <= tol,
+    .reported = c("x", "n"),
+    .name_test = "toy",
+    .args_by_row = "tol"
+  )
+  # `1e-8` is within tolerance of 0, and became 0L:
+  tibble::tibble(x = 1, n = 2) |> toy_map(tol = 1e-8) |> _$tol |> expect_identical(1e-8)
+})
+
+
 test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # Anything wrong with the arguments themselves fails on the first row just as
   # it would on any other, so the mapper applies the test to that row on its
