@@ -74,7 +74,7 @@ grim_map(pigs1, digits_x = 2, items_averaged = 1)
 #> # A tibble: 12 × 6
 #> # GRIM: default settings
 #>        x     n items_averaged digits_x consistency exp_incon
-#>    <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#>    <dbl> <int>          <int>    <int> <lgl>           <dbl>
 #>  1  7.22    32              1        2 TRUE             0.64
 #>  2  4.74    25              1        2 FALSE            0.75
 #>  3  5.23    29              1        2 FALSE            0.71
@@ -107,7 +107,7 @@ grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 #> # A tibble: 6 × 6
 #> # GRIM: percent = TRUE
 #>       x     n items_averaged digits_x consistency exp_incon
-#>   <dbl> <int>          <dbl>    <dbl> <lgl>           <dbl>
+#>   <dbl> <int>          <int>    <int> <lgl>           <dbl>
 #> 1  67.4   150              1        1 FALSE            0.85
 #> 2  54.2   150              1        1 FALSE            0.85
 #> 3  54     150              1        1 TRUE             0.85
@@ -148,7 +148,7 @@ pigs3 |>
 #> # A tibble: 7 × 6
 #> # DEBIT: default settings
 #>       x    sd     n digits_x digits_sd consistency
-#>   <dbl> <dbl> <int>    <dbl>     <dbl> <lgl>      
+#>   <dbl> <dbl> <int>    <int>     <int> <lgl>      
 #> 1  0.53  0.5   1683        2         2 TRUE       
 #> 2  0.44  0.5   1683        2         2 TRUE       
 #> 3  0.77  0.42  1683        2         2 TRUE       

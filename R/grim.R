@@ -10,14 +10,7 @@ grim_scalar <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  # Checked here so that a missing value or a vector fails with a clear message,
-  # not with `if ()`'s:
-  if (!isTRUE(percent) && !isFALSE(percent)) {
-    abort_in_export(
-      "`percent` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrap_in_quotes_or_backticks(percent)}."
-    )
-  }
+  check_percent(percent)
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
   # numbers would make the verdict an unexplained `NA`.
   if (!is.numeric(n) && !is.na(n)) {

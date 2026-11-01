@@ -125,6 +125,7 @@ test_that("the marker says and shows the verdict", {
 test_that("`grim_plot_values()` needs `digits_x` and a decidable `n`", {
   5.19         |> grim_plot_values(n = 28, items_averaged = 1)                 |> expect_error("digits_x")
   5.19         |> grim_plot_values(n = 28.5, digits_x = 2, items_averaged = 1) |> expect_error("whole")
+  5.19         |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1, percent = NA) |> expect_error("`TRUE` or `FALSE`")
   c(5.19, 5.2) |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1)   |> expect_error()
   # The errors name the function the user called, not a helper:
   err <- rlang::catch_cnd(grim_plot_values(x = 5.19, n = 28.5, digits_x = 2, items_averaged = 1))

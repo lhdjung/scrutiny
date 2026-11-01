@@ -152,3 +152,12 @@ test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` i
   5.19 |> grim_closest(20.5, 2, items_averaged = 1) |> expect_equal(NA_real_)
   5.19 |> grim_values(28, 2, items_averaged = 1.5)  |> expect_undecidable()
 })
+
+
+test_that("type mistakes are errors, as in `grim()`, not undecidable value sets", {
+  5.19 |> grim_values(n = "20", digits_x = 2, items_averaged = 1)   |> expect_error("`n` must be one of these types")
+  5.19 |> grim_closest(n = "20", digits_x = 2, items_averaged = 1)  |> expect_error("`n` must be one of these types")
+  5.19 |> grim_values(n = 20, digits_x = 2, items_averaged = "1")   |> expect_error("`items_averaged` must be one of these types")
+  5.19 |> grim_values(n = 20, digits_x = 2, items_averaged = 1, percent = NA)    |> expect_error("`TRUE` or `FALSE`")
+  5.19 |> grim_closest(n = 20, digits_x = 2, items_averaged = 1, percent = "yes") |> expect_error("`TRUE` or `FALSE`")
+})

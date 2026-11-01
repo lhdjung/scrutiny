@@ -30,8 +30,10 @@ function_map_total_n_proto <- function(
     reported_n_cols <- ncol(.reported)
     reported_n_vars <- reported_n_cols / 2
 
+    # `lapply()` rather than `purrr::map()`: an error here is about the
+    # arguments, and the "In index" context would blame a row for it.
     df_list <- data$n |>
-      purrr::map(function(n) {
+      lapply(function(n) {
         disperse_total(
           n,
           dispersion = .dispersion,

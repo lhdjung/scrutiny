@@ -374,6 +374,7 @@ grim_plot_values <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  check_percent(percent)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)

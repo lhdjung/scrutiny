@@ -108,6 +108,18 @@ test_that("`disperse2()` applies the limits to the group sizes themselves", {
   c(25, 26) |> disperse2(n_max = 26.5, dispersion = 0:2) |> purrr::pluck("n") |> expect_equal(c(25L, 26L))
 })
 
+test_that("a `constant` element of the wrong length is an error that names it", {
+  20 |> disperse(constant = "a")                |> expect_error("`constant` must have length 2")
+  20 |> disperse(constant = list(z = 1, 3:4))   |> expect_error("`constant$z` must have length 2", fixed = TRUE)
+  20 |> disperse(constant = list(1:2, 1:3))     |> expect_error("`constant$constant2` must have length 2", fixed = TRUE)
+  # No purrr "In index" context around an error about the argument:
+  tibble::tibble(x1 = 4.5, x2 = 5.2, n = 40) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, constant = list(z = 1)) |>
+    expect_error("`constant$z` must have length 2", fixed = TRUE, class = "rlang_error") |>
+    conditionMessage() |>
+    expect_no_match("In index")
+})
+
 test_that("a partly named `constant` list gets default names for the rest", {
   out <- disperse(20, dispersion = 0:1, constant = list(a = 1:2, 3:4))
   out |> colnames() |> expect_equal(c("n", "n_change", "a", "constant2"))

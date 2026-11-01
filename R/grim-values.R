@@ -19,6 +19,16 @@ grim_sums_scalar <- function(
     error_items_missing()
   }
 
+  # The same type checks as in `grim_scalar()`: a string `n` is a mistake, not
+  # an undecidable value set, which `is_decidable_n_items()` would make of it.
+  check_percent(percent)
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
+  }
+
   check_newly_numeric(x, digits_x)
 
   x_num <- x

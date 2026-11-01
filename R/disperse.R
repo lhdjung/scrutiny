@@ -140,12 +140,13 @@ disperse <- function(
     add_class("scrutiny_disperse")
 
   if (!is.null(constant)) {
-    repeat_constant <- function(constant, out, list_input = FALSE) {
-      if (list_input) {
-        constant_list_element <- constant
-        check_length(constant_list_element, 2L, allow_null = TRUE)
-      } else {
-        check_length(constant, 2L, allow_null = TRUE)
+    repeat_constant <- function(constant, out, name = "constant") {
+      if (!is.null(constant) && length(constant) != 2L) {
+        abort_in_export(
+          "`{name}` must have length 2 unless it's `NULL`.",
+          "x" = "It has length {length(constant)}.",
+          "i" = "The two values are one for each group."
+        )
       }
       rep(constant, times = nrow(out) / 2L)
     }
@@ -160,8 +161,15 @@ disperse <- function(
       unnamed <- is.na(names_constant) | names_constant == ""
       names_constant[unnamed] <-
         paste0("constant", seq_along(constant))[unnamed]
+      # `Map()` rather than `purrr::map()`, whose "In index" context would wrap
+      # an error about the argument as if it were about a row:
       constant <- constant |>
-        purrr::map(function(x) repeat_constant(x, out, list_input = TRUE)) |>
+        Map(
+          f = function(x, name) {
+            repeat_constant(x, out, paste0("constant$", name))
+          },
+          names_constant
+        ) |>
         tibble::as_tibble(.name_repair = function(x) names_constant)
     } else {
       constant <- repeat_constant(constant, out)
