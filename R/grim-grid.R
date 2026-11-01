@@ -13,6 +13,10 @@
 #'   without zero. All fractional parts of means are positive, so `symmetric`
 #'   makes no difference.
 #'
+#'   For percentages, use the number of decimal places of the proportion,
+#'   which is two more: `grim_grid(2)` for whole percentages, as in
+#'   [`grim_map()`] with `percent = TRUE`.
+#'
 #'   Grids for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which
 #'   takes some seconds for three decimal places. Four or more would mean a grid
@@ -66,7 +70,9 @@ grim_grid_inconsistent <- function(digits, rounding, threshold) {
 
   # The grids are keyed by the basic `rounding` names. `symmetric = FALSE`
   # because all fractional portions of means are positive.
-  rounding <- roundwork::resolve_ties_rounding(rounding, FALSE)$rounding
+  rounding <- rounding |>
+    roundwork::resolve_ties_rounding(symmetric = FALSE) |>
+    purrr::pluck("rounding")
 
   # Precomputed in data-raw/data-gen.R, stored in R/sysdata.rda. The `"up_from"`
   # family has no entry because it takes a `threshold`.

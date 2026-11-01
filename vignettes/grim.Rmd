@@ -224,7 +224,14 @@ jpap_5 |>
   grim_plot_grid()
 ```
 
-In the first plot, the light vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. Rasters are precomputed for one and two decimal places and for every rounding method except `"up_from"`, `"down_from"`, and `"up_from_or_down_from"`. With three or more decimal places, a gradient is shown instead.
+In the first plot, the light vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. With three or more decimal places, a gradient is shown instead of a raster.
+
+`grim_grid()` returns the grid behind the raster as a tibble, with GRIM's verdict on every cell. It is useful for studying GRIM itself, e.g., the share of means it rules out at each sample size:
+
+```{r}
+grim_grid(digits = 2) |>
+  dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
+```
 
 `grim_plot_grid()` takes the output of any GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 

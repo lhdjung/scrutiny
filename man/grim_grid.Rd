@@ -31,6 +31,10 @@ ruling out any mean, and fractional parts in steps of \code{1 / 10^digits},
 without zero. All fractional parts of means are positive, so \code{symmetric}
 makes no difference.
 
+For percentages, use the number of decimal places of the proportion,
+which is two more: \code{grim_grid(2)} for whole percentages, as in
+\code{\link[=grim_map]{grim_map()}} with \code{percent = TRUE}.
+
 Grids for one or two decimal places are precomputed for every rounding
 method that has no \code{threshold}. All others are computed on demand, which
 takes some seconds for three decimal places. Four or more would mean a grid
