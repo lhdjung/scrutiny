@@ -29,10 +29,13 @@ test_that("uncached methods are computed with their `threshold`", {
 })
 
 test_that("invalid input is an error", {
-  0       |> grim_grid()                  |> expect_error("must be 1, 2, or 3")
-  4       |> grim_grid()                  |> expect_error("must be 1, 2, or 3")
-  NA      |> grim_grid()                  |> expect_error("must be 1, 2, or 3")
-  1.5     |> grim_grid()                  |> expect_error("whole numbers")
-  c(1, 2) |> grim_grid()                  |> expect_error("length")
-  1       |> grim_grid(rounding = "nope") |> expect_error("rounding")
+  grim_grid() |> expect_error("`digits` is missing")
+  for (digits in list(0, 4, 1.5, NA, Inf, NaN, TRUE, "2")) {
+    digits |> grim_grid() |> expect_error("must be 1, 2, or 3")
+  }
+  NULL    |> grim_grid()                                  |> expect_error("must have length 1")
+  c(1, 2) |> grim_grid()                                  |> expect_error("must have length 1")
+  1       |> grim_grid(rounding = c("up", "down"))        |> expect_error("`rounding` must have length 1")
+  1       |> grim_grid("up_from", threshold = c(5, 6))    |> expect_error("`threshold` must have length 1")
+  1       |> grim_grid(rounding = "nope")                 |> expect_error("rounding")
 })

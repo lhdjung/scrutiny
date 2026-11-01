@@ -96,7 +96,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM, for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM, for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument for data without a recorded one.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. This is related to #59 but doesn't conclude the questions raised there.
 
@@ -204,7 +204,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `disperse()`, `disperse2()`, `disperse_total()`, and the `*_map_total_n()` functions lost `constant_index`, and `function_map_total_n()` lost `.constant_index`. The `constant` columns always follow `n_change`; move them with `dplyr::relocate()`.
 
-- scrutiny requires purrr >= 1.0.0 (#87) and ggplot2 >= 3.4.0, no longer depends on corrr, and suggests ggrepel instead of importing it.
+- scrutiny requires purrr >= 1.0.0 (#87), dplyr >= 1.1.0, and ggplot2 >= 3.4.0. It no longer depends on corrr, and suggests ggrepel instead of importing it.
 
 ## Documentation
 

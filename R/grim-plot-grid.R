@@ -54,9 +54,9 @@
 #'   places as reported; 2 are added.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
-#' @param rounding String. Only used if `show_data` is `FALSE` or if `data`
-#'   has no rounding method recorded by a mapper, as when built by hand.
-#'   Default is `"up_or_down"`.
+#' @param rounding,threshold Only used if `show_data` is `FALSE` or if `data`
+#'   has no rounding method recorded by a mapper, as when built by hand. The
+#'   same as in [`grim()`] otherwise. Defaults are `"up_or_down"` and `5`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
@@ -113,6 +113,7 @@ grim_plot_grid <- function(
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
+  threshold = 5,
   tile_size = 1.5,
   raster_color = "grey75"
 ) {
@@ -309,6 +310,7 @@ grim_plot_grid <- function(
           n = n,
           digits = d,
           rounding = rounding,
+          threshold = threshold,
           tile_size = tile_size,
           raster_color = raster_color
         )
@@ -430,7 +432,9 @@ grim_plot_grid <- function(
       if (!is.null(args$rounding)) {
         rounding <- args$rounding
       }
-      threshold <- if (is.null(args$threshold)) 5 else args$threshold
+      if (!is.null(args$threshold)) {
+        threshold <- args$threshold
+      }
 
       df_plot <- grim_grid_inconsistent(digits, rounding, threshold)
     } else {

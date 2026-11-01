@@ -13,6 +13,7 @@ grim_plot_grid(
   n = NULL,
   digits = NULL,
   rounding = "up_or_down",
+  threshold = 5,
   tile_size = 1.5,
   raster_color = "grey75"
 )
@@ -41,9 +42,9 @@ case the axis spans the raster and the data.}
 that, inferred from \code{x}. For percentages, give the number of decimal
 places as reported; 2 are added.}
 
-\item{rounding}{String. Only used if \code{show_data} is \code{FALSE} or if \code{data}
-has no rounding method recorded by a mapper, as when built by hand.
-Default is \code{"up_or_down"}.}
+\item{rounding, threshold}{Only used if \code{show_data} is \code{FALSE} or if \code{data}
+has no rounding method recorded by a mapper, as when built by hand. The
+same as in \code{\link[=grim]{grim()}} otherwise. Defaults are \code{"up_or_down"} and \code{5}.}
 
 \item{tile_size}{Numeric. Size of the tiles for value sets. Default is
 \code{1.5}.}

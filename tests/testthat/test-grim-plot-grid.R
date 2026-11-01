@@ -269,6 +269,13 @@ test_that("`grim_plot_grid()` falls back to `rounding` if `data` has none record
 })
 
 
+test_that("the raster follows a `threshold` recorded or given", {
+  expected <- generate_grim_grid(2, "up_from", 9)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, rounding = "up_from", threshold = 9) |> grim_plot_grid() |> purrr::pluck("data") |> expect_identical(expected)
+  grim_plot_grid(show_data = FALSE, digits = 2, rounding = "up_from", threshold = 9) |> purrr::pluck("data") |> expect_identical(expected)
+})
+
+
 test_that("`n` must be a single finite number of at least 1", {
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   data |> grim_plot_grid(n = -5)        |> expect_error("at least 1")

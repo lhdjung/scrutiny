@@ -19,8 +19,8 @@
 #'
 #'   Grids for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which
-#'   takes some seconds for three decimal places. Four or more would mean a grid
-#'   of 100 million cells, so `digits` is at most 3.
+#'   takes about 20 seconds for three decimal places. Four or more would mean a
+#'   grid of 100 million cells, so `digits` is at most 3.
 #'
 #' @param digits Integer. Number of decimal places, from 1 to 3.
 #' @param rounding,threshold The same as in [`grim()`].
@@ -38,13 +38,24 @@
 #' grim_grid(digits = 2) |>
 #'   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
-  check_length(digits, 1L)
-  check_digits_whole(digits)
+  if (missing(digits)) {
+    abort_in_export(
+      "`digits` is missing.",
+      "i" = "Set it to the number of decimal places: 1, 2, or 3."
+    )
+  }
 
-  if (is.na(digits) || digits < 1 || digits > 3) {
+  check_length(digits, 1L)
+
+  # Near-whole values pass, as elsewhere in the package:
+  is_valid <- is.numeric(digits) &&
+    isTRUE(abs(digits - round(digits)) < WHOLE_NUMBER_TOLERANCE) &&
+    round(digits) %in% 1:3
+
+  if (!is_valid) {
     abort_in_export(
       "`digits` must be 1, 2, or 3.",
-      "x" = "It is {digits}."
+      "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
     )
   }
 
@@ -66,6 +77,10 @@ grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
 # The inconsistent cells only, which is all that `grim_plot_grid()` needs and
 # all that `GRIM_GRIDS` stores.
 grim_grid_inconsistent <- function(digits, rounding, threshold) {
+  # Checked here so that roundwork's message, which names `symmetric`, is not
+  # reached:
+  check_length(rounding, 1L)
+  check_length(threshold, 1L)
   check_rounding_args(rounding, threshold)
 
   # The grids are keyed by the basic `rounding` names. `symmetric = FALSE`
@@ -79,7 +94,7 @@ grim_grid_inconsistent <- function(digits, rounding, threshold) {
   grid <- GRIM_GRIDS[[paste(digits, rounding, sep = "_")]]
 
   # Not cached: three decimal places, or the `"up_from"` family. The former
-  # takes some seconds.
+  # takes about 20 seconds.
   if (is.null(grid)) {
     generate_grim_grid(digits, rounding, threshold)
   } else {
