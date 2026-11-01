@@ -69,8 +69,13 @@ reverse_map_total_n <- function(data) {
   locations1 <- seq(from = 1, by = 2, length.out = nrow_data_reduced %/% 2)
   locations2 <- locations1 + 1
 
-  data1 <- data_reduced |> dplyr::slice(locations1)
-  data2 <- data_reduced |> dplyr::slice(locations2)
+  # A `"forth"` pair has the first group's values in its first row, but a
+  # `"back"` pair has them in its second: the mapper swaps the groups for that
+  # direction. If the first pair of a case is a back pair, as after
+  # `filter(dir == "back")`, the rows change places:
+  is_back <- data_reduced$dir[locations1] == "back"
+  data1 <- data_reduced[ifelse(is_back, locations2, locations1), ]
+  data2 <- data_reduced[ifelse(is_back, locations1, locations2), ]
 
   # Number of columns before `n` (i.e., the columns with hypothetical values
   # dispersed from the reported statistics):

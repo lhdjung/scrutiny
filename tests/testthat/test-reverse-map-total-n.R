@@ -24,6 +24,22 @@ test_that("The reconstructed data frames are identical to the original ones", {
 })
 
 
+test_that("a case whose first pair is a back pair keeps its groups in order", {
+  # The back direction swaps the groups, so the first row of a back pair holds
+  # `x2`; these used to be returned as `x1 = 5.28, x2 = 3.43`:
+  df1_tested |> dplyr::filter(dir == "back")                 |> reverse_map_total_n() |> expect_equal(df1)
+  df1_tested |> dplyr::arrange(case, dplyr::desc(dir))       |> reverse_map_total_n() |> expect_equal(df1)
+  df1_tested |> dplyr::filter(dir == "back")                 |> audit_total_n() |> dplyr::select(x1, x2, n) |> unclass_scr() |> expect_equal(df1)
+  # GRIMMER, with a second pair of reported columns:
+  df_sd <- tibble::tibble(x1 = 3.43, x2 = 5.28, sd1 = 1.21, sd2 = 0.95, n = 90)
+  df_sd |>
+    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    dplyr::filter(dir == "back") |>
+    reverse_map_total_n() |>
+    expect_equal(df_sd)
+})
+
+
 test_that("The reconstruction does not depend on the first dispersion step", {
   # The total was taken as twice the second group size, right only for `0`:
   df <- tibble::tibble(x1 = c(3.43, 5.14), x2 = c(3.6, 2.95), n = c(43L, 40L))
