@@ -40,6 +40,8 @@
 #' @rdname sd-binary
 
 sd_binary_groups <- function(group_0, group_1) {
+  group_0 <- round_whole(group_0)
+  group_1 <- round_whole(group_1)
   check_binary_count(group_0)
   check_binary_count(group_1)
   n <- group_0 + group_1
@@ -53,6 +55,8 @@ sd_binary_groups <- function(group_0, group_1) {
 #' @export
 
 sd_binary_0_n <- function(group_0, n) {
+  group_0 <- round_whole(group_0)
+  n <- round_whole(n)
   check_binary_count(group_0, n)
   group_1 <- n - group_0
   sd_binary_sample(n, group_0 * group_1 / n^2)
@@ -65,6 +69,8 @@ sd_binary_0_n <- function(group_0, n) {
 #' @export
 
 sd_binary_1_n <- function(group_1, n) {
+  group_1 <- round_whole(group_1)
+  n <- round_whole(n)
   check_binary_count(group_1, n)
   group_0 <- n - group_1
   sd_binary_sample(n, group_0 * group_1 / n^2)
@@ -77,6 +83,7 @@ sd_binary_1_n <- function(group_1, n) {
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {
+  n <- round_whole(n)
   if (any(mean < 0 | mean > 1, na.rm = TRUE)) {
     abort_in_export(
       "`mean` must be between 0 and 1.",

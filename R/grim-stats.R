@@ -89,6 +89,7 @@ grim_exp_incon <- function(
   if (missing(digits_x)) {
     error_digits_missing(x)
   }
+  digits_x <- round_whole(digits_x)
 
   out <- grim_total(
     x,
@@ -128,6 +129,11 @@ grim_total <- function(
   if (missing(items_averaged)) {
     error_items_missing()
   }
+
+  # Tested as the whole numbers they are accepted as; see `round_whole()`:
+  n <- round_whole(n)
+  digits_x <- round_whole(digits_x)
+  items_averaged <- round_whole(items_averaged)
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
   if (!is.numeric(x) && !all(is.na(x))) {

@@ -16,7 +16,10 @@
 #'   with the key result first.
 #' @param .reported String. Names of the arguments of `.fn` that take the
 #'   reported values, such as `c("x", "n")`. These become the key columns. May
-#'   be `NULL` if `.reported_variadic` is specified.
+#'   be `NULL` if `.reported_variadic` is specified. Columns named `n`,
+#'   `items_averaged`, `digits_x`, or `digits_sd` are taken to be whole
+#'   numbers: a value within floating-point noise of one, such as `100 * 0.29`,
+#'   is rounded to it before `.fn` sees it.
 #' @param .reported_variadic Optionally, a single string naming an argument of
 #'   `.fn` that takes the values of one row as a vector. The new function gets
 #'   an argument by that name, without a default, that selects any number of

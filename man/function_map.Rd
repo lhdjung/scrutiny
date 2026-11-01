@@ -27,7 +27,10 @@ with the key result first.}
 
 \item{.reported}{String. Names of the arguments of \code{.fn} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
-be \code{NULL} if \code{.reported_variadic} is specified.}
+be \code{NULL} if \code{.reported_variadic} is specified. Columns named \code{n},
+\code{items_averaged}, \code{digits_x}, or \code{digits_sd} are taken to be whole
+numbers: a value within floating-point noise of one, such as \code{100 * 0.29},
+is rounded to it before \code{.fn} sees it.}
 
 \item{.name_test}{String (length 1). Plain-text name of the test, such as
 \code{"GRIM"}.}

@@ -374,6 +374,9 @@ grim_plot_values <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  n <- round_whole(n)
+  items_averaged <- round_whole(items_averaged)
+  digits_x <- round_whole(digits_x)
   check_newly_numeric(x, digits_x)
   check_comb_value(x, digits_x, "x")
   check_decidable_n_items(n, items_averaged, min_n = 1)

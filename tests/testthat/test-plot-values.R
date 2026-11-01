@@ -212,3 +212,10 @@ test_that("the percentage comb stays within 0 and 100", {
   grim_plot_values(100, 3, 0, 1, percent = TRUE) |> teeth() |> max() |> expect_lte(100)
   grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> teeth() |> min() |> expect_gte(0)
 })
+
+
+test_that("near-whole arguments are drawn as the whole numbers they are", {
+  # The minimum `n` was compared to the raw value, so these were errors:
+  1.5 |> grim_plot_values(1 - 1e-9, digits_x = 1 - 1e-9, items_averaged = 1)                     |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grim_plot_values(1.5, 1, digits_x = 1, items_averaged = 1)))
+  1.5 |> grimmer_plot_values(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1) |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grimmer_plot_values(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+})

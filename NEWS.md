@@ -14,7 +14,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Mappers return `digits_x` and `digits_sd` as columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
-- The `n` column of mapper output is an integer column if all its values are whole numbers within the integer range. A value within floating-point noise of a whole number, such as `100 * 0.29`, is tested and shown as that whole number, in the tests and mappers as well as in the `*_explain()` functions and `disperse_total()`.
+- The `n` column of mapper output is an integer column if all its values are whole numbers within the integer range.
 
 ### Test results
 
@@ -111,6 +111,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 ## Bug fixes
 
 ### Consistency tests
+
+- A sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a verdict, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `grim_exp_incon()`, `grim_total()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_values()` functions, and `disperse_total()`.
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`.
 

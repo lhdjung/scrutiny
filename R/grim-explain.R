@@ -50,9 +50,9 @@ grim_explain <- function(
   if (missing(items_averaged)) {
     error_items_missing()
   }
+  check_length(items_averaged, 1L)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
-  check_length(items_averaged, 1L)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)
@@ -60,6 +60,7 @@ grim_explain <- function(
   # A missing `digits_x` reaches `grim_scalar()`, which says how to fix it:
   if (!missing(digits_x)) {
     check_length(digits_x, 1L)
+    digits_x <- round_whole(digits_x)
   }
   check_rounding_args(rounding, threshold, symmetric)
 

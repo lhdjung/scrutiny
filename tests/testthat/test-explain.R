@@ -240,4 +240,9 @@ test_that("a near-whole `n` is explained as the whole number, as the tests test 
   1.5 |> grim_explain(2 - 1e-9, digits_x = 1, items_averaged = 1, rounding = "ceiling") |> format() |> expect_identical(format(grim_explain(1.5, 2, digits_x = 1, items_averaged = 1, rounding = "ceiling")))
   1.5 |> grimmer_explain(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1) |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
   0.5 |> debit_explain(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
+
+  # The decimal count was written as 0.999999999:
+  1.5 |> grim_explain(20, digits_x = 1 - 1e-9, items_averaged = 1)                         |> format() |> expect_identical(format(grim_explain(1.5, 20, digits_x = 1, items_averaged = 1)))
+  1.5 |> grimmer_explain(0.71, 2, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1)   |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+  0.5 |> debit_explain(0.58, 2, digits_x = 1 - 1e-9, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
 })

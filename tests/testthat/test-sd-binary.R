@@ -15,3 +15,11 @@ test_that("impossible counts and means are errors, not `NaN`", {
   -1  |> sd_binary_1_n(2)    |> expect_error("from 0 to `n`")
   1.5 |> sd_binary_mean_n(4) |> expect_error("between 0 and 1")
 })
+
+
+test_that("a near-whole `n` is the whole number it is", {
+  1           |> sd_binary_0_n(2 - 1e-9)    |> expect_equal(sd_binary_0_n(1, 2))
+  1           |> sd_binary_1_n(2 - 1e-9)    |> expect_equal(sd_binary_1_n(1, 2))
+  0.5         |> sd_binary_mean_n(2 - 1e-9) |> expect_equal(sd_binary_mean_n(0.5, 2))
+  (1 - 1e-9)  |> sd_binary_groups(1)        |> expect_equal(sd_binary_groups(1, 1))
+})

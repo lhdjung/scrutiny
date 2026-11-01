@@ -158,3 +158,14 @@ test_that("`grim_exp_incon()` recycles like `grim()`", {
 test_that("`grim_probability()` is deprecated", {
   lifecycle::expect_deprecated(grim_probability(5.19, 28, digits_x = 2, items_averaged = 1))
 })
+
+
+test_that("near-whole arguments are counted as the whole numbers they are", {
+  # The common divisor behind the count of ties needs whole numbers; `100 *
+  # 0.56` gave 0.44 rather than 0.4, and `1 - 1e-9` was undecidable:
+  1.5 |> grim_exp_incon(100 * 0.56, digits_x = 2, items_averaged = 1)     |> expect_equal(grim_exp_incon(1.5, 56, digits_x = 2, items_averaged = 1))
+  1.5 |> grim_exp_incon(1 - 1e-9, digits_x = 2, items_averaged = 1)       |> expect_equal(grim_exp_incon(1.5, 1, digits_x = 2, items_averaged = 1))
+  1.5 |> grim_exp_incon(40, digits_x = 2 - 1e-9, items_averaged = 1)      |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 2, items_averaged = 1))
+  1.5 |> grim_total(40, digits_x = 2, items_averaged = 2 - 1e-9)          |> expect_equal(grim_total(1.5, 40, digits_x = 2, items_averaged = 2))
+  1.5 |> grim_exp_incon(40, digits_x = 1 - 1e-9, items_averaged = 1, percent = TRUE) |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 1, items_averaged = 1, percent = TRUE))
+})
