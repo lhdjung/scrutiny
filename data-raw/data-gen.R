@@ -1,7 +1,8 @@
 # NOTE: This file generates the package's internal data -- the background
 # rasters that `grim_plot()` draws behind the value sets. They are precomputed
-# here, on the developer's machine, and saved to R/sysdata.rda; the package
-# never computes them at run time.
+# here, on the developer's machine, and saved to R/sysdata.rda.
+# `grim_raster()` computes the others on demand with the same
+# `generate_grim_raster()`.
 #
 # Run this file with the package loaded (`pkgload::load_all()`), and rerun it
 # after any change to `grim_scalar()` or to the rounding functions it calls.
@@ -10,36 +11,6 @@
 
 # Some nomenclature -- `n`: sample size, `frac`: fractional portion of a mean or
 # percentage.
-
-# Generate one raster ------------------------------------------------------
-
-# A raster is the set of (`n`, `frac`) grid points that are GRIM-*in*consistent:
-# those are the ones drawn as background tiles. `digits` fixes the grid in both
-# directions -- `frac` steps by `1 / 10^digits`, and `n` runs up to `10^digits`,
-# which is the sample size at which GRIM stops ruling anything out and the
-# right-hand limit of the plot's x-axis.
-generate_grim_raster <- function(digits, rounding) {
-  p10 <- 10^digits
-  frac <- seq_len(p10 - 1L) / p10
-
-  grid <- tibble::tibble(
-    frac = rep(frac, times = p10),
-    n = rep(seq_len(p10), each = p10 - 1L)
-  )
-
-  # A single vectorized `grim()` call is sufficient for the grid. `n` is a
-  # positive integer and `frac` is finite throughout, so `NA` is not an issue.
-  consistency <- grim(
-    x = grid$frac,
-    n = grid$n,
-    digits_x = digits,
-    items_averaged = 1,
-    rounding = rounding
-  )
-
-  grid[!consistency, ]
-}
-
 
 # Generate all the rasters -------------------------------------------------
 
@@ -81,4 +52,4 @@ usethis::use_data(GRIM_RASTERS, internal = TRUE, overwrite = TRUE)
 
 # Cleanup. Also remove the memory version of `GRIM_RASTERS` here; the object is
 # no longer needed because the data were saved in R/sysdata.rda
-rm(generate_grim_raster, rounding_methods, keys, rounding_ids, GRIM_RASTERS)
+rm(rounding_methods, keys, rounding_ids, GRIM_RASTERS)

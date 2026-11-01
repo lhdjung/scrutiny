@@ -96,6 +96,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
+- `grim_raster()` returns the GRIM-inconsistent combinations of sample size and fractional part of a mean behind `grim_plot_grid()`, for studying GRIM itself.
+
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. This is related to #59 but doesn't conclude the questions raised there.
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test.

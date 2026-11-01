@@ -91,6 +91,7 @@ Collate:
     'grim-plot-grid.R'
     'grim-plot-rates.R'
     'grim-plot-values.R'
+    'grim-raster.R'
     'grim-values.R'
     'grimmer-map-seq.R'
     'grimmer-map-total-n.R'
