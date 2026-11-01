@@ -813,8 +813,9 @@ test_that("integer `n` and `digits_*` columns are rounded, not truncated", {
   tibble::tibble(x = 1.5, n = 2 - 1e-9)                   |> grim_map(digits_x = 1, items_averaged = 1, rounding = "ceiling")   |> _$consistency |> expect_true()
   tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling")                      |> _$consistency |> expect_true()
   tibble::tibble(x = 1.5, sd = 0.71, n = 2 - 1e-9)        |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1)       |> _$consistency |> expect_true()
-  tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40 - 1e-9) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr() |>
-    expect_equal(tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr())
+  near_whole <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40 - 1e-9) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()
+  whole      <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40)        |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()
+  near_whole |> expect_equal(whole)
 })
 
 
