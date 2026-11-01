@@ -79,27 +79,28 @@ test_that("`grim_exp_incon()` is a probability", {
 })
 
 
-test_that("`grim_total()` counts the cells of every GRIM raster", {
-  # `GRIM_RASTERS` holds every GRIM-inconsistent (`n`, `frac`) cell of the
+test_that("`grim_total()` counts the cells of every GRIM grid", {
+  # `GRIM_GRIDS` holds every GRIM-inconsistent (`n`, `frac`) cell of the
   # grids with one and two decimal places, found by `grim()` itself in
   # data-raw/data-gen.R. Counting the cells per `n` is therefore `grim_total()`
   # done by brute force, for every rounding method and every `n` up to the one
   # where GRIM stops ruling anything out.
-  for (key in names(GRIM_RASTERS)) {
+  for (key in names(GRIM_GRIDS)) {
     digits <- as.integer(sub("_.*", "", key))
     rounding <- sub("^\\d+_", "", key)
     n <- seq_len(10^digits)
-    expected <- GRIM_RASTERS[[key]]$n |> tabulate(nbins = length(n))
+    expected <- GRIM_GRIDS[[key]]$n |> tabulate(nbins = length(n))
     1 |> grim_total(n, digits, rounding = rounding, items_averaged = 1) |> expect_equal(expected)
   }
 })
 
 
 test_that("`grim_map()`'s `exp_incon` is the share its `consistency` rules out", {
-  # The live counterpart to the raster test above: every mean with one decimal
+  # The live counterpart to the grid test above: every mean with one decimal
   # place at every `n` up to 10, and every mean with no decimal places as a
   # percentage at a few `n`, under every rounding method -- including those
-  # that take a `threshold`, which have no raster -- with and without `items`.
+  # that take a `threshold`, which have no cached grid -- with and without
+  # `items`.
   one_decimal <- tidyr::expand_grid(n = 1:10, x = (0:9) / 10)
   percentage <- tidyr::expand_grid(n = c(1, 7, 8, 40, 64, 99), x = 0:99)
   roundings <- c(

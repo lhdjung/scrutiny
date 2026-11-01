@@ -2,17 +2,17 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `grim_raster()` returns every combination of sample size and fractional
+#'   `grim_grid()` returns every combination of sample size and fractional
 #'   part of a mean that GRIM finds inconsistent, for one number of decimal
-#'   places and one rounding method. It is the background raster of
-#'   [`grim_plot_grid()`] as a tibble, for studying GRIM's properties directly.
+#'   places and one rounding method, for studying GRIM's properties directly.
+#'   [`grim_plot_grid()`] draws these cells as its background raster.
 #'
 #' @details The grid covers sample sizes from 1 to `10^digits`, where GRIM stops
 #'   ruling out any mean, and fractional parts in steps of `1 / 10^digits`,
 #'   without zero. All fractional parts of means are positive, so `symmetric`
 #'   makes no difference.
 #'
-#'   Rasters for one or two decimal places are precomputed for every rounding
+#'   Grids for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which
 #'   takes some seconds for three decimal places. Four or more would mean a grid
 #'   of 100 million cells, so `digits` is at most 3.
@@ -26,12 +26,12 @@
 #' @export
 #'
 #' @examples
-#' grim_raster(digits = 1)
+#' grim_grid(digits = 1)
 #'
 #' # Inconsistent cells per sample size:
-#' grim_raster(digits = 2, rounding = "up") |>
+#' grim_grid(digits = 2, rounding = "up") |>
 #'   dplyr::count(n)
-grim_raster <- function(digits, rounding = "up_or_down", threshold = 5) {
+grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
   check_length(digits, 1L)
   check_digits_whole(digits)
 
@@ -45,28 +45,29 @@ grim_raster <- function(digits, rounding = "up_or_down", threshold = 5) {
   digits <- as.integer(round(digits))
   check_rounding_args(rounding, threshold)
 
-  # The rasters are keyed by the basic `rounding` names. `symmetric = FALSE`
+  # The grids are keyed by the basic `rounding` names. `symmetric = FALSE`
   # because all fractional portions of means are positive.
   rounding <- roundwork::resolve_ties_rounding(rounding, FALSE)$rounding
 
   # Precomputed in data-raw/data-gen.R, stored in R/sysdata.rda. The `"up_from"`
   # family has no entry because it takes a `threshold`.
-  raster <- GRIM_RASTERS[[paste(digits, rounding, sep = "_")]]
+  grid <- GRIM_GRIDS[[paste(digits, rounding, sep = "_")]]
 
-  # For digits > 2, generate the raster dynamically. This takes time!
-  if (is.null(raster)) {
-    generate_grim_raster(digits, rounding, threshold)
+  # Not cached: three decimal places, or the `"up_from"` family. The former
+  # takes some seconds.
+  if (is.null(grid)) {
+    generate_grim_grid(digits, rounding, threshold)
   } else {
-    raster
+    grid
   }
 }
 
 
-# A raster is the set of (`n`, `frac`) grid points that are GRIM-*in*consistent.
+# The (`n`, `frac`) grid points that are GRIM-*in*consistent.
 # `digits` fixes the grid in both directions: `frac` steps by `1 / 10^digits`,
 # and `n` runs up to `10^digits`, the sample size at which GRIM stops ruling
-# anything out. data-raw/data-gen.R calls this to build `GRIM_RASTERS`.
-generate_grim_raster <- function(digits, rounding, threshold = 5) {
+# anything out. data-raw/data-gen.R calls this to build `GRIM_GRIDS`.
+generate_grim_grid <- function(digits, rounding, threshold = 5) {
   p10 <- 10^digits
   frac <- seq_len(p10 - 1L) / p10
 

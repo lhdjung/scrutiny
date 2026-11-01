@@ -55,7 +55,7 @@ reference:
   - grim_plot_grid
   - grim_plot_values
   - grim_plot_rates
-  - grim_raster
+  - grim_grid
   - grim_values
   - grim_total
   - grim_granularity
