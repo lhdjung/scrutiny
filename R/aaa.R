@@ -68,8 +68,8 @@ TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 VALUES_MAX <- 1e6
 
 # The most digits in the integer or decimal part that `restore_zeros()` writes
-# out a number with an exponent to, such as `"1e-400"`; see
-# `write_out_decimal()`:
+# out a number with an exponent to, such as `"1e-400"`, and the largest `width`
+# it pads to; see `write_out_decimal()`:
 WRITTEN_OUT_MAX <- 100000L
 
 # The columns of `grim_values()` and `grimmer_values()` output, for the

@@ -201,3 +201,9 @@ test_that("`restore_zeros_df()` does not warn about columns without decimals or 
   pigs1[1L, ]  |> restore_zeros_df() |> expect_no_warning()
   c(1, 2)      |> restore_zeros()    |> expect_warning(class = "scrutiny_warning_no_zeros")
 })
+
+test_that("a `width` too large to pad to is an error", {
+  # `strrep()` returned `NA` for it, which was pasted into `"1.5NA"`:
+  c(1.5, 2.25) |> restore_zeros(width = 1e10)   |> expect_error("from 0 to 100000")
+  1.5          |> restore_zeros(width = 100000) |> nchar() |> expect_equal(100002L)
+})

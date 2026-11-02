@@ -24,8 +24,8 @@
 #'   coercible, such as `"5%"`, becomes `NA` with a warning, and so does one
 #'   with an exponent so large that it can't be written out, such as
 #'   `"1e-999999"`.
-#' @param width Integer. Number of decimal places the output should have.
-#'   Length 1 or the length of `x`. Default is `NULL`, the largest number of
+#' @param width Integer. Number of decimal places the output should have, up
+#'   to 100,000. Length 1 or the length of `x`. Default is `NULL`, the largest number of
 #'   decimal places in `x`.
 #' @param sep_in String. The separator between integer part and mantissa in
 #'   the input, matched literally. Default is `"."`.
@@ -158,10 +158,10 @@ restore_zeros <- function(
       !any(c(1L, length(x)) == length(width)) ||
       !all(is.finite(width)) ||
       !all(is_whole_number(width)) ||
-      any(width < 0)
+      any(width < 0 | width > WRITTEN_OUT_MAX)
   ) {
     abort_in_export(
-      "`width` must be a single, non-negative whole number \
+      "`width` must be a single whole number from 0 to {WRITTEN_OUT_MAX} \
       (or a vector of such numbers with the same length as `x`).",
       "x" = "It is {width}."
     )

@@ -30,8 +30,8 @@ coercible, such as \code{"5\%"}, becomes \code{NA} with a warning, and so does o
 with an exponent so large that it can't be written out, such as
 \code{"1e-999999"}.}
 
-\item{width}{Integer. Number of decimal places the output should have.
-Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
+\item{width}{Integer. Number of decimal places the output should have, up
+to 100,000. Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
 decimal places in \code{x}.}
 
 \item{sep_in}{String. The separator between integer part and mantissa in
