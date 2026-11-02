@@ -156,7 +156,8 @@ grimmer_values_tibble <- function(
   n_dev
 ) {
   tibble::tibble(
-    x = sums / (n * items_averaged),
+    # As doubles: the product of two integers overflows from 46,341 each:
+    x = sums / (as.numeric(n) * items_averaged),
     sd = sqrt((sums_squares - sums^2 / n) / n_dev) / items_averaged,
     sum = sums,
     sum_squares = sums_squares

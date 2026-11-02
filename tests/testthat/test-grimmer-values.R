@@ -235,3 +235,8 @@ test_that("`sum_squares_attainable_all()` stops one past `count_max`", {
   1 |> sum_squares_attainable_all(4, first = 1, upper = 1e9, count_max = 5) |> expect_equal(c(1, 3, 5, 7, 9, 11))
   1 |> sum_squares_attainable_all(4, first = 1, upper = 7,   count_max = 5) |> expect_equal(c(1, 3, 5, 7))
 })
+
+test_that("integer `n` and `items_averaged` don't overflow in the output", {
+  out <- grimmer_values(NA, 1, 46341L, 0, 0, 46341L) |> expect_no_warning()
+  out |> nrow() |> expect_equal(1L)
+})
