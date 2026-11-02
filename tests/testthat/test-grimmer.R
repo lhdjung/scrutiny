@@ -1293,3 +1293,29 @@ test_that("explanations and the comb plot agree with the test under an SE", {
 
   4.4 |> grimmer_plot_values(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
 })
+
+test_that("sums of squares beyond 2^53 are refused, not compared inexactly", {
+  # 660701916 and 660701945 have this mean and population SD, but their sum
+  # of squares is 8.7e17, which no double holds exactly; the verdict used to
+  # be FALSE with a base R warning about the modulus:
+  grimmer(660701930.5, 14.50, 2, 1, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_error("too large for GRIMMER")
+  # 752690716, 752690718, 752690720 under `rounding = "floor"`: the window loop
+  # of `sum_squares_attainable_all()` could not advance past 2^54 and ran on:
+  grimmer(752690718.00, 1.63, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_error("too large for GRIMMER")
+  grimmer(5.25, 1e7, 28, 2, 2, 1) |> expect_error("too large for GRIMMER")
+})
+
+test_that("a large mean is exact as long as the sums of squares are", {
+  # The candidate sum squared, (2e5 * 1000)^2 = 4e16, is beyond 2^53, but the
+  # sum of squares, about 4e13, is not. 999 values of 200000 and one of 201000:
+  x <- 200001
+  sd_sample <- sqrt(1000^2 * (1 - 1 / 1000) / 999)
+  grimmer(x, round(sd_sample, 2), 1000, 2, 2, 1) |> expect_true()
+  grimmer_values(x, round(sd_sample, 2), 1000, 2, 2, 1) |> nrow() |> expect_gt(0L)
+  # Random samples of whole numbers around 2e5 pass:
+  set.seed(sweep_seed(2026L))
+  for (i in 1:20) {
+    values <- round(stats::rnorm(1000, mean = 2e5, sd = 30))
+    grimmer(round(mean(values), 2), round(stats::sd(values), 2), 1000, 2, 2, 1) |> expect_true()
+  }
+})

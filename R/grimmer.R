@@ -81,6 +81,39 @@ grimmer_sd_bounds <- function(
 }
 
 
+# GRIMMER compares whole sums of squares, which is exact only below `2^53`;
+# past it, a double skips whole numbers, so the verdict would be wrong, and
+# the windows of `sum_squares_attainable_all()` could not advance (#D2 of the
+# 2026-11-02 audit: an endless loop). The largest sum of squares in play is
+# the upper bound for the largest candidate sum, and the SD's own squared
+# numerator has to fit as well. An error, like too many candidate sums.
+check_grimmer_exact <- function(x, sd, n, items_averaged, sums, sd_bounds) {
+  s_max <- max(abs(sums))
+  sum_squares_max <- sum_squares_range(
+    s = s_max,
+    n = n,
+    term_lower = sd_bounds$term_lower,
+    term_upper = sd_bounds$term_upper,
+    incl_lower = TRUE,
+    incl_upper = TRUE
+  )[[2L]]
+
+  if (
+    (sd_bounds$upper * items_averaged)^2 >= 2^53 ||
+      sum_squares_max >= 2^53
+  ) {
+    abort_in_export(
+      "`x`, `sd`, or `n` is too large for GRIMMER.",
+      "x" = "With `x = {x}`, `sd = {sd}`, `n = {n}`, and `items_averaged = \\
+      {items_averaged}`, the sums of squares to compare reach 2^53, about \\
+      9e15, beyond which a double skips whole numbers.",
+      "i" = "The sum of squares is about `n * (x^2 + sd^2) * \\
+      items_averaged^2`."
+    )
+  }
+}
+
+
 # GRIMMER's tests for a single candidate sum `s`. Returns the range of whole
 # sums of squares that the SD admits and whether `s` passes each test.
 # `grimmer_explain()` reports these very values, so it cannot contradict the
@@ -324,6 +357,7 @@ grimmer_scalar <- function(
   )
 
   check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
+  check_grimmer_exact(x, sd, n, items_averaged, sums_consistent, sd_bounds)
 
   consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
 

@@ -6,9 +6,11 @@
 # to a bound becomes a comparison of integers (#86). The functions below extend
 # this to the sums of squares that GRIMMER's test 1 needs.
 #
-# This is exact while every integer involved stays below `2^53`. The products
-# are on the order of `n * 10^(2 * digits)`, far below it for any realistic
-# input; beyond it the arithmetic degrades to plain floating point.
+# This is exact while every integer involved stays below `2^53`. The sums of
+# squares themselves are the largest of them, on the order of `n * x^2`, so
+# `grimmer_scalar()` refuses a value set whose sums of squares reach `2^53`
+# (`check_grimmer_exact()`); the intermediate products are kept below the
+# sums of squares by splitting each fraction into whole part and remainder.
 #
 # Dividing two such integers is exact as well, so `floor(a / b)` and
 # `ceiling(a / b)` need no correction. IEEE 754 division returns the double
@@ -274,18 +276,26 @@ sum_squares_range <- function(
   incl_lower,
   incl_upper
 ) {
-  s_squared <- s^2
+  # `s^2 / n` with `s = q * n + r` is `q^2 * n + 2 * q * r + r^2 / n`: a whole
+  # part no larger than the sum of squares itself, and a fraction whose
+  # numerator stays below `n^2`. Squaring `s` directly would leave the exact
+  # range at `s` of about 9.5e7, i.e., at means of 1e7 with `n = 10`, while
+  # the sum of squares is still far below `2^53`:
+  q <- s %/% n
+  r <- s - q * n
+  s_squared_whole <- q^2 * n + 2 * q * r
+  r_squared <- r^2
 
   # An integer lower bound is its own ceiling; anything else, or an excluded
   # bound, takes the next integer up:
-  low <- floor_frac_sum(term_lower$num, term_lower$den, s_squared, n)
-  lower <- term_lower$int + low$floor
+  low <- floor_frac_sum(term_lower$num, term_lower$den, r_squared, n)
+  lower <- term_lower$int + s_squared_whole + low$floor
   if (!low$exact || !incl_lower) {
     lower <- lower + 1
   }
 
-  high <- floor_frac_sum(term_upper$num, term_upper$den, s_squared, n)
-  upper <- term_upper$int + high$floor
+  high <- floor_frac_sum(term_upper$num, term_upper$den, r_squared, n)
+  upper <- term_upper$int + s_squared_whole + high$floor
   if (high$exact && !incl_upper) {
     upper <- upper - 1
   }
