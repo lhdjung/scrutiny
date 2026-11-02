@@ -225,6 +225,14 @@ test_that("`grim_explain()` does not claim a rounding for a tie under `\"even\"`
   grim_explain(0.2, 4, digits_x = 1, items_averaged = 1)$paragraphs[[3]] |> expect_match("which rounds to 0.3 or 0.2")
 })
 
+test_that("an inconsistent case names both roundings of a tie under `\"even\"`", {
+  # 0.025 used to be said to round to 0.03, from the double's binary value:
+  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1, rounding = "even")      |> _$paragraphs[[3]] |> expect_match("round to 0.02 or 0.03 (a tie) and 0.05", fixed = TRUE)
+  2.986 |> grim_explain(80, digits_x = 3, items_averaged = 1, rounding = "ties_even") |> _$paragraphs[[3]] |> expect_match("2.987 or 2.988 (a tie)", fixed = TRUE)
+  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1)                         |> _$paragraphs[[3]] |> expect_no_match("a tie")
+  0.04  |> grimmer_explain(0.2, 40, 2, 2, 1, rounding = "even") |> format() |> paste(collapse = " ") |> expect_match("0.02 or 0.03 (a tie)", fixed = TRUE)
+})
+
 test_that("`grimmer_explain()` squares a negative sum as a whole", {
   out <- grimmer_explain(-3.15, 1.15, 20, digits_x = 2, digits_sd = 2, items_averaged = 1)
   out$paragraphs[[6]] |> expect_match("(-63)^2", fixed = TRUE)

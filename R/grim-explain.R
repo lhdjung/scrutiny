@@ -116,8 +116,6 @@ grim_explain <- function(
 
   sum_lower <- rec[[3L]]
   sum_upper <- rec[[4L]]
-  rec_x_upper <- rec[[5L]]
-  rec_x_lower <- rec[[6L]]
 
   # The bounds of `x` on the scale it was reported on, i.e. as a percentage if
   # it is one. Each is an exact numerator over `denom`, and multiplying before
@@ -228,12 +226,26 @@ grim_explain <- function(
     )
   }
 
-  rounds_to <- function(value) {
+  # What the mean or percentage from `sum` rounds to. Under `"even"`, one
+  # exactly halfway between two rounded values is a tie that `base::round()`
+  # may break either way, which is why both are taken to be possible (see
+  # `?unround`), so both are named:
+  rounds_to <- function(sum) {
+    value <- sum * scale_x / n_items
+    half_units <- 2 * value * 10^digits_x
+    is_tie <- rounding %in%
+      c("even", "ties_even") &&
+      is_whole_number(half_units) &&
+      round(half_units) %% 2 == 1
+    if (is_tie) {
+      value <- (round(half_units) + c(-1, 1)) / (2 * 10^digits_x)
+    }
     value |>
       roundwork::reround(digits_x, rounding, threshold, symmetric) |>
       format_reported(digits_x) |>
       unique() |>
-      paste(collapse = " or ")
+      paste(collapse = " or ") |>
+      paste0(if (is_tie) " (a tie)")
   }
 
   whole_intro <- if (percent) {
@@ -267,7 +279,7 @@ grim_explain <- function(
     text_rounds <- if (is_tie(sum_shown)) {
       ", a tie that rounding to even may break either way"
     } else {
-      paste0(", which rounds to ", rounds_to(sum_shown * scale_x / n_items))
+      paste0(", which rounds to ", rounds_to(sum_shown))
     }
 
     in_range <- if (sum_lower == sum_upper) {
@@ -304,9 +316,9 @@ grim_explain <- function(
       " and ",
       divide(sum_lower),
       ", which round to ",
-      rounds_to(rec_x_lower),
+      rounds_to(sum_upper),
       " and ",
-      rounds_to(rec_x_upper),
+      rounds_to(sum_lower),
       ", not to ",
       format_reported(x, digits_x),
       "."
