@@ -116,11 +116,11 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a verdict, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `is_percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_values()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
 
-- `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`.
+- `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`. Under `formula = "mean_n"`, a bound of the mean's range that the rounding method excludes no longer counts as attained: `debit(0.03, 0.14, 10, 2, 2, "mean_n", rounding = "ceiling", sd_meaning = "sd_pop")` is `FALSE`, since every mean above 0.02 has an SD above 0.14.
 
 - Under `rounding = "up"` or `"down"`, GRIMMER's SD check and parity check now apply to the same candidate sum of squares, so `grimmer(x = 0.11, sd = 0.87, digits_x = 2, digits_sd = 2, items_averaged = 1, n = 64, rounding = "up")` is `FALSE`. Thanks to Ian Hussey (#85).
 
-- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. It throws an error if more than a million integer sums are compatible with the reported mean.
+- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. It throws an error if more than a million integer sums are compatible with the reported mean, or if the sums of squares to compare reach 2^53, beyond which a double no longer holds every whole number; means of 1e7 and more used to get wrong verdicts there.
 
 - `audit()` no longer counts a case without a test result as inconsistent, and computes `exp_incon`, `ratio`, `mean_x`, and `mean_sd` over the cases with a result instead of returning `NA` if one has none.
 

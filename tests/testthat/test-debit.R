@@ -560,3 +560,23 @@ test_that("`sd_meaning = \"se\"` reaches every mapper and the explanations", {
   explanation |> expect_match("the SE, the SD divided by sqrt(10), is", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
 })
+
+test_that("`formula = \"mean_n\"` does not attain the SD at an excluded bound of the mean", {
+  # `x = 0.03` under ceiling: mean above 0.02, so the population SD at n = 10
+  # is above 0.14 and ceilings to 0.15. The SD at 0.02 itself, 0.14, is not
+  # attained:
+  0.03 |> debit(0.14, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop") |> expect_false()
+  0.03 |> debit(0.15, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop") |> expect_true()
+  # Under `"up"`, 0.02 is included and so is its SD:
+  0.02 |> debit(0.14, 10, 2, 2, "mean_n", "up", sd_meaning = "sd_pop") |> expect_true()
+  # An SD of 0.00 under ceiling needs an SD of exactly 0, i.e., a mean of
+  # exactly 0 or 1, which `x = 0.01` excludes:
+  0.01 |> debit(0, 10, 2, 2, "mean_n", "ceiling") |> expect_false()
+  0.00 |> debit(0, 10, 2, 2, "mean_n", "ceiling") |> expect_true()
+  # Under floor, means just below 1 have SDs that floor to 0.00:
+  0.9 |> debit(0, 20, 1, 2, "mean_n", "floor") |> expect_true()
+  # A mean of 1/2 inside the range attains the largest SD, even if neither
+  # bound does:
+  0.5 |> debit(0.5, 200, 1, 1, "mean_n", sd_meaning = "sd_pop") |> expect_true()
+  0.5 |> debit(0.5, 200, 1, 1, "mean_n", "trunc", sd_meaning = "sd_pop") |> expect_true()
+})

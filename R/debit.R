@@ -205,81 +205,79 @@ binary_spread_range <- function(n, bounds_sd, sd_meaning) {
 }
 
 
-# The `"mean_n"` DEBIT test. It treats the mean as continuous, between `x_lower`
-# and `x_upper`, and asks whether the SD that follows from some mean in that
-# range could have been rounded to the reported SD.
-binary_sd_attainable_mean_n <- function(
-  x_lower,
-  x_upper,
-  n,
-  bounds_sd,
-  digits_sd,
-  rounding,
-  threshold,
-  symmetric,
-  sd_meaning
-) {
-  # The SD is reconstructed at the bounds of the mean's range. The two bounds
-  # alone are not enough: the verdict below reasons from them to every mean in
-  # between, which needs the reconstruction to be monotonic in the mean -- and
-  # it isn't. The sample SD is `sqrt((n / (n - 1)) * mean * (1 - mean))`, and
-  # the population SD the same without `n / (n - 1)`: either is the root of a
-  # downward parabola peaking at a mean of 0.5, so an interval containing 0.5
-  # reaches SDs *above* both endpoints. At a mean of exactly 0.50 both endpoints
-  # even give the same SD, collapsing the attainable band to a point. The peak
-  # is the only interior extremum, so adding it where it falls inside the
-  # interval restores the span and makes the step below sound:
-  x_eval <- c(x_lower, x_upper)
+# The `"mean_n"` DEBIT test. It treats the mean as continuous, anywhere in its
+# rounding range, and asks whether the SD that follows from some such mean
+# lies in the SD's rounding range.
+#
+# The SD of binary data with mean `m` is the square root of `n / n_dev` times
+# the "spread" `m * (1 - m)` (`sd_denominator()`), which rises up to a mean of
+# 1/2 and falls after it. As `m` runs through its range, the spread runs
+# through an interval: between the spreads at the two bounds of the mean, up
+# to 1/4 if 1/2 lies strictly inside the range. A bound that the mean's range
+# excludes is not attained, so the spread at it is not either -- every value
+# arbitrarily close to it is, which is what makes the end of the interval
+# open. The test is then whether this interval meets the range of the squared
+# SD. In whole numbers: the spread at a mean `num / denom` is `num * (denom -
+# num)` over `denom^2`, and the comparison with a squared SD bound `(num_sd /
+# denom_sd)^2 * n_dev / n` is one of cross-multiplied whole numbers, exact
+# while they stay below `2^53`, as in `binary_sd_attainable()`.
+#
+# Evaluating the SD at the bounds and rounding it, as before, treated an
+# excluded bound as attained: `x = 0.03` under `"ceiling"` means a mean above
+# 0.02, whose population SD at `n = 10` is above 0.14 and rounds to 0.15, but
+# the SD at 0.02 itself is 0.14 and was taken for a match.
+binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
+  denom_x <- bounds_x$denom
 
-  if (x_lower <= 0.5 && 0.5 <= x_upper) {
-    x_eval <- c(x_eval, 0.5)
-  }
-
-  # Reconstruct the SD, or the SE, from each of those means...
-  sd_rec <- sqrt(n / sd_denominator(n, sd_meaning) * x_eval * (1 - x_eval))
-
-  # ...and round it the same way the reported SD was presumably rounded, to the
-  # same number of decimal places. Rounding to even admits both neighbors of a
-  # tie, as its bounds in `bounds_sd` and in the `"exact"` test do, so a tie is
-  # rounded both ways, which is what `"up_or_down"` does; elsewhere the two
-  # agree:
-  if (
-    roundwork::resolve_ties_rounding(rounding, symmetric)$rounding == "even"
-  ) {
-    rounding <- "up_or_down"
-  }
-  sd_rec <- roundwork::reround(
-    x = sd_rec,
-    digits = digits_sd,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
+  # The spreads at the bounds of the mean, over `denom_x^2`, with the
+  # inclusivity of the bound each comes from:
+  spreads <- c(
+    bounds_x$lower * (denom_x - bounds_x$lower),
+    bounds_x$upper * (denom_x - bounds_x$upper)
   )
+  incl <- c(bounds_x$incl_lower, bounds_x$incl_upper)
 
-  # Do the reconstructed SDs meet the range of the reported SD? `reround()`
-  # returned values on the `digits_sd` decimal grid, so multiplying by the
-  # bounds' denominator and rounding recovers their exact numerators over that
-  # denominator -- the comparison below is between integers, not a tolerance
-  # fudge (#86).
-  num_rec <- round(sd_rec * bounds_sd$denom)
-
-  above_lower <- if (bounds_sd$incl_lower) {
-    num_rec >= bounds_sd$lower
+  if (spreads[[1L]] == spreads[[2L]]) {
+    # The two bounds have the same spread, so the interval starts and ends
+    # there, attained if either bound is:
+    spread_min <- spreads[[1L]]
+    incl_min <- any(incl)
+    spread_max <- spread_min
+    incl_max <- incl_min
   } else {
-    num_rec > bounds_sd$lower
+    index_min <- which.min(spreads)
+    index_max <- which.max(spreads)
+    spread_min <- spreads[[index_min]]
+    incl_min <- incl[[index_min]]
+    spread_max <- spreads[[index_max]]
+    incl_max <- incl[[index_max]]
   }
 
-  below_upper <- if (bounds_sd$incl_upper) {
-    num_rec <= bounds_sd$upper
-  } else {
-    num_rec < bounds_sd$upper
+  # A mean of 1/2 strictly inside the range has the greatest spread of all,
+  # 1/4, and it is attained. `denom_x` is a multiple of 10, so `denom_x / 2`
+  # is whole:
+  half <- denom_x / 2
+  if (bounds_x$lower < half && half < bounds_x$upper) {
+    spread_max <- half^2
+    incl_max <- TRUE
   }
 
-  # The two conditions need not be met by the same reconstructed value: with one
-  # below the range and another above it, some mean in between reconstructs into
-  # it. This intermediate-value argument holds because `x_eval` spans the
-  # attainable range -- hence the peak added to it.
-  any(above_lower) && any(below_upper)
+  # `spread / denom_x^2 * n / n_dev` against `(num_sd / denom_sd)^2`, both
+  # sides multiplied by `denom_x^2 * n_dev * denom_sd^2`:
+  n_dev <- sd_denominator(n, sd_meaning)
+  factor_spread <- n * bounds_sd$denom^2
+  factor_sd <- n_dev * denom_x^2
+  attained_min <- spread_min * factor_spread
+  attained_max <- spread_max * factor_spread
+  sd_min <- bounds_sd$lower^2 * factor_sd
+  sd_max <- bounds_sd$upper^2 * factor_sd
+
+  # Two intervals meet unless one ends before the other begins. A shared end
+  # counts only if both include it:
+  (attained_min < sd_max ||
+    (attained_min == sd_max && incl_min && bounds_sd$incl_upper)) &&
+    (sd_min < attained_max ||
+      (sd_min == attained_max && bounds_sd$incl_lower && incl_max))
 }
 
 
@@ -460,14 +458,9 @@ debit_scalar <- function(
       sd_meaning = sd_meaning
     ),
     "mean_n" = binary_sd_attainable_mean_n(
-      x_lower = x_lower,
-      x_upper = x_upper,
+      bounds_x = bounds_x,
       n = n,
       bounds_sd = bounds_sd,
-      digits_sd = digits_sd,
-      rounding = rounding,
-      threshold = threshold,
-      symmetric = symmetric,
       sd_meaning = sd_meaning
     ),
     cli::cli_abort(
