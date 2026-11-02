@@ -107,13 +107,17 @@ disperse <- function(
 
   # Main part ---
 
+  # Near-whole limits are compared as whole numbers, like `n` and `dispersion`:
+  check_limit_n(n_min, "n_min")
+  check_limit_n(n_max, "n_max")
+  n_min <- round_whole(n_min)
+  n_max <- round_whole(n_max)
+
   if (!is.null(n_min)) {
-    check_limit_n(n_min, "n_min")
     dispersion <- dispersion[(n - dispersion) >= n_min]
   }
 
   if (!is.null(n_max)) {
-    check_limit_n(n_max, "n_max")
     dispersion <- dispersion[(n + dispersion) <= n_max]
   }
 
@@ -224,9 +228,12 @@ disperse2 <- function(
 
   # Disperse from the mean of the two `n` values. The limits apply to the group
   # sizes, which are half a unit further out than the values dispersed from the
-  # midpoint:
+  # midpoint. Near-whole limits are rounded here: shifted by 0.5, they would be
+  # too far from whole for `disperse()` to round them:
   check_limit_n(n_min, "n_min")
   check_limit_n(n_max, "n_max")
+  n_min <- round_whole(n_min)
+  n_max <- round_whole(n_max)
   out <- disperse(
     n = mean(n),
     constant = constant,

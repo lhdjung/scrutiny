@@ -43,6 +43,14 @@ test_that("a near-whole `dispersion` is compared to the limits as a whole number
   9 |> disperse_total(dispersion = steps) |> purrr::pluck("n") |> expect_equal(c(4L, 5L, 3L, 6L, 2L, 7L, 1L, 8L))
 })
 
+test_that("near-whole limits are compared as whole numbers", {
+  # `100 * 0.29` is 28.999999999999996, which cut off the pair (25, 29):
+  27 |> disperse(dispersion = 0:3, n_max = 100 * 0.29)        |> purrr::pluck("n") |> expect_equal(c(27L, 27L, 26L, 28L, 25L, 29L))
+  31 |> disperse(dispersion = 0:3, n_min = 29 + 4e-15)        |> purrr::pluck("n") |> expect_equal(c(31L, 31L, 30L, 32L, 29L, 33L))
+  c(27, 28) |> disperse2(dispersion = 0:3, n_max = 100 * 0.29) |> purrr::pluck("n") |> expect_equal(c(27L, 28L, 26L, 29L))
+  55 |> disperse_total(dispersion = 0:3, n_max = 100 * 0.29)  |> purrr::pluck("n") |> expect_equal(c(27L, 28L, 26L, 29L))
+})
+
 test_that("`n` and `n_change` agree", {
   out <- disperse(n = 10)
   (out$n - 10L) |> expect_equal(out$n_change)
