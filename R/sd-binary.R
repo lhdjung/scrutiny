@@ -17,7 +17,8 @@
 #' @param mean Numeric. Mean of the data.
 #'
 #' @return Numeric. Sample standard deviation; `NA` where `n` is below 2,
-#'   since the sample SD divides by `n - 1`.
+#'   since the sample SD divides by `n - 1`, and where `n` or a count is not a
+#'   whole number.
 #'
 #' @export
 #'
@@ -40,12 +41,13 @@
 #' @rdname sd-binary
 
 sd_binary_groups <- function(group_0, group_1) {
+  check_binary_args(list(group_0 = group_0, group_1 = group_1))
   group_0 <- round_whole(group_0)
   group_1 <- round_whole(group_1)
   check_binary_count(group_0)
   check_binary_count(group_1)
   n <- group_0 + group_1
-  sd_binary_sample(n, group_0 * group_1 / n^2)
+  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_0, group_1))
 }
 
 
@@ -55,11 +57,12 @@ sd_binary_groups <- function(group_0, group_1) {
 #' @export
 
 sd_binary_0_n <- function(group_0, n) {
+  check_binary_args(list(group_0 = group_0, n = n))
   group_0 <- round_whole(group_0)
   n <- round_whole(n)
   check_binary_count(group_0, n)
   group_1 <- n - group_0
-  sd_binary_sample(n, group_0 * group_1 / n^2)
+  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_0))
 }
 
 
@@ -69,11 +72,12 @@ sd_binary_0_n <- function(group_0, n) {
 #' @export
 
 sd_binary_1_n <- function(group_1, n) {
+  check_binary_args(list(group_1 = group_1, n = n))
   group_1 <- round_whole(group_1)
   n <- round_whole(n)
   check_binary_count(group_1, n)
   group_0 <- n - group_1
-  sd_binary_sample(n, group_0 * group_1 / n^2)
+  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_1))
 }
 
 
@@ -83,6 +87,7 @@ sd_binary_1_n <- function(group_1, n) {
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {
+  check_binary_args(list(mean = mean, n = n))
   n <- round_whole(n)
   if (any(mean < 0 | mean > 1, na.rm = TRUE)) {
     abort_in_export(
@@ -96,13 +101,35 @@ sd_binary_mean_n <- function(mean, n) {
 
 # The sample SD from the population variance. With `n` below 2 there is no
 # sample SD; the formula would give `Inf` or `NaN`, so the warning is
-# suppressed and the result set to `NA`:
-sd_binary_sample <- function(n, variance) {
+# suppressed and the result set to `NA`. So is a fractional `n` or count, which
+# describes no data set, as elsewhere in scrutiny:
+sd_binary_sample <- function(n, variance, counts = list()) {
   out <- suppressWarnings(sqrt((n / (n - 1)) * variance))
   # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
   # `rep_len()` recycles `n` along `variance`, as the formula does:
-  out[which(rep_len(n, length(out)) < 2)] <- NA_real_
+  length_out <- length(out)
+  undefined <- rep_len(n, length_out) < 2
+  for (count in c(list(n), counts)) {
+    undefined <- undefined | !is_whole_number(rep_len(count, length_out))
+  }
+  out[which(undefined)] <- NA_real_
   out
+}
+
+
+# Numbers, or missing values, of lengths that recycle as in `debit()`:
+check_binary_args <- function(args) {
+  for (name in names(args)) {
+    x <- args[[name]]
+    if (!is.numeric(x) && !all(is.na(x))) {
+      abort_in_export(
+        "`{name}` must be one of these types: double and integer.",
+        "x" = "It is {an_a_type(x)}."
+      )
+    }
+  }
+  recycle_length_common(lengths(args), names(args))
+  invisible()
 }
 
 
@@ -110,6 +137,12 @@ sd_binary_sample <- function(n, variance) {
 # formulas would silently give `NaN`:
 check_binary_count <- function(group, n = NULL) {
   name <- deparse(substitute(group))
+  if (any(n < 0, na.rm = TRUE)) {
+    abort_in_export(
+      "`n` must not be negative.",
+      "x" = "It includes {wrap_in_quotes_or_backticks(n[which(n < 0)])}."
+    )
+  }
   wrong <- group < 0 | (if (!is.null(n)) group > n else FALSE)
   if (any(wrong, na.rm = TRUE)) {
     abort_in_export(

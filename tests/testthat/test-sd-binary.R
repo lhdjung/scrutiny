@@ -23,3 +23,22 @@ test_that("a near-whole `n` is the whole number it is", {
   0.5         |> sd_binary_mean_n(2 - 1e-9) |> expect_equal(sd_binary_mean_n(0.5, 2))
   (1 - 1e-9)  |> sd_binary_groups(1)        |> expect_equal(sd_binary_groups(1, 1))
 })
+
+
+test_that("input of the wrong type or length is an error", {
+  # These failed in base R or recycled with only a base warning:
+  "1"     |> sd_binary_1_n(3)       |> expect_error("`group_1` must be one of these types")
+  "0.5"   |> sd_binary_mean_n(3)    |> expect_error("`mean` must be one of these types")
+  c(1, 2, 3) |> sd_binary_0_n(c(5, 6)) |> expect_error("Can't recycle")
+  # A negative `n` is named as the culprit, not the count:
+  1       |> sd_binary_1_n(-3)      |> expect_error("`n` must not be negative")
+  NA      |> sd_binary_1_n(5)       |> expect_na()
+})
+
+
+test_that("a fractional count or `n` is `NA`, as it describes no data", {
+  0.5 |> sd_binary_mean_n(10.5) |> expect_na()
+  1.5 |> sd_binary_groups(2)    |> expect_na()
+  1.5 |> sd_binary_0_n(10)      |> expect_na()
+  c(127, 1.5) |> sd_binary_groups(153) |> is.na() |> expect_equal(c(FALSE, TRUE))
+})
