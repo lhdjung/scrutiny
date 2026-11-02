@@ -71,6 +71,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
 
   check_type(collapse, "character")
   check_length(collapse, 1L)
+  check_flag(drop)
 
   if (any(row < 1L | row > nrow(data))) {
     offenders <- wrap_in_backticks(row[row < 1L | row > nrow(data)])

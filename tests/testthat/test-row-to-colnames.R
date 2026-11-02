@@ -68,3 +68,10 @@ test_that("repeated header cells are an error, not duplicate names", {
   df |> row_to_colnames() |> expect_error("must be unique")
   df |> rbind(c(NA, "pre", "pre", "post", "post"), x = _) |> row_to_colnames(row = 1:2) |> colnames() |> expect_equal(c("Group", "pre M", "pre SD", "post M", "post SD"))
 })
+
+test_that("`drop` must be `TRUE` or `FALSE`", {
+  df <- tibble::tibble(x = c("a", "1"))
+  df |> row_to_colnames(drop = NA)    |> expect_error("`drop` must be `TRUE` or `FALSE`")
+  df |> row_to_colnames(drop = "yes") |> expect_error("`drop` must be `TRUE` or `FALSE`")
+  df |> row_to_colnames(drop = NULL)  |> expect_error("`drop` must be `TRUE` or `FALSE`")
+})
