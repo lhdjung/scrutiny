@@ -58,7 +58,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `audit()` on sequence or total-n mapper output calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_cols_minimal()` lost its `name_test` argument.
 
-- Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column.
+- Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column, except by the sequence mappers, which drop all columns that play no role in the test; `case` joins them back.
 
 - `grim()`, `grimmer()`, and `debit()` lost `show_rec` and `show_reason`, which were only meant for the mappers. They are vectorized over `x`, `sd`, `n`, the `digits_*` arguments, and `items_averaged`; all other arguments must have length 1. Recycling follows the tidyverse rules, so `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2, items_averaged = 1)` is an error.
 

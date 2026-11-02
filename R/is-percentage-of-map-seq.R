@@ -22,7 +22,8 @@
 #' @inheritParams grim_map_seq
 #'
 #' @return A tibble with the columns of [`is_percentage_of_map()`] output plus
-#'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`].
+#'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`]. As there, the
+#'   other columns of `data` are dropped.
 #'
 #' @include is-percentage-of-map.R function-map-seq.R
 #'

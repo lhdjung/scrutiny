@@ -57,7 +57,8 @@ as well, not just inconsistent ones? Default is \code{FALSE}.}
 }
 \value{
 A tibble with the columns of \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} output plus
-\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}.
+\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}. As there, the
+other columns of \code{data} are dropped.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

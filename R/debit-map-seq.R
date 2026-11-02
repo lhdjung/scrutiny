@@ -26,7 +26,8 @@
 #' @inheritParams grim_map_seq
 #'
 #' @return A tibble with the columns of [`debit_map()`] output plus
-#'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`].
+#'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`]. As there, the
+#'   other columns of `data` are dropped.
 #'
 #' @section Summaries with [`audit_seq()`]: `audit_seq()` on `debit_map_seq()`
 #'   output returns a tibble with one row per case and these columns:

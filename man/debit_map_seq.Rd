@@ -64,7 +64,8 @@ as well, not just inconsistent ones? Default is \code{FALSE}.}
 }
 \value{
 A tibble with the columns of \code{\link[=debit_map]{debit_map()}} output plus
-\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}.
+\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}. As there, the
+other columns of \code{data} are dropped.
 }
 \description{
 \code{debit_map_seq()} varies the reported means, standard

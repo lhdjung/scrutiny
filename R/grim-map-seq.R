@@ -34,7 +34,8 @@
 #' @return A tibble with the columns of [`grim_map()`] output plus `diff_var`,
 #'   the number of steps between the tested value and the reported one; `case`,
 #'   the row number of the reported value set in `data`; and `var`, the
-#'   dispersed variable.
+#'   dispersed variable. Other columns of `data`, such as study labels, play no
+#'   role in the test and are dropped; use `case` to join them back.
 #'
 #' @section Summaries with [`audit_seq()`]: `audit_seq()` on `grim_map_seq()`
 #'   output returns a tibble with one row per case and these columns:
