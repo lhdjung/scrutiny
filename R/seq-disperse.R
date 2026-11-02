@@ -127,9 +127,9 @@ seq_disperse <- function(
   } else {
     check_length(by, 1L)
     check_type(by, c("integer", "double"))
-    if (is.na(by) || by <= 0) {
+    if (!is.finite(by) || by <= 0) {
       abort_in_export(
-        "`by` must be a positive number.",
+        "`by` must be a positive, finite number.",
         "x" = "It is {by}."
       )
     }

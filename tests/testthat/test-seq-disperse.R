@@ -177,8 +177,9 @@ test_that("a string `from` keeps its trailing zeros as the step size", {
 })
 
 test_that("`by`, `offset_from`, and the flags are checked", {
-  4.02 |> seq_disperse(by = 0)                |> expect_error("positive number")
-  4.02 |> seq_disperse(by = -0.01)            |> expect_error("positive number")
+  4.02 |> seq_disperse(by = 0)                |> expect_error("positive, finite number")
+  4.02 |> seq_disperse(by = -0.01)            |> expect_error("positive, finite number")
+  4.02 |> seq_disperse(by = Inf)              |> expect_error("positive, finite number")
   4.02 |> seq_disperse(offset_from = 1.5)     |> expect_error("whole number")
   4.02 |> seq_disperse(offset_from = NA_real_) |> expect_error("whole number")
   4.02 |> seq_disperse(include_reported = NA) |> expect_error("include_reported")
