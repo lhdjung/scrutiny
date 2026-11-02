@@ -385,3 +385,13 @@ test_that("the explanations agree with these verdicts", {
   format(debit_explain(NA, 0.9, 20, 2, 2)) |> expect_match("none of these gives an SD")
   format(grimmer_explain(NA, 0.3, 2, 2, 2, 1)) |> expect_match("no sum passes")
 })
+
+test_that("sequence mappers disperse the known values of such a case", {
+  df <- tibble::tibble(x = c(5.19, NA), sd = c(NA, 0.3), n = c(28, 2))
+  out <- df |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out$var[out$case == 1] |> unique() |> expect_equal(c("x", "n"))
+  out$var[out$case == 2] |> unique() |> expect_equal(c("sd", "n"))
+  out |> audit_seq() |> nrow() |> expect_equal(2L)
+  df[1, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, var = "sd") |> expect_warning("`sd` is missing in every case")
+  tibble::tibble(x = 0.33, sd = NA, n = 10) |> debit_map_seq(digits_x = 2, digits_sd = 2) |> nrow() |> expect_gt(0)
+})

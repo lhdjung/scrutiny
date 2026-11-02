@@ -14,6 +14,13 @@ function_map_seq_proto <- function(
   # --- Start of the manufactured helper function ---
 
   function(data, .var, .out_min, .out_max, .cases = seq_len(nrow(data)), ...) {
+    # A case can be decided with a value missing, if the other values rule it
+    # out, as in `grimmer(x = 5.19, sd = NA, n = 28)`. There is nothing to
+    # disperse that value from, but the others still are:
+    has_var <- !is.na(data[[.var]])
+    data <- data[has_var, ]
+    .cases <- .cases[has_var]
+
     # The step size comes from the caller's `digits_*` argument, not from the
     # values: a mean reported as 5.30 is stored as `5.3`, so `seq_disperse()`
     # would step by 0.1 instead of 0.01, and only in the rows that lost a
@@ -462,7 +469,11 @@ function_map_seq <- function(
           )
         })
 
-      out[vapply(out, is.null, logical(1L))] <- NULL
+      # A variable with no value to disperse from in any case has no output.
+      # `var` stays aligned with `out`, since it labels the rows below:
+      has_out <- !vapply(out, is.null, logical(1L))
+      out <- out[has_out]
+      var <- var[has_out]
 
       # Cases to disperse from, but no values to disperse to, e.g. with
       # `dispersion = 0` and `include_reported = FALSE`:
@@ -482,7 +493,10 @@ function_map_seq <- function(
         msg_setting <- "`include_consistent = TRUE`"
         n_undecidable <- sum(is.na(results))
         cli::cli_warn(c(
-          "!" = if (include_consistent) {
+          "!" = if (length(cases) > 0L) {
+            "No values to disperse from: {wrap_in_backticks(var_requested)} {?is/are} \\
+            missing in every case to disperse."
+          } else if (include_consistent) {
             "No cases to disperse from."
           } else {
             "No inconsistent cases to disperse from."
@@ -491,7 +505,7 @@ function_map_seq <- function(
             "{n_undecidable} case{?s} could not be tested, e.g. for a \\
             missing value."
           },
-          "i" = if (!include_consistent) {
+          "i" = if (!include_consistent && length(cases) == 0L) {
             "Try {msg_setting} to disperse from consistent cases, as well."
           }
         ))
