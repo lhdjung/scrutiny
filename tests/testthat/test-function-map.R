@@ -869,6 +869,17 @@ test_that("key arguments work when the mapper is called indirectly", {
     expect_equal(5.14)
 })
 
+# A wrapper forwarding its own `NULL` default used to have the variable's name
+# read as a column name.
+test_that("a key argument forwarded as `NULL` is left out", {
+  d <- tibble::tibble(x = c(5.19, 5.2), n = c(28, 30))
+  wrapper     <- function(data, col = NULL) grim_map(data, digits_x = 2, items_averaged = 1, x = col)
+  wrapper_seq <- function(data, col = NULL) grim_map_seq(data, digits_x = 2, items_averaged = 1, x = col)
+  d |> wrapper()     |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1))
+  d |> wrapper_seq() |> expect_equal(grim_map_seq(d, digits_x = 2, items_averaged = 1))
+  d |> grim_map(digits_x = 2, items_averaged = 1, x = if (FALSE) "y") |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1))
+})
+
 # It also ignored a key argument whenever `data` had a column of that name, and
 # tested that column instead.
 test_that("`absorb_key_args()` reads key arguments passed through dots", {

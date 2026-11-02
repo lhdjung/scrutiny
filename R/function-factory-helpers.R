@@ -603,11 +603,6 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 }
 
 
-# Turn the key arguments, captured as named quosures, into a named character
-# vector of column names. A `NULL` argument, i.e., one not specified, is left
-# out. A bare name is a column name if `data` has such a column, otherwise the
-# string that a variable of that name holds. Any other expression must evaluate
-# to a single string.
 # The key arguments come before the dots, so R matches them partially:
 # `is_percentage_of_map(percent = TRUE)` reads as `percentage = TRUE`, and the
 # error would then blame `percentage`, which the user never named.
@@ -626,13 +621,16 @@ check_key_args_abbreviated <- function(reported, names_formals, call) {
   }
 }
 
+# Turn the key arguments, captured as named quosures, into a named character
+# vector of column names. A `NULL` argument, i.e., one not specified, is left
+# out, and so is a variable or expression that is `NULL`, as from a wrapper
+# with a `NULL` default. A bare name is a column name if `data` has such a column, otherwise
+# the string that a variable of that name holds. Any other expression must
+# evaluate to a single string.
 capture_key_args <- function(data, quos) {
   out <- character()
   for (name in names(quos)) {
     quo <- quos[[name]]
-    if (rlang::quo_is_null(quo)) {
-      next
-    }
     expr <- rlang::quo_get_expr(quo)
     value <- if (rlang::is_symbol(expr)) {
       value_sym <- rlang::as_string(expr)
@@ -642,13 +640,20 @@ capture_key_args <- function(data, quos) {
         default = NULL,
         inherit = TRUE
       )
-      if (!any(value_sym == colnames(data)) && rlang::is_string(value_var)) {
+      is_var_null <- is.null(value_var) &&
+        rlang::env_has(rlang::quo_get_env(quo), value_sym, inherit = TRUE)
+      if (any(value_sym == colnames(data))) {
+        value_sym
+      } else if (is_var_null || rlang::is_string(value_var)) {
         value_var
       } else {
         value_sym
       }
     } else {
       rlang::eval_tidy(quo)
+    }
+    if (is.null(value)) {
+      next
     }
     if (!rlang::is_string(value)) {
       abort_in_export(
