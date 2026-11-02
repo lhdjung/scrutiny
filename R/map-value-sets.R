@@ -98,10 +98,16 @@ map_value_sets <- function(fn, along, type = "logical") {
   }
 
   # If a required argument is missing, let `fn` raise its error here rather
-  # than inside the loop, so that it is raised once:
+  # than inside the loop, so that it is raised once. With the first value set
+  # only: `fn` takes single values, and a vector would fail its own checks
+  # with R's message before it reached the missing argument:
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
-      return(do.call(fn, vals))
+      vals_first <- vals
+      for (name_along in names_along) {
+        vals_first[name_along] <- list(vals[[name_along]][1L])
+      }
+      return(do.call(fn, vals_first))
     }
   }
 

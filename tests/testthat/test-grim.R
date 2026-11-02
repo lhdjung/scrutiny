@@ -410,3 +410,9 @@ test_that("a character `NA` as `x` is `NA`, as in the other tests", {
   NA_character_ |> grim_explain(20, 2, 1)         |> format() |> expect_match("Undecidable")
   tibble::tibble(x = NA_character_, n = 20) |> grim_map(digits_x = 2, items_averaged = 1) |> purrr::pluck("consistency") |> expect_na()
 })
+
+test_that("a missing `digits_x` next to vector arguments of a wrong type gets scrutiny's error", {
+  grim(c(5.19, 4.2), c("28", "30"), items_averaged = 1) |> expect_error("`n` must be one of these types")
+  grimmer(c(5.19, 4.2), c(1, 2), c("28", "30"), digits_x = 2, items_averaged = 1) |> expect_error("`n` must be one of these types")
+  grim(c(5.19, 4.2), c(28, 30), items_averaged = c("a", "b")) |> expect_error("Need to specify `digits_x`")
+})
