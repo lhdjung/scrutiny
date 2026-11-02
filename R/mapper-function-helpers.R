@@ -316,3 +316,16 @@ passes_row <- function(test_row, row) {
     error = function(cnd) FALSE
   )
 }
+
+
+# Do a column of `data` and the values of an argument by the same name agree?
+# Numbers are compared as doubles, so that an integer column agrees with a
+# double argument; anything else by its text, so that two different strings
+# can't agree by both coercing to `NA`:
+values_agree <- function(col, vals) {
+  if (is.numeric(col) && is.numeric(vals)) {
+    identical(as.numeric(col), as.numeric(vals))
+  } else {
+    identical(as.character(col), as.character(vals))
+  }
+}

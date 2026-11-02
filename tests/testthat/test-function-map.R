@@ -833,6 +833,22 @@ test_that("a by-row argument that is no decimal count is not made integer", {
 })
 
 
+test_that("a by-row argument that is `NULL` or a string is handled", {
+  toy_map <- function_map(
+    .fn = function(y, n, tol = NULL, method = "a") abs(y - n) <= (if (is.null(tol)) 0 else tol),
+    .reported = c("y", "n"),
+    .name_test = "toy",
+    .args_by_row = c("tol", "method")
+  )
+  data <- tibble::tibble(y = 1:3, n = c(1, 3, 5))
+  # A `NULL` default made a column named `NA`:
+  data |> toy_map() |> colnames() |> expect_equal(c("y", "n", "method", "consistency"))
+  # Strings that disagree both coerced to `NA`, which agreed:
+  data |> dplyr::mutate(method = "b") |> toy_map(method = "a") |> expect_error("the two disagree")
+  data |> dplyr::mutate(method = "a") |> toy_map(method = "a") |> _$method |> expect_equal(rep("a", 3))
+})
+
+
 test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # Anything wrong with the arguments themselves fails on the first row just as
   # it would on any other, so the mapper applies the test to that row on its

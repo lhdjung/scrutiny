@@ -554,10 +554,7 @@ function_map <- function(
           if (
             arg %in%
               colnames(data) &&
-              !identical(
-                as.numeric(data[[arg]]),
-                as.numeric(cols_tested[[arg]])
-              )
+              !values_agree(data[[arg]], cols_tested[[arg]])
           ) {
             abort_in_export(
               "`{arg}` is both an argument and a column of `data`, and the \
@@ -656,9 +653,8 @@ function_map <- function(
         cols_key[[arg]] <- as_integer_if_lossless(cols_key[[arg]])
       }
 
-      cols_by_row <- cols_tested[args_by_row[
-        args_by_row %in% names(args_vals)
-      ]]
+      # Only the arguments with values: one that is `NULL` has no column.
+      cols_by_row <- cols_tested[intersect(args_by_row, names(cols_tested))]
 
       cols_result <- write_result_cols(results, col_names)
 
