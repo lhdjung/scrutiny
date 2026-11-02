@@ -416,3 +416,15 @@ test_that("a missing `digits_x` next to vector arguments of a wrong type gets sc
   grimmer(c(5.19, 4.2), c(1, 2), c("28", "30"), digits_x = 2, items_averaged = 1) |> expect_error("`n` must be one of these types")
   grim(c(5.19, 4.2), c(28, 30), items_averaged = c("a", "b")) |> expect_error("Need to specify `digits_x`")
 })
+
+test_that("values whose rounding bounds a double cannot hold are refused, not tested wrongly", {
+  # 500577649247325 / 7 rounds to 71511092749617.9, but `x * 100` is not
+  # representable, so the bounds were off by one and the verdict FALSE:
+  grim(71511092749617.9, 7, 1, 1)   |> expect_error("significant digits")
+  grim(361272800442.516, 333, 3, 1) |> expect_error("too large for an exact test")
+  # The product with `n` has its own limit:
+  grim(5.19, 1e13, 2, 1)   |> expect_error("too large for an exact test")
+  grim(5.19, 1e9, 2, 1e4)  |> expect_error("too large for an exact test")
+  grim(5.19, 1e12, 2, 1)   |> expect_true()
+  debit(0.5, 0.5, 1e14, 2, 2) |> expect_error("too large for an exact test")
+})

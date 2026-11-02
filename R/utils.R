@@ -332,6 +332,25 @@ sd_min_n <- function(sd_meaning) {
 }
 
 
+# `roundwork::sum_range()` multiplies the numerators of the rounding bounds,
+# about `x * 10^(digits + 1)`, by `n_items`, and compares the products as
+# whole numbers. That is exact only below 2^53. `x` alone is checked by
+# `check_newly_numeric()`; this is the product, checked by each test before
+# it calls `sum_range()`.
+check_sum_range_exact <- function(x_num, n_items, digits) {
+  if (abs(x_num) * 10^(digits + 1L) * n_items >= 2^53) {
+    abort_in_export(
+      "`x` times the sample size is too large for an exact test.",
+      "x" = "The sums that `x` admits are compared as whole numbers, which \\
+      is exact only below 2^53, about 9e15, and \\
+      `x * n * 10^(digits_x + 1)` is about \\
+      {format(abs(x_num) * 10^(digits + 1L) * n_items, digits = 2L)}.",
+      "i" = "`items_averaged` multiplies into `n` here."
+    )
+  }
+}
+
+
 # Round the values within `WHOLE_NUMBER_TOLERANCE` of a whole number to it, so
 # that a value is tested as the whole number it is accepted as: `100 * 0.29` is
 # 28.999999999999996, which `is_decidable_n_items()` takes for 29, but the
@@ -445,19 +464,25 @@ check_newly_numeric <- function(
     error_digits_flawed(digits, name)
   }
 
-  # The 15 significant digits include the integer digits of `x`, so a value of
-  # 1 or more allows fewer decimal places. Compared to a power of 10, which a
-  # double holds exactly, rather than counted with `log10()`, which rounds:
-  if (is.numeric(x) && is.finite(x) && abs(x) >= 10^(15 - digits)) {
+  # The rounding bounds come from `round(x * 10^(digits + 1))`
+  # (`roundwork::bound_numerators()`). That recovers the decimal `x` stands
+  # for only while the product stays below 2^52: a double's error in `x` is
+  # at most half a unit in the last place, and scaling it past 2^52 moves it
+  # over half a unit, so `71511092749617.9 * 100` lands on `...791`. Roughly,
+  # `x` may have 15 significant digits, fewer if they start high; the limit
+  # includes the integer digits, so a value of 1 or more allows fewer decimal
+  # places.
+  if (is.numeric(x) && is.finite(x) && abs(x) * 10^(digits + 1L) >= 2^52) {
     name <- deparse(substitute(digits))
     name_x <- deparse(substitute(x))
     digits_int <- nchar(sprintf("%.0f", floor(abs(x))))
     abort_in_export(
-      "`{name_x}` has more than 15 significant digits.",
+      "`{name_x}` has too many significant digits.",
       "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
       has {digits + digits_int}.",
-      "i" = "A double holds 15 significant digits, so the tests are not exact \\
-      beyond that."
+      "i" = "A double holds about 15 significant digits, so the tests are not \\
+      exact beyond that: `{name_x} * 10^({name} + 1)` must stay below 2^52, \\
+      about 4.5e15."
     )
   }
 

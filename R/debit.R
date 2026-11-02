@@ -445,6 +445,7 @@ debit_scalar <- function(
   # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that `n`
   # binary values can have. If there is no such number, `sum_lower` is greater
   # than `sum_upper`.
+  check_sum_range_exact(x, n, digits_x)
   sums <- roundwork::sum_range(x, n, digits_x, rounding, threshold, symmetric)
   sum_lower <- max(sums[1L], 0)
   sum_upper <- min(sums[2L], n)

@@ -60,6 +60,8 @@ grim_scalar <- function(
   n_items <- as.numeric(n) * items_averaged
   rec_sum <- x_num * n_items
 
+  check_sum_range_exact(x_num, n_items, digits_x)
+
   # The integer sums whose mean would have been reported as `x_num` at
   # `digits_x` decimal places, in exact integer arithmetic: a sum sitting right
   # on a rounding boundary is included or excluded as the rounding method

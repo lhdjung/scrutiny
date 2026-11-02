@@ -169,15 +169,17 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
   # A negative `digits` is not a way to demand whole hundreds:
   500 |> check_newly_numeric(-2) |> expect_error()
 
-  # The 15 significant digits include the integer digits:
+  # The limit, `x * 10^(digits + 1) < 2^52`, counts the integer digits, too:
   33.33333333333333 |> check_newly_numeric(14) |> expect_error("significant digits")
   33.33333333333333 |> check_newly_numeric(13) |> expect_silent()
   123456789012345   |> check_newly_numeric(0)  |> expect_silent()
   1234567890123456  |> check_newly_numeric(0)  |> expect_error("significant digits")
   123456789012345.5 |> check_newly_numeric(1)  |> expect_error("significant digits")
-  # Just below a power of 10, where `log10()` would round up; these have 15:
-  999999999999999   |> check_newly_numeric(0)  |> expect_silent()
-  99999.9999999999  |> check_newly_numeric(10) |> expect_silent()
+  # 15 significant digits are too many if they start above 4.5:
+  450359962737049   |> check_newly_numeric(0)  |> expect_silent()
+  450359962737050   |> check_newly_numeric(0)  |> expect_error("significant digits")
+  999999999999999   |> check_newly_numeric(0)  |> expect_error("significant digits")
+  99999.9999999999  |> check_newly_numeric(10) |> expect_error("significant digits")
   1e15              |> check_newly_numeric(0)  |> expect_error("has 16")
   1234567.89        |> check_newly_numeric(9)  |> expect_error("has 16")
 })
