@@ -149,8 +149,11 @@ is_seq_basic <- function(
           c(if (na_first) Inf, x[known], if (na_last) -Inf)
         ),
         "dispersed" = {
+          # No number is centered with an infinity on a finite `from`, so a
+          # known infinity rules it out, as does an infinite `from`:
           centers <- (x_orig + rev(x_orig)) / 2
-          pass_pairs <-
+          pass_pairs <- is.finite(from) &&
+            !any(is.infinite(x_orig)) &&
             all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
           # Two known values of a linear sequence fix its step, and so its
           # central value, even if no mirrored pair is known in full:
@@ -324,6 +327,7 @@ is_seq_dispersed <- function(
     candidate <- centers[!is.na(centers)][1L]
     out <- if (is.na(candidate)) {
       !is_even(length(x)) &&
+        !any(is.infinite(x_num)) &&
         !isFALSE(is_seq_basic(x, tolerance, test_linear, min_length = 3L))
     } else {
       is_seq_dispersed(x, candidate, test_linear, tolerance)
@@ -356,7 +360,8 @@ is_seq_dispersed_basic <- function(
 
   index_central_x <- index_central(x)
 
-  if (!dplyr::near(x[index_central_x], from, tolerance)) {
+  # `isTRUE()` because `near(Inf, Inf)` is `NA`:
+  if (!isTRUE(dplyr::near(x[index_central_x], from, tolerance))) {
     return(FALSE)
   }
 

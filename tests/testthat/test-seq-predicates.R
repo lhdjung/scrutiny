@@ -285,6 +285,18 @@ test_that("a missing value beyond an infinity rules the sequence out", {
 })
 
 
+# No number is centered with an infinity on any value, nor is an infinity the
+# center of a dispersed sequence:
+test_that("a known infinity rules out a dispersed sequence", {
+  c(Inf, 1, NA)   |> is_seq_dispersed(from = 1, test_linear = FALSE)   |> expect_false()
+  c(-Inf, NA, NA) |> is_seq_dispersed(from = 1, test_linear = FALSE)   |> expect_false()
+  c(1, NA, NA)    |> is_seq_dispersed(from = Inf, test_linear = FALSE) |> expect_false()
+  c(Inf, NA, NA)  |> is_seq_dispersed(from = NA, test_linear = FALSE)  |> expect_false()
+  c(NA, 1, NA)    |> is_seq_dispersed(from = 1, test_linear = FALSE)   |> expect_na()
+  c(1, Inf, 2)    |> is_seq_dispersed(from = Inf, test_linear = FALSE) |> expect_false()
+})
+
+
 test_that("a missing `from` is `NA` only if some center is possible", {
   1:4          |> is_seq_dispersed(from = NA) |> expect_false()
   c(1, 5, 2)   |> is_seq_dispersed(from = NA) |> expect_false()
