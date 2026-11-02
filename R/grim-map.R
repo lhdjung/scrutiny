@@ -23,9 +23,10 @@
 #' @param percent Logical. If `TRUE`, the `x` values are percentages: they are
 #'   divided by 100 and tested with two more decimal places. Default is
 #'   `FALSE`. It applies to the whole call, so test a table that mixes means
-#'   and percentages part by part, as in the examples. The parts can be
-#'   combined with [`dplyr::bind_rows()`], but plot each one on its own:
-#'   [`grim_plot_grid()`] reads `percent` from the call.
+#'   and percentages part by part, as in the examples. Each part records its
+#'   own settings, which [`grim_plot_grid()`], [`audit()`], and others read,
+#'   so the parts can't be combined with [`dplyr::bind_rows()`]: keep them
+#'   apart, or combine them as plain tibbles via [`tibble::as_tibble()`].
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
 #' @param rounding,threshold,symmetric Passed on to [`grim()`].
@@ -98,20 +99,19 @@
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
 #'
-#' # A table of means and percentages, tested part by part:
+#' # A table of means and percentages, tested part by part. Each part records
+#' # its own settings, so the two are kept apart:
 #' df <- tibble::tibble(
 #'   x = c(5.19, 71),
 #'   n = c(32, 43),
 #'   is_percent = c(FALSE, TRUE)
 #' )
-#' dplyr::bind_rows(
-#'   df |>
-#'     dplyr::filter(!is_percent) |>
-#'     grim_map(digits_x = 2, items_averaged = 1),
-#'   df |>
-#'     dplyr::filter(is_percent) |>
-#'     grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
-#' )
+#' df |>
+#'   dplyr::filter(!is_percent) |>
+#'   grim_map(digits_x = 2, items_averaged = 1)
+#' df |>
+#'   dplyr::filter(is_percent) |>
+#'   grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
 
 grim_map <- function_map(
   .fn = grim_scalar,

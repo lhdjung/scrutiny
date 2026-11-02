@@ -91,7 +91,7 @@
 #'   `.col_names` columns, and the other columns of `data` follow, in that
 #'   order.
 #'
-#' @include grim.R debit.R function-factory-helpers.R
+#' @include grim.R debit.R function-factory-helpers.R bind-rows.R
 #'
 #' @export
 #'
@@ -414,6 +414,10 @@ function_map <- function(
     class_name_test(.name_test, "_map"),
     .name_class
   )
+
+  # So that `dplyr::bind_rows()` rejects output of different calls; see
+  # `R/bind-rows.R`:
+  register_bind_methods(all_classes[[1L]])
 
   # --- Start of the factory-made function, `fn_out()` ---
 

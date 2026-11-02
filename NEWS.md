@@ -104,7 +104,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `audit()` has a `.by` argument for summaries by group, as in `audit(out, .by = study)`. Output grouped by `dplyr::group_by()` now gets an error that explains the problem, instead of "no applicable method". Methods in other packages need the dots: `audit.my_class <- function(data, ...)`.
 
-- `scrutiny_meta()` returns the settings that a mapper recorded on its output, such as `rounding` and `sd_meaning`, so that a report can state the conditions of a verdict. Printed mapper output names the settings that differ from the defaults in its header, as in `# GRIM: rounding = "up"`.
+- `scrutiny_meta()` returns the settings that a mapper recorded on its output, such as `rounding` and `sd_meaning`, so that a report can state the conditions of a verdict. Printed mapper output names the settings that differ from the defaults in its header, as in `# GRIM: rounding = "up"`. Combining the output of two calls with different settings with `dplyr::bind_rows()` is an error, since the rows would be read under the first call's settings; `rbind()` still keeps the first output's record.
 
 - New `rounding` strings `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`, and `"ties_even"`. Each names a complete tie-breaking rule (`"ties_away"` is `"up"` with `symmetric = TRUE`), so combining one of these strings with `symmetric` is an error.
 

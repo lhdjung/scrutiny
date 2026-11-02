@@ -46,6 +46,7 @@ Imports:
     utils
 Collate: 
     'aaa.R'
+    'bind-rows.R'
     'function-factory-helpers.R'
     'sd-binary.R'
     'is-numeric-like.R'
