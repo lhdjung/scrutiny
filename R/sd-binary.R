@@ -42,8 +42,9 @@
 
 sd_binary_groups <- function(group_0, group_1) {
   check_binary_args(list(group_0 = group_0, group_1 = group_1))
-  group_0 <- round_whole(group_0)
-  group_1 <- round_whole(group_1)
+  # As doubles, since the product of two integer counts overflows from 46,341:
+  group_0 <- round_whole(as.numeric(group_0))
+  group_1 <- round_whole(as.numeric(group_1))
   check_binary_count(group_0)
   check_binary_count(group_1)
   n <- group_0 + group_1
@@ -58,7 +59,7 @@ sd_binary_groups <- function(group_0, group_1) {
 
 sd_binary_0_n <- function(group_0, n) {
   check_binary_args(list(group_0 = group_0, n = n))
-  group_0 <- round_whole(group_0)
+  group_0 <- round_whole(as.numeric(group_0))
   n <- round_whole(n)
   check_binary_count(group_0, n)
   group_1 <- n - group_0
@@ -73,7 +74,7 @@ sd_binary_0_n <- function(group_0, n) {
 
 sd_binary_1_n <- function(group_1, n) {
   check_binary_args(list(group_1 = group_1, n = n))
-  group_1 <- round_whole(group_1)
+  group_1 <- round_whole(as.numeric(group_1))
   n <- round_whole(n)
   check_binary_count(group_1, n)
   group_0 <- n - group_1
@@ -101,8 +102,8 @@ sd_binary_mean_n <- function(mean, n) {
 
 # The sample SD from the population variance. With `n` below 2 there is no
 # sample SD; the formula would give `Inf` or `NaN`, so the warning is
-# suppressed and the result set to `NA`. So is a fractional `n` or count, which
-# describes no data set, as elsewhere in scrutiny:
+# suppressed and the result set to `NA`. So is a fractional or infinite `n` or
+# count, which describes no data set, as elsewhere in scrutiny, and any `NaN`:
 sd_binary_sample <- function(n, variance, counts = list()) {
   out <- suppressWarnings(sqrt((n / (n - 1)) * variance))
   # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
@@ -112,7 +113,7 @@ sd_binary_sample <- function(n, variance, counts = list()) {
   for (count in c(list(n), counts)) {
     undefined <- undefined | !is_whole_number(rep_len(count, length_out))
   }
-  out[which(undefined)] <- NA_real_
+  out[is.na(out) | !(undefined %in% FALSE)] <- NA_real_
   out
 }
 

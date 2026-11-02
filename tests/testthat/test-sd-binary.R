@@ -45,3 +45,21 @@ test_that("a fractional count or `n` is `NA`, as it describes no data", {
   1.5 |> sd_binary_0_n(10)      |> expect_na()
   c(127, 1.5) |> sd_binary_groups(153) |> is.na() |> expect_equal(c(FALSE, TRUE))
 })
+
+
+test_that("integer counts don't overflow", {
+  # `group_0 * group_1` was an integer product, `NA` from 46,341 each:
+  50000L |> sd_binary_groups(50000L) |> expect_equal(sd_binary_groups(50000, 50000))
+  50000L |> sd_binary_0_n(100000L)   |> expect_equal(sd_binary_0_n(50000, 100000))
+  50000L |> sd_binary_1_n(100000L)   |> expect_equal(sd_binary_1_n(50000, 100000))
+})
+
+
+test_that("an infinite or `NaN` count, `n`, or mean is `NA`, not `NaN`", {
+  Inf |> sd_binary_groups(10)  |> is.nan() |> expect_false()
+  5   |> sd_binary_0_n(Inf)    |> is.nan() |> expect_false()
+  0.5 |> sd_binary_mean_n(Inf) |> is.nan() |> expect_false()
+  NaN |> sd_binary_mean_n(10)  |> is.nan() |> expect_false()
+  NaN |> sd_binary_0_n(10)     |> is.nan() |> expect_false()
+  c(Inf, 5) |> sd_binary_groups(10) |> is.na() |> expect_equal(c(TRUE, FALSE))
+})
