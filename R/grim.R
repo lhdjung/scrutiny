@@ -31,28 +31,29 @@ grim_scalar <- function(
 
   check_newly_numeric(x, digits_x)
 
-  # `x` itself stays on the reported scale for the `show_rec` values:
-  x_num <- x
-  if (percent) {
-    x_num <- x_num / 100
-    digits_x <- digits_x + 2L
-  }
-
   # GRIM asks which integer sums of `n * items_averaged` integer values have a
   # mean that would be reported as `x`. Undecidable rather than inconsistent:
   # a fractional or non-positive `n` or `items_averaged`, which describes no
-  # such data set; an infinite `x`, which would make `sum_range()` infinitely
-  # wide, i.e., consistent with everything; and a missing `digits_x`, which
-  # leaves no rounding bounds to derive.
+  # such data set; a missing `x`, which may be a character `NA` that the
+  # arithmetic below would fail on; an infinite `x`, which would make
+  # `sum_range()` infinitely wide, i.e., consistent with everything; and a
+  # missing `digits_x`, which leaves no rounding bounds to derive.
   if (
     !is_decidable_n_items(n, items_averaged) ||
-      is.infinite(x_num) ||
+      !is.finite(x) ||
       is.na(digits_x)
   ) {
     if (!show_rec) {
       return(NA)
     }
     return(list(NA, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+  }
+
+  # `x` itself stays on the reported scale for the `show_rec` values:
+  x_num <- x
+  if (percent) {
+    x_num <- x_num / 100
+    digits_x <- digits_x + 2L
   }
 
   n_items <- as.numeric(n) * items_averaged

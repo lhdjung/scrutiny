@@ -401,3 +401,12 @@ test_that("invalid rounding arguments are errors from the function called", {
   # With no rows, there is no first row to fail on:
   tibble::tibble(x = numeric(), n = numeric()) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> expect_error("must be a string")
 })
+
+
+# The arithmetic on `x` came before the check for a missing one:
+test_that("a character `NA` as `x` is `NA`, as in the other tests", {
+  NA_character_ |> grim(20, 2, 1)                 |> expect_na()
+  NA_character_ |> grim(20, 2, 1, percent = TRUE) |> expect_na()
+  NA_character_ |> grim_explain(20, 2, 1)         |> format() |> expect_match("Undecidable")
+  tibble::tibble(x = NA_character_, n = 20) |> grim_map(digits_x = 2, items_averaged = 1) |> purrr::pluck("consistency") |> expect_na()
+})
