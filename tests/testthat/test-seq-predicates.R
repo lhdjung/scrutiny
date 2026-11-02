@@ -166,6 +166,10 @@ test_that("gaps are judged by the step the known values imply", {
   # The string `"NA"` is missing, with no coercion warning:
   c("1", "NA", "3") |> is_seq_linear()              |> expect_silent()
   c("1", "NA", "3") |> is_seq_dispersed(from = "2") |> expect_na()
+  # A `from` of `"NA"` or `"NaN"` is missing, too. It used to be an error:
+  1:3 |> is_seq_dispersed(from = "NA")  |> expect_na()
+  1:3 |> is_seq_dispersed(from = "NaN") |> expect_na()
+  c(1, 2, 4) |> is_seq_dispersed(from = "NaN") |> expect_false()
 
   # The examples from `vignette("devtools")`:
   c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()

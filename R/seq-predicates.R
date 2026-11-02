@@ -37,9 +37,7 @@ is_seq_basic <- function(
     if (is.factor(from)) {
       from <- as.character(from)
     }
-    # `is_numeric_like()` took the string `"NA"` as missing, so the warning
-    # about coercing it is noise:
-    from <- suppressWarnings(as.numeric(from))
+    from <- as.numeric(from)
   }
 
   # Too short for the sequence in question, whatever the values:
@@ -280,8 +278,9 @@ is_seq_dispersed <- function(
 
   # A missing center leaves the question open unless `x` rules out every
   # center. A dispersed sequence is centered on each mirrored pair of its
-  # values, so the first known such center is the only candidate:
-  if (is.na(from)) {
+  # values, so the first known such center is the only candidate. The strings
+  # `"NA"` and `"NaN"` are missing, as in `is_numeric_like()`:
+  if (is.na(from) || is.na(is_numeric_like(from))) {
     x_num <- if (is.factor(x)) as.character(x) else x
     x_num <- suppressWarnings(as.numeric(x_num))
     centers <- (x_num + rev(x_num)) / 2
