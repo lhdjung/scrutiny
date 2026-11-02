@@ -55,4 +55,9 @@ test_that("the string \"NA\" is missing, as in `decimal_places()`", {
   c("1.5", "NA") |> is_numeric_like() |> expect_true()
   "NA"           |> is_numeric_like() |> expect_na()
   tibble::tibble(a = c("1.5", "NA")) |> decimal_places_df() |> dplyr::pull(a) |> expect_equal(c(1L, NA))
+  # So is `"NaN"`, as `NaN` is missing everywhere; such a column used to be
+  # skipped by the `*_df()` functions:
+  c("1.5", "NaN") |> is_numeric_like() |> expect_true()
+  c("NaN", "NA")  |> is_numeric_like() |> expect_na()
+  tibble::tibble(a = c("1.5", "NaN", "2.25")) |> restore_zeros_df() |> dplyr::pull(a) |> expect_equal(c("1.50", NA, "2.25"))
 })

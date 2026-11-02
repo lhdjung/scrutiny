@@ -170,7 +170,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Errors about an invalid `rounding` or `symmetric` name the function that the user called. Many errors from base R or from internal code were replaced by messages that name the argument at fault. `audit()` and `grim_plot_grid()` name the columns they need if any were dropped.
 
-- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`.
+- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them.
 
 - `grim_map()` is about 2.5 times as fast, and `grimmer_map()` about 80 times.
 

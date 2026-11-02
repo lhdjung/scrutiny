@@ -163,6 +163,9 @@ test_that("gaps are judged by the step the known values imply", {
   c(1, 2, 3, NA, NA, NA, NA) |> is_seq_dispersed(from = 100) |> expect_false()
   c(1, 2, NA, NA, NA)        |> is_seq_dispersed(from = 3)   |> expect_na()
   c(1, 2, NA, NA, NA)        |> is_seq_dispersed(from = 10, test_linear = FALSE) |> expect_na()
+  # The string `"NA"` is missing, with no coercion warning:
+  c("1", "NA", "3") |> is_seq_linear()              |> expect_silent()
+  c("1", "NA", "3") |> is_seq_dispersed(from = "2") |> expect_na()
 
   # The examples from `vignette("devtools")`:
   c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()

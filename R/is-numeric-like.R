@@ -6,7 +6,8 @@
 #'   - Integer and double vectors are `TRUE`.
 #'   - Logical vectors and non-vectors are `FALSE`.
 #'   - Other vectors, such as strings, are `TRUE` if every non-`NA` value can
-#'   be coerced to a non-`NA` number. The string `"NA"` counts as `NA`.
+#'   be coerced to a non-`NA` number. The strings `"NA"` and `"NaN"` count as
+#'   `NA`.
 #'   - Factors, dates, and times are tested as the strings they print as.
 #'   - Lists are tested like atomic vectors if every element has length 1, and
 #'   are `FALSE` otherwise. A logical element other than `NA` makes a list
@@ -81,10 +82,12 @@ is_numeric_like <- function(x) {
   # The string `"NA"` is missing, as in `decimal_places()` and
   # `restore_zeros()`:
   x <- x[!is.na(x) & x != "NA"]
+  x <- suppressWarnings(as.numeric(x))
+  # So is the string `"NaN"`, as `NaN` is everywhere in scrutiny:
+  x <- x[!is.nan(x)]
   if (length(x) == 0L) {
     return(NA)
   }
-  x <- suppressWarnings(as.numeric(x))
   !anyNA(x)
 }
 

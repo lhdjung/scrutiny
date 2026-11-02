@@ -37,7 +37,9 @@ is_seq_basic <- function(
     if (is.factor(from)) {
       from <- as.character(from)
     }
-    from <- as.numeric(from)
+    # `is_numeric_like()` took the string `"NA"` as missing, so the warning
+    # about coercing it is noise:
+    from <- suppressWarnings(as.numeric(from))
   }
 
   # Too short for the sequence in question, whatever the values:
@@ -67,7 +69,7 @@ is_seq_basic <- function(
     if (is.factor(x)) {
       x <- as.character(x)
     }
-    x <- as.numeric(x)
+    x <- suppressWarnings(as.numeric(x))
   }
 
   if (length(x) == 1L) {
