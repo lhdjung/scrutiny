@@ -169,3 +169,8 @@ test_that("an infinite `dispersion` is an error", {
   disperse2(c(25, 26), dispersion = Inf)     |> expect_error("missing values or infinities")
   disperse_total(50, dispersion = Inf)       |> expect_error("missing values or infinities")
 })
+
+test_that("a repeated step counts once", {
+  disperse(5, dispersion = c(1, 1)) |> expect_equal(disperse(5, dispersion = 1))
+  disperse_total(50, dispersion = c(1, 1)) |> nrow() |> expect_equal(2L)
+})

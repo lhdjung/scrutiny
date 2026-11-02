@@ -106,7 +106,8 @@ disperse <- function(
     )
   }
   # Compared to the limits as the whole numbers they are shown as:
-  dispersion <- round_whole(dispersion)
+  # A step listed twice is the same pair of group sizes:
+  dispersion <- unique(round_whole(dispersion))
 
   # Main part ---
 

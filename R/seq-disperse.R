@@ -106,7 +106,8 @@ seq_disperse <- function(
   # A step of 0 is `from` itself, twice over. Whether `from` is included is up
   # to `include_reported`, and a duplicate would be counted twice by
   # `audit_seq()`. A near-whole step like `4e-16` is the 0 it is accepted as:
-  dispersion <- round_whole(dispersion)
+  # A step listed twice is the same value:
+  dispersion <- unique(round_whole(dispersion))
   dispersion <- dispersion[dispersion != 0]
 
   # A fractional step would land off the decimal level of `from`. `disperse()`

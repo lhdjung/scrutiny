@@ -193,3 +193,7 @@ test_that("an infinite `dispersion` is an error", {
   seq_disperse(4.02, dispersion = Inf)       |> expect_error("missing values or infinities")
   seq_disperse(4.02, dispersion = c(1, Inf)) |> expect_error("missing values or infinities")
 })
+
+test_that("a repeated step counts once", {
+  seq_disperse(4, dispersion = c(1, 1)) |> expect_equal(c(3, 4, 5))
+})
