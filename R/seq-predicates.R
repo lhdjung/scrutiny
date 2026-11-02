@@ -19,6 +19,24 @@ is_seq_basic <- function(
   min_length = NULL,
   from = NULL
 ) {
+  # A missing value here would fail in `if ()` or make every test `FALSE`:
+  if (!isTRUE(test_linear) && !isFALSE(test_linear)) {
+    abort_in_export(
+      "`test_linear` must be `TRUE` or `FALSE`.",
+      "x" = "It is {wrap_in_quotes_or_backticks(test_linear)}."
+    )
+  }
+  if (
+    !is.numeric(tolerance) ||
+      length(tolerance) != 1L ||
+      !isTRUE(tolerance >= 0)
+  ) {
+    abort_in_export(
+      "`tolerance` must be a single non-negative number.",
+      "x" = "It is {wrap_in_quotes_or_backticks(tolerance)}."
+    )
+  }
+
   if (!is.null(test_special) && test_special == "dispersed") {
     # Forced first so that a missing `from` errors rather than being skipped by
     # an early `FALSE`:

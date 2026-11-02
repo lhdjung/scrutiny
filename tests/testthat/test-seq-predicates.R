@@ -298,3 +298,14 @@ test_that("a missing `from` is `NA` only if some center is possible", {
 test_that("a factor `from` counts by its label", {
   c(9, 10, 11) |> is_seq_dispersed(from = factor(10)) |> expect_true()
 })
+
+
+test_that("`test_linear` and `tolerance` are checked", {
+  # A missing `tolerance` made every test `FALSE`, and a missing `test_linear`
+  # failed in `if ()`:
+  1:3 |> is_seq_linear(tolerance = NA)        |> expect_error("single non-negative number")
+  1:3 |> is_seq_linear(tolerance = c(1, 2))   |> expect_error("single non-negative number")
+  1:3 |> is_seq_ascending(tolerance = -1)     |> expect_error("single non-negative number")
+  1:3 |> is_seq_ascending(test_linear = NA)   |> expect_error("`TRUE` or `FALSE`")
+  1:3 |> is_seq_descending(test_linear = "a") |> expect_error("`TRUE` or `FALSE`")
+})
