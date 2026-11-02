@@ -321,3 +321,11 @@ test_that("`test_linear` and `tolerance` are checked", {
   1:3 |> is_seq_ascending(test_linear = NA)   |> expect_error("`TRUE` or `FALSE`")
   1:3 |> is_seq_descending(test_linear = "a") |> expect_error("`TRUE` or `FALSE`")
 })
+
+test_that("no values could be dispersed around an infinite `from`", {
+  c(NA, NA, NA) |> is_seq_dispersed(from = Inf)     |> expect_false()
+  c(NA, NA, NA) |> is_seq_dispersed(from = -Inf)    |> expect_false()
+  c(NA_real_, NA_real_, NA_real_) |> is_seq_dispersed(from = "Inf") |> expect_false()
+  c(NA, 5, NA)  |> is_seq_dispersed(from = Inf)     |> expect_false()
+  c(NA, NA, NA) |> is_seq_dispersed(from = 5)       |> expect_na()
+})

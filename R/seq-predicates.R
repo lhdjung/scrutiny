@@ -51,6 +51,11 @@ is_seq_basic <- function(
       from <- as.character(from)
     }
     from <- as.numeric(from)
+
+    # No values are centered on an infinity, so none could make `x` dispersed:
+    if (is.infinite(from)) {
+      return(FALSE)
+    }
   }
 
   # Too short for the sequence in question, whatever the values:
