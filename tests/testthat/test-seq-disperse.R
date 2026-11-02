@@ -103,6 +103,10 @@ test_that("a zero step doesn't repeat the value it disperses from", {
   4.02 |>
     seq_disperse(dispersion = c(0, 1)) |>
     expect_equal(c(4.01, 4.02, 4.03))
+  # So does a near-whole step of 0, which used to repeat it:
+  4.02 |>
+    seq_disperse(dispersion = c((0.1 + 0.2) * 10 - 3, 1)) |>
+    expect_equal(c(4.01, 4.02, 4.03))
 })
 
 
