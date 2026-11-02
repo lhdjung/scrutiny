@@ -158,15 +158,7 @@ disperse <- function(
     }
 
     if (is.list(constant)) {
-      # Elements without a name, which may be all of them, are named
-      # `constant1`, `constant2`, etc.:
-      names_constant <- names(constant)
-      if (is.null(names_constant)) {
-        names_constant <- rep("", length(constant))
-      }
-      unnamed <- is.na(names_constant) | names_constant == ""
-      names_constant[unnamed] <-
-        paste0("constant", seq_along(constant))[unnamed]
+      names_constant <- names_constant_cols(constant)
       # `Map()` rather than `purrr::map()`, whose "In index" context would wrap
       # an error about the argument as if it were about a row:
       constant <- constant |>
@@ -323,4 +315,25 @@ check_limit_n <- function(limit, name) {
       "x" = "It is {wrap_in_quotes_or_backticks(limit)}."
     )
   }
+}
+
+
+# The names of the columns that `constant` adds to the output: a vector is
+# `constant`; the elements of a list are named after it, and those without a
+# name, which may be all of them, `constant1`, `constant2`, etc. Shared with
+# `function_map_total_n()`, which must not let a column of `data` take them.
+names_constant_cols <- function(constant) {
+  if (is.null(constant)) {
+    return(character())
+  }
+  if (!is.list(constant)) {
+    return("constant")
+  }
+  names_constant <- names(constant)
+  if (is.null(names_constant)) {
+    names_constant <- rep("", length(constant))
+  }
+  unnamed <- is.na(names_constant) | names_constant == ""
+  names_constant[unnamed] <- paste0("constant", seq_along(constant))[unnamed]
+  names_constant
 }

@@ -457,7 +457,7 @@ function_map_total_n <- function(
           "both_consistent",
           "case",
           "dir",
-          if (!is.null(constant)) "constant"
+          names_constant_cols(constant)
         ),
         colnames(data)
       )
