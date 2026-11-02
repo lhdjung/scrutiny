@@ -113,7 +113,19 @@ is_seq_basic <- function(
         "descending" = is_seq_descending_basic(x[known]),
         "dispersed" = {
           centers <- (x_orig + rev(x_orig)) / 2
-          all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
+          pass_pairs <-
+            all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
+          # Two known values of a linear sequence fix its step, and so its
+          # central value, even if no mirrored pair is known in full:
+          known_orig <- which(!is.na(x_orig))
+          if (test_linear && length(known_orig) >= 2L) {
+            step <- steps[1L]
+            center <- x_orig[known_orig[1L]] +
+              step * ((length(x_orig) + 1L) / 2L - known_orig[1L])
+            pass_pairs && dplyr::near(center, from, tol = tolerance)
+          } else {
+            pass_pairs
+          }
         }
       )
       if (!isTRUE(pass_test_special)) {

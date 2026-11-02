@@ -157,6 +157,12 @@ test_that("gaps are judged by the step the known values imply", {
   c(9, NA, 5, 3)       |> is_seq_descending() |> expect_na()
   c(3, NA, 5, 6, 7)    |> is_seq_dispersed(from = 5) |> expect_na()
   c(3, NA, 5, 6, 8)    |> is_seq_dispersed(from = 5) |> expect_false()
+  # Two known values fix the step and so the central value, even with no
+  # mirrored pair known in full. These used to be `NA`:
+  c(1, 2, NA, NA, NA)        |> is_seq_dispersed(from = 10)  |> expect_false()
+  c(1, 2, 3, NA, NA, NA, NA) |> is_seq_dispersed(from = 100) |> expect_false()
+  c(1, 2, NA, NA, NA)        |> is_seq_dispersed(from = 3)   |> expect_na()
+  c(1, 2, NA, NA, NA)        |> is_seq_dispersed(from = 10, test_linear = FALSE) |> expect_na()
 
   # The examples from `vignette("devtools")`:
   c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()
