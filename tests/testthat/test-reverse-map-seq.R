@@ -89,3 +89,12 @@ test_that("a variable without a `digits_*` column is recovered when its dispersi
     df |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> audit_seq()       |> nrow()     |> expect_equal(1L)
   }
 })
+
+test_that("a missing column is an error, not wrong counts or a base R error", {
+  out <- tibble::tibble(x = c(5.19, 4.56), n = c(28, 31)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out |> dplyr::select(-diff_var) |> audit_seq()        |> expect_error("Missing: `diff_var`")
+  out |> dplyr::select(-case)     |> audit_seq()        |> expect_error("Missing: `case`")
+  out |> dplyr::select(-var)      |> audit_seq()        |> expect_error("Missing: `var`")
+  out |> dplyr::select(-diff_var) |> reverse_map_seq()  |> expect_error("Missing: `diff_var`")
+  out |> dplyr::select(-consistency) |> reverse_map_seq() |> expect_error("Missing: `consistency`")
+})

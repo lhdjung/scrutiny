@@ -190,6 +190,10 @@ audit_seq <- function(data) {
     name_key_result <- "consistency"
   }
 
+  # Each is read below, and a missing `diff_var` would count zero hits
+  # everywhere rather than fail:
+  check_cols_needed(data, c("case", "var", "diff_var", name_key_result))
+
   var_names <- meta$settings$value[[match("var", meta$settings$setting)]]
 
   # With no inconsistent case, there is nothing to count hits in, but the

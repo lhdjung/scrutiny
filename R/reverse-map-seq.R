@@ -43,6 +43,8 @@ reverse_map_seq <- function(data) {
     name_key_result <- "consistency"
   }
 
+  check_cols_needed(data, c("case", "var", "diff_var", name_key_result))
+
   var <- data |>
     select_tested_cols(before = name_key_result) |>
     colnames()
