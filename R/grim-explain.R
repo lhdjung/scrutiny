@@ -501,7 +501,9 @@ format_reported <- function(x, digits) {
   if (anyNA(x) || is.na(digits)) {
     as.character(x)
   } else {
-    formatC(x, format = "f", digits = digits)
+    # `+ 0` turns a negative zero, as from `round(-0.04, 1)`, into a positive
+    # one, which `formatC()` would print as "-0.0":
+    formatC(x + 0, format = "f", digits = digits)
   }
 }
 

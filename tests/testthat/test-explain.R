@@ -254,3 +254,11 @@ test_that("a near-whole `n` is explained as the whole number, as the tests test 
   1.5 |> grimmer_explain(0.71, 2, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1)   |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
   0.5 |> debit_explain(0.58, 2, digits_x = 1 - 1e-9, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
 })
+
+
+test_that("a negative zero is shown as zero", {
+  # `formatC()` printed it as "-0.0":
+  -0 |> grim_explain(3, digits_x = 1, items_averaged = 1)    |> _$inputs |> expect_equal("x = 0.0, n = 3")
+  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3")
+  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> format() |> paste(collapse = " ") |> expect_no_match("-0.0[^0-9]")
+})
