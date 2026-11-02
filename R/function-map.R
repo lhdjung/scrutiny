@@ -262,8 +262,8 @@ function_map <- function(
     c(.reported, .reported_variadic, .args_disabled, names(.args_fixed), "...")
   )
 
-  # The body of the factory-made function assigns these names before it reads
-  # the values of the arguments, so an argument of `.fn` by one of these names
+  # The body of the factory-made function assigns these names before it is
+  # done reading the arguments, so an argument of `.fn` by one of these names
   # would be shadowed:
   names_locals <- c(
     "data",
@@ -284,7 +284,13 @@ function_map <- function(
     "names_variadic",
     "quo_variadic",
     "index_variadic",
+    "enum_defaults",
+    "enum_vals",
     "args_vals",
+    "cols_tested",
+    "col_variadic",
+    "arg_given",
+    "vals",
     "arg"
   )
   args_shadowed <- intersect(args_promoted, names_locals)

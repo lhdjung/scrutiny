@@ -927,6 +927,9 @@ test_that("`function_map()` rejects arguments it can't honor", {
     expect_error("must be a named list")
   fn_shadowed <- function(y, n, fn = 1) y > n
   fn_shadowed |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `fn`")
+  # These were assigned before the arguments were read, but not reserved:
+  fn_enum <- function(y, n, enum_vals = 0) y > n
+  fn_enum |> function_map(.reported = c("y", "n"), .name_test = "T") |> expect_error("Rename `enum_vals`")
 })
 
 
