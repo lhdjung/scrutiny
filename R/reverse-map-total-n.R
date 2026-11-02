@@ -32,6 +32,15 @@ reverse_map_total_n <- function(data) {
     )
   }
 
+  # The statistics reported for both groups, as recorded by the mapper. They
+  # need not all come before `n`, which a custom basic mapper may put anywhere:
+  colnames_reported <- attr(data, "scrutiny", exact = TRUE)$reported
+  if (is.null(colnames_reported)) {
+    abort_lost_settings()
+  }
+
+  check_cols_needed(data, c(colnames_reported, "n", "n_change", "case", "dir"))
+
   # The group sizes come in pairs: consecutive rows of the same case and
   # direction with the same absolute `n_change`. All pairs of a case add up to
   # the same total. Removed or reordered rows break this, and taking the first
@@ -76,10 +85,6 @@ reverse_map_total_n <- function(data) {
   is_back <- data_reduced$dir[locations1] == "back"
   data1 <- data_reduced[ifelse(is_back, locations2, locations1), ]
   data2 <- data_reduced[ifelse(is_back, locations1, locations2), ]
-
-  # The statistics reported for both groups, as recorded by the mapper. They
-  # need not all come before `n`, which a custom basic mapper may put anywhere:
-  colnames_reported <- attr(data, "scrutiny", exact = TRUE)$reported
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]

@@ -103,3 +103,15 @@ test_that("the reported columns are found wherever `n` is", {
   data <- tibble::tibble(x1 = 1, x2 = 2, sd1 = 3, sd2 = 4, n = 10L)
   data |> map_n_middle_total_n() |> reverse_map_total_n() |> expect_equal(data)
 })
+
+test_that("a missing column or a lost attribute is a scrutiny error", {
+  out <- tibble::tibble(x1 = c(5.19, 4.56), x2 = c(4.5, 1.2), n = c(28, 31)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1)
+  out |> dplyr::select(-both_consistent) |> audit_total_n()       |> expect_error("Missing: `both_consistent`")
+  out |> dplyr::select(-dir)             |> audit_total_n()       |> expect_error("Missing: `dir`")
+  out |> dplyr::select(-n_change)        |> audit_total_n()       |> expect_error("Missing: `n_change`")
+  out |> dplyr::select(-case)            |> audit_total_n()       |> expect_error("Missing: `case`")
+  out |> dplyr::select(-x)               |> reverse_map_total_n() |> expect_error("Missing: `x`")
+  attr(out, "scrutiny") <- NULL
+  out |> audit_total_n()       |> expect_error("lost the settings")
+  out |> reverse_map_total_n() |> expect_error("lost the settings")
+})

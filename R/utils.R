@@ -1539,6 +1539,18 @@ check_var_bounds <- function(var_bounds) {
 #' @return No return value; might throw an error.
 #'
 #' @noRd
+# For functions that read the "scrutiny" attribute of sequence or total-n
+# output, such as `audit_seq()`, when an element is gone:
+abort_lost_settings <- function() {
+  abort_in_export(
+    "`data` has lost the settings of the test that produced it.",
+    "x" = "Some dplyr verbs, such as `summarise()`, drop them.",
+    "i" = "Call `{name_last_export()}()` on the mapper's output directly, or \\
+    after verbs like `filter()`, `slice()`, and `arrange()`."
+  )
+}
+
+
 check_dispersion_linear <- function(data, name_fn) {
   if (isFALSE(attr(data, "scrutiny", exact = TRUE)$dispersion_linear)) {
     name_mapper <- class(data) |>

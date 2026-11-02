@@ -301,12 +301,7 @@ audit_seq <- function(data) {
   # reconstructed data instead would need the mapper and all its arguments:
   results_reported <- meta$results_reported
   if (is.null(results_reported)) {
-    abort_in_export(
-      "`data` has lost the settings of the test that produced it.",
-      "x" = "Some dplyr verbs, such as `summarise()`, drop them.",
-      "i" = "Call `audit_seq()` on the mapper's output directly, or after \\
-      verbs like `filter()`, `slice()`, and `arrange()`."
-    )
+    abort_lost_settings()
   }
 
   # `df_list` and `data_rev` are both split by `case`, so they are in this order:
@@ -342,6 +337,8 @@ audit_total_n <- function(data) {
       such as `grim_map_total_n()`."
     )
   }
+
+  check_cols_needed(data, c("n", "n_change", "case", "dir", "both_consistent"))
 
   df_list <- split(data, data$case)
 
