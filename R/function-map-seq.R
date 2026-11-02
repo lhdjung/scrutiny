@@ -589,8 +589,8 @@ function_map_seq <- function(
         list(
           results_reported = results,
           name_key_result = name_key_result,
-          dispersion_linear = length(dispersion) < 2L ||
-            is_seq_ascending(dispersion)
+          # Of the steps taken: `seq_disperse()` takes a repeated one once.
+          dispersion_linear = is_steps_ascending(dispersion)
         )
       )
 
@@ -614,4 +614,10 @@ function_map_seq <- function(
     .reported,
     insert_after = 1L + length(digits_args_names)
   )
+}
+
+
+is_steps_ascending <- function(dispersion) {
+  steps <- unique(round_whole(dispersion))
+  length(steps) < 2L || is_seq_ascending(steps)
 }

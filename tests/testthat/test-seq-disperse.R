@@ -197,3 +197,9 @@ test_that("an infinite `dispersion` is an error", {
 test_that("a repeated step counts once", {
   seq_disperse(4, dispersion = c(1, 1)) |> expect_equal(c(3, 4, 5))
 })
+
+test_that("a repeated step doesn't keep sequence output from being audited", {
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(1, 1, 2))
+  out |> audit_seq()       |> nrow() |> expect_equal(1L)
+  out |> reverse_map_seq() |> nrow() |> expect_equal(1L)
+})
