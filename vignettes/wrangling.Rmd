@@ -101,7 +101,7 @@ vec |>
   decimal_places()
 ```
 
-A convenient way to restore trailing zeros in a data frame is `restore_zeros_df()`. By default, it operates on all columns that are coercible to numeric (factors don't count):
+A convenient way to restore trailing zeros in a data frame is `restore_zeros_df()`. By default, it operates on all columns that are numeric-like, i.e., that `is_numeric_like()` accepts, such as numbers and strings that represent numbers:
 
 ```{r}
 iris <- tibble::as_tibble(iris)
