@@ -481,3 +481,9 @@ test_that("other columns of `data` come along, to the right of the results", {
 test_that("`extra` is gone; use `dplyr::select()` on the output instead", {
   df13 |> grim_map(digits_x = 2, items_averaged = 1, extra = 0) |> expect_error()
 })
+
+test_that("`show_rec` must be `TRUE` or `FALSE`", {
+  df <- tibble::tibble(x = 5.19, n = 28)
+  df |> grim_map(digits_x = 2, items_averaged = 1, show_rec = NA)    |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
+  df |> grim_map(digits_x = 2, items_averaged = 1, show_rec = "yes") |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
+})

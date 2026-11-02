@@ -151,14 +151,15 @@ an_a_type <- function(x) {
 #' @noRd
 # `is_decidable_n_items()` and `check_newly_numeric()` write this test out
 # rather than calling it, because they run once per row; keep them in step.
-# `percent` is checked here so that a missing value or a vector fails with a
-# clear message, not with `if ()`'s. Shared by `grim_scalar()`,
-# `grim_sums_scalar()`, and `grim_plot_values()`.
-check_percent <- function(percent) {
-  if (!isTRUE(percent) && !isFALSE(percent)) {
+# A logical setting such as `percent`, `show_rec`, or `include_consistent` is
+# checked here so that a missing value, a string, or a vector fails with a
+# clear message, not with `if ()`'s.
+check_flag <- function(flag) {
+  if (!isTRUE(flag) && !isFALSE(flag)) {
+    name <- deparse(substitute(flag))
     abort_in_export(
-      "`percent` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrap_in_quotes_or_backticks(percent)}."
+      "`{name}` must be `TRUE` or `FALSE`.",
+      "x" = "It is {wrap_in_quotes_or_backticks(flag)}."
     )
   }
 }

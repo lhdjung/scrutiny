@@ -356,6 +356,7 @@ debit_scalar <- function(
   # which matters here: this runs once per row. The constants are the defaults:
   formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  check_flag(show_rec)
 
   # See `grim_scalar()`:
   if (!is.numeric(n) && !is.na(n)) {

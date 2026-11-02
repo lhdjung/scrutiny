@@ -326,6 +326,9 @@ function_map_seq <- function(
 
       check_factory_dots(fn, name_fn, ...)
 
+      # `include_reported` is checked by `seq_disperse()`:
+      check_flag(include_consistent)
+
       # A missing `digits_*` argument is left out, as the helpers above are, so
       # that `fn()` raises its own error about it. `mget()` would force the
       # promise and fail with R's generic message when a wrapper passes it on:

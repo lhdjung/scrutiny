@@ -21,7 +21,7 @@ grim_sums_scalar <- function(
 
   # The same type checks as in `grim_scalar()`: a string `n` is a mistake, not
   # an undecidable value set, which `is_decidable_n_items()` would make of it.
-  check_percent(percent)
+  check_flag(percent)
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))
   }

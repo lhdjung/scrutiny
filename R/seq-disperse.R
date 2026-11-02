@@ -145,12 +145,7 @@ seq_disperse <- function(
       "i" = "It is a number of steps of `by`."
     )
   }
-  if (!isTRUE(include_reported) && !isFALSE(include_reported)) {
-    abort_in_export(
-      "`include_reported` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrap_in_quotes_or_backticks(include_reported)}."
-    )
-  }
+  check_flag(include_reported)
 
   disp_minus <- dispersion * by
   disp_plus <- disp_minus

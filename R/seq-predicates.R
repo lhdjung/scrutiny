@@ -20,12 +20,7 @@ is_seq_basic <- function(
   from = NULL
 ) {
   # A missing value here would fail in `if ()` or make every test `FALSE`:
-  if (!isTRUE(test_linear) && !isFALSE(test_linear)) {
-    abort_in_export(
-      "`test_linear` must be `TRUE` or `FALSE`.",
-      "x" = "It is {wrap_in_quotes_or_backticks(test_linear)}."
-    )
-  }
+  check_flag(test_linear)
   if (
     !is.numeric(tolerance) ||
       length(tolerance) != 1L ||

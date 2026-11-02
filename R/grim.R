@@ -10,7 +10,8 @@ grim_scalar <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  check_percent(percent)
+  check_flag(percent)
+  check_flag(show_rec)
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
   # numbers would make the verdict an unexplained `NA`.
   if (!is.numeric(n) && !is.na(n)) {

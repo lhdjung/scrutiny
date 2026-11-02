@@ -117,3 +117,7 @@ test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
     debit_map_seq(digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE)
   out_sd$sd |> max() |> expect_equal(1)
 })
+
+test_that("`show_rec` must be `TRUE` or `FALSE`", {
+  tibble::tibble(x = 0.5, sd = 0.5, n = 4) |> debit_map(digits_x = 1, digits_sd = 1, show_rec = NA) |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
+})

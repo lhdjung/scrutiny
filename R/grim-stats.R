@@ -137,7 +137,7 @@ grim_total <- function(
   items_averaged <- round_whole(items_averaged)
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
-  check_percent(percent)
+  check_flag(percent)
   if (!is.numeric(x) && !all(is.na(x))) {
     check_type(x, c("double", "integer"))
   }

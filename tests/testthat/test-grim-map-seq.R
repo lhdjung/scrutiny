@@ -1693,3 +1693,8 @@ test_that("a `.var_bounds` function is checked once it is called", {
   )
   pigs1 |> my_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("`.var_bounds$n` must be a numeric vector of length 2", fixed = TRUE)
 })
+
+test_that("`include_consistent` must be `TRUE` or `FALSE`", {
+  tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = "yes") |> expect_error("`include_consistent` must be `TRUE` or `FALSE`")
+  tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = NA)    |> expect_error("`include_consistent` must be `TRUE` or `FALSE`")
+})
