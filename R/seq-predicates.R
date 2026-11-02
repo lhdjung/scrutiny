@@ -68,7 +68,7 @@ is_seq_basic <- function(
   # be no number, so only a logical or numeric `NA` is sure to be one.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
-  if (length(x) > 0L && all(is.na(x))) {
+  if (length(x) > 0L && (is.atomic(x) || is.list(x)) && all(is.na(x))) {
     linear_anyway <- is.null(test_special) &&
       length(x) <= 2L &&
       (is.logical(x) || is.numeric(x))

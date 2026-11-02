@@ -329,3 +329,9 @@ test_that("no values could be dispersed around an infinite `from`", {
   c(NA, 5, NA)  |> is_seq_dispersed(from = Inf)     |> expect_false()
   c(NA, NA, NA) |> is_seq_dispersed(from = 5)       |> expect_na()
 })
+
+test_that("a non-vector is `FALSE` without a warning", {
+  mean |> is_seq_linear() |> expect_no_warning() |> expect_false()
+  mean |> is_seq_ascending() |> expect_no_warning() |> expect_false()
+  is_seq_linear(NULL) |> expect_false()
+})
