@@ -180,7 +180,7 @@ grim_total <- function(
   # that the data can actually have are the multiples of
   # `1 / (n * items_averaged)`.
   n_values <- 10^digits_x
-  n_means <- as.numeric(n) * items_averaged
+  n_means <- as.numeric(n) * as.numeric(items_averaged)
 
   # `NA` exactly where `grim()` returns `NA`, so that the `exp_incon` column
   # of `grim_map()` never shows a number next to an `NA` verdict.

@@ -175,6 +175,8 @@ test_that("near-whole arguments are counted as the whole numbers they are", {
 test_that("type mistakes are errors, as in `grim()`", {
   1 |> grim_total(n = "10", digits_x = 2, items_averaged = 1)         |> expect_error("`n` must be one of these types")
   1 |> grim_total(n = 7, digits_x = 2, items_averaged = "1")          |> expect_error("`items_averaged` must be one of these types")
+  # Missing values are undecidable, whatever their type. This was an error:
+  1 |> grim_total(n = 7, digits_x = 2, items_averaged = NA_character_) |> expect_na()
   1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
   1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
 })
