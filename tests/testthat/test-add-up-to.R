@@ -24,6 +24,8 @@ test_that("`add_up_to_map()` adds up the selected columns", {
   out |> audit() |> getElement("incon_cases") |> expect_equal(1L)
   df |> add_up_to_map(summands = c(n_control, n_treatment)) |> getElement("consistency") |> expect_equal(c(FALSE, FALSE, FALSE))
   df |> add_up_to_map() |> expect_error("summands")
+  # With a single key column, the error used to end on "consistency with .":
+  df |> dplyr::select(-total) |> add_up_to_map(summands = starts_with("n_")) |> expect_error("Column `total` must be in `data`") |> conditionMessage() |> expect_no_match("consistency with")
 })
 
 test_that("counts too large to add up exactly are undecidable", {

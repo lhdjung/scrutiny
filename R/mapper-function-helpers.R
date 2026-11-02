@@ -53,10 +53,15 @@ check_key_args_in_colnames <- function(data, reported) {
       non_offenders <- wrap_in_backticks(non_offenders)
     }
     offenders <- wrap_in_backticks(offenders)
-    abort_in_export(
-      "{msg_cols} {offenders} must be in `data`.",
+    # A test with a single key column, such as `add_up_to_map()` with its
+    # `total`, has nothing to name here:
+    msg_with <- if (msg_each_other != "" || length(non_offenders) > 0L) {
       "{msg_it_they} meant to be tested for consistency with \\
       {msg_each_other}{non_offenders}."
+    }
+    abort_in_export(
+      "{msg_cols} {offenders} must be in `data`.",
+      msg_with
     )
   }
 }
