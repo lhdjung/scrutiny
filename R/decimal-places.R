@@ -280,6 +280,14 @@ sep_literal <- function(sep) {
       "x" = "It is {wrong_spec_string(sep)}."
     )
   }
+  # An empty separator would match at the start of every string:
+  if (sep == "") {
+    name <- deparse(substitute(sep))
+    abort_in_export(
+      "`{name}` must not be an empty string.",
+      "i" = "It is the decimal separator, such as `\".\"` or `\",\"`."
+    )
+  }
   sub("^\\\\(.)$", "\\1", sep)
 }
 
