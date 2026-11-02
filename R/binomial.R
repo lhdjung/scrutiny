@@ -182,6 +182,9 @@ grim_binomial_power <- function(
       "i" = "It is the number of value sets."
     )
   }
+  # `rep()` and `0:k` would truncate a near-whole `k` like `100 * 0.29`, but
+  # `dbinom()` rounds it, so the two would count different numbers of trials:
+  k <- round_whole(k)
 
   # A probability outside of 0 and 1 would give `NaN`, an error, or a power of 1:
   check_probability <- function(p, name) {

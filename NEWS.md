@@ -114,7 +114,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 ### Consistency tests
 
-- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a verdict, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `is_percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_values()` functions, and `disperse()`, `disperse2()`, and `disperse_total()`.
+- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a verdict, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `is_percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_values()` functions, and `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps.
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`.
 

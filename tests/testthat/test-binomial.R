@@ -71,6 +71,12 @@ test_that("p-values agree with the exact binomial and keep their precision", {
   rep(0.3, 20L) |> poibin_p_values("greater") |> expect_equal(pbinom(-1:19, 20, 0.3, lower.tail = FALSE))
 })
 
+test_that("a near-whole `k` counts as the whole number it is shown as", {
+  # `rep()` and `0:k` truncated it to 28 trials, `dbinom()` rounded it to 29:
+  0.5 |> grim_binomial_power(0.9, k = 100 * 0.29) |> expect_equal(grim_binomial_power(0.5, 0.9, k = 29))
+  0.5 |> grim_binomial_power(0.9, k = 10 - 1e-9)  |> expect_equal(grim_binomial_power(0.5, 0.9, k = 10))
+})
+
 test_that("a p-value equal to `alpha` rejects in `grim_binomial_power()`", {
   for (k in c(2L, 5L, 6L, 8L, 9L)) {
     0.5 |> grim_binomial_power(1, k = k, alpha = 0.5^k) |> expect_equal(1)

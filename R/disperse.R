@@ -102,6 +102,8 @@ disperse <- function(
       moved apart, and a group has a whole number of members."
     )
   }
+  # Compared to the limits as the whole numbers they are shown as:
+  dispersion <- round_whole(dispersion)
 
   # Main part ---
 

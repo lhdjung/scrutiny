@@ -35,6 +35,14 @@ test_that("`dispersion` must consist of whole numbers", {
   10 |> disperse(dispersion = "a")         |> expect_error("must be one of these types")
 })
 
+test_that("a near-whole `dispersion` is compared to the limits as a whole number", {
+  # `seq(0, 1, 0.1) * 10` has 3.0000000000000004, so `4 - 3` was below `n_min`
+  # and the pair (1, 7) went missing:
+  steps <- seq(0, 1, 0.1) * 10
+  4 |> disperse(dispersion = steps)       |> purrr::pluck("n") |> expect_equal(c(4L, 4L, 3L, 5L, 2L, 6L, 1L, 7L))
+  9 |> disperse_total(dispersion = steps) |> purrr::pluck("n") |> expect_equal(c(4L, 5L, 3L, 6L, 2L, 7L, 1L, 8L))
+})
+
 test_that("`n` and `n_change` agree", {
   out <- disperse(n = 10)
   (out$n - 10L) |> expect_equal(out$n_change)
