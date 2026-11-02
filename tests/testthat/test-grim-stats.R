@@ -170,3 +170,22 @@ test_that("near-whole arguments are counted as the whole numbers they are", {
   1.5 |> grim_total(40, digits_x = 2, items_averaged = 2 - 1e-9)          |> expect_equal(grim_total(1.5, 40, digits_x = 2, items_averaged = 2))
   1.5 |> grim_exp_incon(40, digits_x = 1 - 1e-9, items_averaged = 1, percent = TRUE) |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 1, items_averaged = 1, percent = TRUE))
 })
+
+
+test_that("type mistakes are errors, as in `grim()`", {
+  1 |> grim_total(n = "10", digits_x = 2, items_averaged = 1)         |> expect_error("`n` must be one of these types")
+  1 |> grim_total(n = 7, digits_x = 2, items_averaged = "1")          |> expect_error("`items_averaged` must be one of these types")
+  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
+  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+})
+
+
+test_that("counts beyond 2^53 come without a precision warning", {
+  # `10^17 %% 7` lost all accuracy; the true count is `10^17 - 7`:
+  1 |> grim_total(7, digits_x = 15, items_averaged = 1, percent = TRUE) |> expect_no_warning()
+  1 |> grim_total(7, digits_x = 15, items_averaged = 1, percent = TRUE) |> expect_equal(1e17 - 7)
+  # Below 2^53, the count is exact:
+  1 |> grim_total(7, digits_x = 13, items_averaged = 1, percent = TRUE) |> expect_identical(1e15 - 7)
+  # 2^14 means, half of them on a tie that is consistent both ways:
+  1 |> grim_total(2^14, digits_x = 13, items_averaged = 1)              |> expect_identical(1e13 - 2^14 - 2^13)
+})

@@ -39,7 +39,8 @@
 #' @return Double. `grim_exp_incon()` and `grim_total()` return `NA` where
 #'   [`grim()`] cannot decide a case: if `x` is missing or infinite, or if `n`
 #'   or `items_averaged` is not a positive whole number. They are never
-#'   negative.
+#'   negative. A count above 2^53, which only `digits_x` of 14 or more with
+#'   `percent = TRUE` can reach, is the nearest number a double can hold.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -136,8 +137,15 @@ grim_total <- function(
   items_averaged <- round_whole(items_averaged)
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
+  check_percent(percent)
   if (!is.numeric(x) && !all(is.na(x))) {
     check_type(x, c("double", "integer"))
+  }
+  if (!is.numeric(n) && !all(is.na(n))) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !all(is.na(items_averaged))) {
+    check_type(items_averaged, c("double", "integer"))
   }
 
   # As in `grim()`, which would reject a fractional `digits_x` or one outside
@@ -207,9 +215,19 @@ grim_total <- function(
   #
   # Base R has no greatest common divisor, so this is Euclid's algorithm,
   # vectorized. Undecidable cases start from 1 so that the loop still ends;
-  # they are set to `NA` at the end.
+  # they are set to `NA` at the end. Its first step, `n_values %% n_means`, is
+  # taken digit by digit: from `10^16` on, `n_values` is beyond 2^53, where a
+  # double no longer holds every whole number.
   div_common <- dplyr::if_else(decidable, n_means, 1)
-  div_main <- dplyr::if_else(decidable, n_values, 1)
+  digits_loop <- dplyr::if_else(decidable, digits_x, 0)
+  div_main <- 1 %% div_common
+  for (i in seq_len(max(digits_loop, 0))) {
+    div_main <- dplyr::if_else(
+      i <= digits_loop,
+      (div_main * 10) %% div_common,
+      div_main
+    )
+  }
 
   while (any(div_main > 0)) {
     unfinished <- div_main > 0

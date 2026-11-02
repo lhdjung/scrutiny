@@ -57,7 +57,8 @@ it the other way; see \code{\link[roundwork:unround]{roundwork::unround()}}.
 Double. \code{grim_exp_incon()} and \code{grim_total()} return \code{NA} where
 \code{\link[=grim]{grim()}} cannot decide a case: if \code{x} is missing or infinite, or if \code{n}
 or \code{items_averaged} is not a positive whole number. They are never
-negative.
+negative. A count above 2^53, which only \code{digits_x} of 14 or more with
+\code{percent = TRUE} can reach, is the nearest number a double can hold.
 }
 \description{
 These functions quantify how informative a GRIM test is for a
