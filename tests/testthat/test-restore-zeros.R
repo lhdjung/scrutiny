@@ -143,6 +143,17 @@ test_that("unusual spellings of numbers are written out plainly", {
     restore_zeros() |>
     expect_equal(c("0.50", "1.50", "-0.25"))
   "0x1A" |> restore_zeros(width = 3) |> expect_equal("26.000")
+  c("1.50E+2", "-1.5e-3", "1e5", "+00.5") |>
+    restore_zeros() |>
+    expect_equal(c("150.0000", "-0.0015", "100000.0000", "0.5000"))
+  # Every digit given is kept, not printed from the double, which holds only
+  # about 17 of them:
+  "+0.12345678901234567890" |> restore_zeros(width = 22) |> expect_equal("0.1234567890123456789000")
+  "1.2345678901234567890e1" |> restore_zeros(width = 18) |> expect_equal("12.345678901234567890")
+})
+
+test_that("a near-whole `width` is compared as the whole number it is shown as", {
+  c(1.555, 2.25) |> restore_zeros(width = 3 - 1e-12) |> expect_equal(c("1.555", "2.250"))
 })
 
 

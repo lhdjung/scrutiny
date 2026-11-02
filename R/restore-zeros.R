@@ -102,11 +102,21 @@ restore_zeros <- function(
   # value, so it is written out in full, to the decimal places that
   # `decimal_places()` reads off the exponent. So are other spellings that
   # `as.numeric()` accepts, such as `".5"`, `"+1.5"`, or `"0x1A"`:
+  # Decimal spellings are rewritten as text, since a double holds only about
+  # 17 significant digits and `sprintf()` would print binary noise beyond them;
+  # only the rest, such as hexadecimal, goes through the number:
   rewrite <- is.finite(x_num) & !grepl("^-?[0-9]+(\\.[0-9]*)?$", x)
-  x[rewrite] <- sprintf("%.*f", decimal_places(x[rewrite]), x_num[rewrite])
+  as_text <- rewrite & grepl(PATTERN_DECIMAL_SPELLING, x)
+  x[as_text] <- write_out_decimal(x[as_text])
+  as_number <- rewrite & !as_text
+  x[as_number] <-
+    sprintf("%.*f", decimal_places(x[as_number]), x_num[as_number])
 
   # `NA` for a missing value and an infinity:
   width_mantissa <- decimal_places(x)
+
+  # Compared to the decimal counts as the whole number it is shown as:
+  width <- round_whole(width)
 
   if (is.null(width)) {
     if (length(x) == 1L) {
@@ -273,4 +283,31 @@ restore_zeros_df <- function(
         }
       )
     )
+}
+
+
+# Writes such a number out without an exponent by moving the decimal point
+# within the digits, so that every digit given is kept exactly:
+write_out_decimal <- function(x) {
+  parts <- regmatches(x, regexec(PATTERN_DECIMAL_SPELLING, x))
+  vapply(
+    parts,
+    function(part) {
+      sign <- if (part[2L] == "-") "-" else ""
+      digits <- paste0(part[3L], part[4L])
+      exponent <- if (part[5L] == "") 0L else as.integer(part[5L])
+      point <- nchar(part[3L]) + exponent
+      if (point <= 0L) {
+        digits <- paste0(strrep("0", 1L - point), digits)
+        point <- 1L
+      } else if (point > nchar(digits)) {
+        digits <- paste0(digits, strrep("0", point - nchar(digits)))
+      }
+      int <- sub("^0+(?=[0-9])", "", substr(digits, 1L, point), perl = TRUE)
+      dec <- substr(digits, point + 1L, nchar(digits))
+      paste0(sign, int, if (nchar(dec) > 0L) ".", dec)
+    },
+    character(1L),
+    USE.NAMES = FALSE
+  )
 }

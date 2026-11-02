@@ -135,3 +135,9 @@ LIST_MIN_DISTANCE_FUNCTIONS <- list(
     )
   }
 )
+
+
+# A number such as `"+.5"`, `"1.50E+2"`, or `"-1e-3"`: sign, integer digits,
+# decimal digits, and an optional exponent.
+PATTERN_DECIMAL_SPELLING <-
+  "^([+-]?)([0-9]*)\\.?([0-9]*)(?:[eE]([+-]?[0-9]+))?$"

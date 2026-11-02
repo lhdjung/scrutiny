@@ -59,6 +59,8 @@ test_that("`row` and `collapse` are checked", {
   df |> row_to_colnames(row = Inf)      |> expect_error("whole numbers")
   df |> row_to_colnames(row = NA_real_) |> expect_error("whole numbers")
   df |> row_to_colnames(collapse = NULL) |> expect_error("character")
+  # A near-whole `row` used to pass the check, then fail in `data[-row, ]`:
+  tibble::tibble(a = c("h", "1"), b = c("k", "2")) |> row_to_colnames(row = 1 + 1e-12) |> colnames() |> expect_equal(c("h", "k"))
 })
 
 test_that("repeated header cells are an error, not duplicate names", {

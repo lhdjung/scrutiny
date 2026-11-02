@@ -66,6 +66,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       "x" = "It includes {offenders}."
     )
   }
+  # `data[-row, ]` fails on a near-whole double like `1 + 1e-12`:
+  row <- round_whole(row)
 
   check_type(collapse, "character")
   check_length(collapse, 1L)
