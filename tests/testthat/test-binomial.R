@@ -99,3 +99,12 @@ test_that("`grim_binomial()` rejects sequence and total-n output", {
 test_that("`grim_binomial()` names the class of other mapper output", {
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> grim_binomial() |> expect_error("scrutiny_grimmer_map")
 })
+
+test_that("`poibin_p_values()` matches a direct convolution", {
+  set.seed(1)
+  p <- runif(40)
+  pmf <- 1
+  for (p_trial in p) pmf <- c(pmf * (1 - p_trial), 0) + c(0, pmf * p_trial)
+  poibin_p_values(p, "less") |> expect_equal(pmin(cumsum(pmf), 1))
+  poibin_p_values(p, "greater") |> expect_equal(pmin(rev(cumsum(rev(pmf))), 1))
+})

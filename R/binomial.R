@@ -232,9 +232,16 @@ grim_binomial_power <- function(
 # precision far below `1e-16`, where `1 - poibin::ppoibin()` would be 0, and a
 # stronger result can't get a larger p-value.
 poibin_p_values <- function(p, alternative) {
-  pmf <- 1
-  for (p_trial in p) {
-    pmf <- c(pmf * (1 - p_trial), 0) + c(0, pmf * p_trial)
+  # The probability of each count of successes, one trial at a time. The
+  # vector is allocated once: growing it with `c()` copied it at every step,
+  # which took some 20 seconds for 8,000 trials.
+  pmf <- numeric(length(p) + 1L)
+  pmf[1L] <- 1
+  for (i in seq_along(p)) {
+    p_trial <- p[[i]]
+    index <- seq_len(i)
+    pmf[index + 1L] <- pmf[index + 1L] * (1 - p_trial) + pmf[index] * p_trial
+    pmf[1L] <- pmf[1L] * (1 - p_trial)
   }
 
   # `P(X <= x)` and `P(X >= x)` for each `x`:
