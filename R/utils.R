@@ -784,6 +784,15 @@ check_class <- function(x, cl) {
 #'
 #' @noRd
 as_tibble_input <- function(data) {
+  if (is.data.frame(data) && anyDuplicated(colnames(data)) > 0L) {
+    names_dup <- unique(colnames(data)[duplicated(colnames(data))])
+    abort_in_export(
+      "!" = "`data` has more than one column named \\
+      {wrap_in_backticks(names_dup)}.",
+      "i" = "Rename or remove the duplicates first."
+    )
+  }
+
   if (tibble::is_tibble(data)) {
     return(data)
   }

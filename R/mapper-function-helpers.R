@@ -259,8 +259,16 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       )
     }
   } else if (affix) {
-    data <- data |>
-      dplyr::mutate({{ var_name }} := var_arg)
+    # One value for every row, or one per row; `mutate()` would reject any
+    # other length with an error about its own argument:
+    if (!length(var_arg) %in% c(1L, nrow(data))) {
+      abort_in_export(
+        "`{var_name}` must have length 1 or the number of rows in `data`.",
+        "x" = "It has length {length(var_arg)}, but `data` has \\
+        {nrow(data)} row{?s}."
+      )
+    }
+    data[[var_name]] <- var_arg
   }
 
   data

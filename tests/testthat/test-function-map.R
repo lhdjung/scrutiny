@@ -1050,11 +1050,17 @@ test_that("a `data.frame` is coerced to a tibble, keeping its row names", {
   df_labeled <- data.frame(x = 5.19, n = 28, rowname = "a", row.names = "study_1")
   df_labeled |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("has row names and a `rowname` column")
 
-  # A data frame with duplicate column names, as from `read.csv()` with
-  # `check.names = FALSE`, is rejected by tibble with its own message:
+  # A data frame or tibble with duplicate column names, as from `read.csv()`
+  # with `check.names = FALSE`, is an error in every tier:
   df_dup <- data.frame(x = 1, n = 2, check.names = FALSE)
   names(df_dup) <- c("x", "x")
-  df_dup |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must not be duplicated")
+  df_dup |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("more than one column named `x`")
+  tbl_dup <- tibble::tibble(x = 5.19, n = 28, z = 1, z = 2, .name_repair = "minimal")
+  tbl_dup |> grim_map(digits_x = 2, items_averaged = 1)     |> expect_error("more than one column named `z`")
+  tbl_dup |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("more than one column named `z`")
+
+  # A helper argument of the wrong length is the mapper's error, not dplyr's:
+  tibble::tibble(x = c(5.19, 4.56, 7.1), n = c(28, 30, 15)) |> grim_map(digits_x = 2, items_averaged = c(1, 2)) |> expect_error("`items_averaged` must have length 1 or the number of rows")
 })
 
 
