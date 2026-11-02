@@ -43,3 +43,17 @@ test_that("output that has lost its record combines as before", {
   attr(stripped, "scrutiny") <- NULL
   dplyr::bind_rows(stripped, out_down) |> nrow() |> expect_equal(4L)
 })
+
+test_that("output of different mappers or tiers can't be combined", {
+  df <- tibble::tibble(x = c(5.19, 4.2), n = c(28, 30))
+  out_grim <- df |> grim_map(digits_x = 2, items_averaged = 1)
+  out_grimmer <- tibble::tibble(x = 5.21, sd = 1.6, n = 28) |> grimmer_map(digits_x = 2, digits_sd = 1, items_averaged = 1)
+  out_seq <- df |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  dplyr::bind_rows(out_grim, out_grimmer) |> expect_error("different mappers")
+  dplyr::bind_rows(out_grimmer, out_grim) |> expect_error("different mappers")
+  dplyr::bind_rows(out_grim, out_seq)     |> expect_error("different mappers")
+  dplyr::bind_rows(out_seq, out_grim)     |> expect_error("different mappers")
+  # A class of the user's own comes first:
+  seq_custom <- function_map_seq(.fn = grim_map, .reported = c("x", "n"), .name_test = "GRIM", .name_class = "my_class")
+  dplyr::bind_rows(seq_custom(df, digits_x = 2, items_averaged = 1), seq_custom(df, digits_x = 2, items_averaged = 1, rounding = "up")) |> expect_error("`rounding`")
+})

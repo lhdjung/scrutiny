@@ -26,7 +26,7 @@
 #'   and percentages part by part, as in the examples. Each part records its
 #'   own settings, which [`grim_plot_grid()`], [`audit()`], and others read,
 #'   so the parts can't be combined with [`dplyr::bind_rows()`]: keep them
-#'   apart, or combine them as plain tibbles via [`tibble::as_tibble()`].
+#'   apart.
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
 #' @param rounding,threshold,symmetric Passed on to [`grim()`].

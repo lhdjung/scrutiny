@@ -199,6 +199,9 @@ function_map_seq <- function(
   force(.name_test)
   force(.name_key_result)
   force(.name_class)
+
+  # A class added here comes first; see `R/bind-rows.R`:
+  register_bind_methods(.name_class[1L])
   force(.args_disabled)
   force(.dispersion)
   force(.out_min)

@@ -9,17 +9,29 @@
 # or `[`, have identical attributes and combine as before.
 #
 # vctrs dispatches on the first class of each input, so a method is needed for
-# every class that comes first in a mapper's output: the basic mapper's own,
-# which `function_map()` registers as it creates the mapper, and the two tier
-# classes. A package that creates a mapper at the top level evaluates
-# `function_map()` at install time, where the registration is lost, so
-# `.onLoad()` registers scrutiny's own again.
+# every pair of classes that come first in a mapper's output, in either order:
+# the basic mapper's own, which `function_map()` registers as it creates the
+# mapper, the two tier classes, and any `.name_class` of a sequence or total-n
+# mapper, which comes before them. A pair of different classes is always an
+# error, since different mappers or tiers never record the same call. A
+# package that creates a mapper at the top level evaluates `function_map()` at
+# install time, where the registration is lost, so `.onLoad()` registers
+# scrutiny's own again.
+
+bind_classes <- new.env(parent = emptyenv())
 
 register_bind_methods <- function(class) {
-  key <- paste0(class, ".", class)
+  if (is.null(class)) {
+    return(invisible(NULL))
+  }
+  assign(class, TRUE, envir = bind_classes)
   ns <- asNamespace("vctrs")
-  registerS3method("vec_ptype2", key, vec_ptype2_scrutiny, envir = ns)
-  registerS3method("vec_cast", key, vec_cast_scrutiny, envir = ns)
+  for (other in ls(bind_classes)) {
+    for (key in unique(paste0(c(class, other), ".", c(other, class)))) {
+      registerS3method("vec_ptype2", key, vec_ptype2_scrutiny, envir = ns)
+      registerS3method("vec_cast", key, vec_cast_scrutiny, envir = ns)
+    }
+  }
 }
 
 
@@ -81,25 +93,43 @@ restore_scrutiny <- function(out, template) {
 }
 
 
-# An output that has lost its record has nothing to compare; the functions
-# that need the record say so themselves:
+# Output of different mappers is never combined. An output of the same mapper
+# that has lost its record has nothing to compare; the functions that need the
+# record say so themselves:
 check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
   meta_x <- attr(x, "scrutiny", exact = TRUE)
   meta_y <- attr(y, "scrutiny", exact = TRUE)
-  if (is.null(meta_x) || is.null(meta_y) || identical(meta_x, meta_y)) {
+  same_class <- identical(class(x), class(y))
+  if (
+    same_class &&
+      (is.null(meta_x) || is.null(meta_y) || identical(meta_x, meta_y))
+  ) {
     return(invisible(NULL))
   }
 
   settings_x <- meta_x$settings
   settings_y <- meta_y$settings
-  differing <- if (identical(settings_x$setting, settings_y$setting)) {
-    is_same <- mapply(identical, settings_x$value, settings_y$value)
-    settings_x$setting[!is_same]
-  } else {
-    character()
-  }
+  only_one <- c(
+    setdiff(settings_x$setting, settings_y$setting),
+    setdiff(settings_y$setting, settings_x$setting)
+  )
+  common <- intersect(settings_x$setting, settings_y$setting)
+  differing <- Filter(
+    function(name) {
+      !identical(
+        settings_x$value[[match(name, settings_x$setting)]],
+        settings_y$value[[match(name, settings_y$setting)]]
+      )
+    },
+    common
+  )
 
-  msg_what <- if (length(differing) > 0L) {
+  msg_what <- if (!same_class) {
+    "They come from different mappers."
+  } else if (length(only_one) > 0L) {
+    only_one <- wrap_in_backticks(only_one)
+    "Only one of them records {only_one}."
+  } else if (length(differing) > 0L) {
     values <- paste0(
       "`",
       differing,

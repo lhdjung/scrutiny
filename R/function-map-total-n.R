@@ -278,6 +278,9 @@ function_map_total_n <- function(
   force(.name_test)
   force(.name_key_result)
   force(.name_class)
+
+  # A class added here comes first; see `R/bind-rows.R`:
+  register_bind_methods(.name_class[1L])
   force(.dispersion)
   force(.n_min)
   force(.n_max)
