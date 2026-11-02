@@ -580,3 +580,9 @@ test_that("`formula = \"mean_n\"` does not attain the SD at an excluded bound of
   0.5 |> debit(0.5, 200, 1, 1, "mean_n", sd_meaning = "sd_pop") |> expect_true()
   0.5 |> debit(0.5, 200, 1, 1, "mean_n", "trunc", sd_meaning = "sd_pop") |> expect_true()
 })
+
+test_that("an integer `n` beyond 46340 doesn't overflow under `\"sd_pop\"`", {
+  0.5 |> debit(0.5, 50000L, digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop")           |> expect_true()
+  NA  |> debit(0.5, 50000L, digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop") |> expect_na()
+  debit_explain(0.5, 0.5, 50000L, 2, 2, sd_meaning = "sd_pop")$consistency |> expect_true()
+})
