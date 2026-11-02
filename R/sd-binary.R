@@ -117,11 +117,12 @@ sd_binary_sample <- function(n, variance, counts = list()) {
 }
 
 
-# Numbers, or missing values, of lengths that recycle as in `debit()`:
+# Numbers, or logical `NA`s, of lengths that recycle as in `debit()`. A
+# character `NA` would reach the arithmetic as a string:
 check_binary_args <- function(args) {
   for (name in names(args)) {
     x <- args[[name]]
-    if (!is.numeric(x) && !all(is.na(x))) {
+    if (!is.numeric(x) && !(is.logical(x) && all(is.na(x)))) {
       abort_in_export(
         "`{name}` must be one of these types: double and integer.",
         "x" = "It is {an_a_type(x)}."

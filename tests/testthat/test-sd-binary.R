@@ -33,6 +33,9 @@ test_that("input of the wrong type or length is an error", {
   # A negative `n` is named as the culprit, not the count:
   1       |> sd_binary_1_n(-3)      |> expect_error("`n` must not be negative")
   NA      |> sd_binary_1_n(5)       |> expect_na()
+  # A character `NA` used to reach the arithmetic:
+  NA_character_ |> sd_binary_mean_n(5) |> expect_error("`mean` must be one of these types")
+  NA_character_ |> sd_binary_0_n(5)    |> expect_error("`group_0` must be one of these types")
 })
 
 
