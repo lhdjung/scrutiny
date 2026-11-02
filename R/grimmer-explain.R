@@ -195,7 +195,7 @@ grimmer_explain <- function(
       " is unknown. But whether a sum admits the SD only depends on its ",
       "remainder when divided by ",
       n,
-      " and on whether it is odd or even, and no sum passes: for each one, ",
+      ", and none passes: for a sum with any remainder, ",
       "the sums of squares that ",
       n,
       " whole numbers with that sum can have miss the range that the SD ",

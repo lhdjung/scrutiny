@@ -387,11 +387,20 @@ grimmer_scalar <- function(
     )
     check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
   } else {
-    # With the mean unknown, any whole-number sum is a candidate. Whether a sum
-    # admits the SD depends only on its remainder modulo `n` and its parity
-    # (`sum_squares_min()`, `sum_squares_range()`, `sum_squares_attainable()`,
-    # test 3), so these sums stand for all of them:
-    sums_consistent <- c(0, 2 * n - 1)
+    # With the mean unknown, any whole-number sum is a candidate. Adding 1 to
+    # each number adds `n` to the sum and keeps the deviations, so whether a sum
+    # admits the SD depends only on its remainder `r` modulo `n`, and the sums
+    # `0:(n - 1)` stand for all of them. Their least sum of squared deviations
+    # is `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a remainder further
+    # than twice the SD's term from 0 and `n` can't pass. Skipping these keeps
+    # a tiny SD with a large `n` from taking minutes:
+    term_upper <- sd_bounds$term_upper
+    reach <- floor(2 * (term_upper$int + term_upper$num / term_upper$den)) + 1
+    sums_consistent <- if (2 * reach + 1 >= n) {
+      c(0, n - 1)
+    } else {
+      c(0, reach, n - reach, n - 1)
+    }
   }
 
   check_grimmer_exact(x, sd, n, items_averaged, sums_consistent, sd_bounds)
@@ -421,27 +430,30 @@ grimmer_scalar <- function(
 
 
 # Run the GRIMMER tests for each candidate sum from `sums[1]` to `sums[2]`,
-# stopping as soon as one passes them all. Also says whether any candidate
-# passed test 1, for the `reason` of a failure.
+# and so on for further pairs of bounds, stopping as soon as one passes them
+# all. Also says whether any candidate passed test 1, for the `reason` of a
+# failure.
 grimmer_sums_pass <- function(sums, n, items_averaged, sd_bounds) {
   any_passed_test1 <- FALSE
 
-  for (s in sums[1L]:sums[2L]) {
-    candidate <- grimmer_candidate(
-      s = s,
-      n = n,
-      items_averaged = items_averaged,
-      sd_bounds = sd_bounds
-    )
+  for (i in seq(1L, length(sums), by = 2L)) {
+    for (s in sums[i]:sums[i + 1L]) {
+      candidate <- grimmer_candidate(
+        s = s,
+        n = n,
+        items_averaged = items_averaged,
+        sd_bounds = sd_bounds
+      )
 
-    if (!candidate$pass_test1) {
-      next
-    }
+      if (!candidate$pass_test1) {
+        next
+      }
 
-    any_passed_test1 <- TRUE
+      any_passed_test1 <- TRUE
 
-    if (candidate$pass_test3) {
-      return(list(any_passed = TRUE, any_passed_test1 = TRUE))
+      if (candidate$pass_test3) {
+        return(list(any_passed = TRUE, any_passed_test1 = TRUE))
+      }
     }
   }
 

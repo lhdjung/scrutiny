@@ -383,7 +383,7 @@ test_that("the explanations agree with these verdicts", {
   debit_explain(NA, 0.5, 2, 2, 1, sd_meaning = "sd_sample_or_pop")$consistency  |> expect_na()
   debit_explain(0.53, NA, 1683, 2, 2)$consistency |> expect_na()
   format(debit_explain(NA, 0.9, 20, 2, 2)) |> expect_match("none of these gives an SD")
-  format(grimmer_explain(NA, 0.3, 2, 2, 2, 1)) |> expect_match("no sum passes")
+  format(grimmer_explain(NA, 0.3, 2, 2, 2, 1)) |> expect_match("none passes")
 })
 
 test_that("sequence mappers disperse the known values of such a case", {
@@ -394,4 +394,11 @@ test_that("sequence mappers disperse the known values of such a case", {
   out |> audit_seq() |> nrow() |> expect_equal(2L)
   df[1, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, var = "sd") |> expect_warning("`sd` is missing in every case")
   tibble::tibble(x = 0.33, sd = NA, n = 10) |> debit_map_seq(digits_x = 2, digits_sd = 2) |> nrow() |> expect_gt(0)
+})
+
+test_that("GRIMMER with `x` missing is fast for a tiny SD and a large `n`", {
+  elapsed <- system.time(verdict <- grimmer(NA, 0.0001, 1e6, digits_x = 2, digits_sd = 4, items_averaged = 1))[["elapsed"]]
+  verdict |> expect_false()
+  elapsed |> expect_lt(2)
+  NA |> grimmer(0.0001, 1e9, digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_na()
 })
