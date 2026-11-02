@@ -150,6 +150,11 @@ test_that("unusual spellings of numbers are written out plainly", {
   # about 17 of them:
   "+0.12345678901234567890" |> restore_zeros(width = 22) |> expect_equal("0.1234567890123456789000")
   "1.2345678901234567890e1" |> restore_zeros(width = 18) |> expect_equal("12.345678901234567890")
+  # An exponent too large to write out is `NA`. These overflowed the integer
+  # range or the longest string R allows:
+  c("1e-5", "0e99999999999", "1e-2147483647") |> restore_zeros()  |> expect_warning("too large to write out")
+  c("1e-5", "0e99999999999", "1e-2147483647") |> restore_zeros()  |> suppressWarnings() |> expect_equal(c("0.00001", NA, NA))
+  "1e-1000"                                   |> restore_zeros(width = 1000) |> nchar()  |> expect_equal(1002L)
 })
 
 test_that("a near-whole `width` is compared as the whole number it is shown as", {

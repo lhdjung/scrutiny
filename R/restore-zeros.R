@@ -21,7 +21,9 @@
 #'   digits cannot be padded accurately; enter such numbers as strings.
 #'
 #' @param x Numeric, or a string coercible to numeric. A value that is not
-#'   coercible, such as `"5%"`, becomes `NA` with a warning.
+#'   coercible, such as `"5%"`, becomes `NA` with a warning, and so does one
+#'   with an exponent so large that it can't be written out, such as
+#'   `"1e-999999"`.
 #' @param width Integer. Number of decimal places the output should have.
 #'   Length 1 or the length of `x`. Default is `NULL`, the largest number of
 #'   decimal places in `x`.
@@ -97,6 +99,7 @@ restore_zeros <- function(
     ))
   }
   x[is.na(x_num)] <- NA_character_
+  x_orig <- x
 
   # Zeros appended to scientific notation such as `"1e-04"` would multiply the
   # value, so it is written out in full, to the decimal places that
@@ -108,6 +111,15 @@ restore_zeros <- function(
   rewrite <- is.finite(x_num) & !grepl("^-?[0-9]+(\\.[0-9]*)?$", x)
   as_text <- rewrite & grepl(PATTERN_DECIMAL_SPELLING, x)
   x[as_text] <- write_out_decimal(x[as_text])
+  too_long <- as_text & is.na(x)
+  if (any(too_long)) {
+    cli::cli_warn(c(
+      "Values with an exponent too large to write out became `NA`.",
+      "x" = "This concerns {wrap_in_backticks(x_orig[too_long])}.",
+      "i" = "Written out, their integer or decimal part would have more \\
+      than {WRITTEN_OUT_MAX} digits."
+    ))
+  }
   as_number <- rewrite & !as_text
   x[as_number] <-
     sprintf("%.*f", decimal_places(x[as_number]), x_num[as_number])
@@ -287,7 +299,10 @@ restore_zeros_df <- function(
 
 
 # Writes such a number out without an exponent by moving the decimal point
-# within the digits, so that every digit given is kept exactly:
+# within the digits, so that every digit given is kept exactly. `NA` if the
+# integer or decimal part would have more than `WRITTEN_OUT_MAX` digits, as for
+# `"1e-999999"`. The
+# exponent is read as a double, which can't overflow the way an integer can:
 write_out_decimal <- function(x) {
   parts <- regmatches(x, regexec(PATTERN_DECIMAL_SPELLING, x))
   vapply(
@@ -295,8 +310,11 @@ write_out_decimal <- function(x) {
     function(part) {
       sign <- if (part[2L] == "-") "-" else ""
       digits <- paste0(part[3L], part[4L])
-      exponent <- if (part[5L] == "") 0L else as.integer(part[5L])
+      exponent <- if (part[5L] == "") 0 else as.numeric(part[5L])
       point <- nchar(part[3L]) + exponent
+      if (max(point, nchar(digits) - point) > WRITTEN_OUT_MAX) {
+        return(NA_character_)
+      }
       if (point <= 0L) {
         digits <- paste0(strrep("0", 1L - point), digits)
         point <- 1L
