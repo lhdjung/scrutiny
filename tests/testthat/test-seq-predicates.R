@@ -170,6 +170,12 @@ test_that("gaps are judged by the step the known values imply", {
   1:3 |> is_seq_dispersed(from = "NA")  |> expect_na()
   1:3 |> is_seq_dispersed(from = "NaN") |> expect_na()
   c(1, 2, 4) |> is_seq_dispersed(from = "NaN") |> expect_false()
+  # Strings that are all missing leave no known value. These were errors:
+  c("NaN", "NaN", "NaN") |> is_seq_linear()              |> expect_na()
+  c("NA", "NA")          |> is_seq_linear()              |> expect_true()
+  c("NaN", "NaN")        |> is_seq_ascending()           |> expect_na()
+  c("NA", "NA", "NaN")   |> is_seq_dispersed(from = 2)   |> expect_na()
+  c("NA", "NA", "NaN")   |> is_seq_dispersed(from = NA)  |> expect_na()
 
   # The examples from `vignette("devtools")`:
   c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()

@@ -84,6 +84,12 @@ is_seq_basic <- function(
 
     not_na <- which(!is.na(x))
 
+    # Strings such as `"NA"` and `"NaN"` only become missing here, so they can
+    # leave no known value even past the all-`NA` check above:
+    if (length(not_na) == 0L) {
+      return(NA)
+    }
+
     # Leading and trailing `NA`s cannot disprove that `x` is the kind of
     # sequence in question, only keep it from being proven:
     x <- x[not_na[1L]:not_na[length(not_na)]]
