@@ -55,6 +55,14 @@ test_that("integer counts don't overflow", {
 })
 
 
+test_that("huge counts don't overflow", {
+  # `n^2` is `Inf` from about 1e154, which made the SD 0:
+  1e200 |> sd_binary_groups(3e200) |> expect_equal(sqrt(0.25 * 0.75))
+  1e200 |> sd_binary_0_n(4e200)    |> expect_equal(sqrt(0.25 * 0.75))
+  3e200 |> sd_binary_1_n(4e200)    |> expect_equal(sqrt(0.25 * 0.75))
+})
+
+
 test_that("an infinite or `NaN` count, `n`, or mean is `NA`, not `NaN`", {
   Inf |> sd_binary_groups(10)  |> is.nan() |> expect_false()
   5   |> sd_binary_0_n(Inf)    |> is.nan() |> expect_false()

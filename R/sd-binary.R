@@ -42,13 +42,14 @@
 
 sd_binary_groups <- function(group_0, group_1) {
   check_binary_args(list(group_0 = group_0, group_1 = group_1))
-  # As doubles, since the product of two integer counts overflows from 46,341:
+  # As doubles, since the product of two integer counts overflows from 46,341.
+  # Below, each count is divided by `n` first, as `n^2` overflows from 1e154:
   group_0 <- round_whole(as.numeric(group_0))
   group_1 <- round_whole(as.numeric(group_1))
   check_binary_count(group_0)
   check_binary_count(group_1)
   n <- group_0 + group_1
-  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_0, group_1))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0, group_1))
 }
 
 
@@ -63,7 +64,7 @@ sd_binary_0_n <- function(group_0, n) {
   n <- round_whole(n)
   check_binary_count(group_0, n)
   group_1 <- n - group_0
-  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_0))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0))
 }
 
 
@@ -78,7 +79,7 @@ sd_binary_1_n <- function(group_1, n) {
   n <- round_whole(n)
   check_binary_count(group_1, n)
   group_0 <- n - group_1
-  sd_binary_sample(n, group_0 * group_1 / n^2, list(group_1))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_1))
 }
 
 
