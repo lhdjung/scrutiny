@@ -48,10 +48,12 @@ and \code{sd}. Default is \code{"up_or_down"}. See
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if
-not, and \code{NA} if the case cannot be decided: if a value is missing or if
-\code{n} is not a positive whole number. A sample SD divides by \code{n - 1}, so
-under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also
-be at least 2.
+not, and \code{NA} if the case cannot be decided: if \code{n} is missing or not a
+positive whole number, or if a missing \code{x} or \code{sd} (or its decimal count)
+could decide the case either way. It is \code{FALSE} with a missing \code{sd} if no
+number of ones has a mean that would be reported as \code{x}, and with a
+missing \code{x} if no number of ones has an SD that would be reported as
+\code{sd}. A sample SD divides by \code{n - 1}, so under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at least 2.
 }
 \description{
 \code{debit()} checks whether the reported mean and standard

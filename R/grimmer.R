@@ -251,25 +251,19 @@ grimmer_scalar <- function(
       }
       return(sample)
     }
-    return(grimmer_sd_sample_or_pop(sample, test_type("sd_pop"), show_reason))
+    return(
+      grimmer_sd_sample_or_pop(sample, test_type("sd_pop"), show_reason, n)
+    )
   }
 
-  # Undecidable. A missing decimal count is a missing value like any other: no
-  # rounding bounds follow from it.
-  if (
-    is.na(x) || is.na(sd) || is.na(n) || is.na(digits_x) || is.na(digits_sd)
-  ) {
+  # A verdict with a missing value is `NA` only if the value could decide the
+  # question either way. A missing `n` or `items_averaged` always could: with
+  # `n = 10^digits_x`, any mean passes GRIM, and some sum of squares fits. A
+  # missing decimal count is a missing value like any other: no rounding bounds
+  # follow from it.
+  if (is.na(n) || is.na(items_averaged)) {
     if (show_reason) {
       return(list(NA, "Missing value"))
-    }
-    return(NA)
-  }
-
-  # No data set has an infinite mean or SD, and an infinity has no decimal
-  # places to be reported with.
-  if (is.infinite(x) || is.infinite(sd)) {
-    if (show_reason) {
-      return(list(NA, "Infinite value"))
     }
     return(NA)
   }
@@ -284,9 +278,32 @@ grimmer_scalar <- function(
     return(NA)
   }
 
+  # With both values missing, nothing is left to decide on. With one of them,
+  # the other may still rule the case out: a mean that fails GRIM does so for
+  # any SD, and an SD that no sum of whole numbers can have does so for any
+  # mean.
+  x_known <- !is.na(x) && !is.na(digits_x)
+  sd_known <- !is.na(sd) && !is.na(digits_sd)
+
+  if (!x_known && !sd_known) {
+    if (show_reason) {
+      return(list(NA, "Missing value"))
+    }
+    return(NA)
+  }
+
+  # No data set has an infinite mean or SD, and an infinity has no decimal
+  # places to be reported with.
+  if ((x_known && is.infinite(x)) || (sd_known && is.infinite(sd))) {
+    if (show_reason) {
+      return(list(NA, "Infinite value"))
+    }
+    return(NA)
+  }
+
   # No data set has a negative SD, so no data set has this one. Squaring it
   # below would hide that.
-  if (sd < 0) {
+  if (sd_known && sd < 0) {
     if (show_reason) {
       return(list(FALSE, "Negative SD"))
     }
@@ -297,29 +314,41 @@ grimmer_scalar <- function(
 
   # GRIM TEST: the original `n` because `items_averaged` is passed down
   # separately.
-  pass_grim <- grim_scalar(
-    x = x,
-    n = n,
-    digits_x = digits_x,
-    items_averaged = items_averaged,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
+  if (x_known) {
+    pass_grim <- grim_scalar(
+      x = x,
+      n = n,
+      digits_x = digits_x,
+      items_averaged = items_averaged,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
 
-  # The guards above rule this out, but the branch below would fail on an `NA`:
-  if (is.na(pass_grim)) {
-    if (show_reason) {
-      return(list(NA, "GRIM undecidable"))
+    # The guards above rule this out, but the branch below would fail on an
+    # `NA`:
+    if (is.na(pass_grim)) {
+      if (show_reason) {
+        return(list(NA, "GRIM undecidable"))
+      }
+      return(NA)
     }
-    return(NA)
+
+    if (!pass_grim) {
+      if (show_reason) {
+        return(list(FALSE, "GRIM inconsistent"))
+      }
+      return(FALSE)
+    }
   }
 
-  if (!pass_grim) {
+  # The mean passed GRIM, or is unknown, and the SD is unknown: it could be
+  # anything.
+  if (!sd_known) {
     if (show_reason) {
-      return(list(FALSE, "GRIM inconsistent"))
+      return(list(NA, "Missing value"))
     }
-    return(FALSE)
+    return(NA)
   }
 
   sd_bounds <- grimmer_sd_bounds(
@@ -342,31 +371,62 @@ grimmer_scalar <- function(
     return(NA)
   }
 
-  # All integer sums consistent with the reported mean. `sum_range()` is the
-  # same helper `grim_scalar()` uses, so the two always agree on which sums are
-  # admissible, and it works in exact integer arithmetic -- floating-point
-  # products like `floor(x_bounds$upper * n_items)` could drop a legitimate sum
-  # or admit a phantom one (#86).
-  sums_consistent <- roundwork::sum_range(
-    x_num = x,
-    n_items = n_items,
-    digits = digits_x,
-    rounding = rounding,
-    threshold = threshold,
-    symmetric = symmetric
-  )
+  if (x_known) {
+    # All integer sums consistent with the reported mean. `sum_range()` is the
+    # same helper `grim_scalar()` uses, so the two always agree on which sums
+    # are admissible, and it works in exact integer arithmetic --
+    # floating-point products like `floor(x_bounds$upper * n_items)` could
+    # drop a legitimate sum or admit a phantom one (#86).
+    sums_consistent <- roundwork::sum_range(
+      x_num = x,
+      n_items = n_items,
+      digits = digits_x,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+    check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
+  } else {
+    # With the mean unknown, any whole-number sum is a candidate. Whether a sum
+    # admits the SD depends only on its remainder modulo `n` and its parity
+    # (`sum_squares_min()`, `sum_squares_range()`, `sum_squares_attainable()`,
+    # test 3), so these sums stand for all of them:
+    sums_consistent <- c(0, 2 * n - 1)
+  }
 
-  check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
   check_grimmer_exact(x, sd, n, items_averaged, sums_consistent, sd_bounds)
 
-  consistent_sums <- sums_consistent[1L]:sums_consistent[2L]
+  passed <- grimmer_sums_pass(sums_consistent, n, items_averaged, sd_bounds)
 
-  # Run the GRIMMER tests for each candidate sum, returning `TRUE` as soon as
-  # one passes them all. For `show_reason`, track whether any candidate passed
-  # test 1:
+  if (passed$any_passed) {
+    # With the mean unknown, a sum that admits the SD only says that some mean
+    # would be consistent:
+    verdict <- if (x_known) TRUE else NA
+    if (show_reason) {
+      return(list(verdict, if (x_known) "Passed all" else "Missing value"))
+    }
+    return(verdict)
+  }
+
+  # No candidate sum passed test 1 and test 3.
+  if (show_reason) {
+    if (passed$any_passed_test1) {
+      return(list(FALSE, "GRIMMER inconsistent (test 3)"))
+    }
+    return(list(FALSE, "GRIMMER inconsistent (test 1)"))
+  }
+
+  FALSE
+}
+
+
+# Run the GRIMMER tests for each candidate sum from `sums[1]` to `sums[2]`,
+# stopping as soon as one passes them all. Also says whether any candidate
+# passed test 1, for the `reason` of a failure.
+grimmer_sums_pass <- function(sums, n, items_averaged, sd_bounds) {
   any_passed_test1 <- FALSE
 
-  for (s in consistent_sums) {
+  for (s in sums[1L]:sums[2L]) {
     candidate <- grimmer_candidate(
       s = s,
       n = n,
@@ -381,38 +441,35 @@ grimmer_scalar <- function(
     any_passed_test1 <- TRUE
 
     if (candidate$pass_test3) {
-      if (show_reason) {
-        return(list(TRUE, "Passed all"))
-      }
-      return(TRUE)
+      return(list(any_passed = TRUE, any_passed_test1 = TRUE))
     }
   }
 
-  # No candidate sum passed test 1 and test 3.
-  if (show_reason) {
-    if (any_passed_test1) {
-      return(list(FALSE, "GRIMMER inconsistent (test 3)"))
-    }
-    return(list(FALSE, "GRIMMER inconsistent (test 1)"))
-  }
-
-  FALSE
+  list(any_passed = FALSE, any_passed_test1 = any_passed_test1)
 }
 
 
 # Combines the results of `grimmer_scalar()` under `sd_meaning = "sd_sample"`,
-# which did not pass, and `"sd_pop"`. The verdict is the population SD's: it is
-# decidable wherever the sample SD is, and at `n = 1`, where a sample SD does
-# not exist, it is the only SD there is. A reason that differs between the two
-# names both, unless the sample SD was undecidable.
-grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
+# which did not pass, and `"sd_pop"`. The verdict is the population SD's,
+# unless a missing value left the sample SD undecided while the population SD
+# fails: the value set may then still be consistent as a sample SD, so the
+# verdict is `NA`. Not at `n = 1`, where a sample SD does not exist and the
+# population SD is the only SD there is. A reason that differs between the two
+# names both, unless the sample SD was undecidable. Shared with
+# `debit_sd_sample_or_pop()`, which has no reasons.
+grimmer_sd_sample_or_pop <- function(sample, population, show_reason, n) {
+  verdict <- combine_sd_sample_or_pop(sample[[1L]], population[[1L]], n)
+
   if (!show_reason) {
-    return(population)
+    return(verdict)
   }
 
-  reason <- if (isTRUE(population[[1L]])) {
+  reason <- if (isTRUE(verdict)) {
     "Passed all (population SD)"
+  } else if (is.na(verdict)) {
+    if (is.na(sample[[1L]])) sample[[2L]] else population[[2L]]
   } else if (is.na(sample[[1L]]) || identical(sample[[2L]], population[[2L]])) {
+    # The sample SD was undecidable, as at `n = 1`:
     population[[2L]]
   } else {
     paste0(
@@ -423,7 +480,16 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
     )
   }
 
-  list(population[[1L]], reason)
+  list(verdict, reason)
+}
+
+
+combine_sd_sample_or_pop <- function(sample, population, n) {
+  if (is.na(sample) && isFALSE(population) && isTRUE(n > 1)) {
+    NA
+  } else {
+    population
+  }
 }
 
 
@@ -509,10 +575,12 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason) {
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
-#'   value is missing or infinite, or if `n` or `items_averaged` is not a
-#'   positive whole number. A sample SD divides by `n - 1`, so under
-#'   `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also be at
-#'   least 2.
+#'   value is infinite, if `n` or `items_averaged` is missing or not a
+#'   positive whole number, or if a missing `x` or `sd` (or its decimal count)
+#'   could decide the case either way. It is `FALSE` with a missing `sd` if
+#'   `x` fails GRIM, and with a missing `x` if no sum of whole numbers admits
+#'   `sd`. A sample SD divides by `n - 1`, so under `sd_meaning =
+#'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.

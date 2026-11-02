@@ -72,26 +72,46 @@ check_debit_inputs_all <- function(x, sd) {
 
 #' @include utils.R sd-binary.R
 
-# Every undecidable DEBIT case returns in the same shape: a bare `NA`, or --
-# under `show_rec` -- a full row with `NA` in every reconstructed slot. The
-# three call sites are a missing value, an `n` that cannot describe a sample,
-# and undefined rounding bounds.
-debit_undecidable <- function(show_rec) {
-  if (show_rec) {
-    list(
-      NA,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA,
-      NA_real_,
-      NA_real_,
-      NA_real_,
-      NA_real_
-    )
-  } else {
-    NA
+# Every DEBIT result returns in the same shape: a bare verdict, or -- under
+# `show_rec` -- a full row with the reconstructed numbers, `NA` where a missing
+# value left them unknown. The verdict is `NA` for a missing value that could
+# decide the case, an `n` that cannot describe a sample, and undefined rounding
+# bounds.
+debit_result <- function(
+  consistency,
+  show_rec,
+  bounds_sd = NULL,
+  bounds_x = NULL,
+  sums = NULL
+) {
+  if (!show_rec) {
+    return(consistency)
   }
+  sd_part <- if (is.null(bounds_sd)) {
+    list(NA_real_, NA, NA_real_, NA)
+  } else {
+    list(
+      bounds_sd$lower / bounds_sd$denom,
+      bounds_sd$incl_lower,
+      bounds_sd$upper / bounds_sd$denom,
+      bounds_sd$incl_upper
+    )
+  }
+  x_part <- if (is.null(bounds_x)) {
+    list(NA_real_, NA_real_, NA_real_, NA_real_)
+  } else {
+    list(
+      bounds_x$lower / bounds_x$denom,
+      bounds_x$upper / bounds_x$denom,
+      sums[[1L]],
+      sums[[2L]]
+    )
+  }
+  c(list(consistency), sd_part, x_part)
+}
+
+debit_undecidable <- function(show_rec) {
+  debit_result(NA, show_rec)
 }
 
 
@@ -284,7 +304,9 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
 # The rounding bounds of the reported mean and SD, confined to what binary data
 # can have. Clamping only ever narrows a range, and a bound moved this way is
 # attainable, hence inclusive. Shared with `debit_explain()`, so that its text
-# shows the bounds that decided the test.
+# shows the bounds that decided the test. A missing value, or one with a
+# missing decimal count, has `NULL` bounds; so does one whose bounds are
+# undefined.
 debit_bounds <- function(
   x,
   sd,
@@ -294,46 +316,43 @@ debit_bounds <- function(
   threshold,
   symmetric
 ) {
-  bounds_x <- roundwork::bound_numerators(
-    x,
-    digits_x,
-    rounding,
-    threshold,
-    symmetric
-  )
-  bounds_sd <- roundwork::bound_numerators(
-    sd,
-    digits_sd,
-    rounding,
-    threshold,
-    symmetric
-  )
-
-  if (is.null(bounds_x) || is.null(bounds_sd)) {
-    return(NULL)
+  bounds_x <- if (!is.na(x) && !is.na(digits_x)) {
+    roundwork::bound_numerators(x, digits_x, rounding, threshold, symmetric)
+  }
+  bounds_sd <- if (!is.na(sd) && !is.na(digits_sd)) {
+    roundwork::bound_numerators(sd, digits_sd, rounding, threshold, symmetric)
   }
 
   # A mean of binary data cannot lie outside 0 and 1, however the rounding
   # bounds fall. Otherwise, a mean reported as 0.00 would have a bound below 0,
   # `sd_binary_mean_n()` would give `NaN`, and `debit(x = 0, sd = 0, n = 50)`
   # would be `NA`, though every value is 0.
-  if (bounds_x$lower < 0) {
-    bounds_x$lower <- 0
-    bounds_x$incl_lower <- TRUE
-  }
-  if (bounds_x$upper > bounds_x$denom) {
-    bounds_x$upper <- bounds_x$denom
-    bounds_x$incl_upper <- TRUE
+  if (!is.null(bounds_x)) {
+    if (bounds_x$lower < 0) {
+      bounds_x$lower <- 0
+      bounds_x$incl_lower <- TRUE
+    }
+    if (bounds_x$upper > bounds_x$denom) {
+      bounds_x$upper <- bounds_x$denom
+      bounds_x$incl_upper <- TRUE
+    }
   }
 
   # An SD cannot be negative, so a negative lower bound is really a bound of
   # zero. Same as in `grimmer_scalar()`:
-  if (bounds_sd$lower < 0) {
+  if (!is.null(bounds_sd) && bounds_sd$lower < 0) {
     bounds_sd$lower <- 0
     bounds_sd$incl_lower <- TRUE
   }
 
   list(x = bounds_x, sd = bounds_sd)
+}
+
+
+# With the mean unknown, it may lie anywhere from 0 to 1, and the number of
+# ones anywhere from 0 to `n`:
+debit_bounds_x_any <- function() {
+  list(lower = 0, upper = 10, denom = 10, incl_lower = TRUE, incl_upper = TRUE)
 }
 
 
@@ -397,21 +416,32 @@ debit_scalar <- function(
     if (isTRUE(sample[[1L]])) {
       return(sample)
     }
-    return(test_type("sd_pop"))
+    population <- test_type("sd_pop")
+    verdict <- combine_sd_sample_or_pop(sample[[1L]], population[[1L]], n)
+    if (show_rec) {
+      population[[1L]] <- verdict
+      return(population)
+    }
+    return(verdict)
   }
 
-  # A missing value makes the test undecidable, and it is returned in the same
-  # shape as the undefined-bounds case below. A missing decimal count counts: no
-  # rounding bounds follow from it.
-  if (anyNA(c(x, sd, n, digits_x, digits_sd))) {
+  # A verdict with a missing value is `NA` only if the value could decide the
+  # question either way. A sample SD of `n` binary values divides by `n - 1`,
+  # so `n` has to be a whole number greater than 1 for it to describe anything;
+  # a population SD needs a positive one. Anything else, a missing `n`
+  # included, is undecidable, as in `grim_scalar()` and `grimmer_scalar()` --
+  # not a `FALSE` reached through an `Inf` or a zero:
+  if (!is_decidable_n_items(n, min_n = sd_min_n(sd_meaning))) {
     return(debit_undecidable(show_rec))
   }
 
-  # A sample SD of `n` binary values divides by `n - 1`, so `n` has to be a
-  # whole number greater than 1 for it to describe anything; a population SD
-  # needs a positive one. Anything else is undecidable, as in `grim_scalar()`
-  # and `grimmer_scalar()` -- not a `FALSE` reached through an `Inf` or a zero:
-  if (!is_decidable_n_items(n, min_n = sd_min_n(sd_meaning))) {
+  # A missing decimal count is a missing value like any other: no rounding
+  # bounds follow from it. With both values missing, nothing is left to decide
+  # on; with one of them, the other may rule the case out on its own.
+  x_known <- !is.na(x) && !is.na(digits_x)
+  sd_known <- !is.na(sd) && !is.na(digits_sd)
+
+  if (!x_known && !sd_known) {
     return(debit_undecidable(show_rec))
   }
 
@@ -426,33 +456,48 @@ debit_scalar <- function(
   )
 
   # Undefined bounds leave the case undecidable, as in `grim_scalar()`:
-  if (is.null(bounds)) {
+  if ((x_known && is.null(bounds$x)) || (sd_known && is.null(bounds$sd))) {
     return(debit_undecidable(show_rec))
   }
 
   bounds_x <- bounds$x
   bounds_sd <- bounds$sd
 
-  x_lower <- bounds_x$lower / bounds_x$denom
-  x_upper <- bounds_x$upper / bounds_x$denom
+  if (x_known) {
+    # The least and the greatest number of ones whose mean `k / n` would be
+    # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that
+    # `n` binary values can have. If there is no such number, `sum_lower` is
+    # greater than `sum_upper`.
+    check_sum_range_exact(x, n, digits_x)
+    sums <- roundwork::sum_range(x, n, digits_x, rounding, threshold, symmetric)
+    sums <- c(max(sums[1L], 0), min(sums[2L], n))
+  } else {
+    bounds_x <- debit_bounds_x_any()
+    sums <- c(0, n)
+  }
 
-  sd_lower <- bounds_sd$lower / bounds_sd$denom
-  sd_upper <- bounds_sd$upper / bounds_sd$denom
-
-  # The least and the greatest number of ones whose mean `k / n` would be
-  # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that `n`
-  # binary values can have. If there is no such number, `sum_lower` is greater
-  # than `sum_upper`.
-  check_sum_range_exact(x, n, digits_x)
-  sums <- roundwork::sum_range(x, n, digits_x, rounding, threshold, symmetric)
-  sum_lower <- max(sums[1L], 0)
-  sum_upper <- min(sums[2L], n)
+  # With the SD unknown, the mean alone decides the case only if no number of
+  # ones has it, as in GRIM; `"mean_n"` takes the mean as continuous, so its
+  # range is never empty:
+  if (!sd_known) {
+    consistency <- if (formula == "exact" && sums[[1L]] > sums[[2L]]) {
+      FALSE
+    } else {
+      NA
+    }
+    return(debit_result(
+      consistency,
+      show_rec,
+      bounds_x = bounds_x,
+      sums = sums
+    ))
+  }
 
   consistency <- switch(
     formula,
     "exact" = binary_sd_attainable(
-      sum_lower = sum_lower,
-      sum_upper = sum_upper,
+      sum_lower = sums[[1L]],
+      sum_upper = sums[[2L]],
       n = n,
       bounds_sd = bounds_sd,
       sd_meaning = sd_meaning
@@ -469,23 +514,16 @@ debit_scalar <- function(
     )
   )
 
-  if (!show_rec) {
-    return(consistency)
+  # With the mean unknown, an attainable SD only says that some mean would be
+  # consistent:
+  if (!x_known) {
+    if (isTRUE(consistency)) {
+      consistency <- NA
+    }
+    return(debit_result(consistency, show_rec, bounds_sd = bounds_sd))
   }
 
-  # The reconstructed numbers, in the order of the output columns of
-  # `debit_map()`:
-  list(
-    consistency,
-    sd_lower,
-    bounds_sd$incl_lower,
-    sd_upper,
-    bounds_sd$incl_upper,
-    x_lower,
-    x_upper,
-    sum_lower,
-    sum_upper
-  )
+  debit_result(consistency, show_rec, bounds_sd, bounds_x, sums)
 }
 
 
@@ -528,10 +566,13 @@ debit_scalar <- function(
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
-#'   not, and `NA` if the case cannot be decided: if a value is missing or if
-#'   `n` is not a positive whole number. A sample SD divides by `n - 1`, so
-#'   under `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also
-#'   be at least 2.
+#'   not, and `NA` if the case cannot be decided: if `n` is missing or not a
+#'   positive whole number, or if a missing `x` or `sd` (or its decimal count)
+#'   could decide the case either way. It is `FALSE` with a missing `sd` if no
+#'   number of ones has a mean that would be reported as `x`, and with a
+#'   missing `x` if no number of ones has an SD that would be reported as
+#'   `sd`. A sample SD divides by `n - 1`, so under `sd_meaning =
+#'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
 #'
 #' @seealso [`debit_map()`] for data frames.
 #'

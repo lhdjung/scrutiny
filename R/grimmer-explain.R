@@ -105,7 +105,7 @@ grimmer_explain <- function(
         sd_meaning = sd_meaning
       )
     }
-    return(explain_sd_sample_or_pop(explain_type, consistency))
+    return(explain_sd_sample_or_pop(explain_type, consistency, n))
   }
 
   explain <- function(text) {
@@ -164,6 +164,44 @@ grimmer_explain <- function(
   )
   if (!is.null(text)) {
     return(explain(text))
+  }
+
+  # With the mean unknown, the only way to a verdict is an SD that no sum of
+  # whole numbers admits; `grimmer_scalar()` checked every sum by its remainder
+  # and parity:
+  if (is.na(x) || is.na(digits_x)) {
+    sd_bounds <- grimmer_sd_bounds(
+      sd = sd,
+      n = n,
+      items_averaged = items_averaged,
+      digits_sd = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
+      sd_meaning = sd_meaning
+    )
+    text_bounds <- describe_reported(
+      if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
+      sd,
+      digits_sd,
+      format_number(sd_bounds$lower / sd_bounds$denom, digits_sd),
+      format_number(sd_bounds$upper / sd_bounds$denom, digits_sd),
+      sd_bounds$incl_lower,
+      sd_bounds$incl_upper
+    )
+    text_sums <- paste0(
+      "x is missing, so the sum of the ",
+      if (items_averaged == 1) "values" else "respondents' totals",
+      " is unknown. But whether a sum admits the SD only depends on its ",
+      "remainder when divided by ",
+      n,
+      " and on whether it is odd or even, and no sum passes: for each one, ",
+      "the sums of squares that ",
+      n,
+      " whole numbers with that sum can have miss the range that the SD ",
+      "requires."
+    )
+    return(explain(c(text_bounds, text_sums)))
   }
 
   grim <- grim_explain(

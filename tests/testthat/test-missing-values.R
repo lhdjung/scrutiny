@@ -138,8 +138,10 @@ test_that("the `show_*` columns keep their shape and their types", {
       "Missing value"
     ))
 
+  # The bounds of a known value are returned next to a missing one:
   out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
-  out_debit$sd_lower[2:3] |> expect_equal(c(NA_real_, NA_real_))
+  out_debit$sd_lower[2:3] |> expect_equal(c(0.495, NA_real_))
+  out_debit$x_lower[2:3]  |> expect_equal(c(NA_real_, 0.525))
   out_debit$sd_lower |> expect_type("double")
 })
 
@@ -330,4 +332,56 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   tibble::tibble(x = 5.19, n = 28L) |>
     grim_map_seq(digits_x = NA, items_averaged = 1) |>
     expect_error("single number")
+})
+
+test_that("a missing value that can't change the verdict doesn't make it `NA`", {
+  # With `sd` missing, a mean that fails GRIM fails for any SD:
+  5.19 |> grimmer(NA, 28, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_false()
+  5.19 |> grimmer(0.5, 28, digits_x = 2, digits_sd = NA, items_averaged = 1) |> expect_false()
+  # With `x` missing, a negative SD, or one that no sum of whole numbers
+  # admits, fails for any mean; two whole numbers have a sample SD of 0, 0.71,
+  # 1.41, ...:
+  NA |> grimmer(-1, 28, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_false()
+  NA |> grimmer(0.3, 2, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_false()
+  NA |> grimmer(0.71, 2, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_na()
+  NA |> grimmer(0.3, 2, digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop") |> expect_false()
+  # As a population SD, 0.5 is possible, so the combined verdict stays open:
+  NA |> grimmer(0.5, 2, digits_x = 2, digits_sd = 1, items_averaged = 1, sd_meaning = "sd_sample_or_pop") |> expect_na()
+  # The reasons name the test that decided:
+  grimmer_scalar(5.19, NA, 28, 2, 2, 1, show_reason = TRUE)[[2L]] |> expect_equal("GRIM inconsistent")
+  grimmer_scalar(NA, 0.3, 2, 2, 2, 1, show_reason = TRUE)[[2L]]   |> expect_equal("GRIMMER inconsistent (test 1)")
+  grimmer_scalar(NA, 0.71, 2, 2, 2, 1, show_reason = TRUE)[[2L]]  |> expect_equal("Missing value")
+  # DEBIT: no number of 20 ones has an SD of 0.9, and 0.33 * 20 is no whole
+  # number:
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2) |> expect_false()
+  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2)  |> expect_false()
+  0.33 |> debit(0.5, 20, digits_x = 2, digits_sd = NA) |> expect_false()
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, formula = "mean_n") |> expect_false()
+  # Under `"mean_n"`, the mean is continuous, so it never fails on its own:
+  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2, formula = "mean_n")  |> expect_na()
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop") |> expect_false()
+  NA   |> debit(0.5, 2, digits_x = 2, digits_sd = 1, sd_meaning = "sd_sample_or_pop")  |> expect_na()
+  # With `n` missing, some `n` always works:
+  5.19 |> grimmer(NA, NA, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_na()
+  0.33 |> debit(NA, NA, digits_x = 2, digits_sd = 2) |> expect_na()
+  # `show_rec` returns the bounds of the known value:
+  out <- tibble::tibble(x = c(NA, 0.33), sd = c(0.9, NA), n = 20) |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  out$consistency |> expect_equal(c(FALSE, FALSE))
+  out$sd_lower |> expect_equal(c(0.895, NA))
+  out$sum_lower |> expect_equal(c(NA, 7))
+})
+
+test_that("the explanations agree with these verdicts", {
+  grimmer_explain(5.19, NA, 28, 2, 2, 1)$consistency |> expect_false()
+  grimmer_explain(NA, 0.3, 2, 2, 2, 1)$consistency   |> expect_false()
+  grimmer_explain(NA, 0.3, 2, 2, 2, 1, sd_meaning = "sd_sample_or_pop")$consistency |> expect_false()
+  grimmer_explain(NA, 0.5, 2, 2, 1, 1, sd_meaning = "sd_sample_or_pop")$consistency |> expect_na()
+  grimmer_explain(NA, 0.71, 2, 2, 2, 1)$consistency  |> expect_na()
+  debit_explain(NA, 0.9, 20, 2, 2)$consistency  |> expect_false()
+  debit_explain(0.33, NA, 20, 2, 2)$consistency |> expect_false()
+  debit_explain(NA, 0.9, 20, 2, 2, sd_meaning = "sd_sample_or_pop")$consistency |> expect_false()
+  debit_explain(NA, 0.5, 2, 2, 1, sd_meaning = "sd_sample_or_pop")$consistency  |> expect_na()
+  debit_explain(0.53, NA, 1683, 2, 2)$consistency |> expect_na()
+  format(debit_explain(NA, 0.9, 20, 2, 2)) |> expect_match("none of these gives an SD")
+  format(grimmer_explain(NA, 0.3, 2, 2, 2, 1)) |> expect_match("no sum passes")
 })

@@ -94,7 +94,7 @@ debit_explain <- function(
         sd_meaning = sd_meaning
       )
     }
-    return(explain_sd_sample_or_pop(explain_type, consistency))
+    return(explain_sd_sample_or_pop(explain_type, consistency, n))
   }
 
   explain <- function(text) {
@@ -130,14 +130,8 @@ debit_explain <- function(
     return(explain(text))
   }
 
-  sd_lower <- format_number(rec[[2L]], digits_sd)
-  sd_incl_lower <- rec[[3L]]
-  sd_upper <- format_number(rec[[4L]], digits_sd)
-  sd_incl_upper <- rec[[5L]]
-  sum_lower <- rec[[8L]]
-  sum_upper <- rec[[9L]]
-
-  # The bounds that decided the test, as `debit_scalar()` has them:
+  # The bounds that decided the test, as `debit_scalar()` has them. A missing
+  # value, or one with a missing decimal count, has none:
   bounds <- debit_bounds(
     x,
     sd,
@@ -147,6 +141,50 @@ debit_explain <- function(
     threshold,
     symmetric
   )
+
+  text_intro <- paste0(
+    "DEBIT is about binary data, where every value is 0 or 1. The mean is ",
+    "then the share of ones, and the SD follows from the number of ones and ",
+    "the sample size."
+  )
+
+  # The case is decided, with one value missing, so the other rules it out on
+  # its own: no number of ones has an SD in the SD's range, or no number of
+  # ones has a mean in the mean's range.
+  if (is.null(bounds$x)) {
+    bounds_sd <- bounds$sd
+    text_bounds_sd <- describe_reported(
+      if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
+      sd,
+      digits_sd,
+      format_number(bounds_sd$lower / bounds_sd$denom, digits_sd),
+      format_number(bounds_sd$upper / bounds_sd$denom, digits_sd),
+      bounds_sd$incl_lower,
+      bounds_sd$incl_upper
+    )
+    text_none <- if (formula == "exact") {
+      paste0(
+        "x is missing, so the number of ones is unknown. But it is a whole ",
+        "number from 0 to ",
+        n,
+        ", and none of these gives an SD in that range."
+      )
+    } else {
+      paste0(
+        "x is missing, so the mean is unknown. But it lies between 0 and 1, ",
+        "and no mean in that range gives an SD in the SD's range."
+      )
+    }
+    return(explain(c(text_intro, text_bounds_sd, text_none)))
+  }
+
+  sd_lower <- format_number(rec[[2L]], digits_sd)
+  sd_incl_lower <- rec[[3L]]
+  sd_upper <- format_number(rec[[4L]], digits_sd)
+  sd_incl_upper <- rec[[5L]]
+  sum_lower <- rec[[8L]]
+  sum_upper <- rec[[9L]]
+
   bounds_x <- bounds$x
 
   x_incl_lower <- bounds_x$incl_lower
@@ -157,12 +195,6 @@ debit_explain <- function(
 
   x_lower <- format_number(x_num_lower / bounds_x$denom, digits_x)
   x_upper <- format_number(x_num_upper / bounds_x$denom, digits_x)
-
-  text_intro <- paste0(
-    "DEBIT is about binary data, where every value is 0 or 1. The mean is ",
-    "then the share of ones, and the SD follows from the number of ones and ",
-    "the sample size."
-  )
 
   text_bounds_x <- describe_reported(
     "mean",

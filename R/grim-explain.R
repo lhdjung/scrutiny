@@ -371,7 +371,7 @@ new_explanation <- function(
 # population SD's, as in `grimmer_sd_sample_or_pop()`. `explain_type()` explains
 # the test under one `sd_meaning`, and `consistency` is the verdict under
 # `"sd_sample_or_pop"`.
-explain_sd_sample_or_pop <- function(explain_type, consistency) {
+explain_sd_sample_or_pop <- function(explain_type, consistency, n) {
   out <- explain_type("sd_sample")
   verdict <- out$consistency
 
@@ -383,9 +383,8 @@ explain_sd_sample_or_pop <- function(explain_type, consistency) {
       # Undecidable either way, and the population SD's requirements are the
       # ones that apply:
       population$paragraphs
-    } else if (is.na(verdict)) {
-      # Only at `n = 1` is the sample SD undecidable but the population SD
-      # not:
+    } else if (is.na(verdict) && isTRUE(n == 1)) {
+      # At `n = 1`, the sample SD is undecidable but the population SD is not:
       c(
         out$paragraphs,
         "A single value has no sample SD, but it has a population SD, which divides by n rather than n - 1.",
@@ -400,7 +399,9 @@ explain_sd_sample_or_pop <- function(explain_type, consistency) {
     } else {
       out$paragraphs
     }
-    verdict <- population$consistency
+    # The population SD's verdict, unless a missing value leaves the sample SD
+    # open while the population SD fails; see `grimmer_sd_sample_or_pop()`:
+    verdict <- combine_sd_sample_or_pop(verdict, population$consistency, n)
   }
 
   if (!identical(verdict, consistency)) {
@@ -458,7 +459,10 @@ print.scrutiny_explain <- function(x, ...) {
 explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
   for (name in names(values)) {
     if (is.na(values[[name]])) {
-      return(paste0(name, " is missing, so there is nothing to test."))
+      return(paste0(
+        name,
+        " is missing, and the case can't be decided without it."
+      ))
     }
   }
 

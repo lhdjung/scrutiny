@@ -61,10 +61,11 @@ if it were an SD. See \emph{SD meaning}.}
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
 consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
-value is missing or infinite, or if \code{n} or \code{items_averaged} is not a
-positive whole number. A sample SD divides by \code{n - 1}, so under
-\code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at
-least 2.
+value is infinite, if \code{n} or \code{items_averaged} is missing or not a
+positive whole number, or if a missing \code{x} or \code{sd} (or its decimal count)
+could decide the case either way. It is \code{FALSE} with a missing \code{sd} if
+\code{x} fails GRIM, and with a missing \code{x} if no sum of whole numbers admits
+\code{sd}. A sample SD divides by \code{n - 1}, so under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at least 2.
 }
 \description{
 \code{grimmer()} checks whether a reported mean and standard
