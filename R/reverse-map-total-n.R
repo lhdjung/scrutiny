@@ -77,11 +77,9 @@ reverse_map_total_n <- function(data) {
   data1 <- data_reduced[ifelse(is_back, locations2, locations1), ]
   data2 <- data_reduced[ifelse(is_back, locations1, locations2), ]
 
-  # Number of columns before `n` (i.e., the columns with hypothetical values
-  # dispersed from the reported statistics):
-  ncol_before_n <- match("n", colnames(data)) - 1L
-
-  colnames_reported <- colnames(data_reduced)[1L:ncol_before_n]
+  # The statistics reported for both groups, as recorded by the mapper. They
+  # need not all come before `n`, which a custom basic mapper may put anywhere:
+  colnames_reported <- attr(data, "scrutiny", exact = TRUE)$reported
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]

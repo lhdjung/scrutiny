@@ -85,3 +85,21 @@ test_that("incomplete mapper output is rejected", {
   out |> dplyr::filter(consistency)   |> reverse_map_total_n() |> expect_error("in full")
   out |> dplyr::arrange(n)            |> reverse_map_total_n() |> expect_error("in order")
 })
+
+
+# The reported columns used to be the ones before `n`, so a custom basic mapper
+# with `n` first rebuilt `n1` and `n2`, and one with `n` in the middle lost the
+# columns after it:
+test_that("the reported columns are found wherever `n` is", {
+  is_even_sum <- function(n, y) (round(y * n) %% 2) == 0
+  map_n_first <- function_map(is_even_sum, .reported = c("n", "y"), .name_test = "PAR")
+  map_n_first_total_n <- function_map_total_n(map_n_first, .reported = "y", .name_test = "PAR")
+  data <- tibble::tibble(y1 = 1.5, y2 = 2.25, n = 12L)
+  data |> map_n_first_total_n(dispersion = 0:1) |> reverse_map_total_n() |> expect_equal(data)
+
+  always <- function(x, n, sd) TRUE
+  map_n_middle <- function_map(always, .reported = c("x", "n", "sd"), .name_test = "ALW")
+  map_n_middle_total_n <- function_map_total_n(map_n_middle, .reported = c("x", "sd"), .name_test = "ALW")
+  data <- tibble::tibble(x1 = 1, x2 = 2, sd1 = 3, sd2 = 4, n = 10L)
+  data |> map_n_middle_total_n() |> reverse_map_total_n() |> expect_equal(data)
+})

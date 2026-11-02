@@ -670,6 +670,9 @@ function_map_total_n <- function(
           `!!`(name_mapper(.name_test, "_map_total_n"))
         )
       )
+      # `reverse_map_total_n()` needs to know which columns were reported for
+      # both groups; their place relative to `n` depends on the basic mapper:
+      meta$reported <- `!!`(.reported)
       attr(out, "scrutiny") <- meta
 
       # A case whose total leaves no pair of group sizes within the limits has
