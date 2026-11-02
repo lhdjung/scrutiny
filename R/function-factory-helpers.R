@@ -336,7 +336,7 @@ check_factory_arg_names <- function(names, formals_fn, fn_name, arg_name) {
 #' @return Named list of columns.
 #'
 #' @noRd
-write_result_cols <- function(results, col_names) {
+write_result_cols <- function(results, col_names, fn_name) {
   # With no rows, there is no result to read the output's shape off, so only
   # the key result column is created. `unlist()` below would return `NULL`, and
   # the tibble would count a column that it doesn't have:
@@ -349,6 +349,7 @@ write_result_cols <- function(results, col_names) {
   lengths_results <- lengths(results)
 
   if (all(lengths_results == 1L)) {
+    check_fn_results(unlist(results, use.names = FALSE), fn_name)
     out <- list(unlist(results, use.names = FALSE))
     names(out) <- if (is.null(col_names)) "consistency" else col_names[1L]
     return(out)
@@ -372,7 +373,26 @@ write_result_cols <- function(results, col_names) {
     )
   }
 
+  check_fn_results(
+    unlist(lapply(results, function(x) x[[1L]]), use.names = FALSE),
+    fn_name
+  )
+
   split_result_cols(results, col_names)
+}
+
+
+# `check_fn_result()` saw the first row's result before the mapping. Every
+# other row's key result must be logical, too: `unlist()` would otherwise
+# coerce the column to character or numeric in silence.
+check_fn_results <- function(keys, fn_name) {
+  if (!is.logical(keys)) {
+    abort_in_export(
+      "`{fn_name}()` must return a single logical value, or a list \\
+      starting with one, for every row.",
+      "x" = "For some rows, it returned {.cls {typeof(keys)}} values."
+    )
+  }
 }
 
 

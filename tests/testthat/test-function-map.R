@@ -1088,3 +1088,10 @@ test_that("an enum given as its whole default set is recorded as its first value
   df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map_seq(digits_x = 2, digits_sd = 1) |> unclass_scr())
   df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("must be length 1")
 })
+
+test_that("a non-logical result in a later row is an error, not a character column", {
+  mixed_scalar <- function(a, b) if (a == 2) NA_character_ else a > b
+  mixed_map <- function_map(.fn = mixed_scalar, .reported = c("a", "b"), .name_test = "MIXED")
+  tibble::tibble(a = c(1, 2), b = c(0, 0)) |> mixed_map() |> expect_error("for every row")
+  tibble::tibble(a = c(1, 3), b = c(0, 0)) |> mixed_map() |> _$consistency |> expect_equal(c(TRUE, TRUE))
+})

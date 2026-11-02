@@ -656,7 +656,7 @@ function_map <- function(
       # Only the arguments with values: one that is `NULL` has no column.
       cols_by_row <- cols_tested[intersect(args_by_row, names(cols_tested))]
 
-      cols_result <- write_result_cols(results, col_names)
+      cols_result <- write_result_cols(results, col_names, `!!`(fn_name))
 
       # Derived columns, such as `exp_incon` in `grim_map()`. Each function only gets the
       # arguments it has formals for, so it needs to know nothing about the
