@@ -1095,3 +1095,10 @@ test_that("a non-logical result in a later row is an error, not a character colu
   tibble::tibble(a = c(1, 2), b = c(0, 0)) |> mixed_map() |> expect_error("for every row")
   tibble::tibble(a = c(1, 3), b = c(0, 0)) |> mixed_map() |> _$consistency |> expect_equal(c(TRUE, TRUE))
 })
+
+test_that("a `NULL` helper argument adds no column", {
+  helper_null <- function(x, n, w = NULL) TRUE
+  helper_null_map <- function_map(.fn = helper_null, .reported = c("x", "n"), .name_test = "H", .cols_helper = "w")
+  tibble::tibble(x = 1:2, n = 3:4) |> helper_null_map() |> colnames() |> expect_equal(c("x", "n", "consistency"))
+  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = NULL) |> expect_error("Need to specify `items_averaged`")
+})

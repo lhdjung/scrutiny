@@ -258,9 +258,10 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
         "x" = "This conflicts with the {var_name} column in {data_name}."
       )
     }
-  } else if (affix) {
+  } else if (affix && !is.null(var_arg)) {
     # One value for every row, or one per row; `mutate()` would reject any
-    # other length with an error about its own argument:
+    # other length with an error about its own argument. `NULL` adds no column,
+    # as in `mutate()`, and the test function says if it needs one:
     if (!length(var_arg) %in% c(1L, nrow(data))) {
       abort_in_export(
         "`{var_name}` must have length 1 or the number of rows in `data`.",
