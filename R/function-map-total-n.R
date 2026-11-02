@@ -493,6 +493,15 @@ function_map_total_n <- function(
         )
       }
 
+      # As in the basic mapper, a string or factor is a mistake. A logical
+      # column, such as all `NA`, is caught as such below:
+      if (!is.numeric(data$n) && !is.logical(data$n)) {
+        abort_in_export(
+          "`n` must be one of these types: double and integer.",
+          "x" = "It is {an_a_type(data$n)}."
+        )
+      }
+
       data$n <- round_whole(data$n)
 
       # 2 is the smallest total that splits into two groups. A missing total

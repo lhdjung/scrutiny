@@ -228,6 +228,13 @@ test_that("a missing total `n` is reported as such, not as a decimal number", {
 })
 
 
+# The basic and seq tiers already said so; this one failed in base R:
+test_that("a string or factor total `n` is a type error", {
+  tibble::tibble(x1 = 3.47, x2 = 4.5, n = "41")      |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("It is a string")
+  tibble::tibble(x1 = 3.47, x2 = 4.5, n = factor(41)) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
+})
+
+
 test_that("A total below 2 and 0-row `data` get their own errors", {
   tibble::tibble(x1 = 3.43, x2 = 3.51, n = 1) |>
     grim_map_total_n(digits_x = 2, items_averaged = 1) |>
