@@ -266,6 +266,22 @@ test_that("an infinity only rules out what it has to", {
   c(1, Inf)    |> is_seq_linear()                        |> expect_true()
   c(1, Inf)    |> is_seq_ascending()                     |> expect_true()
   c(Inf, 1)    |> is_seq_ascending()                     |> expect_false()
+  c(Inf, NA)   |> is_seq_descending()                    |> expect_na()
+})
+
+
+# No number comes after `Inf` in an ascending sequence, so a missing one there
+# can't be filled; and an infinity among more than two values is never linear,
+# even if it is the only known value:
+test_that("a missing value beyond an infinity rules the sequence out", {
+  c(1, Inf, NA)  |> is_seq_ascending(test_linear = FALSE)  |> expect_false()
+  c(Inf, NA)     |> is_seq_ascending(test_linear = FALSE)  |> expect_false()
+  c(NA, -Inf, 0) |> is_seq_ascending(test_linear = FALSE)  |> expect_false()
+  c(1, -Inf, NA) |> is_seq_descending(test_linear = FALSE) |> expect_false()
+  c(NA, Inf, 0)  |> is_seq_descending(test_linear = FALSE) |> expect_false()
+  c(1, NA, Inf)  |> is_seq_ascending(test_linear = FALSE)  |> expect_na()
+  c(Inf, NA, NA) |> is_seq_linear()                        |> expect_false()
+  c(NA, Inf, NA) |> is_seq_dispersed(from = Inf)           |> expect_false()
 })
 
 

@@ -100,23 +100,36 @@ is_seq_basic <- function(
     # be linear:
     known <- which(!is.na(x))
 
+    # An infinity among more than two values rules linearity out, as below,
+    # even if it is the only known value:
     if (test_linear) {
       steps <- diff(x[known]) / diff(known)
-      if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
+      if (
+        (length(x_orig) > 2L && any(is.infinite(x[known]))) ||
+          !isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))
+      ) {
         return(FALSE)
       }
     }
 
     # The special tests, too, ask whether the known values already rule the
-    # sequence out. Monotonicity is disproven by the known values alone. A
-    # dispersed sequence has each mirrored pair of values centered on `from`,
-    # which a fully known pair can disprove; the central value is its own
-    # mirror image:
+    # sequence out. Monotonicity is disproven by the known values alone, and by
+    # a missing value beyond an infinity, which no number could fill: the ends
+    # are padded with the infinity that a leading or trailing `NA` would have
+    # to pass. A dispersed sequence has each mirrored pair of values centered
+    # on `from`, which a fully known pair can disprove; the central value is
+    # its own mirror image:
     if (!is.null(test_special)) {
+      na_first <- is.na(x_orig[1L])
+      na_last <- is.na(x_orig[length(x_orig)])
       pass_test_special <- switch(
         test_special,
-        "ascending" = is_seq_ascending_basic(x[known]),
-        "descending" = is_seq_descending_basic(x[known]),
+        "ascending" = is_seq_ascending_basic(
+          c(if (na_first) -Inf, x[known], if (na_last) Inf)
+        ),
+        "descending" = is_seq_descending_basic(
+          c(if (na_first) Inf, x[known], if (na_last) -Inf)
+        ),
         "dispersed" = {
           centers <- (x_orig + rev(x_orig)) / 2
           pass_pairs <-
