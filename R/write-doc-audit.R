@@ -45,23 +45,27 @@ write_doc_audit <- function(sample_output, name_test) {
 
   output_name <- colnames(sample_output)
   output_number <- seq_along(output_name)
-  output_text <- c(
-    "total number of value sets.",
-    glue::glue("number of {name_test}-inconsistent value sets."),
-    glue::glue("proportion of {name_test}-inconsistent value sets.")
-  )
 
-  length_other_cols <- length(sample_output) - 3L
-  output_text <- append(output_text, rep("", length_other_cols))
+  # The columns that `audit_cols_minimal()` returns, plus `testable_cases`,
+  # which the GRIM method inserts after `all_cases`. Any other column gets an
+  # empty description to fill in:
+  output_text_known <- c(
+    all_cases = "total number of value sets.",
+    testable_cases = "number of value sets that could be tested.",
+    incon_cases = glue::glue("number of {name_test}-inconsistent value sets."),
+    emp_incon = glue::glue("proportion of {name_test}-inconsistent value sets.")
+  )
+  output_text <- output_text_known[output_name]
+  output_text[is.na(output_text)] <- ""
 
   output_name_expected <- c("all_cases", "incon_cases", "emp_incon")
+  output_name_missing <- setdiff(output_name_expected, output_name)
 
-  if (any(output_name[1:3] != output_name_expected)) {
-    offenders <- wrap_in_backticks(output_name[1:3])
+  if (length(output_name_missing) > 0L) {
     abort_in_export(
-      "!" = "The first three columns in the output must be named \\
-      \"all_cases\", \"incon_cases\", and \"emp_incon\".",
-      "x" = "They are {offenders}."
+      "!" = "The output must have the columns \\
+      {wrap_in_backticks(output_name_expected)}.",
+      "x" = "It lacks {wrap_in_backticks(output_name_missing)}."
     )
   }
 
@@ -73,18 +77,20 @@ write_doc_audit <- function(sample_output, name_test) {
     msg_nrow <- paste(nrow(sample_output), "rows")
   }
 
-  intro <- glue::glue(
-    "#' @section Summaries with [`audit()`]: `audit()` on `{name_test_lower}_map()` output\n",
-    "#'   returns a tibble with {msg_nrow} and these columns:\n",
-    "#'\n"
+  # One element per line; `glue()` trims a trailing newline, so the lines are
+  # not joined here but printed one below the other:
+  intro <- c(
+    glue::glue(
+      "#' @section Summaries with [`audit()`]: `audit()` on \\
+      `{name_test_lower}_map()` output"
+    ),
+    glue::glue("#'   returns a tibble with {msg_nrow} and these columns:"),
+    "#'"
   )
 
-  line <- "#' {output_number}. `{output_name}`: {output_text}\n"
-  lines_all <- glue::glue(line)
+  lines_all <- glue::glue("#' {output_number}. `{output_name}`: {output_text}")
 
-  out <- c(intro, lines_all)
-  out <- glue::as_glue(out)
-  out
+  glue::as_glue(c(intro, lines_all))
 }
 
 
