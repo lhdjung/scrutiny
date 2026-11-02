@@ -188,3 +188,8 @@ test_that("`by`, `offset_from`, and the flags are checked", {
 test_that("the steps are integers even if `dispersion` is double", {
   4.02 |> seq_disperse(dispersion = c(1, 2), track_diff_var = TRUE) |> purrr::pluck(2) |> expect_identical(c(-2L, -1L, 0L, 1L, 2L))
 })
+
+test_that("an infinite `dispersion` is an error", {
+  seq_disperse(4.02, dispersion = Inf)       |> expect_error("missing values or infinities")
+  seq_disperse(4.02, dispersion = c(1, Inf)) |> expect_error("missing values or infinities")
+})

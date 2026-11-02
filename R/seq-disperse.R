@@ -85,8 +85,11 @@ seq_disperse <- function(
     from <- as.character(from)
   }
   check_type(dispersion, c("double", "integer"))
-  if (anyNA(dispersion)) {
-    abort_in_export("`dispersion` must not contain missing values.")
+  # `is_whole_number(Inf)` is `NA`, which the check below can't take:
+  if (!all(is.finite(dispersion))) {
+    abort_in_export(
+      "`dispersion` must not contain missing values or infinities."
+    )
   }
   check_non_negative(dispersion)
 

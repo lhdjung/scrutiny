@@ -163,3 +163,9 @@ test_that("a near-whole `n` is compared to the limits as that number", {
   (10 + 1e-9) |> disperse(dispersion = 0:3, n_max = 12) |> expect_equal(disperse(10, dispersion = 0:3, n_max = 12))
   c(2 - 1e-9, 3) |> disperse2(dispersion = 0:2)         |> expect_equal(disperse2(c(2, 3), dispersion = 0:2))
 })
+
+test_that("an infinite `dispersion` is an error", {
+  disperse(5, dispersion = c(0, Inf))        |> expect_error("missing values or infinities")
+  disperse2(c(25, 26), dispersion = Inf)     |> expect_error("missing values or infinities")
+  disperse_total(50, dispersion = Inf)       |> expect_error("missing values or infinities")
+})
