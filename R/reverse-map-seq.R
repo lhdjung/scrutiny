@@ -55,11 +55,11 @@ reverse_map_seq <- function(data) {
   }
 
   # The step size of each variable's dispersion: one unit of the last decimal
-  # place as given by a `digits_*` column, not guessed from the values. `n`
-  # steps by whole numbers. Anything else falls back to
-  # `index_case_from_diff()`'s inference from the sequence:
+  # place as given by a `digits_*` column, not guessed from the values. A
+  # whole-number variable, such as `n` or `absolute`, steps by 1. Anything else
+  # falls back to `index_case_from_diff()`'s inference from the sequence:
   step_by_var <- function(var_name) {
-    if (var_name == "n") {
+    if (var_name %in% ARGS_WHOLE) {
       return(1)
     }
     digits_col <- paste0("digits_", var_name)

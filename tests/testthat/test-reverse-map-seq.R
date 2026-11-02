@@ -98,3 +98,10 @@ test_that("a missing column is an error, not wrong counts or a base R error", {
   out |> dplyr::select(-diff_var) |> reverse_map_seq()  |> expect_error("Missing: `diff_var`")
   out |> dplyr::select(-consistency) |> reverse_map_seq() |> expect_error("Missing: `consistency`")
 })
+
+test_that("a whole-number variable other than `n` is recovered from a single dispersed value", {
+  out <- tibble::tibble(absolute = 0, percentage = 5, n = 20) |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = 1)
+  out |> nrow() |> expect_equal(1L)
+  out |> reverse_map_seq() |> expect_equal(tibble::tibble(absolute = 0L, percentage = 5, n = 20L))
+  out |> audit_seq() |> _$hits_absolute |> expect_equal(1L)
+})
