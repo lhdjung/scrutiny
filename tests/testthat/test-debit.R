@@ -395,6 +395,15 @@ test_that("`formula = \"mean_n\"` accepts SDs no binary sample has", {
   0.05 |> debit(0.22, 20, 2, 2)                     |> expect_true()
 })
 
+# One 1 in four values has a mean and an SE of exactly 0.25. `"mean_n"` used to
+# round that SE to 0.2 only, where the bounds of `"even"` admit 0.3 as well:
+test_that("`formula = \"mean_n\"` takes ties both ways under rounding to even", {
+  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "even", sd_meaning = "se")         |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "ties_even", sd_meaning = "se")    |> expect_true()
+  1   |> debit(1, 14, 0, 0, "mean_n", "ties_even", sd_meaning = "sd_pop") |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, "exact", "even", sd_meaning = "se")          |> expect_true()
+})
+
 test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
   0.35 |>
     debit(0.48, 100, digits_x = 2, digits_sd = 2, formula = "0_n") |>

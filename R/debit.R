@@ -239,7 +239,15 @@ binary_sd_attainable_mean_n <- function(
   sd_rec <- sqrt(n / sd_denominator(n, sd_meaning) * x_eval * (1 - x_eval))
 
   # ...and round it the same way the reported SD was presumably rounded, to the
-  # same number of decimal places:
+  # same number of decimal places. Rounding to even admits both neighbors of a
+  # tie, as its bounds in `bounds_sd` and in the `"exact"` test do, so a tie is
+  # rounded both ways, which is what `"up_or_down"` does; elsewhere the two
+  # agree:
+  if (
+    roundwork::resolve_ties_rounding(rounding, symmetric)$rounding == "even"
+  ) {
+    rounding <- "up_or_down"
+  }
   sd_rec <- roundwork::reround(
     x = sd_rec,
     digits = digits_sd,
