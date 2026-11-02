@@ -40,3 +40,9 @@ test_that("near-whole values are added up as the whole numbers they are shown as
   c(100 * 0.57, 100 * 0.29) |> add_up_to(86)         |> expect_true()
   c(10, 100 * 0.29)         |> add_up_to(40)         |> expect_false()
 })
+
+test_that("a `NULL` element of `summands` is a type error", {
+  add_up_to(list(NULL), 0)            |> expect_error("`summands` must be one of these types")
+  add_up_to(list(1:2, NULL), c(3, 0)) |> expect_error("`summands` must be one of these types")
+  add_up_to(list(numeric(0)), 0)      |> expect_true()
+})

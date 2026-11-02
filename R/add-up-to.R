@@ -5,7 +5,8 @@ add_up_to_scalar <- function(summands, total) {
   if (!is.numeric(total) && !is.na(total)) {
     check_type(total, c("double", "integer"))
   }
-  if (!is.numeric(summands) && !all(is.na(summands))) {
+  # `NULL` passes the `NA` test below but has no values to add up:
+  if (is.null(summands) || (!is.numeric(summands) && !all(is.na(summands)))) {
     check_type(summands, c("double", "integer"))
   }
 
