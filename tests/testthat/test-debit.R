@@ -619,3 +619,9 @@ test_that("`formula = \"mean_n\"` is exact with `digits_x = 15`", {
   sd <- c(0.231321824820205, 0.077383953227377, 0.286499471546682, 0.181934399876087, 0.303623686557375)
   x |> debit(sd, c(11, 102, 6, 22, 5), 15, 15, formula = "mean_n") |> expect_equal(c(TRUE, TRUE, TRUE, TRUE, FALSE))
 })
+
+test_that("the error about too large a sum doesn't mention `items_averaged`", {
+  message <- tryCatch(debit(0.5, 0.5, 1e15, 1, 1), error = conditionMessage)
+  message |> expect_match("too large for an exact test")
+  message |> grepl(pattern = "items_averaged") |> expect_false()
+})

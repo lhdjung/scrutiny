@@ -45,7 +45,8 @@ is_percentage_of_scalar <- function(
     percentage / 100,
     n,
     digits_percentage + 2L,
-    arg = "percentage"
+    arg = "percentage",
+    hint_items = FALSE
   )
   counts <- roundwork::sum_range(
     x_num = percentage / 100,

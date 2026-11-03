@@ -337,7 +337,13 @@ sd_min_n <- function(sd_meaning) {
 # whole numbers. That is exact only below 2^53. `x` alone is checked by
 # `check_newly_numeric()`; this is the product, checked by each test before
 # it calls `sum_range()`.
-check_sum_range_exact <- function(x_num, n_items, digits, arg = "x") {
+check_sum_range_exact <- function(
+  x_num,
+  n_items,
+  digits,
+  arg = "x",
+  hint_items = TRUE
+) {
   product <- abs(x_num) * 10^(digits + 1L) * n_items
   if (product >= 2^53) {
     if (arg == "x") {
@@ -352,7 +358,7 @@ check_sum_range_exact <- function(x_num, n_items, digits, arg = "x") {
       "x" = "The {msg_what} that `{arg}` admits are compared as whole numbers, \\
       which is exact only below 2^53, about 9e15, and {msg_formula} is about \\
       {format(product, digits = 2L)}.",
-      "i" = if (arg == "x") "`items_averaged` multiplies into `n` here."
+      "i" = if (hint_items) "`items_averaged` multiplies into `n` here."
     )
   }
 }
