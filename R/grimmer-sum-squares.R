@@ -43,10 +43,22 @@ sd_square_term <- function(num, n, items, denom, sd_meaning) {
   if (in_doubles) {
     numerator <- (bound$num * items)^2
     denom_sq <- bound$den^2
-    whole <- floor_product_ratio(n_dev, numerator, denom_sq)$floor
+    # The common case: the product itself is below `2^53`, and so exact.
+    # Otherwise, `floor_product_ratio()` and `product_difference()` are exact
+    # for it:
+    product <- n_dev * numerator
+    if (product < 2^53) {
+      whole <- floor(product / denom_sq)
+    } else {
+      whole <- floor_product_ratio(n_dev, numerator, denom_sq)$floor
+    }
     # The shifted sums of squares add less than `n` to this:
     if (whole + n + 2 < 2^53) {
-      remainder <- product_difference(n_dev, numerator, whole, denom_sq)
+      remainder <- if (product < 2^53) {
+        product - whole * denom_sq
+      } else {
+        product_difference(n_dev, numerator, whole, denom_sq)
+      }
       return(list(
         int = whole,
         num = remainder,
@@ -67,12 +79,16 @@ sd_square_term <- function(num, n, items, denom, sd_meaning) {
   numerator <- big_mul(num_items, num_items)
   denom_sq <- big_mul(big(bound$den), big(bound$den))
   term_scaled <- big_mul(n_dev_big, numerator)
+  # Split as in doubles, with the remainder over `denom_sq`. GRIMMER's loop
+  # compares the remainder, times `n`, with `denom_sq` times a whole number;
+  # see `sum_squares_floor()`:
+  division <- big_divmod(term_scaled, denom_sq)
   list(
     big = TRUE,
+    int = big_or_double(division$quotient),
+    num_n = big_mul(division$remainder, big(n)),
+    num_zero = big_cmp(division$remainder, 0) == 0,
     denom_sq = denom_sq,
-    # Over the common denominator `n * denom_sq`, the term's numerator:
-    numerator_n = big_mul(term_scaled, big(n)),
-    denominator_n = big_mul(denom_sq, big(n)),
     approx = big_double(term_scaled) / big_double(denom_sq)
   )
 }
@@ -103,19 +119,6 @@ sum_squares_range_shifted <- function(r, n, sd_bounds) {
 # The floor of `r^2 / n` plus the SD's term at one bound, and whether that sum
 # is a whole number, which an exclusive bound needs to know.
 sum_squares_floor <- function(r, n, term) {
-  if (isTRUE(term$big)) {
-    r_big <- big(r)
-    numerator <- big_add(
-      big_mul(big_mul(r_big, r_big), term$denom_sq),
-      term$numerator_n
-    )
-    division <- big_divmod(numerator, term$denominator_n)
-    return(list(
-      floor = big_or_double(division$quotient),
-      exact = big_cmp(division$remainder, 0) == 0
-    ))
-  }
-
   # `r^2 / n` as whole part and remainder. `r^2` only passes `2^53` with an `n`
   # of some 1e8:
   if (r < sqrt(2^53)) {
@@ -124,6 +127,20 @@ sum_squares_floor <- function(r, n, term) {
   } else {
     whole_r <- floor_product_ratio(r, r, n)$floor
     remainder_r <- product_difference(r, r, whole_r, n)
+  }
+
+  # With a term in `big()` numbers, `remainder_r / n` and `num / denom_sq`
+  # carry 1 if `num * n >= denom_sq * (n - remainder_r)`:
+  if (isTRUE(term$big)) {
+    comparison <- big_cmp(
+      term$num_n,
+      big_mul(term$denom_sq, big(n - remainder_r))
+    )
+    exact <- comparison == 0 || (remainder_r == 0 && term$num_zero)
+    return(list(
+      floor = whole_add(term$int, whole_r + (comparison >= 0)),
+      exact = exact
+    ))
   }
 
   # The two fractions, `term$num / term$den` and `remainder_r / n`, are each

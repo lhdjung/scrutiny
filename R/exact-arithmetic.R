@@ -78,7 +78,16 @@ product_difference <- function(a, b, c, d) {
 # too, plus whether the division is exact. The quotient in floating point is
 # off by a few units at most, which `compare_products()` corrects:
 floor_product_ratio <- function(a, b, d) {
-  q <- floor(a * b / d)
+  # A product below `2^53` is exact, and so is the floor of its quotient: a
+  # quotient of whole numbers below `2^53` that is not whole lies too far from
+  # the next whole number to be rounded up to it.
+  product <- a * b
+  if (product < 2^53) {
+    q <- floor(product / d)
+    return(list(floor = q, exact = q * d == product))
+  }
+
+  q <- floor(product / d)
   # Not a whole number any more, let alone exact; the callers refuse it:
   if (q >= 2^53) {
     return(list(floor = q, exact = FALSE))
@@ -293,33 +302,47 @@ as_big <- function(x) {
 }
 
 # The sign of `prod(left) - prod(right)` for whole numbers `>= 0`, each a
-# double or a `big()` number, given as lists. Two factors on each side go to
-# `compare_products()` if that is exact: the largest factor alone, the others
-# multiplied out below `2^52`. Anything else is multiplied out in `big()`
-# numbers.
+# double or a `big()` number, given as lists. Products below `2^53` are exact
+# as they are. Otherwise, two factors on each side go to `compare_products()`
+# if that is exact: the largest factor alone, the others multiplied out below
+# `2^52`. Anything else is multiplied out in `big()` numbers.
 compare_factors <- function(left, right) {
-  split_two <- function(factors) {
-    if (any(vapply(factors, is_big, logical(1L)))) {
-      return(NULL)
+  # A `big()` number has three limbs or more, a double one element:
+  if (all(lengths(left) == 1L) && all(lengths(right) == 1L)) {
+    left_doubles <- unlist(left)
+    right_doubles <- unlist(right)
+    product_left <- prod(left_doubles)
+    product_right <- prod(right_doubles)
+    if (product_left < 2^53 && product_right < 2^53) {
+      return(sign(product_left - product_right))
     }
-    factors <- sort(unlist(factors), decreasing = TRUE)
-    rest <- prod(factors[-1L])
-    if (factors[[1L]] >= 2^53 || rest >= 2^52) NULL else c(factors[[1L]], rest)
-  }
-  left_two <- split_two(left)
-  right_two <- split_two(right)
-  if (!is.null(left_two) && !is.null(right_two)) {
-    return(compare_products(
-      left_two[[1L]],
-      left_two[[2L]],
-      right_two[[1L]],
-      right_two[[2L]]
-    ))
+    left_two <- split_two(left_doubles)
+    right_two <- split_two(right_doubles)
+    if (!is.null(left_two) && !is.null(right_two)) {
+      return(compare_products(
+        left_two[[1L]],
+        left_two[[2L]],
+        right_two[[1L]],
+        right_two[[2L]]
+      ))
+    }
   }
   big_cmp(
     Reduce(big_mul, lapply(left, as_big)),
     Reduce(big_mul, lapply(right, as_big))
   )
+}
+
+# The largest factor and the product of the others, or `NULL` if either is too
+# large for `compare_products()`:
+split_two <- function(factors) {
+  largest <- which.max(factors)
+  rest <- prod(factors[-largest])
+  if (factors[[largest]] >= 2^53 || rest >= 2^52) {
+    NULL
+  } else {
+    c(factors[[largest]], rest)
+  }
 }
 
 whole_double <- function(x) {

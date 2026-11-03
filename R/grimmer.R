@@ -409,6 +409,11 @@ grimmer_scalar <- function(
       symmetric = symmetric
     )
     check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
+    # A sum passes exactly if its remainder modulo `n` does (see
+    # `grimmer_candidate()`), so `n` consecutive sums stand for all of them:
+    if (sums_consistent[[2L]] - sums_consistent[[1L]] >= n) {
+      sums_consistent[[2L]] <- sums_consistent[[1L]] + n - 1
+    }
   } else {
     # With the mean unknown, any whole-number sum is a candidate. Adding 1 to
     # each number adds `n` to the sum and keeps the deviations, so whether a sum
