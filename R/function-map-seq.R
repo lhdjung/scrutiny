@@ -612,7 +612,11 @@ function_map_seq <- function(
           name_key_result = name_key_result,
           # Of the steps taken: `seq_disperse()` takes a repeated one once.
           dispersion_linear = is_steps_ascending(dispersion),
-          values_reported = values_reported
+          values_reported = values_reported,
+          # A variable without rows in a piece of this output, as from
+          # `filter()`, was removed if it had rows here; otherwise, `out_min`
+          # or `out_max` left it none. `audit_seq()` tells the two apart:
+          var_dispersed = unique(as.character(out$var))
         )
       )
 

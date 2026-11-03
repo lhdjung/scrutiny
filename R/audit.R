@@ -283,6 +283,10 @@ audit_seq <- function(data) {
     list(count = count, diffs = diffs)
   }
 
+  # A variable whose rows were all removed, as by `filter(var == "x")`, has
+  # unknown hits, unlike one that `out_min` or `out_max` left without any:
+  vars_removed <- setdiff(meta$var_dispersed, data$var)
+
   hits_total <- integer(length(cases))
   cols_hits <- matrix(NA_integer_, length(cases), length(var_names))
   cols_diff <- matrix(NA_integer_, length(cases), 3L * length(var_names))
@@ -296,7 +300,7 @@ audit_seq <- function(data) {
 
     for (j in seq_along(var_names)) {
       var <- var_names[[j]]
-      if (is.na(data_rev[[var]][[i]])) {
+      if (is.na(data_rev[[var]][[i]]) || var %in% vars_removed) {
         total_unknown <- TRUE
         next
       }

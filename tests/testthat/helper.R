@@ -76,7 +76,14 @@ meta_seq <- function(
     results_reported = tested$consistency,
     name_key_result = "consistency",
     dispersion_linear = TRUE,
-    values_reported = as.list(tested)[c("x", "n", "items_averaged", "digits_x")]
+    values_reported = as.list(tested)[c(
+      "x",
+      "n",
+      "items_averaged",
+      "digits_x"
+    )],
+    # Every requested variable has rows in these tests:
+    var_dispersed = var
   )
 }
 

@@ -291,3 +291,13 @@ test_that("`audit_seq()` says `NA` for hits that a missing value leaves unknown"
   c(out$hits_total, out$hits_x, out$hits_sd, out$hits_n) |> expect_equal(rep(NA_integer_, 4L))
   c(out$diff_x, out$diff_sd, out$diff_n) |> expect_equal(rep(NA_integer_, 3L))
 })
+
+
+test_that("a variable whose rows were filtered out has unknown hits", {
+  # They were counted as 0, like a variable that `out_max` left without any:
+  out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  audited <- out |> dplyr::filter(var == "x") |> audit_seq()
+  audited$hits_n     |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hits_total |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hits_x     |> expect_equal(c(3L, 4L))
+})
