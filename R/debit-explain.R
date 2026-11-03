@@ -300,8 +300,12 @@ debit_explain <- function(
   spread_range <- binary_spread_range(n, bounds$sd, sd_meaning)
 
   ones <- binary_ones_shown(sum_lower, sum_upper, n, spread_range)
+  below <- binary_spread_cmp(ones, n, spread_range$min) < 0
+  above <- binary_spread_cmp(ones, n, spread_range$max) > 0
+  passed <- !below & !above
+  # Only to pick the `k` to show, so a double is close enough:
   spread <- ones * (n - ones)
-  passed <- spread >= spread_range[1L] & spread <= spread_range[2L]
+  spread_middle <- mean(vapply(spread_range, whole_double, numeric(1L)))
 
   if (any(passed) != consistency) {
     cli::cli_abort(
@@ -333,7 +337,7 @@ debit_explain <- function(
   text_ones_sd <- if (any(passed)) {
     # The `k` whose SD is closest to the middle of the range, so that it doesn't
     # look like a bound once rounded for display:
-    k <- ones[passed][which.min(abs(spread[passed] - mean(spread_range)))]
+    k <- ones[passed][which.min(abs(spread[passed] - spread_middle))]
 
     paste0(
       if (several) "For example, for k = " else "For k = ",
@@ -349,10 +353,10 @@ debit_explain <- function(
       ", that is ",
       sd_of(ones),
       ", which is ",
-      if (spread < spread_range[1L]) "below" else "above",
+      if (below) "below" else "above",
       " that range."
     )
-  } else if (all(spread < spread_range[1L])) {
+  } else if (all(below)) {
     # The spread, and with it the SD, is greatest for the `k` closest to half
     # of `n`, so that one stands for all:
     k <- ones[which.max(spread)]
@@ -366,7 +370,7 @@ debit_explain <- function(
       sd_of(k),
       ", which is below that range."
     )
-  } else if (all(spread > spread_range[2L])) {
+  } else if (all(above)) {
     k <- ones[which.min(spread)]
 
     paste0(
@@ -381,7 +385,6 @@ debit_explain <- function(
   } else {
     # Some SDs are below the range and some above, and none in it: those next
     # to it skip over it.
-    below <- spread < spread_range[1L]
     k_below <- ones[below][which.max(spread[below])]
     k_above <- ones[!below][which.min(spread[!below])]
 
@@ -416,13 +419,18 @@ debit_explain <- function(
 # show, i.e., the ones with the least or greatest spread `k * (n - k)` on either
 # side of the range or in it, and the one closest to its middle. All of them are
 # next to a bound of `k` or a root of `k * (n - k) = spread`, so they can be
-# found without listing every `k`, which may be millions. The neighbors of each
-# root make up for floating-point error in it.
+# found without listing every `k`, which may be millions. The roots at the ends
+# of the range are found exactly, as in `binary_sd_attainable()`; the one in
+# the middle only picks an example, so its neighbors are close enough.
 binary_ones_shown <- function(sum_lower, sum_upper, n, spread_range) {
-  roots <- c(spread_range, mean(spread_range)) |>
-    vapply(binary_spread_root, numeric(1L), n = n) |>
-    c(n / 2) |>
-    floor()
+  half <- floor(n / 2)
+  middle <- mean(vapply(spread_range, whole_double, numeric(1L)))
+  roots <- c(
+    binary_least_ones(n, spread_range$min, 0, half),
+    binary_least_ones(n, spread_range$max, 0, half),
+    floor(binary_spread_root(n, middle)),
+    half
+  )
 
   ones <- outer(roots, -1:2, `+`)
   ones <- c(sum_lower, sum_upper, ones, n - ones)

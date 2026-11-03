@@ -587,13 +587,21 @@ test_that("an integer `n` beyond 46340 doesn't overflow under `\"sd_pop\"`", {
   debit_explain(0.5, 0.5, 50000L, 2, 2, sd_meaning = "sd_pop")$consistency |> expect_true()
 })
 
-test_that("a large `n` is tested exactly or refused", {
+test_that("a large `n` is tested exactly", {
   # k = 5399457 ones have the population SD 0.14 exactly, at the upper bound
   # that `"ceiling"` includes:
   0.98 |> debit(0.14, 5509650,   2, 2, rounding = "ceiling", sd_meaning = "sd_pop") |> expect_true()
   # The two ranges touch only at an SD of 0.4, which `"floor"` excludes:
-  0.2  |> debit(0.3,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop") |> expect_error("too large for DEBIT")
-  0.1  |> debit(0.2,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop") |> expect_error("too large for DEBIT")
+  0.2  |> debit(0.3,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop") |> expect_false()
+  0.2  |> debit(0.4,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop") |> expect_true()
+  # Under `"mean_n"`, the spread at a mean of 0.1 is 0.09, whose SD of 0.3 is
+  # beyond the floor range of 0.2:
+  0.1  |> debit(0.2,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop") |> expect_false()
+  0.1  |> debit(0.3,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop") |> expect_true()
+  # An SE, whose `n_dev` is `n * (n - 1)`:
+  0.35 |> debit(0.0015, 1e5, 2, 4, sd_meaning = "se") |> expect_true()
+  0.35 |> debit(0.0016, 1e5, 2, 4, sd_meaning = "se") |> expect_false()
+  debit_explain(0.2, 0.3, 264143000, 1, 1, rounding = "floor", sd_meaning = "sd_pop")$consistency |> expect_false()
   # Products beyond 2^53 with four decimal places, compared exactly:
   0.9216 |> debit(0.2688, 625, 4, 4, "mean_n", "floor") |> expect_true()
   0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop") |> expect_false()

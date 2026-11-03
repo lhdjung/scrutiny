@@ -128,12 +128,10 @@ debit_undecidable <- function(show_rec) {
 # The population SD has `n * n` in place of `n * (n - 1)`, and an SE has
 # `n * n * (n - 1)`; see `sd_denominator()`.
 #
-# It compares whole numbers, as in `sum_range()`, which is exact while those
-# stay below `2^53`. Each bound is put in lowest terms first, which typically
-# allows an `n` of some 450,000 with an SD reported to two decimal places, or
-# 45,000 with three. The products for an SE are those for the SD it implies, so
-# the same holds for SEs that binary data can have. Beyond that, a double skips
-# whole numbers, so `check_debit_exact()` makes it an error.
+# It compares whole numbers, as in `sum_range()`. In doubles, that is exact
+# below `2^53`; the products here can pass it with a large `n`, especially for
+# an SE, so they switch to whole numbers of any size where they would (see
+# `R/exact-arithmetic.R`).
 #
 # The spread is the same for `k` and `n - k`, and it rises with `k` up to half
 # of `n`, so the test needs no loop over `k`, and its cost does not grow with
@@ -150,8 +148,6 @@ binary_sd_attainable <- function(
   }
 
   spread <- binary_spread_range(n, bounds_sd, sd_meaning)
-  spread_min <- spread[1L]
-  spread_max <- spread[2L]
 
   # Fold the range of `k` onto the lower half, `j = min(k, n - k)`, where the
   # spread rises with `j`. Folding a range that straddles the middle gives a
@@ -169,84 +165,153 @@ binary_sd_attainable <- function(
     j_upper <- half
   }
 
-  # The least `j` in that range whose spread reaches `spread_min`. It is the
-  # smaller root of the quadratic `j * (n - j) = spread_min`, rounded up. If no
-  # spread is large enough, the root is half of `n`, and `j` ends up above
-  # `j_upper`.
-  root <- binary_spread_root(n, spread_min)
-  j <- max(ceiling(root), j_lower)
-
-  # The loops below only correct floating-point error in `root`, and where the
-  # arithmetic is exact, they never run. `root` is a whole number `j` only if
-  # `spread_min` is `j * (n - j)`, and the square root is then that of a perfect
-  # square, which is exact. Any other root lies at least about `1 / (4 * n)` from
-  # the nearest whole number, much further than floating-point error moves it.
-  # Past `2^53`, the loops correct an overshoot in either direction.
-  while (j > j_lower && (j - 1) * (n - j + 1) >= spread_min) {
-    j <- j - 1
-  }
-  while (j <= j_upper && j * (n - j) < spread_min) {
-    j <- j + 1
-  }
-
   # Every greater `j` has a greater spread, so if this one is too large, all of
   # them are:
-  j <= j_upper && j * (n - j) <= spread_max
+  j <- binary_least_ones(n, spread$min, j_lower, j_upper)
+  j <= j_upper && binary_spread_cmp(j, n, spread$max) <= 0
+}
+
+
+# The least `j` from `j_lower` to `j_upper`, both at most half of `n`, whose
+# spread `j * (n - j)` reaches `spread`, or `j_upper + 1` if none does.
+binary_least_ones <- function(n, spread, j_lower, j_upper) {
+  # Up to an `n` of about 1e8, the spreads are below `2^53`, and the root of
+  # the quadratic `j * (n - j) = spread`, rounded up, is the answer. The loops
+  # below only correct floating-point error in it, and where the arithmetic is
+  # exact, they never run: the root is a whole number `j` only if `spread` is
+  # `j * (n - j)`, and the square root is then that of a perfect square, which
+  # is exact. Any other root lies at least about `1 / (4 * n)` from the nearest
+  # whole number, much further than floating-point error moves it.
+  if (!is_big(spread) && n^2 < 2^53) {
+    j <- max(ceiling(binary_spread_root(n, spread)), j_lower)
+    while (j > j_lower && (j - 1) * (n - j + 1) >= spread) {
+      j <- j - 1
+    }
+    while (j <= j_upper && j * (n - j) < spread) {
+      j <- j + 1
+    }
+    return(j)
+  }
+
+  # Beyond, the root is too coarse to correct step by step, so the spreads are
+  # compared exactly while halving the range:
+  low <- j_lower
+  high <- j_upper + 1
+  while (low < high) {
+    middle <- floor((low + high) / 2)
+    if (binary_spread_cmp(middle, n, spread) >= 0) {
+      high <- middle
+    } else {
+      low <- middle + 1
+    }
+  }
+  low
+}
+
+
+# The sign of `k * (n - k) - spread`, exactly, for each `k`:
+binary_spread_cmp <- function(k, n, spread) {
+  if (!is_big(spread) && n^2 < 2^53) {
+    return(sign(k * (n - k) - spread))
+  }
+  vapply(
+    k,
+    function(k) whole_cmp(whole_mul(k, n - k), spread),
+    numeric(1L)
+  )
 }
 
 
 # The smaller root of `k * (n - k) = spread`, or half of `n` if no `k` has a
 # spread this large. Shared with `debit_explain()`.
 binary_spread_root <- function(n, spread) {
+  if (is_big(spread)) {
+    spread <- big_double(unclass(spread))
+  }
   (n - sqrt(max(n^2 - 4 * spread, 0))) / 2
 }
 
 
 # The least and the greatest spread `k * (n - k)` that the reported SD admits,
-# as whole numbers; see `binary_sd_attainable()`. Shared with `debit_explain()`.
+# as whole numbers; see `binary_sd_attainable()`. A list of `min` and `max`,
+# each a double or, from `2^53` on, a `big()` number. A spread beyond the
+# greatest that `n` binary values have, about `n^2 / 4`, stands for no `k`, so
+# it is lowered to just above that, which keeps the numbers in doubles for an
+# `n` up to about 1e8. Shared with `debit_explain()`.
 binary_spread_range <- function(n, bounds_sd, sd_meaning) {
-  factor_sd <- n * sd_denominator(n, sd_meaning)
   lower <- lowest_terms(bounds_sd$lower, bounds_sd$denom)
   upper <- lowest_terms(bounds_sd$upper, bounds_sd$denom)
-  # An SD of binary data is at most about 1, so the spreads stay below twice
-  # `factor_sd`:
-  check_debit_exact(
-    c(2 * factor_sd, lower$num^2, lower$den^2, upper$num^2, upper$den^2),
-    n
-  )
 
-  # The spread at each bound is `num^2 * factor_sd / den^2`:
-  low <- floor_product_ratio(lower$num^2, factor_sd, lower$den^2)
+  # The common case, all in doubles; the same steps as below:
+  factor_sd <- n * sd_denominator(n, sd_meaning)
+  root_max <- sqrt(2^53)
+  if (
+    factor_sd < 2^52 &&
+      max(lower$num, lower$den, upper$num, upper$den) < root_max
+  ) {
+    low <- floor_product_ratio(lower$num^2, factor_sd, lower$den^2)
+    high <- floor_product_ratio(upper$num^2, factor_sd, upper$den^2)
+    spread_min <- low$floor + (!low$exact || !bounds_sd$incl_lower)
+    spread_max <- high$floor - (high$exact && !bounds_sd$incl_upper)
+    half <- floor(n / 2)
+    spread_greatest <- half * (n - half)
+    return(list(
+      min = min(spread_min, spread_greatest + 1),
+      max = min(spread_max, spread_greatest)
+    ))
+  }
+
+  # The spread at each bound is `num^2 * n * n_dev / den^2`:
+  low <- binary_spread_floor(lower, n, sd_meaning)
   spread_min <- low$floor
   if (!low$exact || !bounds_sd$incl_lower) {
-    spread_min <- spread_min + 1
+    spread_min <- whole_add(spread_min, 1)
   }
 
-  high <- floor_product_ratio(upper$num^2, factor_sd, upper$den^2)
+  high <- binary_spread_floor(upper, n, sd_meaning)
   spread_max <- high$floor
   if (high$exact && !bounds_sd$incl_upper) {
-    spread_max <- spread_max - 1
+    spread_max <- whole_add(spread_max, -1)
   }
 
-  c(spread_min, spread_max)
+  half <- floor(n / 2)
+  spread_greatest <- whole_mul(half, n - half)
+  if (whole_cmp(spread_min, spread_greatest) > 0) {
+    spread_min <- whole_add(spread_greatest, 1)
+  }
+  if (whole_cmp(spread_max, spread_greatest) > 0) {
+    spread_max <- spread_greatest
+  }
+
+  list(min = spread_min, max = spread_max)
 }
 
 
-# DEBIT compares products of whole numbers, which `compare_products()` does
-# exactly as long as each factor is below `2^53`; past it, a double skips whole
-# numbers, and a value set at a rounding bound could get either verdict. An
-# error, as in `check_sum_range_exact()` and `check_grimmer_exact()`:
-check_debit_exact <- function(factors, n) {
-  if (max(factors) >= 2^53) {
-    abort_in_export(
-      "`n` is too large for DEBIT at these decimal places.",
-      "x" = "With `n = {format(n, scientific = FALSE)}`, the whole numbers \\
-      that DEBIT compares reach 2^53, about 9e15, beyond which a double \\
-      skips whole numbers.",
-      "i" = "They grow with `n^2` and with the number of decimal places of \\
-      `x` and `sd`."
-    )
+# The floor of `num^2 * n * n_dev / den^2` for an SD bound `num / den`, and
+# whether the division is exact. In doubles while that is exact; it is a
+# product of four factors, which may pass `2^53` with an `n` of some 1e8, or
+# much earlier for an SE, whose `n_dev` is `n * (n - 1)`.
+binary_spread_floor <- function(bound, n, sd_meaning) {
+  factor_sd <- n * sd_denominator(n, sd_meaning)
+  if (factor_sd < 2^52 && bound$num < sqrt(2^53) && bound$den < sqrt(2^53)) {
+    return(floor_product_ratio(bound$num^2, factor_sd, bound$den^2))
   }
+  n_dev <- switch(
+    sd_meaning,
+    sd_pop = big(n),
+    se = big_mul(big(n), big(n - 1)),
+    big(n - 1)
+  )
+  num_big <- big(bound$num)
+  den_big <- big(bound$den)
+  division <- big_divmod(
+    Reduce(big_mul, list(num_big, num_big, big(n), n_dev)),
+    big_mul(den_big, den_big)
+  )
+  list(
+    floor = big_or_double(division$quotient),
+    exact = big_cmp(division$remainder, 0) == 0
+  )
 }
 
 
@@ -264,9 +329,8 @@ check_debit_exact <- function(factors, n) {
 # open. The test is then whether this interval meets the range of the squared
 # SD. In whole numbers: the spread at a mean `num / denom` is `num * (denom -
 # num)` over `denom^2`, and the comparison with a squared SD bound `(num_sd /
-# denom_sd)^2 * n_dev / n` is one of cross-multiplied whole numbers, exact
-# while they stay below `2^53`, as in `binary_sd_attainable()`, and an error
-# beyond.
+# denom_sd)^2 * n_dev / n` is one of cross-multiplied whole numbers, exact as
+# in `binary_sd_attainable()`.
 #
 # Evaluating the SD at the bounds and rounding it, as before, treated an
 # excluded bound as attained: `x = 0.03` under `"ceiling"` means a mean above
@@ -277,13 +341,14 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
 
   # The spreads at the bounds of the mean, over `denom_x^2`, with the
   # inclusivity of the bound each comes from:
-  spreads <- c(
-    bounds_x$lower * (denom_x - bounds_x$lower),
-    bounds_x$upper * (denom_x - bounds_x$upper)
+  spreads <- list(
+    whole_mul(bounds_x$lower, denom_x - bounds_x$lower),
+    whole_mul(bounds_x$upper, denom_x - bounds_x$upper)
   )
   incl <- c(bounds_x$incl_lower, bounds_x$incl_upper)
+  comparison <- whole_cmp(spreads[[1L]], spreads[[2L]])
 
-  if (spreads[[1L]] == spreads[[2L]]) {
+  if (comparison == 0) {
     # The two bounds have the same spread, so the interval starts and ends
     # there, attained if either bound is:
     spread_min <- spreads[[1L]]
@@ -291,8 +356,8 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
     spread_max <- spread_min
     incl_max <- incl_min
   } else {
-    index_min <- which.min(spreads)
-    index_max <- which.max(spreads)
+    index_min <- if (comparison < 0) 1L else 2L
+    index_max <- 3L - index_min
     spread_min <- spreads[[index_min]]
     incl_min <- incl[[index_min]]
     spread_max <- spreads[[index_max]]
@@ -304,44 +369,33 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
   # is whole:
   half <- denom_x / 2
   if (bounds_x$lower < half && half < bounds_x$upper) {
-    spread_max <- half^2
+    spread_max <- whole_mul(half, half)
     incl_max <- TRUE
   }
 
   # `spread / denom_x^2 * n / n_dev` against `(num_sd / denom_sd)^2`, both
-  # sides multiplied by the denominators and by `n_dev`, and divided by what
-  # `n` and `n_dev` have in common -- all of `n` for a population SD. Each
-  # fraction is in lowest terms first, as in `binary_spread_range()`, so the
-  # two comparisons have their own denominators, and `compare_products()`
-  # compares their products exactly:
-  n_dev <- sd_denominator(n, sd_meaning)
-  check_debit_exact(c(denom_x^2, n_dev), n)
-  common <- gcd(n_dev, n)
-  spread_min <- lowest_terms(spread_min, denom_x^2)
-  spread_max <- lowest_terms(spread_max, denom_x^2)
+  # sides multiplied by the denominators. `n / n_dev` is `n / (n - 1)` for a
+  # sample SD, 1 for a population SD, and `1 / (n - 1)` for an SE. Each SD
+  # bound is in lowest terms, so the two comparisons have their own
+  # denominators. `compare_factors()` compares the products exactly:
+  ratio_n <- switch(
+    sd_meaning,
+    sd_pop = c(1, 1),
+    se = c(1, n - 1),
+    c(n, n - 1)
+  )
   lower_sd <- lowest_terms(bounds_sd$lower, bounds_sd$denom)
   upper_sd <- lowest_terms(bounds_sd$upper, bounds_sd$denom)
-  factors <- list(
-    attained_min = n / common * upper_sd$den^2,
-    sd_max = n_dev / common * spread_min$den,
-    sd_min = n_dev / common * spread_max$den,
-    attained_max = n / common * lower_sd$den^2
-  )
-  check_debit_exact(c(unlist(factors), upper_sd$num^2, lower_sd$num^2), n)
 
   # Two intervals meet unless one ends before the other begins. A shared end
   # counts only if both include it:
-  min_vs_sd_max <- compare_products(
-    spread_min$num,
-    factors$attained_min,
-    upper_sd$num^2,
-    factors$sd_max
+  min_vs_sd_max <- compare_factors(
+    list(spread_min, ratio_n[[1L]], upper_sd$den, upper_sd$den),
+    list(upper_sd$num, upper_sd$num, ratio_n[[2L]], denom_x, denom_x)
   )
-  sd_min_vs_max <- compare_products(
-    lower_sd$num^2,
-    factors$sd_min,
-    spread_max$num,
-    factors$attained_max
+  sd_min_vs_max <- compare_factors(
+    list(lower_sd$num, lower_sd$num, ratio_n[[2L]], denom_x, denom_x),
+    list(spread_max, ratio_n[[1L]], lower_sd$den, lower_sd$den)
   )
   (min_vs_sd_max < 0 ||
     (min_vs_sd_max == 0 && incl_min && bounds_sd$incl_upper)) &&

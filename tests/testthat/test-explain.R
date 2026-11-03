@@ -53,7 +53,7 @@ test_that("`binary_ones_shown()` finds what listing every `k` would", {
     ones <- sort(sample(0:n, 2L))
     range <- sample(0:(n^2 / 4 + 3), 2L)
     all <- as.numeric(ones[1L]:ones[2L])
-    as.numeric(ones[1L]) |> binary_ones_shown(ones[2L], n, range) |> pick(n, range) |> expect_identical(pick(all, n, range))
+    as.numeric(ones[1L]) |> binary_ones_shown(ones[2L], n, list(min = range[1L], max = range[2L])) |> pick(n, range) |> expect_identical(pick(all, n, range))
   }
 })
 
