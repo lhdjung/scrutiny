@@ -703,6 +703,9 @@ function_map_total_n <- function(
         as.list(data)[intersect(`!!`(args_helper_fn), colnames(data))],
         lapply(Filter(Negate(is.null), helper_vals), rep, times = nrow(data))
       )
+      # The rows of each case in each direction, which `audit_total_n()`
+      # compares to those it is given, as `audit_seq()` does:
+      meta$rows_tested <- count_rows_by(out$case, out$dir)
       attr(out, "scrutiny") <- meta
 
       # A case whose total leaves no pair of group sizes within the limits has

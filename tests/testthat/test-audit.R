@@ -299,4 +299,12 @@ test_that("a variable whose rows were filtered out has unknown hits", {
   audited$hits_n     |> expect_equal(c(NA_integer_, NA_integer_))
   audited$hits_total |> expect_equal(c(NA_integer_, NA_integer_))
   audited$hits_x     |> expect_equal(c(3L, 4L))
+  # Removed from one case, or in part, too:
+  audited <- out |> dplyr::filter(!(case == 1 & var == "x")) |> audit_seq()
+  audited$hits_x     |> expect_equal(c(NA, 4L))
+  audited$hits_total |> expect_equal(c(NA, audit_seq(out)$hits_total[[2L]]))
+  audited <- out |> dplyr::filter(diff_var > -3) |> audit_seq()
+  audited$hits_x     |> expect_equal(c(NA_integer_, NA_integer_))
+  # The pieces of one output, put together again, are complete:
+  out |> split(out$case) |> dplyr::bind_rows() |> audit_seq() |> expect_equal(audit_seq(out))
 })

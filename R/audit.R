@@ -281,9 +281,10 @@ audit_seq <- function(data) {
     list(count = count, diffs = diffs)
   }
 
-  # A variable whose rows were all removed, as by `filter(var == "x")`, has
-  # unknown hits, unlike one that `out_min` or `out_max` left without any:
-  vars_removed <- setdiff(meta$var_dispersed, data$var)
+  # A variable whose rows were removed from a case, as by `filter(var == "x")`
+  # or `filter(diff_var > -3)`, has unknown hits there, unlike one that
+  # `out_min` or `out_max` left without any:
+  is_removed <- rows_removed_by(meta$rows_dispersed, data$case, data$var)
 
   hits_total <- integer(length(cases))
   cols_hits <- matrix(NA_integer_, length(cases), length(var_names))
@@ -298,7 +299,7 @@ audit_seq <- function(data) {
 
     for (j in seq_along(var_names)) {
       var <- var_names[[j]]
-      if (is.na(data_rev[[var]][[i]]) || var %in% vars_removed) {
+      if (is.na(data_rev[[var]][[i]]) || is_removed(cases[[i]], var)) {
         total_unknown <- TRUE
         next
       }
@@ -346,6 +347,7 @@ audit_total_n <- function(data) {
   check_cols_needed(data, c("n", "n_change", "case", "dir", "both_consistent"))
 
   df_list <- split(data, data$case)
+  cases <- as.integer(names(df_list))
 
   df_list_hits <- df_list |>
     purrr::map(function(x) dplyr::filter(x, both_consistent))
@@ -372,6 +374,19 @@ audit_total_n <- function(data) {
     map_nrow_half()
   hit_rate <- hits_total / scenarios_total
   hit_rate[scenarios_total == 0] <- NA
+
+  # Rows removed from a direction, as by `filter(dir == "forth")` or
+  # `audit(.by = dir)`, leave its hits unknown, and with them the totals:
+  meta <- attr(data, "scrutiny", exact = TRUE)
+  is_removed <- rows_removed_by(meta$rows_tested, data$case, data$dir)
+  removed_forth <- vapply(cases, is_removed, logical(1L), other = "forth")
+  removed_back <- vapply(cases, is_removed, logical(1L), other = "back")
+  hits_forth[removed_forth] <- NA
+  hits_back[removed_back] <- NA
+  removed_any <- removed_forth | removed_back
+  hits_total[removed_any] <- NA
+  scenarios_total[removed_any] <- NA
+  hit_rate[removed_any] <- NA
 
   data |>
     reverse_map_total_n() |>
@@ -402,4 +417,27 @@ audit.scrutiny_map_seq <- function(data, ...) {
 #' @export
 audit.scrutiny_map_total_n <- function(data, ...) {
   audit_total_n(data)
+}
+
+
+# The number of rows in each group of `case` and `other`, such as `var` or
+# `dir`, keyed by both. Sequence and total-n mappers record it for their output:
+count_rows_by <- function(case, other) {
+  c(table(paste(case, other, sep = "\r")))
+}
+
+# A function telling whether rows of a group that `recorded` counts are missing
+# from the data given by `case` and `other`. A group not recorded had no rows to
+# begin with, and output without the record is taken as complete:
+rows_removed_by <- function(recorded, case, other) {
+  present <- count_rows_by(case, other)
+  function(case, other) {
+    key <- paste(case, other, sep = "\r")
+    before <- unname(recorded[key])
+    if (length(before) == 0L || is.na(before)) {
+      return(FALSE)
+    }
+    now <- unname(present[key])
+    is.na(now) || now < before
+  }
 }

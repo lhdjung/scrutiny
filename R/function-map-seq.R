@@ -608,10 +608,11 @@ function_map_seq <- function(
           results_reported = results,
           name_key_result = name_key_result,
           values_reported = values_reported,
-          # A variable without rows in a piece of this output, as from
-          # `filter()`, was removed if it had rows here; otherwise, `out_min`
-          # or `out_max` left it none. `audit_seq()` tells the two apart:
-          var_dispersed = unique(as.character(out$var))
+          # The rows of each case's dispersion of each variable. Fewer in a
+          # piece of this output, as from `filter()`, means some were removed,
+          # whose hits `audit_seq()` can't know; none here means `out_min` or
+          # `out_max` left none:
+          rows_dispersed = count_rows_by(out$case, out$var)
         )
       )
 

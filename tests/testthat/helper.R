@@ -38,9 +38,12 @@ grim_settings_default <- settings_tbl(grim_args_default, TRUE, "grim_map")
 
 
 # The whole `"scrutiny"` attribute of `grim_map_seq()` output, given the
-# `grim_map()` output of its reported value sets:
+# `grim_map()` output of its reported value sets, the cases dispersed, and the
+# rows of each variable's dispersion per case:
 meta_seq <- function(
   tested,
+  cases,
+  rows_each = 10L,
   percent = FALSE,
   var = c("x", "n"),
   include_reported = FALSE
@@ -81,8 +84,10 @@ meta_seq <- function(
       "items_averaged",
       "digits_x"
     )],
-    # Every requested variable has rows in these tests:
-    var_dispersed = var
+    rows_dispersed = count_rows_by(
+      rep(rep(cases, length(var)), each = rows_each),
+      rep(var, each = length(cases) * rows_each)
+    )
   )
 }
 

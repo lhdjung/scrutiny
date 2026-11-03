@@ -189,6 +189,9 @@ df2_rows_1_3_expected <- tibble::tibble(
 # The 45/45 split of the even total 90 is tested in the "forth" direction only,
 # so the "back" direction starts at the next step:
 df2_rows_1_3_expected <- df2_rows_1_3_expected[-(25:26), ]
+# The rows of each case in each direction, which `audit_total_n()` compares:
+attr(df2_rows_1_3_expected, "scrutiny")$rows_tested <-
+  c("1\rback" = 10L, "1\rforth" = 12L, "2\rback" = 12L, "2\rforth" = 12L)
 
 
 # The function itself -----------------------------------------------------

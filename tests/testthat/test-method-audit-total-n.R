@@ -97,3 +97,16 @@ test_that("undecidable splits count as neither hits nor scenarios", {
     audit_total_n()
   out$scenarios_total |> expect_equal(1L)
 })
+
+
+test_that("a direction whose rows were filtered out has unknown hits", {
+  # `hits_back` was 0, and the totals and rate were those of "forth" alone:
+  out <- tibble::tibble(x1 = c(3.43, 4.61), x2 = c(5.24, 4.19), n = c(70, 81)) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  audited <- out |> dplyr::filter(dir == "forth") |> audit_total_n()
+  audited$hits_forth      |> expect_equal(audit_total_n(out)$hits_forth)
+  audited$hits_back       |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hits_total      |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$scenarios_total |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hit_rate        |> expect_equal(c(NA_real_, NA_real_))
+  out |> split(out$case) |> dplyr::bind_rows() |> audit_total_n() |> expect_equal(audit_total_n(out))
+})
