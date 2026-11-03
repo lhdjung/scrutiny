@@ -206,3 +206,10 @@ test_that("`debit_plot()` draws the line of the SD type that was tested", {
   # An SE is the sample SD divided by `sqrt(n)`:
   data[1L, ] |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "se")     |> debit_plot() |> lines_at_half() |> expect_equal(sqrt(10 / 9 * 0.25 / 10))
 })
+
+test_that("`debit_plot()` draws the attainable means of a large `n`", {
+  data <- tibble::tibble(x = 0.5, sd = 0.5, n = 150000) |> debit_map(digits_x = 2, digits_sd = 2)
+  build <- data |> debit_plot(show_labels = FALSE) |> ggplot2::ggplot_build() |> expect_no_warning()
+  marks <- build$data[[length(build$data)]]
+  marks$y |> anyNA() |> expect_false()
+})

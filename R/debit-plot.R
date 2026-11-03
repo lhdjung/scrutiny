@@ -352,8 +352,9 @@ debit_plot <- function(
       # As for the lines above:
       k_by_row[n < sd_min_n(type)] <- list(numeric(0))
 
-      k <- unlist(k_by_row)
-      n_by_k <- rep(n, lengths(k_by_row))
+      # As doubles: `k * (n - k)` overflows an integer from `n` of 92,682:
+      k <- as.numeric(unlist(k_by_row))
+      n_by_k <- as.numeric(rep(n, lengths(k_by_row)))
 
       if (length(k) > 0L) {
         p <- p +
