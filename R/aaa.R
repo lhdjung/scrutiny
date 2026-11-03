@@ -67,6 +67,10 @@ TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 # value set; see `check_values_size()`:
 VALUES_MAX <- 1e6
 
+# The most teeth that `grim_plot_values()` and `grimmer_plot_values()` draw,
+# each one a test; see `comb_values()`:
+COMB_TEETH_MAX <- 2e4
+
 # The most digits in the integer or decimal part that `restore_zeros()` writes
 # out a number with an exponent to, such as `"1e-400"`, and the largest `width`
 # it pads to; see `write_out_decimal()`:

@@ -93,7 +93,7 @@ grimmer_plot_values <- function(
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
   check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
 
-  values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd)
+  values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd, "sd")
 
   test <- function(sd) {
     grimmer(

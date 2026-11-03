@@ -236,7 +236,21 @@ plot_comb <- function(
 # the sequence is built rather than trusting `seq()`: a step of 0.01 added a
 # hundred times over lands a little beside the two-decimal number it should be,
 # and these values go into a consistency test that checks them against `digits`.
-comb_values <- function(from, to, digits) {
+# The values from `from` to `to` at `digits` decimal places, one for each
+# tooth. Each is tested, so their number is checked first; it grows tenfold
+# with each decimal place. `name` is `"x"` or `"sd"`, for the message:
+comb_values <- function(from, to, digits, name) {
+  size <- (to - from) * 10^digits + 1
+  if (size > COMB_TEETH_MAX) {
+    limit <- format(COMB_TEETH_MAX, big.mark = ",", scientific = FALSE)
+    abort_in_export(
+      "Too many values to draw.",
+      "x" = "With `digits_{name} = {digits}`, the comb would have \\
+      {format(size, big.mark = ',', scientific = FALSE)} teeth, more than \\
+      {limit}.",
+      "i" = "Each decimal place multiplies them by 10."
+    )
+  }
   from |>
     seq(to, by = 10^-digits) |>
     round(digits)
@@ -396,7 +410,7 @@ grim_plot_values <- function(
     lower <- max(lower, min(0, floor(x)))
     upper <- min(upper, max(100, ceiling(x)))
   }
-  values <- comb_values(lower, upper, digits_x)
+  values <- comb_values(lower, upper, digits_x, "x")
 
   test <- function(x) {
     grim(

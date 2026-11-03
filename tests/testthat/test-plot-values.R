@@ -220,3 +220,11 @@ test_that("near-whole arguments are drawn as the whole numbers they are", {
   1.5 |> grim_plot_values(1 - 1e-9, digits_x = 1 - 1e-9, items_averaged = 1)                     |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grim_plot_values(1.5, 1, digits_x = 1, items_averaged = 1)))
   1.5 |> grimmer_plot_values(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1) |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grimmer_plot_values(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
 })
+
+
+test_that("a comb with too many teeth is an error, not a hang", {
+  # Each tooth is a test, and their number grows tenfold per decimal place:
+  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_error("10,000,001 teeth")
+  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_error("1,000,001 teeth")
+  5.1234    |> grim_plot_values(28, 4, 1)                 |> expect_s3_class("ggplot")
+})
