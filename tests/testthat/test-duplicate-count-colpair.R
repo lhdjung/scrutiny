@@ -208,3 +208,9 @@ test_that("numbers are compared as written out in full, not in scientific notati
   tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair()                   |> dplyr::pull(count) |> expect_equal(2L)
   tibble::tibble(n_int = c(100000L, 250000L), n_dbl = c(100000, 250000)) |> duplicate_count_colpair(ignore = "100000") |> dplyr::pull(count) |> expect_equal(1L)
 })
+
+
+test_that("`show_rates` must be a flag", {
+  # `0` was accepted, and `NA` failed with R's error:
+  pigs1 |> duplicate_count_colpair(show_rates = 0) |> expect_error("`show_rates` must be `TRUE` or `FALSE`")
+})

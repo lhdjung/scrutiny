@@ -88,6 +88,9 @@ split_by_parens <- function(
   end1 = "x",
   end2 = "sd"
 ) {
+  check_flag(check_sep)
+  check_flag(keep)
+  check_flag(transform)
   # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
   force(sep)
 

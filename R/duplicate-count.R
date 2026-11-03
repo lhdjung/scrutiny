@@ -58,6 +58,7 @@ duplicate_count <- function(
 ) {
   locations_type <- rlang::arg_match(locations_type)
 
+  check_duplicate_input(x)
   x_was_named <- rlang::is_named(x)
 
   # Long format: one row per value and the name of its location. The names of
@@ -70,7 +71,6 @@ duplicate_count <- function(
       value = value_to_factor(unname(x))
     )
   } else {
-    check_list_lengths(x)
     if (!x_was_named || !is.data.frame(x)) {
       x <- tibble::as_tibble(
         x,
@@ -159,11 +159,36 @@ value_to_factor <- function(x) {
 }
 
 
-# `tibble::as_tibble()` recycles an element of length 1 to the length of the
-# others, which would count its value several times. The elements of a list
-# are columns, so they must have the same length:
-check_list_lengths <- function(x) {
-  if (!is.list(x) || is.data.frame(x)) {
+# `x` must be a vector, and the elements of a list are columns. A list or
+# data frame with no columns, or with a `NULL` one, would fail in tibble or
+# tidyr with an error about their own arguments. `tibble::as_tibble()` recycles
+# an element of length 1 to the length of the others, which would count its
+# value several times, so the columns must have the same length, too:
+check_duplicate_input <- function(x) {
+  if (!rlang::is_vector(x)) {
+    abort_in_export(
+      "`x` must be a data frame or other type of vector.",
+      "x" = "It is {.obj_type_friendly {x}}."
+    )
+  }
+  if (!is.list(x)) {
+    return(invisible(NULL))
+  }
+  if (length(x) == 0L) {
+    abort_in_export(
+      "`x` must have at least one column.",
+      "x" = "It has none."
+    )
+  }
+  index_null <- which(vapply(x, is.null, logical(1L), USE.NAMES = FALSE))
+  if (length(index_null) > 0L) {
+    abort_in_export(
+      "The elements of `x` can't be `NULL`.",
+      "x" = "{cli::qty(length(index_null))}Element{?s} {index_null} \\
+      {?is/are}."
+    )
+  }
+  if (is.data.frame(x)) {
     return(invisible(NULL))
   }
   lengths_x <- lengths(x)

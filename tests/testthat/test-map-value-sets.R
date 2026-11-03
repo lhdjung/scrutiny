@@ -263,3 +263,11 @@ test_that("a test runs in a data mask, called from a user's function", {
     call_on(\(e) e$call) |>
     expect_identical(quote(grim(x, 35, digits_x = 2, items_averaged = 1, rounding = "nope")))
 })
+
+
+test_that("a missing required argument gets scrutiny's error", {
+  # R's own error named the internal function:
+  is_percentage_of(percentage = 33, n = 120, digits_percentage = 0) |> expect_error("Need to specify `absolute`")
+  c(1, 2) |> add_up_to() |> expect_error("Need to specify `total`")
+  0.5 |> debit(0.5, digits_x = 1, digits_sd = 1) |> expect_error("Need to specify `n`")
+})

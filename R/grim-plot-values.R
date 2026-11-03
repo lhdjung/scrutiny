@@ -388,6 +388,13 @@ grim_plot_values <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  # As in the test itself: a string is a mistake, not an undecidable value:
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
+  }
   check_flag(percent)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)

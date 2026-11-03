@@ -223,6 +223,7 @@ decimal_places_df <- function(
   check_numeric_like = TRUE,
   sep = "."
 ) {
+  check_flag(check_numeric_like)
   sep_literal_value <- sep_literal(sep)
 
   # The function works on whole columns, and grouping would get in the way:

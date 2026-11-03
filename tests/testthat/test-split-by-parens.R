@@ -163,3 +163,11 @@ test_that("`transform = TRUE` keeps the columns in their order", {
     dplyr::pull(.origin) |>
     expect_equal(c("z", "a"))
 })
+
+
+test_that("the flags of `split_by_parens()` must be flags", {
+  df <- tibble::tibble(a = "1.2 (3.4)")
+  df |> split_by_parens(keep = NA)        |> expect_error("`keep` must be `TRUE` or `FALSE`")
+  df |> split_by_parens(check_sep = "no") |> expect_error("`check_sep` must be `TRUE` or `FALSE`")
+  df |> split_by_parens(transform = 1)    |> expect_error("`transform` must be `TRUE` or `FALSE`")
+})

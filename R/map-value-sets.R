@@ -103,6 +103,11 @@ map_value_sets <- function(fn, along, type = "logical") {
   # with R's message before it reached the missing argument:
   for (name in args_all[!args_all %in% args_supplied]) {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
+      # `fn` has errors of its own for these, which say how to fix them. R's
+      # error for any other would name `fn`, which the user never called:
+      if (!startsWith(name, "digits_") && name != "items_averaged") {
+        abort_in_export("Need to specify {.arg {name}}.")
+      }
       vals_first <- vals
       for (name_along in names_along) {
         vals_first[name_along] <- list(vals[[name_along]][1L])

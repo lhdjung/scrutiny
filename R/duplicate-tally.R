@@ -48,14 +48,7 @@
 #'   duplicate_tally(ignore = c(8.13, 7.57))
 
 duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
-  if (!rlang::is_vector(x)) {
-    abort_in_export(
-      "`x` must be a data frame or other type of vector.",
-      "x" = paste0("It is ", an_a_type(x), ".")
-    )
-  }
-
-  check_list_lengths(x)
+  check_duplicate_input(x)
   x_was_named <- rlang::is_named(x)
   if (!x_was_named || !is.data.frame(x)) {
     x <- tibble::as_tibble(

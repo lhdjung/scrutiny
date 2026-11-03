@@ -212,6 +212,8 @@ restore_zeros_df <- function(
   sep_out = sep_in,
   check_width = c("capped", "never")
 ) {
+  check_flag(check_numeric_like)
+  check_flag(check_decimals)
   if (!is.data.frame(data)) {
     if (is.matrix(data)) {
       data <- tibble::as_tibble(data, .name_repair = "unique")

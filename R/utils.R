@@ -539,10 +539,18 @@ check_newly_numeric <- function(
       "`{name_x}` has too many significant digits.",
       "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
       has {digits_significant}.",
-      "i" = "A double holds about 15 significant digits, so the tests are not \\
-      exact beyond that: `{name_x} * 10^({name} + 1)` must stay below 2^52, \\
-      about 4.5e15.",
-      "i" = if (scale > 1) msg_threshold_scale(scale)
+      "i" = "The tests are exact while `{name_x} * 10^({name} + 1)` stays below \\
+      2^52, about 4.5e15: up to 15 significant digits, or 14 if they start \\
+      with 4.5 or more.",
+      "i" = if (scale > 1) {
+        digits_scale <- round(log10(scale))
+        paste0(
+          msg_threshold_scale(scale),
+          " That costs ",
+          digits_scale,
+          if (digits_scale == 1) " digit." else " digits."
+        )
+      }
     )
   }
 
@@ -870,8 +878,13 @@ check_class <- function(x, cl) {
 #'
 #' @noRd
 as_tibble_input <- function(data) {
-  # An empty or missing name is no name, not one that is taken twice:
-  unnamed <- which(is.na(colnames(data)) | colnames(data) == "")
+  # An empty or missing name is no name, not one that is taken twice. Without
+  # `names()`, no column has one:
+  unnamed <- if (is.data.frame(data) && is.null(colnames(data))) {
+    seq_len(length(data))
+  } else {
+    which(is.na(colnames(data)) | colnames(data) == "")
+  }
   if (is.data.frame(data) && length(unnamed) > 0L) {
     msg_which <- if (length(unnamed) == 1L) {
       paste("Column", unnamed, "has none.")

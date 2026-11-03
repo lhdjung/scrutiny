@@ -223,6 +223,7 @@ check_cols_needed <- function(data, cols, ...) {
 
 manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
   var_name <- deparse(substitute(var_arg))
+  check_flag(affix)
 
   # Without a default, a missing argument is for the test function to report:
   has_default <- !missing(default)

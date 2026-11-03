@@ -228,3 +228,9 @@ test_that("a comb with too many teeth is an error, not a hang", {
   5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_error("1,000,001 teeth")
   5.1234    |> grim_plot_values(28, 4, 1)                 |> expect_s3_class("ggplot")
 })
+
+
+test_that("a string `n` or `items_averaged` is a type error, not an undecidable case", {
+  5.19 |> grim_plot_values("28", 2, 1)              |> expect_error("`n` must be one of these types")
+  5.19 |> grimmer_plot_values(1.2, 28, 2, 1, "1") |> expect_error("`items_averaged` must be one of these types")
+})

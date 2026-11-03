@@ -41,6 +41,7 @@
 #'   audit()
 
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
+  check_flag(show_rates)
   if (!is.data.frame(data)) {
     abort_in_export("`data` must be a data frame.")
   } else if (!tibble::is_tibble(data) || !rlang::is_named(data)) {

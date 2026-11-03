@@ -405,3 +405,8 @@ test_that("a string too large for a double is an infinity", {
   "1e400" |> decimal_places_scalar() |> expect_na()
   c("1e400", "2") |> restore_zeros(width = 2) |> expect_equal(c("1e400", "2.00"))
 })
+
+
+test_that("`check_numeric_like` must be a flag", {
+  iris |> decimal_places_df(check_numeric_like = NA) |> expect_error("`check_numeric_like` must be `TRUE` or `FALSE`")
+})

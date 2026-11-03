@@ -1083,3 +1083,13 @@ test_that("a list with elements of different lengths is an error, not recycled",
   list(a = c(1, 2), b = 3) |> duplicate_tally() |> expect_error("must have the same length")
   list(a = c(1, 2), b = c(3, 1)) |> duplicate_count() |> _$frequency |> expect_equal(c(2L, 1L, 1L))
 })
+
+
+test_that("input without columns to count is an error of its own", {
+  # These failed in tibble or tidyr, with errors about their own arguments:
+  NULL                    |> duplicate_count() |> expect_error("It is NULL")
+  list()                  |> duplicate_count() |> expect_error("at least one column")
+  tibble::tibble()        |> duplicate_tally() |> expect_error("at least one column")
+  list(a = NULL, b = 1:2) |> duplicate_tally() |> expect_error("Element 1 is")
+  numeric(0)              |> duplicate_count() |> nrow() |> expect_equal(0L)
+})

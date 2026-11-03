@@ -298,3 +298,16 @@ test_that("an invalid `threshold` that the rounding method ignores is ignored", 
   0.5  |> debit(0.5, 10, 2, 2, threshold = "5") |> expect_false()
   5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA) |> expect_error("must be a single number")
 })
+
+
+test_that("the too-many-digits error states the limit it applies", {
+  # "has 15" read like a contradiction of "about 15 significant digits":
+  0.5 |> grim(10, 15, 1) |> expect_error("or 14 if they start with 4.5 or more")
+  -81883629588554 |> grim(11, 0, 1, rounding = "up_from", threshold = 0.5) |> expect_error("That costs 1 digit")
+})
+
+test_that("a data frame without names is rejected like one with empty names", {
+  df <- data.frame(5.19, 28)
+  names(df) <- NULL
+  df |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("Columns 1, 2 have none")
+})

@@ -207,3 +207,9 @@ test_that("a `width` too large to pad to is an error", {
   c(1.5, 2.25) |> restore_zeros(width = 1e10)   |> expect_error("from 0 to 100000")
   1.5          |> restore_zeros(width = 100000) |> nchar() |> expect_equal(100002L)
 })
+
+
+test_that("the flags of `restore_zeros_df()` must be flags", {
+  iris |> restore_zeros_df(check_numeric_like = "no") |> expect_error("`check_numeric_like` must be `TRUE` or `FALSE`")
+  iris |> restore_zeros_df(check_decimals = NA)       |> expect_error("`check_decimals` must be `TRUE` or `FALSE`")
+})
