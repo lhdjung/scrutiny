@@ -342,9 +342,10 @@ check_sum_range_exact <- function(
   n_items,
   digits,
   arg = "x",
-  hint_items = TRUE
+  hint_items = TRUE,
+  scale = 1
 ) {
-  product <- abs(x_num) * 10^(digits + 1L) * n_items
+  product <- abs(x_num) * 10^(digits + 1L) * n_items * scale
   if (product >= 2^53) {
     if (arg == "x") {
       msg_what <- "sums"
@@ -358,9 +359,30 @@ check_sum_range_exact <- function(
       "x" = "The {msg_what} that `{arg}` admits are compared as whole numbers, \\
       which is exact only below 2^53, about 9e15, and {msg_formula} is about \\
       {format(product, digits = 2L)}.",
-      "i" = if (hint_items) "`items_averaged` multiplies into `n` here."
+      "i" = if (hint_items) "`items_averaged` multiplies into `n` here.",
+      "i" = if (scale > 1) msg_threshold_scale(scale)
     )
   }
+}
+
+
+# A `threshold` with decimal places scales the rounding bounds and their
+# denominator by a power of ten (`roundwork::bound_numerators()`), and with them
+# the numbers that must stay exact. That power, or 1. The common whole
+# threshold is answered without asking roundwork:
+rounding_scale <- function(rounding, threshold, symmetric) {
+  if (threshold == round(threshold)) {
+    return(1)
+  }
+  roundwork::bound_numerators(1, -1L, rounding, threshold, symmetric)$denom
+}
+
+msg_threshold_scale <- function(scale) {
+  paste0(
+    "The decimal places of `threshold` multiply this by ",
+    format(scale, scientific = FALSE),
+    "."
+  )
 }
 
 
@@ -464,7 +486,8 @@ error_digits_flawed <- function(digits, name_digits_arg) {
 check_newly_numeric <- function(
   x,
   digits,
-  caller_type = c("basic", "mapper", "sequence_mapper")
+  caller_type = c("basic", "mapper", "sequence_mapper"),
+  scale = 1
 ) {
   # The whole-number test below is inlined rather than left to
   # `is_whole_number()`: this runs once per key value per row, and the call
@@ -500,7 +523,9 @@ check_newly_numeric <- function(
   # `x` may have 15 significant digits, fewer if they start high; the limit
   # includes the integer digits, so a value of 1 or more allows fewer decimal
   # places.
-  if (is.numeric(x) && is.finite(x) && abs(x) * 10^(digits + 1L) >= 2^52) {
+  if (
+    is.numeric(x) && is.finite(x) && abs(x) * 10^(digits + 1L) * scale >= 2^52
+  ) {
     name <- deparse(substitute(digits))
     name_x <- deparse(substitute(x))
     # Leading zeros, as in `0.05`, are not significant:
@@ -514,7 +539,8 @@ check_newly_numeric <- function(
       has {digits_significant}.",
       "i" = "A double holds about 15 significant digits, so the tests are not \\
       exact beyond that: `{name_x} * 10^({name} + 1)` must stay below 2^52, \\
-      about 4.5e15."
+      about 4.5e15.",
+      "i" = if (scale > 1) msg_threshold_scale(scale)
     )
   }
 
@@ -1420,9 +1446,22 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
   if (is.null(symmetric)) {
     symmetric <- FALSE
   }
-  rethrow_in_export(
-    roundwork::bound_numerators(1, 0L, rounding, threshold, symmetric)
+  # At zero, the bounds are the offsets alone:
+  bounds <- rethrow_in_export(
+    roundwork::bound_numerators(0, 0L, rounding, threshold, symmetric)
   )
+  # roundwork scales a decimal `threshold` to whole offsets, up to six decimal
+  # places. Any more, and the bounds are no longer whole numbers, nor exact:
+  offsets <- c(bounds$lower, bounds$upper)
+  if (any(offsets != round(offsets))) {
+    abort_in_export(
+      "`threshold` has too many decimal places for an exact test.",
+      "x" = "It is {threshold}, which roundwork can't scale to whole \\
+      numbers, so the rounding bounds would not be exact.",
+      "i" = "From roundwork 0.1.1 on, a `threshold` with up to six decimal \\
+      places is exact."
+    )
+  }
   invisible(NULL)
 }
 

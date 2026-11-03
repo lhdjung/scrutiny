@@ -20,7 +20,11 @@ is_percentage_of_scalar <- function(
     error_digits_missing(percentage)
   }
 
-  check_newly_numeric(percentage, digits_percentage)
+  check_newly_numeric(
+    percentage,
+    digits_percentage,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
 
   # Counts are whole numbers, `n` must be a positive one, and a count is at most
   # its total. Anything else describes no data set that the percentage could
@@ -46,7 +50,8 @@ is_percentage_of_scalar <- function(
     n,
     digits_percentage + 2L,
     arg = "percentage",
-    hint_items = FALSE
+    hint_items = FALSE,
+    scale = rounding_scale(rounding, threshold, symmetric)
   )
   counts <- roundwork::sum_range(
     x_num = percentage / 100,

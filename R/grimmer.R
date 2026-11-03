@@ -243,8 +243,16 @@ grimmer_scalar <- function(
     check_type(items_averaged, c("double", "integer"))
   }
 
-  check_newly_numeric(x, digits_x)
-  check_newly_numeric(sd, digits_sd)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
+  check_newly_numeric(
+    sd,
+    digits_sd,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
 
   # `arg_match_in_export()` returns at once for a valid string or the default,
   # which matters here: this runs once per row. `SD_MEANINGS` is the default:

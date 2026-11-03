@@ -30,7 +30,11 @@ grim_scalar <- function(
     check_type(items_averaged, c("double", "integer"))
   }
 
-  check_newly_numeric(x, digits_x)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
 
   # GRIM asks which integer sums of `n * items_averaged` integer values have a
   # mean that would be reported as `x`. Undecidable rather than inconsistent:
@@ -60,7 +64,12 @@ grim_scalar <- function(
   n_items <- as.numeric(n) * items_averaged
   rec_sum <- x_num * n_items
 
-  check_sum_range_exact(x_num, n_items, digits_x)
+  check_sum_range_exact(
+    x_num,
+    n_items,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
 
   # The integer sums whose mean would have been reported as `x_num` at
   # `digits_x` decimal places, in exact integer arithmetic: a sum sitting right

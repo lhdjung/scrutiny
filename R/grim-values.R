@@ -29,7 +29,11 @@ grim_sums_scalar <- function(
     check_type(items_averaged, c("double", "integer"))
   }
 
-  check_newly_numeric(x, digits_x)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
 
   x_num <- x
 

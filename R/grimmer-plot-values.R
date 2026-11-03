@@ -78,8 +78,16 @@ grimmer_plot_values <- function(
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)
   digits_sd <- round_whole(digits_sd)
-  check_newly_numeric(x, digits_x)
-  check_newly_numeric(sd, digits_sd)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
+  check_newly_numeric(
+    sd,
+    digits_sd,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)

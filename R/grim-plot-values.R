@@ -378,7 +378,11 @@ grim_plot_values <- function(
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)
-  check_newly_numeric(x, digits_x)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
   check_comb_value(x, digits_x, "x")
   check_decidable_n_items(n, items_averaged, min_n = 1)
 
