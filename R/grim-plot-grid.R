@@ -119,6 +119,11 @@ grim_plot_grid <- function(
 ) {
   # Checks ----
 
+  check_flag(show_data)
+  check_flag(show_raster)
+  check_flag(show_gradient)
+  check_flag(split_by_digits)
+
   inherits_grim <- inherits(data, "scrutiny_grim_map")
   inherits_grimmer <- inherits(data, "scrutiny_grimmer_map")
 

@@ -203,3 +203,9 @@ test_that("a repeated step doesn't keep sequence output from being audited", {
   out |> audit_seq()       |> nrow() |> expect_equal(1L)
   out |> reverse_map_seq() |> nrow() |> expect_equal(1L)
 })
+
+test_that("the flags must be `TRUE` or `FALSE`", {
+  4.02 |> seq_disperse(track_diff_var = NA)        |> expect_error("`track_diff_var` must be `TRUE` or `FALSE`")
+  4.02 |> seq_disperse_df(.include_reported = NA)  |> expect_error("`.include_reported` must be `TRUE` or `FALSE`")
+  4.02 |> seq_disperse_df(.track_diff_var = "yes") |> expect_error("`.track_diff_var` must be `TRUE` or `FALSE`")
+})

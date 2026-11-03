@@ -71,6 +71,10 @@ debit_plot <- function(
 ) {
   # Checks ---
 
+  check_flag(show_labels)
+  check_flag(show_full_scale)
+  check_flag(show_theme_other)
+
   if (!inherits(data, "scrutiny_debit_map")) {
     abort_in_export(
       "!" = "`debit_plot()` only works with DEBIT results.",

@@ -150,6 +150,7 @@ seq_disperse <- function(
     )
   }
   check_flag(include_reported)
+  check_flag(track_diff_var)
 
   disp_minus <- dispersion * by
   disp_plus <- disp_minus
@@ -276,6 +277,10 @@ seq_disperse_df <- function(
   .include_reported = TRUE,
   .track_diff_var = FALSE
 ) {
+  # Here, so that the errors name these arguments:
+  check_flag(.include_reported)
+  check_flag(.track_diff_var)
+
   out_basic_fn <- seq_disperse(
     from = .from,
     by = .by,

@@ -213,3 +213,10 @@ test_that("`debit_plot()` draws the attainable means of a large `n`", {
   marks <- build$data[[length(build$data)]]
   marks$y |> anyNA() |> expect_false()
 })
+
+test_that("the flags must be `TRUE` or `FALSE`", {
+  data <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
+  data |> debit_plot(show_labels = NA)        |> expect_error("`show_labels` must be `TRUE` or `FALSE`")
+  data |> debit_plot(show_full_scale = "yes") |> expect_error("`show_full_scale` must be `TRUE` or `FALSE`")
+  data |> debit_plot(show_theme_other = NA)   |> expect_error("`show_theme_other` must be `TRUE` or `FALSE`")
+})

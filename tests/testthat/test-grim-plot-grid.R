@@ -299,3 +299,11 @@ test_that("`grim_plot()` is a deprecated alias of `grim_plot_grid()`", {
   rlang::local_options(lifecycle_verbosity = "warning")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot(digits = 2) |> expect_warning(class = "lifecycle_warning_deprecated")
 })
+
+test_that("the flags must be `TRUE` or `FALSE`", {
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data |> grim_plot_grid(show_data = NA)       |> expect_error("`show_data` must be `TRUE` or `FALSE`")
+  data |> grim_plot_grid(show_raster = "yes")  |> expect_error("`show_raster` must be `TRUE` or `FALSE`")
+  data |> grim_plot_grid(show_gradient = NA)   |> expect_error("`show_gradient` must be `TRUE` or `FALSE`")
+  data |> grim_plot_grid(split_by_digits = NA) |> expect_error("`split_by_digits` must be `TRUE` or `FALSE`")
+})
