@@ -311,3 +311,11 @@ test_that("a data frame without names is rejected like one with empty names", {
   names(df) <- NULL
   df |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("Columns 1, 2 have none")
 })
+
+test_that("`gcd()` is exact past a quotient of 2^52", {
+  # `%%` warned and, without long doubles, could lose the remainder:
+  gcd(7, 10^20)      |> expect_no_warning() |> expect_equal(1)
+  gcd(2500, 10^22)   |> expect_equal(2500)
+  gcd(2^53 + 2, 6)   |> expect_equal(2)
+  0 |> debit(0, 10, 1, 15, rounding = "up_from", threshold = 0.07) |> expect_no_warning() |> expect_true()
+})

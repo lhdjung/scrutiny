@@ -12,12 +12,18 @@
 #   stored as base-2^24 digits ("limbs"), least significant first. They are
 #   slower, and the tests only use them when a factor or result passes `2^53`.
 
-# Euclid's algorithm, exact for whole numbers below `2^53`. Reducing a rounding
-# bound such as 1640625 / 10^6 to 105 / 64 keeps the products that the tests
-# compare it in far below that limit:
+# Euclid's algorithm, exact for whole doubles. Reducing a rounding bound such
+# as 1640625 / 10^6 to 105 / 64 keeps the products that the tests compare it in
+# far below `2^53`. A denominator such as 10^17 may itself be past that, and
+# `%%` loses the remainder (and warns) once the quotient passes 2^52, so that
+# step is taken in `big()` numbers:
 gcd <- function(a, b) {
   while (b > 0) {
-    remainder <- a %% b
+    remainder <- if (a / b < 2^52) {
+      a %% b
+    } else {
+      big_double(big_divmod(big(a), big(b))$remainder)
+    }
     a <- b
     b <- remainder
   }
