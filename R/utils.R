@@ -332,11 +332,12 @@ sd_min_n <- function(sd_meaning) {
 }
 
 
-# `roundwork::sum_range()` multiplies the numerators of the rounding bounds,
-# about `x * 10^(digits + 1)`, by `n_items`, and compares the products as
-# whole numbers. That is exact only below 2^53. `x` alone is checked by
-# `check_newly_numeric()`; this is the product, checked by each test before
-# it calls `sum_range()`.
+# `roundwork::sum_range()` multiplies the numerators of the rounding bounds by
+# `n_items` and compares the products as whole numbers. That is exact only below
+# 2^53. A numerator is `x * 10^(digits + 1)` plus an offset of up to 10, all
+# times `scale`, so even `x = 0` has bounds that a large `n_items` takes past
+# it. `x` alone is checked by `check_newly_numeric()`; this is the product,
+# checked by each test before it calls `sum_range()`.
 check_sum_range_exact <- function(
   x_num,
   n_items,
@@ -345,20 +346,20 @@ check_sum_range_exact <- function(
   hint_items = TRUE,
   scale = 1
 ) {
-  product <- abs(x_num) * 10^(digits + 1L) * n_items * scale
+  product <- (abs(x_num) * 10^(digits + 1L) + 10) * n_items * scale
   if (product >= 2^53) {
     if (arg == "x") {
       msg_what <- "sums"
-      msg_formula <- "`x * n * 10^(digits_x + 1)`"
+      msg_formula <- "`(x * 10^(digits_x + 1) + 10) * n`"
     } else {
       msg_what <- "counts"
-      msg_formula <- "`percentage * n * 10^(digits_percentage + 1)`"
+      msg_formula <- "`(percentage * 10^(digits_percentage + 1) + 10) * n`"
     }
     abort_in_export(
       "`{arg}` times the sample size is too large for an exact test.",
       "x" = "The {msg_what} that `{arg}` admits are compared as whole numbers, \\
-      which is exact only below 2^53, about 9e15, and {msg_formula} is about \\
-      {format(product, digits = 2L)}.",
+      which is exact only below 2^53, about 9.007e15, and {msg_formula} is \\
+      about {format(product, digits = 4L)}.",
       "i" = if (hint_items) "`items_averaged` multiplies into `n` here.",
       "i" = if (scale > 1) msg_threshold_scale(scale)
     )

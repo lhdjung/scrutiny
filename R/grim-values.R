@@ -46,14 +46,20 @@ grim_sums_scalar <- function(
 
   # Undecidable cases as in `grim_scalar()`. An infinite `x` would give an
   # infinitely wide range that `seq()` refuses to walk. Both callers check the
-  # sums with `anyNA()`, which also catches a missing `x`:
+  # sums with `anyNA()`:
   sums <- if (
-    is.infinite(x_num) ||
+    !is.finite(x_num) ||
       is.na(digits_x) ||
       !is_decidable_n_items(n, items_averaged)
   ) {
     c(NA_real_, NA_real_)
   } else {
+    check_sum_range_exact(
+      x_num,
+      n_items,
+      digits_x,
+      scale = rounding_scale(rounding, threshold, symmetric)
+    )
     roundwork::sum_range(
       x_num = x_num,
       n_items = n_items,

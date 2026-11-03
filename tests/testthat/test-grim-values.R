@@ -55,7 +55,7 @@ test_that("`grim_closest()` keeps a consistent `x` to the means reported as `x`"
 test_that("too many means is an error, not a huge allocation", {
   5 |> grim_values(1e7, digits_x = 0, items_averaged = 1)  |> expect_error("Too many achievable means")
   # The error names the value set, with `x` as given:
-  0.123456789 |> grim_values(9e15, digits_x = 9, items_averaged = 1) |> expect_error("`x = 0.123456789`, `n = 9000000000000000`")
+  1.2345 |> grim_values(2e10, digits_x = 4, items_averaged = 1) |> expect_error("`x = 1.2345`, `n = 20000000000`")
   5 |> grim_closest(1e7, digits_x = 0, items_averaged = 1) |> expect_equal(5)
 })
 
