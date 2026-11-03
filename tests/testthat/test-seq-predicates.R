@@ -330,8 +330,16 @@ test_that("no values could be dispersed around an infinite `from`", {
   c(NA, NA, NA) |> is_seq_dispersed(from = 5)       |> expect_na()
 })
 
-test_that("a non-vector is `FALSE` without a warning", {
-  mean |> is_seq_linear() |> expect_no_warning() |> expect_false()
-  mean |> is_seq_ascending() |> expect_no_warning() |> expect_false()
-  is_seq_linear(NULL) |> expect_false()
+test_that("anything but a numeric, character, or factor vector is an error", {
+  mean                          |> is_seq_linear()          |> expect_error("It is a function")
+  NULL                          |> is_seq_ascending()       |> expect_error("It is NULL")
+  list(1, 2, 3)                 |> is_seq_linear()          |> expect_error("It is a list")
+  c(TRUE, FALSE)                |> is_seq_descending()      |> expect_error("It is a logical vector")
+  matrix(1:4, 2)                |> is_seq_linear()          |> expect_error("must be a numeric")
+  tibble::tibble(a = c(NA, NA)) |> is_seq_linear()          |> expect_error("It is a tibble")
+  1:3                           |> is_seq_dispersed(from = list(2)) |> expect_error("`from` must be")
+  # A logical vector of `NA`s is missing values, and a string may be no number:
+  c(NA, NA, NA)                 |> is_seq_linear()          |> expect_na()
+  c("a", "b")                   |> is_seq_linear()          |> expect_false()
+  factor(c("1", "2", "3"))      |> is_seq_linear()          |> expect_true()
 })

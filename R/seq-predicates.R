@@ -10,6 +10,26 @@ is_seq_descending_basic <- function(x) {
 }
 
 
+# The sequence predicates take numbers, or strings or factors that may show
+# them, such as `"1.10"` with its trailing zero. Anything else is a mistake in
+# the call, not a sequence that fails the test: a data frame or a list would
+# be judged by its columns or elements, and `TRUE` would be 1. A logical vector
+# of `NA`s only is how R writes values that are missing altogether:
+check_seq_type <- function(x, name) {
+  allowed <- is.null(dim(x)) &&
+    (is.numeric(x) ||
+      is.character(x) ||
+      is.factor(x) ||
+      (is.logical(x) && all(is.na(x))))
+  if (!allowed) {
+    abort_in_export(
+      "`{name}` must be a numeric, character, or factor vector.",
+      "x" = "It is {.obj_type_friendly {x}}."
+    )
+  }
+}
+
+
 # Non-exported workhorse API of all the sequence predicates:
 is_seq_basic <- function(
   x,
@@ -19,6 +39,7 @@ is_seq_basic <- function(
   min_length = NULL,
   from = NULL
 ) {
+  check_seq_type(x, "x")
   # A missing value here would fail in `if ()` or make every test `FALSE`:
   check_flag(test_linear)
   if (
@@ -68,7 +89,7 @@ is_seq_basic <- function(
   # be no number, so only a logical or numeric `NA` is sure to be one.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
-  if (length(x) > 0L && (is.atomic(x) || is.list(x)) && all(is.na(x))) {
+  if (length(x) > 0L && all(is.na(x))) {
     linear_anyway <- is.null(test_special) &&
       length(x) <= 2L &&
       (is.logical(x) || is.numeric(x))
@@ -218,10 +239,13 @@ is_seq_basic <- function(
 #'
 #'   By default (`test_linear = TRUE`), the last three also test for linearity.
 #'
-#' @param x Numeric, or coercible to numeric as determined by
-#'   [`is_numeric_like()`].
-#' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`.
-#'   The value `x` should be centered on.
+#' @param x Numeric, character, or factor vector. Strings and factor labels
+#'   count as numbers as determined by [`is_numeric_like()`]; any that are not
+#'   make the result `FALSE`. A logical vector is accepted only if all its
+#'   values are `NA`. Any other type, such as a list or a data frame, is an
+#'   error.
+#' @param from Numeric, character, or factor, like `x`. Only in
+#'   `is_seq_dispersed()`. The value `x` should be centered on.
 #' @param test_linear Logical. Should linearity be tested as well? Default is
 #'   `TRUE`. Not in `is_seq_linear()`.
 #' @param tolerance Numeric. Tolerance for comparing values. Default is about
@@ -314,7 +338,9 @@ is_seq_dispersed <- function(
   test_linear = TRUE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  check_seq_type(x, "x")
   check_length(from, 1L)
+  check_seq_type(from, "from")
 
   # A missing center leaves the question open unless `x` rules out every
   # center. A dispersed sequence is centered on each mirrored pair of its

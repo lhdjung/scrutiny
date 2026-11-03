@@ -22,8 +22,11 @@ is_seq_dispersed(
 )
 }
 \arguments{
-\item{x}{Numeric, or coercible to numeric as determined by
-\code{\link[=is_numeric_like]{is_numeric_like()}}.}
+\item{x}{Numeric, character, or factor vector. Strings and factor labels
+count as numbers as determined by \code{\link[=is_numeric_like]{is_numeric_like()}}; any that are not
+make the result \code{FALSE}. A logical vector is accepted only if all its
+values are \code{NA}. Any other type, such as a list or a data frame, is an
+error.}
 
 \item{tolerance}{Numeric. Tolerance for comparing values. Default is about
 \code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}.}
@@ -31,8 +34,8 @@ is_seq_dispersed(
 \item{test_linear}{Logical. Should linearity be tested as well? Default is
 \code{TRUE}. Not in \code{is_seq_linear()}.}
 
-\item{from}{Numeric or coercible to numeric. Only in \code{is_seq_dispersed()}.
-The value \code{x} should be centered on.}
+\item{from}{Numeric, character, or factor, like \code{x}. Only in
+\code{is_seq_dispersed()}. The value \code{x} should be centered on.}
 }
 \value{
 Logical (length 1). If \code{x} contains \code{NA}:
