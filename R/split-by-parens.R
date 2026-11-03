@@ -91,6 +91,8 @@ split_by_parens <- function(
   check_flag(check_sep)
   check_flag(keep)
   check_flag(transform)
+  check_string(end1)
+  check_string(end2)
   # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
   force(sep)
 

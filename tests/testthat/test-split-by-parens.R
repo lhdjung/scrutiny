@@ -134,6 +134,12 @@ test_that("splitting never overwrites an existing column", {
   tibble::tibble(a = "1 (2)") |> split_by_parens(end1 = "z", end2 = "z") |> expect_error("must be different")
 })
 
+test_that("`end1` and `end2` must be single strings", {
+  # A vector failed in dplyr, and `NA` was pasted in as "a_NA":
+  tibble::tibble(a = "1 (2)") |> split_by_parens(end1 = c("x", "y")) |> expect_error("single string")
+  tibble::tibble(a = "1 (2)") |> split_by_parens(end2 = NA)          |> expect_error("single string")
+})
+
 
 # On 0 rows, `check_sep = TRUE` warned and returned the input unsplit, while
 # `check_sep = FALSE` split it, and warned that it couldn't:

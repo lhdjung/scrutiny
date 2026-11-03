@@ -307,3 +307,13 @@ test_that("the flags must be `TRUE` or `FALSE`", {
   data |> grim_plot_grid(show_gradient = NA)   |> expect_error("`show_gradient` must be `TRUE` or `FALSE`")
   data |> grim_plot_grid(split_by_digits = NA) |> expect_error("`split_by_digits` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("`digits` and `tile_size` are checked", {
+  # These failed with R's own errors:
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid(digits = NA)      |> expect_error("whole number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid(digits = "2")     |> expect_error("whole number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid(tile_size = "a")  |> expect_error("single positive number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid(tile_size = NA)   |> expect_error("single positive number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid(tile_size = -1)   |> expect_error("single positive number")
+})

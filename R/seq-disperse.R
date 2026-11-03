@@ -130,7 +130,7 @@ seq_disperse <- function(
 
   check_length(offset_from, 1L)
   check_type(offset_from, c("integer", "double"))
-  if (is.na(offset_from) || !is_whole_number(offset_from)) {
+  if (!is.finite(offset_from) || !is_whole_number(offset_from)) {
     abort_in_export(
       "`offset_from` must be a whole number.",
       "x" = "It is {offset_from}.",

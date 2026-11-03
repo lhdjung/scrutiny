@@ -49,6 +49,7 @@
 
 duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
   check_duplicate_input(x)
+  check_string(colname_end)
   x_was_named <- rlang::is_named(x)
   if (!x_was_named || !is.data.frame(x)) {
     x <- tibble::as_tibble(

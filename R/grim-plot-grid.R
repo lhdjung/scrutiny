@@ -195,12 +195,23 @@ grim_plot_grid <- function(
         "!" = "`digits` must have length 1 (i.e., be a single number).",
         "x" = "It has length {length(digits)}."
       )
-    } else if (!is_whole_number(digits)) {
+    } else if (!is.numeric(digits) || !isTRUE(is_whole_number(digits))) {
       abort_in_export(
         "!" = "`digits` must be a whole number.",
-        "x" = "It is {digits}."
+        "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
       )
     }
+  }
+
+  if (
+    !is.numeric(tile_size) ||
+      length(tile_size) != 1L ||
+      !isTRUE(is.finite(tile_size) && tile_size > 0)
+  ) {
+    abort_in_export(
+      "`tile_size` must be a single positive number.",
+      "x" = "It is {wrap_in_quotes_or_backticks(tile_size)}."
+    )
   }
 
   # Transformations ----

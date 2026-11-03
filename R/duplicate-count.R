@@ -188,6 +188,7 @@ check_duplicate_input <- function(x) {
       {?is/are}."
     )
   }
+  check_unique_names(x, "x")
   if (is.data.frame(x)) {
     return(invisible(NULL))
   }
@@ -197,6 +198,22 @@ check_duplicate_input <- function(x) {
       "The elements of `x` must have the same length.",
       "x" = "Their lengths are {lengths_x}.",
       "i" = "A list is read as columns, one per element."
+    )
+  }
+}
+
+
+# Columns are reported by name, and tibble would reject a repeated one with an
+# error of its own. Unnamed columns are named by position later. Shared with
+# `duplicate_count_colpair()`:
+check_unique_names <- function(x, name) {
+  names_x <- names(x)
+  repeated <- unique(names_x[duplicated(names_x) & names_x != ""])
+  if (length(repeated) > 0L) {
+    abort_in_export(
+      "The columns of `{name}` must have unique names.",
+      "x" = "{cli::qty(length(repeated))}{wrap_in_backticks(repeated)} \\
+      occur{?s/} more than once."
     )
   }
 }

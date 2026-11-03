@@ -1093,3 +1093,15 @@ test_that("input without columns to count is an error of its own", {
   list(a = NULL, b = 1:2) |> duplicate_tally() |> expect_error("Element 1 is")
   numeric(0)              |> duplicate_count() |> nrow() |> expect_equal(0L)
 })
+
+
+test_that("repeated column names and bad suffixes are errors", {
+  # tibble rejected them with an error of its own:
+  df <- data.frame(a = 1:2, b = 1:2, a = 1:2, check.names = FALSE)
+  df |> duplicate_count()         |> expect_error("must have unique names")
+  df |> duplicate_tally()         |> expect_error("must have unique names")
+  df |> duplicate_count_colpair() |> expect_error("`a` occurs more than once")
+  # `NA` was pasted in as "a_NA", and a vector recycled:
+  tibble::tibble(a = 1:2) |> duplicate_tally(colname_end = NA)          |> expect_error("single string")
+  tibble::tibble(a = 1:2) |> duplicate_tally(colname_end = c("x", "y")) |> expect_error("single string")
+})

@@ -165,6 +165,19 @@ check_flag <- function(flag) {
 }
 
 
+# A string argument such as a separator or a column suffix: a vector would be
+# recycled across columns and `NA` pasted in as "NA":
+check_string <- function(string) {
+  if (!is.character(string) || length(string) != 1L || is.na(string)) {
+    name <- deparse(substitute(string))
+    abort_in_export(
+      "`{name}` must be a single string.",
+      "x" = "It is {wrap_in_quotes_or_backticks(string)}."
+    )
+  }
+}
+
+
 is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
   abs(x - round(x)) < tolerance
 }

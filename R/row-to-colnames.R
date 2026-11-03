@@ -69,8 +69,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   # `data[-row, ]` fails on a near-whole double like `1 + 1e-12`:
   row <- round_whole(row)
 
-  check_type(collapse, "character")
-  check_length(collapse, 1L)
+  check_string(collapse)
   check_flag(drop)
 
   if (any(row < 1L | row > nrow(data))) {
