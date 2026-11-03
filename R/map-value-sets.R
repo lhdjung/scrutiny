@@ -72,9 +72,15 @@ map_value_sets <- function(fn, along, type = "logical") {
   # Arguments that say *how* to test rather than *what* describe the call as a
   # whole: one call cannot use two rounding methods, and `x` is either a
   # percentage or it isn't.
-  name_mapper <- paste0(name_last_export(), "_map")
+  # The mapper's name is only needed for the error, and finding it walks the
+  # stack, which would take most of a call's time, so it's left unevaluated:
   for (name in names_scalar) {
-    check_setting_length(name, vals[[name]], along, name_mapper)
+    check_setting_length(
+      name,
+      vals[[name]],
+      along,
+      paste0(name_last_export(), "_map")
+    )
   }
 
   # roundwork checks the rounding arguments once per value set, but its errors
