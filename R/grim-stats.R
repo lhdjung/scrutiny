@@ -247,24 +247,44 @@ grim_total <- function(
     roundwork::bound_numerators(1, 0L, rounding, threshold, symmetric = FALSE)
   )
 
-  interval_lower <-
-    (bounds$lower - bounds$denom) * n_means / (bounds$denom * div_common)
+  # The floor or ceiling of `offset * n_means / (bounds$denom * div_common)`.
+  # Where the product passes 2^53, a double would round it, so those elements
+  # are recomputed exactly:
+  round_interval <- function(offset, up) {
+    ratio <- offset * n_means / (bounds$denom * div_common)
+    out <- if (up) ceiling(ratio) else floor(ratio)
+    for (i in which(decidable & abs(offset) * n_means >= 2^53)) {
+      exact <- floor_product_ratio(
+        abs(offset),
+        n_means[[i]],
+        bounds$denom * div_common[[i]]
+      )
+      floor_abs <- exact$floor
+      ceiling_abs <- exact$floor + !exact$exact
+      out[[i]] <- if (offset >= 0) {
+        if (up) ceiling_abs else floor_abs
+      } else {
+        if (up) -floor_abs else -ceiling_abs
+      }
+    }
+    out
+  }
 
-  interval_upper <-
-    (bounds$upper - bounds$denom) * n_means / (bounds$denom * div_common)
+  offset_lower <- bounds$lower - bounds$denom
+  offset_upper <- bounds$upper - bounds$denom
 
   # Some rounding methods include an end of their interval and others don't, so
   # the first and last multiples inside it depend on the method.
   multiple_first <- if (bounds$incl_lower) {
-    ceiling(interval_lower)
+    round_interval(offset_lower, up = TRUE)
   } else {
-    floor(interval_lower) + 1
+    round_interval(offset_lower, up = FALSE) + 1
   }
 
   multiple_last <- if (bounds$incl_upper) {
-    floor(interval_upper)
+    round_interval(offset_upper, up = FALSE)
   } else {
-    ceiling(interval_upper) - 1
+    round_interval(offset_upper, up = TRUE) - 1
   }
 
   n_multiples <- pmax(multiple_last - multiple_first + 1, 0)

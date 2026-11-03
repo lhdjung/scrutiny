@@ -191,3 +191,10 @@ test_that("counts beyond 2^53 come without a precision warning", {
   # 2^14 means, half of them on a tie that is consistent both ways:
   1 |> grim_total(2^14, digits_x = 13, items_averaged = 1)              |> expect_identical(1e13 - 2^14 - 2^13)
 })
+
+test_that("`grim_total()` counts exactly where the steps pass 2^53", {
+  # With `percent = TRUE`, the offset times `n` passed 2^53 and the count was
+  # one too few or too many; the true counts are `1e16 - n` and the other:
+  1 |> grim_total(7681424021477433, 14, 1, percent = TRUE, rounding = "floor") |> expect_equal(1e16 - 7681424021477433)
+  1 |> grim_total(8950944599675727, 14, 1, percent = TRUE, rounding = "down_from", threshold = 1.25) |> expect_equal(1049055400324273)
+})
