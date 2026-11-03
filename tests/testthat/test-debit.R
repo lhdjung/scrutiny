@@ -586,3 +586,15 @@ test_that("an integer `n` beyond 46340 doesn't overflow under `\"sd_pop\"`", {
   NA  |> debit(0.5, 50000L, digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop") |> expect_na()
   debit_explain(0.5, 0.5, 50000L, 2, 2, sd_meaning = "sd_pop")$consistency |> expect_true()
 })
+
+test_that("a large `n` is tested exactly or refused", {
+  # k = 5399457 ones have the population SD 0.14 exactly, at the upper bound
+  # that `"ceiling"` includes:
+  0.98 |> debit(0.14, 5509650,   2, 2, rounding = "ceiling", sd_meaning = "sd_pop") |> expect_true()
+  # The two ranges touch only at an SD of 0.4, which `"floor"` excludes:
+  0.2  |> debit(0.3,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop") |> expect_error("too large for DEBIT")
+  0.1  |> debit(0.2,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop") |> expect_error("too large for DEBIT")
+  # Products beyond 2^53 with four decimal places, compared exactly:
+  0.9216 |> debit(0.2688, 625, 4, 4, "mean_n", "floor") |> expect_true()
+  0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop") |> expect_false()
+})

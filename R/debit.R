@@ -128,11 +128,12 @@ debit_undecidable <- function(show_rec) {
 # The population SD has `n * n` in place of `n * (n - 1)`, and an SE has
 # `n * n * (n - 1)`; see `sd_denominator()`.
 #
-# It compares whole numbers, as in `sum_range()`, and it is exact while those
-# stay below `2^53`, i.e., for `n` up to about 90,000 with an SD reported to two
-# decimal places, or 9,000 with three. The products for an SE are those for the
-# SD it implies, so the same holds for SEs that binary data can have. Beyond
-# that, it degrades to plain floating point.
+# It compares whole numbers, as in `sum_range()`, which is exact while those
+# stay below `2^53`. Each bound is put in lowest terms first, which typically
+# allows an `n` of some 450,000 with an SD reported to two decimal places, or
+# 45,000 with three. The products for an SE are those for the SD it implies, so
+# the same holds for SEs that binary data can have. Beyond that, a double skips
+# whole numbers, so `check_debit_exact()` makes it an error.
 #
 # The spread is the same for `k` and `n - k`, and it rises with `k` up to half
 # of `n`, so the test needs no loop over `k`, and its cost does not grow with
@@ -205,23 +206,47 @@ binary_spread_root <- function(n, spread) {
 # as whole numbers; see `binary_sd_attainable()`. Shared with `debit_explain()`.
 binary_spread_range <- function(n, bounds_sd, sd_meaning) {
   factor_sd <- n * sd_denominator(n, sd_meaning)
-  denom_squared <- bounds_sd$denom^2
-  lower_scaled <- bounds_sd$lower^2 * factor_sd
-  upper_scaled <- bounds_sd$upper^2 * factor_sd
+  lower <- lowest_terms(bounds_sd$lower, bounds_sd$denom)
+  upper <- lowest_terms(bounds_sd$upper, bounds_sd$denom)
+  # An SD of binary data is at most about 1, so the spreads stay below twice
+  # `factor_sd`:
+  check_debit_exact(
+    c(2 * factor_sd, lower$num^2, lower$den^2, upper$num^2, upper$den^2),
+    n
+  )
 
-  spread_min <- ceiling(lower_scaled / denom_squared)
-  lower_bound_hit <- spread_min * denom_squared == lower_scaled
-  if (!bounds_sd$incl_lower && lower_bound_hit) {
+  # The spread at each bound is `num^2 * factor_sd / den^2`:
+  low <- floor_product_ratio(lower$num^2, factor_sd, lower$den^2)
+  spread_min <- low$floor
+  if (!low$exact || !bounds_sd$incl_lower) {
     spread_min <- spread_min + 1
   }
 
-  spread_max <- floor(upper_scaled / denom_squared)
-  upper_bound_hit <- spread_max * denom_squared == upper_scaled
-  if (!bounds_sd$incl_upper && upper_bound_hit) {
+  high <- floor_product_ratio(upper$num^2, factor_sd, upper$den^2)
+  spread_max <- high$floor
+  if (high$exact && !bounds_sd$incl_upper) {
     spread_max <- spread_max - 1
   }
 
   c(spread_min, spread_max)
+}
+
+
+# DEBIT compares products of whole numbers, which `compare_products()` does
+# exactly as long as each factor is below `2^53`; past it, a double skips whole
+# numbers, and a value set at a rounding bound could get either verdict. An
+# error, as in `check_sum_range_exact()` and `check_grimmer_exact()`:
+check_debit_exact <- function(factors, n) {
+  if (max(factors) >= 2^53) {
+    abort_in_export(
+      "`n` is too large for DEBIT at these decimal places.",
+      "x" = "With `n = {format(n, scientific = FALSE)}`, the whole numbers \\
+      that DEBIT compares reach 2^53, about 9e15, beyond which a double \\
+      skips whole numbers.",
+      "i" = "They grow with `n^2` and with the number of decimal places of \\
+      `x` and `sd`."
+    )
+  }
 }
 
 
@@ -240,7 +265,8 @@ binary_spread_range <- function(n, bounds_sd, sd_meaning) {
 # SD. In whole numbers: the spread at a mean `num / denom` is `num * (denom -
 # num)` over `denom^2`, and the comparison with a squared SD bound `(num_sd /
 # denom_sd)^2 * n_dev / n` is one of cross-multiplied whole numbers, exact
-# while they stay below `2^53`, as in `binary_sd_attainable()`.
+# while they stay below `2^53`, as in `binary_sd_attainable()`, and an error
+# beyond.
 #
 # Evaluating the SD at the bounds and rounding it, as before, treated an
 # excluded bound as attained: `x = 0.03` under `"ceiling"` means a mean above
@@ -283,21 +309,44 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
   }
 
   # `spread / denom_x^2 * n / n_dev` against `(num_sd / denom_sd)^2`, both
-  # sides multiplied by `denom_x^2 * n_dev * denom_sd^2`:
+  # sides multiplied by the denominators and by `n_dev`, and divided by what
+  # `n` and `n_dev` have in common -- all of `n` for a population SD. Each
+  # fraction is in lowest terms first, as in `binary_spread_range()`, so the
+  # two comparisons have their own denominators, and `compare_products()`
+  # compares their products exactly:
   n_dev <- sd_denominator(n, sd_meaning)
-  factor_spread <- n * bounds_sd$denom^2
-  factor_sd <- n_dev * denom_x^2
-  attained_min <- spread_min * factor_spread
-  attained_max <- spread_max * factor_spread
-  sd_min <- bounds_sd$lower^2 * factor_sd
-  sd_max <- bounds_sd$upper^2 * factor_sd
+  check_debit_exact(c(denom_x^2, n_dev), n)
+  common <- gcd(n_dev, n)
+  spread_min <- lowest_terms(spread_min, denom_x^2)
+  spread_max <- lowest_terms(spread_max, denom_x^2)
+  lower_sd <- lowest_terms(bounds_sd$lower, bounds_sd$denom)
+  upper_sd <- lowest_terms(bounds_sd$upper, bounds_sd$denom)
+  factors <- list(
+    attained_min = n / common * upper_sd$den^2,
+    sd_max = n_dev / common * spread_min$den,
+    sd_min = n_dev / common * spread_max$den,
+    attained_max = n / common * lower_sd$den^2
+  )
+  check_debit_exact(c(unlist(factors), upper_sd$num^2, lower_sd$num^2), n)
 
   # Two intervals meet unless one ends before the other begins. A shared end
   # counts only if both include it:
-  (attained_min < sd_max ||
-    (attained_min == sd_max && incl_min && bounds_sd$incl_upper)) &&
-    (sd_min < attained_max ||
-      (sd_min == attained_max && bounds_sd$incl_lower && incl_max))
+  min_vs_sd_max <- compare_products(
+    spread_min$num,
+    factors$attained_min,
+    upper_sd$num^2,
+    factors$sd_max
+  )
+  sd_min_vs_max <- compare_products(
+    lower_sd$num^2,
+    factors$sd_min,
+    spread_max$num,
+    factors$attained_max
+  )
+  (min_vs_sd_max < 0 ||
+    (min_vs_sd_max == 0 && incl_min && bounds_sd$incl_upper)) &&
+    (sd_min_vs_max < 0 ||
+      (sd_min_vs_max == 0 && bounds_sd$incl_lower && incl_max))
 }
 
 
