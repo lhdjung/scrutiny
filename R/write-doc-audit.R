@@ -155,9 +155,14 @@ write_doc_audit_seq <- function(key_args, name_test) {
       ""
     },
     "#'\n",
+    "#'   A count or distance is `NA` if it depends on a dispersed value set whose\n",
+    "#'   verdict is `NA`, or on a variable whose reported value is missing, which\n",
+    "#'   is not dispersed.\n",
+    "#'\n",
     "#'   Call `audit()` on `audit_seq()` output to summarize these columns further.\n",
     "#'   `na_count` and `na_rate` there count the cases without a consistent value\n",
-    "#'   within the `dispersion` range.\n"
+    "#'   within the `dispersion` range, and those that a missing value leaves\n",
+    "#'   unknown.\n"
   )
 }
 

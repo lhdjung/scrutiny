@@ -102,9 +102,14 @@ distances to the nearest consistent value above and below.
 \item \code{diff_n}, \code{diff_n_up}, \code{diff_n_down}: the same for \code{n}.
 }
 
+A count or distance is \code{NA} if it depends on a dispersed value set whose
+verdict is \code{NA}, or on a variable whose reported value is missing, which
+is not dispersed.
+
 Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
 \code{na_count} and \code{na_rate} there count the cases without a consistent value
-within the \code{dispersion} range.
+within the \code{dispersion} range, and those that a missing value leaves
+unknown.
 }
 
 \examples{

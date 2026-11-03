@@ -92,6 +92,10 @@ distances to the nearest consistent value above and below.
 \item \verb{diff_sd*} and \verb{diff_n*}: the same for \code{sd} and \code{n}.
 }
 
+A count or distance is \code{NA} if it depends on a dispersed value set whose
+verdict is \code{NA}, or on a variable whose reported value is missing, which
+is not dispersed.
+
 Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
 }
 

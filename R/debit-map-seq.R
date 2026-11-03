@@ -43,6 +43,10 @@
 #'   distances to the nearest consistent value above and below.
 #'   - `diff_sd*` and `diff_n*`: the same for `sd` and `n`.
 #'
+#'   A count or distance is `NA` if it depends on a dispersed value set whose
+#'   verdict is `NA`, or on a variable whose reported value is missing, which
+#'   is not dispersed.
+#'
 #'   Call `audit()` on `audit_seq()` output to summarize these columns further.
 #'
 #' @include function-map-seq.R

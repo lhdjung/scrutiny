@@ -229,87 +229,12 @@ audit_seq <- function(data) {
     return(add_class(out, "scrutiny_audit_seq"))
   }
 
-  df_list <- split(data, data$case)
-
-  df_list_hits <- df_list |>
-    purrr::map(function(x) x[which(x[[name_key_result]]), ])
-
-  # The reported value set itself, included under `include_reported = TRUE`, is
-  # one value set, however many variables it is listed under:
-  hits_total <- df_list_hits |>
-    vapply(
-      function(x) sum(x$diff_var != 0L) + any(x$diff_var == 0L),
-      integer(1L),
-      USE.NAMES = FALSE
-    ) |>
-    unname()
-
   # The dispersed variables, in the order of the `var` argument. The settings
   # record them all, even one whose dispersion `out_min` or `out_max` clipped
   # away in every case; the `var` column only has those with rows:
   if (is.null(var_names)) {
     var_names <- unique(data$var)
   }
-
-  index_hit_distance <- function(df, var_order = var_names) {
-    # Splitting by a factor keeps the groups in the order of `var`, and keeps
-    # an empty group, counted as zero hits, for a variable whose dispersion
-    # `out_min` or `out_max` clipped away in this case. Without it, the columns
-    # of later variables would shift left:
-    df |>
-      split(factor(df$var, levels = var_order)) |>
-      # `which()` drops undecidable cases rather than counting them as hits:
-      purrr::map(function(x) x[which(x[[name_key_result]]), ]$diff_var)
-  }
-
-  length_unless_na <- function(x) {
-    if (length(x) == 1L && is.na(x)) {
-      0L
-    } else {
-      length(x)
-    }
-  }
-
-  fn_names <- c("", "_up", "_down")
-  fn_names <- rep(fn_names, length(var_names))
-
-  df_nested <- df_list |>
-    purrr::map(index_hit_distance) |>
-    tibble::tibble(.name_repair = function(x) "distance") |>
-    tidyr::unnest_wider(col = distance)
-
-  cols_hits <- df_nested |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = everything(),
-        .fns = function(x) {
-          vapply(x, length_unless_na, integer(1L), USE.NAMES = FALSE)
-        },
-        .names = "hits_{.col}"
-      ),
-      .keep = "none"
-    ) |>
-    tidyr::unnest(cols = everything())
-
-  cols_diff <- df_nested |>
-    dplyr::mutate(
-      dplyr::across(
-        .cols = everything(),
-        .fns = LIST_MIN_DISTANCE_FUNCTIONS,
-        .names = "diff_{.col}{fn_names}"
-      ),
-      .keep = "none"
-    ) |>
-    dplyr::mutate(dplyr::across(
-      .cols = everything(),
-      .fns = function(x) {
-        x[is.infinite(x)] <- NA
-        as.integer(x)
-      }
-    )) |>
-    suppressWarnings()
-
-  data_rev <- reverse_map_seq(data)
 
   # The verdicts of the reported value sets, recorded by the sequence mapper's
   # initial test for every input row; `case` is the row number. Re-testing
@@ -319,20 +244,83 @@ audit_seq <- function(data) {
     abort_lost_settings()
   }
 
-  # `df_list` and `data_rev` are both split by `case`, so they are in this order:
-  consistency <- results_reported[sort(unique(data$case))]
+  # One row per case, in the order of `case`, as `split()` below has it:
+  data_rev <- reverse_map_seq(data)
+  cases <- sort(unique(data$case))
+  consistency <- results_reported[cases]
+  rows_by_case <- split(seq_len(nrow(data)), data$case)
 
-  cols_hits <- cols_hits |>
-    dplyr::mutate(dplyr::across(
-      .cols = where(is.character),
-      .fns = as.numeric
-    ))
+  # A dispersed value set with an `NA` verdict may or may not be a hit, so a
+  # count or a distance that depends on it is `NA`, as is everything about a
+  # variable whose reported value is missing, which was not dispersed. A count
+  # is the same with such value sets taken as hits or as misses only if there
+  # are none; a distance, if no hit is found closer than the nearest of them:
+  summarize_hits <- function(steps, verdicts) {
+    hits <- steps[which(verdicts)]
+    maybe <- steps[is.na(verdicts) | verdicts]
+    distances <- list(
+      function(x) min(abs(x)),
+      function(x) min(x[x > 0]),
+      function(x) max(x[x < 0])
+    )
+    diffs <- vapply(
+      distances,
+      function(f) {
+        value <- suppressWarnings(f(hits))
+        if (
+          !identical(value, suppressWarnings(f(maybe))) || is.infinite(value)
+        ) {
+          NA_integer_
+        } else {
+          as.integer(value)
+        }
+      },
+      integer(1L)
+    )
+    # The reported value set, included under `include_reported = TRUE`, is one
+    # value set, however many variables it is listed under:
+    count <- if (anyNA(verdicts)) NA_integer_ else length(hits)
+    list(count = count, diffs = diffs)
+  }
 
-  cols_diff <- cols_diff |>
-    dplyr::mutate(dplyr::across(
-      .cols = where(is.character),
-      .fns = as.numeric
-    ))
+  hits_total <- integer(length(cases))
+  cols_hits <- matrix(NA_integer_, length(cases), length(var_names))
+  cols_diff <- matrix(NA_integer_, length(cases), 3L * length(var_names))
+
+  for (i in seq_along(cases)) {
+    rows <- rows_by_case[[i]]
+    verdicts_case <- data[[name_key_result]][rows]
+    steps_case <- data$diff_var[rows]
+    hits_case <- steps_case[which(verdicts_case)]
+    total_unknown <- anyNA(verdicts_case)
+
+    for (j in seq_along(var_names)) {
+      var <- var_names[[j]]
+      if (is.na(data_rev[[var]][[i]])) {
+        total_unknown <- TRUE
+        next
+      }
+      in_var <- data$var[rows] == var
+      summary <- summarize_hits(steps_case[in_var], verdicts_case[in_var])
+      cols_hits[i, j] <- summary$count
+      cols_diff[i, 3L * j - 2:0] <- summary$diffs
+    }
+
+    hits_total[[i]] <- if (total_unknown) {
+      NA_integer_
+    } else {
+      sum(hits_case != 0L) + any(hits_case == 0L)
+    }
+  }
+
+  colnames(cols_hits) <- paste0("hits_", var_names)
+  colnames(cols_diff) <- paste0(
+    "diff_",
+    rep(var_names, each = 3L),
+    c("", "_up", "_down")
+  )
+  cols_hits <- tibble::as_tibble(cols_hits)
+  cols_diff <- tibble::as_tibble(cols_diff)
 
   data_rev |>
     dplyr::mutate("{name_key_result}" := consistency, hits_total) |>

@@ -280,3 +280,14 @@ test_that("`.by` on sequence output names what the output keeps", {
   df |> grim_map_seq(digits_x = 2, items_averaged = 1) |> audit(.by = study) |> expect_error("`case` column numbers the input rows")
   df |> grim_map(digits_x = 2, items_averaged = 1) |> audit(.by = nope) |> expect_error("doesn't exist")
 })
+
+test_that("`audit_seq()` says `NA` for hits that a missing value leaves unknown", {
+  # `x` fails GRIM, so the case is inconsistent with `sd` missing. Dispersed
+  # values of `x` that pass GRIM have an `NA` verdict, and `sd` is not dispersed:
+  out <- tibble::tibble(x = 5.19, sd = NA, n = 28) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 1, items_averaged = 1) |>
+    audit_seq()
+  out$consistency |> expect_false()
+  c(out$hits_total, out$hits_x, out$hits_sd, out$hits_n) |> expect_equal(rep(NA_integer_, 4L))
+  c(out$diff_x, out$diff_sd, out$diff_n) |> expect_equal(rep(NA_integer_, 3L))
+})

@@ -51,9 +51,14 @@
 #'   distances to the nearest consistent value above and below.
 #'   - `diff_n`, `diff_n_up`, `diff_n_down`: the same for `n`.
 #'
+#'   A count or distance is `NA` if it depends on a dispersed value set whose
+#'   verdict is `NA`, or on a variable whose reported value is missing, which
+#'   is not dispersed.
+#'
 #'   Call `audit()` on `audit_seq()` output to summarize these columns further.
 #'   `na_count` and `na_rate` there count the cases without a consistent value
-#'   within the `dispersion` range.
+#'   within the `dispersion` range, and those that a missing value leaves
+#'   unknown.
 #'
 #' @include grim-map.R
 #'
