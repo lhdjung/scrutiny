@@ -70,6 +70,7 @@ duplicate_count <- function(
       value = value_to_factor(unname(x))
     )
   } else {
+    check_list_lengths(x)
     if (!x_was_named || !is.data.frame(x)) {
       x <- tibble::as_tibble(
         x,
@@ -155,4 +156,22 @@ duplicate_count <- function(
 value_to_factor <- function(x) {
   levels <- x |> unique() |> sort() |> value_to_string() |> unique()
   factor(value_to_string(x), levels = levels)
+}
+
+
+# `tibble::as_tibble()` recycles an element of length 1 to the length of the
+# others, which would count its value several times. The elements of a list
+# are columns, so they must have the same length:
+check_list_lengths <- function(x) {
+  if (!is.list(x) || is.data.frame(x)) {
+    return(invisible(NULL))
+  }
+  lengths_x <- lengths(x)
+  if (length(unique(lengths_x)) > 1L) {
+    abort_in_export(
+      "The elements of `x` must have the same length.",
+      "x" = "Their lengths are {lengths_x}.",
+      "i" = "A list is read as columns, one per element."
+    )
+  }
 }

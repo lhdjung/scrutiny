@@ -1077,3 +1077,9 @@ test_that("`duplicate_tally()` rejects a column named like an output column", {
 test_that("an empty input has an `NA` rate of missing values", {
   tibble::tibble(a = numeric(0)) |> duplicate_count() |> audit() |> _$na_rate |> expect_equal(c(NA_real_, NA_real_))
 })
+
+test_that("a list with elements of different lengths is an error, not recycled", {
+  list(a = c(1, 2), b = 3) |> duplicate_count() |> expect_error("must have the same length")
+  list(a = c(1, 2), b = 3) |> duplicate_tally() |> expect_error("must have the same length")
+  list(a = c(1, 2), b = c(3, 1)) |> duplicate_count() |> _$frequency |> expect_equal(c(2L, 1L, 1L))
+})
