@@ -634,6 +634,8 @@ function_map_seq <- function(
 
 
 is_steps_ascending <- function(dispersion) {
+  # As `seq_disperse()` takes them: once each, and none of 0:
   steps <- unique(round_whole(dispersion))
+  steps <- steps[steps != 0]
   length(steps) < 2L || is_seq_ascending(steps)
 }
