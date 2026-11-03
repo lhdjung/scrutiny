@@ -601,8 +601,9 @@ function_map <- function(
       # records that it has warned before the muffle discards the warning, so a
       # once-per-session warning would be lost for good.
       #
-      # The error names row 1 only if row 2 passes; an error about the
-      # arguments fails on every row:
+      # The error names row 1 only if another row passes; an error about the
+      # arguments fails on every row. Row 2 alone is not enough: in the data
+      # that a total-n mapper builds, it is the other group of the same case:
       if (nrow(data) > 0L) {
         test_row <- function(row) {
           row_values <- lapply(cols_tested, function(x) x[[row]])
@@ -611,7 +612,7 @@ function_map <- function(
         withCallingHandlers(
           test_row(1L),
           error = function(cnd) {
-            if (nrow(data) > 1L && passes_row(test_row, 2L)) {
+            if (passes_any_row(test_row, nrow(data))) {
               signal_in_row(cnd, 1L)
             }
           }
@@ -805,6 +806,9 @@ function_map <- function(
   # `function_map_seq()` and `function_map_total_n()` must not pass it again
   # when they re-test. They read this attribute to know which ones those are:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
+  # The result columns that the mapper may add, which `function_map_total_n()`
+  # keeps a `constant` from being named like:
+  attr(fn_out, "scrutiny_cols_result") <- c(names(.cols_derived), .col_names)
 
   fn_out
 }

@@ -171,7 +171,10 @@ df2_rows_1_3_expected <- tibble::tibble(
         )
       ),
       reported = "x",
-      values_reported = c(as.list(df2), list(digits_x = 2, items_averaged = 1))
+      values_reported = c(
+        as.list(df2),
+        list(digits_x = c(2, 2), items_averaged = rep(1, nrow(df2)))
+      )
     ),
     class = c(
       "scrutiny_map_total_n",
@@ -254,4 +257,16 @@ test_that("a `constant` named like an output column is an error", {
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(both_consistent = c(7, 8))) |> expect_error("`both_consistent` is taken")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(n = c(7, 8)))               |> expect_error("`n` is taken")
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(k = c(7, 8)))               |> expect_s3_class("scrutiny_map_total_n")
+})
+
+
+test_that("an error in the first case names its row although both groups fail", {
+  # Row 2 of the data built from it is the other group of the same case:
+  df <- tibble::tibble(x1 = c(9000000000.01, 5.19), x2 = c(9000000000.01, 5.19), n = c(2008, 56))
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("In row 1 of `data`")
+})
+
+test_that("a `constant` named like a result column of the test is an error", {
+  df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(exp_incon = 1:2)) |> expect_error("`exp_incon` is taken")
 })

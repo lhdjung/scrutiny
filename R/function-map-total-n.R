@@ -450,7 +450,8 @@ function_map_total_n <- function(
           "dir",
           name_key_result,
           `!!`(digits_args_names),
-          `!!`(args_helper_fn)
+          `!!`(args_helper_fn),
+          `!!`(attr(.fn, "scrutiny_cols_result", exact = TRUE))
         )
       )
 
@@ -693,12 +694,14 @@ function_map_total_n <- function(
       # `digits_*` and helper arguments, so that output of calls on different
       # data can't be combined, which would number two cases as one (see
       # `R/bind-rows.R`):
-      # A helper is recorded the same way as a column or an argument:
+      # A helper argument is recorded as the column it stands for, and a
+      # `digits_*` value as one per group, so that `items_averaged = 1` and a
+      # column of 1s, or `digits_x = 2` and `c(2, 2)`, record the same:
       meta$values_reported <- c(
         as.list(data)[c(reported_reduplicated, "n")],
-        digits_vals,
+        lapply(digits_vals, rep_len, length.out = 2L),
         as.list(data)[intersect(`!!`(args_helper_fn), colnames(data))],
-        helper_vals
+        lapply(Filter(Negate(is.null), helper_vals), rep, times = nrow(data))
       )
       attr(out, "scrutiny") <- meta
 

@@ -337,16 +337,27 @@ with_rows_of_data <- function(expr, rows) {
   )
 }
 
-# Does `test_row(row)` run without an error? Its warnings are not muffled, for
-# the reason given in `function_map()`:
-passes_row <- function(test_row, row) {
-  tryCatch(
-    {
-      test_row(row)
-      TRUE
-    },
-    error = function(cnd) FALSE
-  )
+# Does `test_row()` run without an error on any row after the first? Rows 2 to
+# 50 and the last one are tried, which keeps the search short when every row
+# fails, as with a wrong argument. Warnings are not muffled, for the reason
+# given in `function_map()`:
+passes_any_row <- function(test_row, nrow) {
+  if (nrow < 2L) {
+    return(FALSE)
+  }
+  for (row in unique(c(seq(2L, min(nrow, 50L)), nrow))) {
+    passes <- tryCatch(
+      {
+        test_row(row)
+        TRUE
+      },
+      error = function(cnd) FALSE
+    )
+    if (passes) {
+      return(TRUE)
+    }
+  }
+  FALSE
 }
 
 

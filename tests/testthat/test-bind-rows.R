@@ -116,3 +116,10 @@ test_that("an output bound to itself can't be audited", {
   dplyr::bind_rows(seq_out, seq_out) |> audit_seq()     |> expect_error("occur more than once")
   dplyr::bind_rows(tot_out, tot_out) |> audit_total_n() |> expect_error("occur more than once")
 })
+
+test_that("total-n calls record a helper or `digits_*` the same whichever way it was given", {
+  df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
+  out <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  dplyr::bind_rows(out, df |> dplyr::mutate(items_averaged = 1L) |> grim_map_total_n(digits_x = 2)) |> nrow() |> expect_equal(2L * nrow(out))
+  dplyr::bind_rows(out, df |> grim_map_total_n(digits_x = c(2, 2), items_averaged = 1))             |> nrow() |> expect_equal(2L * nrow(out))
+})
