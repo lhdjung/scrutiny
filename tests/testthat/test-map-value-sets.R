@@ -242,3 +242,14 @@ test_that("a value within tolerance of a whole number is tested as that number",
   1.5 |> grimmer(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1)     |> expect_true()
   0.5 |> debit(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                           |> expect_false()
 })
+
+
+test_that("a test runs in a data mask, called from a user's function", {
+  # A function called in a data mask names itself as its parent in
+  # `sys.parents()`, which made `name_last_export()` loop forever:
+  test <- function(x, n) grim(x, n, digits_x = 2, items_averaged = 1)
+  tibble::tibble(x = c(3.41, 3.43), n = 35) |>
+    dplyr::mutate(consistency = test(x, n)) |>
+    dplyr::pull(consistency) |>
+    expect_equal(c(FALSE, TRUE))
+})
