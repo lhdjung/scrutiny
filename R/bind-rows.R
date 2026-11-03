@@ -78,7 +78,8 @@ vec_cast_scrutiny <- function(
   to_arg = "",
   call = rlang::caller_env()
 ) {
-  check_same_mapper_call(x, to, x_arg, to_arg, call)
+  # `x` is cast to `to`, which comes first, as in `rows_append(to, x)`:
+  check_same_mapper_call(to, x, to_arg, x_arg, call)
   vctrs::df_cast(x, to, ..., x_arg = x_arg, to_arg = to_arg, call = call) |>
     restore_scrutiny(to)
 }
@@ -106,7 +107,7 @@ check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
   same_class <- identical(class(x), class(y))
   if (
     same_class &&
-      (is.null(meta_x) || is.null(meta_y) || identical(meta_x, meta_y))
+      (is.null(meta_x) || is.null(meta_y) || same_value(meta_x, meta_y))
   ) {
     return(invisible(NULL))
   }
@@ -120,7 +121,7 @@ check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
   common <- intersect(settings_x$setting, settings_y$setting)
   differing <- Filter(
     function(name) {
-      !identical(
+      !same_value(
         settings_x$value[[match(name, settings_x$setting)]],
         settings_y$value[[match(name, settings_y$setting)]]
       )
@@ -152,6 +153,8 @@ check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
       ")"
     )
     "They differ in {values}."
+  } else if (!same_value(meta_x$cols_variadic, meta_y$cols_variadic)) {
+    "They test different columns."
   } else {
     "They record the same settings but different value sets or verdicts."
   }
@@ -175,4 +178,27 @@ check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
     ),
     call = call
   )
+}
+
+
+# Like `identical()`, but a number is the same as an integer or a double, as
+# `threshold = 5L` is as `5`. Lists and data frames are compared by element:
+same_value <- function(x, y) {
+  if (is.numeric(x) && is.numeric(y)) {
+    return(
+      identical(as.double(x), as.double(y)) && identical(names(x), names(y))
+    )
+  }
+  if (is.list(x) && is.list(y)) {
+    return(
+      length(x) == length(y) &&
+        identical(names(x), names(y)) &&
+        all(vapply(
+          seq_along(x),
+          function(i) same_value(x[[i]], y[[i]]),
+          logical(1L)
+        ))
+    )
+  }
+  identical(x, y)
 }

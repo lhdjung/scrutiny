@@ -85,3 +85,16 @@ test_that("calls that differ in a helper or a decimal count can't be combined", 
   dplyr::bind_rows(tot_1, df_tot |> dplyr::mutate(items_averaged = 2) |> grim_map_total_n(digits_x = 2)) |> expect_error("different calls")
   dplyr::bind_rows(tot_1[1:3, ], tot_1[-(1:3), ]) |> expect_equal(tot_1)
 })
+
+test_that("a setting given as an integer is the same as a double", {
+  df <- tibble::tibble(x = 5.19, n = 28)
+  dplyr::bind_rows(df |> grim_map(digits_x = 2, items_averaged = 1), df |> grim_map(digits_x = 2, items_averaged = 1, threshold = 5L)) |> nrow() |> expect_equal(2L)
+  dplyr::bind_rows(df |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:5), df |> grim_map_seq(digits_x = 2L, items_averaged = 1L, dispersion = c(1, 2, 3, 4, 5))) |> nrow() |> expect_equal(40L)
+})
+
+test_that("the errors name what differs, in the order given", {
+  df <- tibble::tibble(n_control = 10, n_treatment = 12, n_all = 22)
+  dplyr::bind_rows(add_up_to_map(df, summands = c(n_control, n_treatment), total = n_all), add_up_to_map(df, summands = n_control, total = n_all)) |> expect_error("test different columns")
+  df_grim <- tibble::tibble(x = 5.19, n = 28)
+  dplyr::rows_append(grim_map(df_grim, digits_x = 2, items_averaged = 1), grim_map(df_grim, digits_x = 2, items_averaged = 1, rounding = "up")) |> expect_error("`x` and `y`")
+})
