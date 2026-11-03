@@ -83,6 +83,7 @@ Collate:
     'debit-plot.R'
     'duplicate-count-colpair.R'
     'duplicate-count.R'
+    'exact-arithmetic.R'
     'grimmer-explain.R'
     'explain-map.R'
     'explain-print.R'

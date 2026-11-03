@@ -18,7 +18,7 @@
 # realsum                --> s (candidate sum, loop variable)
 # effective_n            --> n_items
 # Lsigma, Usigma         --> sd_bounds$lower, sd_bounds$upper
-# Lowerbound, Upperbound --> sum_squares (from `sum_squares_range()`)
+# Lowerbound, Upperbound --> range (from `sum_squares_range_shifted()`)
 # FirstTest              --> pass_test1
 # Matches_Oddness        --> pass_test3
 # Matches_SD             --> (test 2, not run; see `grimmer_candidate()`)
@@ -62,65 +62,24 @@ grimmer_sd_bounds <- function(
     sd_bounds$incl_lower <- TRUE
   }
 
-  n_dev <- sd_denominator(n, sd_meaning)
-  sd_bounds$n_dev <- n_dev
-
+  # As a double: `n * (n - 1)` overflows an integer from 46341:
+  n <- as.numeric(n)
   sd_bounds$term_lower <- sd_square_term(
     sd_bounds$lower,
-    n_dev,
+    n,
     items_averaged,
-    sd_bounds$denom
+    sd_bounds$denom,
+    sd_meaning
   )
   sd_bounds$term_upper <- sd_square_term(
     sd_bounds$upper,
-    n_dev,
+    n,
     items_averaged,
-    sd_bounds$denom
+    sd_bounds$denom,
+    sd_meaning
   )
 
   sd_bounds
-}
-
-
-# GRIMMER compares whole sums of squares, which is exact only below `2^53`;
-# past it, a double skips whole numbers, so the verdict would be wrong, and
-# the windows of `sum_squares_attainable_all()` could not advance (#D2 of the
-# 2026-11-02 audit: an endless loop). The largest sum of squares in play is
-# the upper bound for the largest candidate sum, and the SD's own squared
-# numerator has to fit as well, as do the products of the SD's term (see
-# `sd_square_term()`). An error, like too many candidate sums.
-check_grimmer_exact <- function(x, sd, n, items_averaged, sums, sd_bounds) {
-  s_max <- max(abs(sums))
-  sum_squares_max <- sum_squares_range(
-    s = s_max,
-    n = n,
-    term_lower = sd_bounds$term_lower,
-    term_upper = sd_bounds$term_upper,
-    incl_lower = TRUE,
-    incl_upper = TRUE
-  )[[2L]]
-
-  # `floor_frac_sum()` puts the SD's term over `n`, with products below twice
-  # its denominator times `n`. `n_dev` is a factor of `compare_products()`:
-  term_den <- max(sd_bounds$term_lower$den, sd_bounds$term_upper$den)
-  term_max <- max(term_den * 2 * n, sd_bounds$n_dev)
-
-  if (
-    (sd_bounds$upper * items_averaged)^2 >= 2^53 ||
-      sum_squares_max >= 2^53 ||
-      term_max >= 2^53
-  ) {
-    abort_in_export(
-      "`x`, `sd`, or `n` is too large for GRIMMER, or `sd` has too many \\
-      decimal places.",
-      "x" = "With `x = {x}`, `sd = {sd}`, `n = {n}`, and `items_averaged = \\
-      {items_averaged}`, the whole numbers to compare reach 2^53, about \\
-      9e15, beyond which a double skips whole numbers.",
-      "i" = "The sum of squares is about `n * (x^2 + sd^2) * \\
-      items_averaged^2`, and the arithmetic on the SD grows with `n` times \\
-      `10^(2 * digits_sd)`."
-    )
-  }
 }
 
 
@@ -135,34 +94,42 @@ grimmer_candidate <- function(
   items_averaged,
   sd_bounds
 ) {
+  # Shifted to the sum `r`; see `R/grimmer-sum-squares.R`. Every sum of squares
+  # below is lower by `shift` than the one with the sum `s`:
+  q <- s %/% n
+  r <- s - n * q
+  range <- sum_squares_range_shifted(r, n, sd_bounds)
+
   # TEST 1: Is there at least one integer between the bounds of the
   # reconstructed sum of squares? Derived in exact integer arithmetic, like the
   # candidate sums: a floating-point tolerance cannot repair a bound once the
   # sum of squares exceeds about 1000 (#86).
-  sum_squares <- sum_squares_range(
-    s = s,
-    n = n,
-    term_lower = sd_bounds$term_lower,
-    term_upper = sd_bounds$term_upper,
-    incl_lower = sd_bounds$incl_lower,
-    incl_upper = sd_bounds$incl_upper
-  )
-
+  #
   # Test 1 goes beyond Allard (2018) in also requiring a sum of squares that
   # whole numbers with the sum `s` can reach. Otherwise, it would accept value
   # sets like `x = 3.6`, `sd = 0.2`, `n = 11`: the sum must be 40, the SD admits
   # a sum of squares of 146, but no 11 whole numbers summing to 40 go below 148.
-  minimum <- sum_squares_min(s, n)
-  lower <- max(sum_squares[1L], minimum)
+  # Shifted, that least sum of squares is `r`: `r` ones, the others zeros.
+  upper <- range$upper
+  in_doubles <- !is_big(range$lower) && !is_big(upper)
+  lower <- if (in_doubles) {
+    max(range$lower, r)
+  } else if (whole_cmp(range$lower, r) < 0) {
+    r
+  } else {
+    range$lower
+  }
 
   out <- list(
-    sum_squares = sum_squares,
-    sum_squares_min = minimum,
+    r = r,
+    shift = q * (s + r),
+    range = range,
+    lower = lower,
     pass_test1 = FALSE,
     pass_test3 = FALSE
   )
 
-  if (lower > sum_squares[2L]) {
+  if (if (in_doubles) lower > upper else whole_cmp(lower, upper) > 0) {
     return(out)
   }
 
@@ -174,19 +141,23 @@ grimmer_candidate <- function(
   # Running it with a floating-point tolerance could only lose matches.
 
   # TEST 3: The sum of squares of whole numbers has the parity of their sum
-  # (`k^2` is odd exactly if `k` is). Two or more admissible integers always
-  # include one of each parity; a single one must have that of `s`. If that is
-  # the minimum, it does, being the sum of squares of whole numbers:
-  out$pass_test3 <-
-    sum_squares[2L] > lower ||
-    lower %% 2 == s %% 2
+  # (`k^2` is odd exactly if `k` is), which the shift keeps. Two or more
+  # admissible integers always include one of each parity; a single one must
+  # have that of `r`. If that is the minimum, it does, being the sum of squares
+  # of whole numbers:
+  out$pass_test3 <- if (in_doubles) {
+    upper > lower || lower %% 2 == r %% 2
+  } else {
+    whole_cmp(upper, lower) > 0 || whole_is_odd(lower) == (r %% 2 == 1)
+  }
 
   # For five or more numbers, the minimum and the parity suffice: they can have
   # every sum of squares that passes both. For fewer, some of these are still
   # impossible. A range with none that is possible fails test 1 after all, like
   # one that ends below the minimum:
   if (n < 5 && out$pass_test3) {
-    out$attained <- sum_squares_attainable(s, n, lower, sum_squares[2L])
+    check_grimmer_attainable_exact(upper, n)
+    out$attained <- sum_squares_attainable(r, n, lower, upper)
     if (is.na(out$attained)) {
       out$pass_test1 <- FALSE
       out$pass_test3 <- FALSE
@@ -194,6 +165,45 @@ grimmer_candidate <- function(
   }
 
   out
+}
+
+
+# The sums of squares of a candidate before the shift, for `grimmer_explain()`
+# and `grimmer_values()`, which show them: the range that the SD admits, the
+# least one that whole numbers with the sum can have, and, for `n < 5`, the
+# least one they attain in the range. `NULL` if any of them reaches `2^53`,
+# where a double can't show it exactly.
+grimmer_candidate_absolute <- function(candidate) {
+  range <- candidate$range
+  if (is_big(range$lower) || is_big(range$upper)) {
+    return(NULL)
+  }
+  shift <- candidate$shift
+  out <- list(
+    sum_squares = c(range$lower, range$upper) + shift,
+    sum_squares_min = candidate$r + shift,
+    attained = candidate$attained + shift
+  )
+  # `shift` is exact if it is below `2^53`, and so are the sums with it:
+  if (abs(shift) >= 2^53 || any(abs(unlist(out)) >= 2^53, na.rm = TRUE)) {
+    return(NULL)
+  }
+  out
+}
+
+
+# Which sums of squares fewer than five whole numbers can have is worked out in
+# doubles (`sum_squares_attainable()`), so their range must stay below `2^53`.
+# Shifted, it only gets there with an SD of some 5e7 for each value.
+check_grimmer_attainable_exact <- function(upper, n) {
+  if (is_big(upper)) {
+    abort_in_export(
+      "The SD is too large for GRIMMER with `n` below 5.",
+      "x" = "With `n = {n}`, the sums of squares to test reach 2^53, about \\
+      9e15, beyond which a double skips whole numbers.",
+      "i" = "With five or more values, GRIMMER has no such limit."
+    )
+  }
 }
 
 
@@ -404,16 +414,15 @@ grimmer_scalar <- function(
     # is `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a remainder further
     # than twice the SD's term from 0 and `n` can't pass. Skipping these keeps
     # a tiny SD with a large `n` from taking minutes:
-    term_upper <- sd_bounds$term_upper
-    reach <- floor(2 * (term_upper$int + term_upper$num / term_upper$den)) + 1
+    # `approx` is the term as a double, so the reach is widened against its
+    # rounding error:
+    reach <- floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
     sums_consistent <- if (2 * reach + 1 >= n) {
       c(0, n - 1)
     } else {
       c(0, reach, n - reach, n - 1)
     }
   }
-
-  check_grimmer_exact(x, sd, n, items_averaged, sums_consistent, sd_bounds)
 
   passed <- grimmer_sums_pass(sums_consistent, n, items_averaged, sd_bounds)
 

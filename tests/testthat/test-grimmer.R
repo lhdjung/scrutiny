@@ -828,12 +828,15 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 })
 
 
-test_that("the SD's term is exact or refused", {
+test_that("the SD's term is exact beyond 2^53", {
   # 36864 values with the sum 315 and the sum of squares 99225 have the SD
   # 105/64 = 1.640625 exactly:
   0.008544921875 |> grimmer(1.64063,   36864, 12, 5, 1)                     |> expect_true()
-  # SE 35/256, but the other bound's products reach 2^53:
-  0.11328125     |> grimmer(0.1367188, 64,    8,  7, 4, sd_meaning = "se") |> expect_error("too many")
+  # The SE 35/256 = 0.13671875, which `"up_or_down"` takes either way, but
+  # `"up"` only up; the other bound's products pass 2^53:
+  0.11328125     |> grimmer(0.1367188, 64,    8,  7, 4, sd_meaning = "se")                  |> expect_true()
+  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se")                  |> expect_true()
+  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se", rounding = "up") |> expect_false()
 })
 
 test_that("an `n` too large to enumerate is an error, not a hang", {
@@ -1302,15 +1305,19 @@ test_that("explanations and the comb plot agree with the test under an SE", {
   4.4 |> grimmer_plot_values(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
 })
 
-test_that("sums of squares beyond 2^53 are refused, not compared inexactly", {
-  # 660701916 and 660701945 have this mean and population SD, but their sum
-  # of squares is 8.7e17, which no double holds exactly; the verdict used to
-  # be FALSE with a base R warning about the modulus:
-  grimmer(660701930.5, 14.50, 2, 1, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_error("too large for GRIMMER")
+test_that("sums of squares beyond 2^53 are compared exactly", {
+  # 660701916 and 660701945 have this mean and population SD. Their sum of
+  # squares is 8.7e17, which no double holds exactly; the verdict used to be
+  # FALSE with a base R warning about the modulus, then an error:
+  grimmer(660701930.5, 14.50, 2, 1, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_true()
   # 752690716, 752690718, 752690720 under `rounding = "floor"`: the window loop
   # of `sum_squares_attainable_all()` could not advance past 2^54 and ran on:
-  grimmer(752690718.00, 1.63, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_error("too large for GRIMMER")
-  grimmer(5.25, 1e7, 28, 2, 2, 1) |> expect_error("too large for GRIMMER")
+  grimmer(752690718.00, 1.63, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_true()
+  grimmer(752690718.00, 1.62, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_false()
+  grimmer(5.25, 1e7, 28, 2, 2, 1) |> expect_true()
+  # Fewer than five values with an SD this large have sums of squared
+  # deviations beyond 2^53, which `sum_squares_attainable()` can't handle:
+  grimmer(5.25, 1e8, 4, 2, 0, 1) |> expect_error("too large for GRIMMER with `n` below 5")
 })
 
 test_that("a large mean is exact as long as the sums of squares are", {

@@ -403,5 +403,5 @@ test_that("GRIMMER with `x` missing is fast for a tiny SD and a large `n`", {
   # One value set off by 1 has a sum of squared deviations of about 1, which an
   # SD of 0.0003 admits at `n = 1e7`:
   NA |> grimmer(0.0003, 1e7, digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_na()
-  NA |> grimmer(0.0001, 1e9, digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_error("too large for GRIMMER")
+  NA |> grimmer(0.0001, 1e9, digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_na()
 })

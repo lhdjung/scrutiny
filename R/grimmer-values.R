@@ -41,14 +41,23 @@ grimmer_values_scalar <- function(
     sd_meaning = sd_meaning
   )
 
-  n_dev <- sd_denominator(n, sd_meaning)
+  # As a double: `n * (n - 1)` overflows an integer from 46341:
+  n_dev <- sd_denominator(as.numeric(n), sd_meaning)
 
   # One row of `NA` if undecidable, no rows if inconsistent:
   if (is.na(consistency)) {
-    return(grimmer_values_tibble(NA_real_, NA_real_, n, items_averaged, n_dev))
+    return(grimmer_values_tibble(
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      n,
+      items_averaged,
+      n_dev
+    ))
   }
   if (!consistency) {
     return(grimmer_values_tibble(
+      numeric(0L),
       numeric(0L),
       numeric(0L),
       n,
@@ -83,6 +92,7 @@ grimmer_values_scalar <- function(
   # vector in the loop copies it each time, which gets quadratic by `n = 20000`.
   sums <- vector("list", length(candidate_sums))
   sums_squares <- sums
+  deviations <- sums
 
   # Counted as they come, before anything big is allocated: the pairs grow with
   # `n^2` for SDs with few decimal places, and `check_enumeration_size()` only
@@ -104,19 +114,30 @@ grimmer_values_scalar <- function(
       next
     }
 
-    upper <- candidate$sum_squares[2L]
+    # The test works with the sums of squares shifted to the sum `r`; the
+    # output shows them as they are, which a double can only do below `2^53`:
+    if (is.null(grimmer_candidate_absolute(candidate))) {
+      abort_in_export(
+        "The sums of squares are too large to list.",
+        "x" = "They reach 2^53, about 9e15, beyond which a double skips whole \\
+        numbers.",
+        "i" = "`grimmer()` tests this value set exactly all the same."
+      )
+    }
+
+    r <- candidate$r
+    upper <- candidate$range$upper
 
     squares <- if (n >= 5) {
       # Every second whole number from the first one with the parity of `s`:
-      lower <- max(candidate$sum_squares[1L], candidate$sum_squares_min)
-      first <- lower + (lower - s) %% 2
+      first <- candidate$lower + (candidate$lower - r) %% 2
       check_values_size(n_pairs + (upper - first) %/% 2 + 1, "pairs", value_set)
       seq(first, upper, by = 2)
     } else {
       # Fewer numbers skip some sums of squares, so they can't be counted
       # without finding them. `grimmer_candidate()` found the first one:
       sum_squares_attainable_all(
-        s = s,
+        s = r,
         n = n,
         first = candidate$attained,
         upper = upper,
@@ -128,11 +149,15 @@ grimmer_values_scalar <- function(
     check_values_size(n_pairs, "pairs", value_set)
 
     sums[[i]] <- rep(s, length(squares))
-    sums_squares[[i]] <- squares
+    sums_squares[[i]] <- squares + candidate$shift
+    # The sum of squared deviations, computed from the shifted sum of squares,
+    # where it doesn't cancel against `s^2 / n` for a large mean:
+    deviations[[i]] <- squares - r^2 / n
   }
 
   sums <- unlist(sums)
   sums_squares <- unlist(sums_squares)
+  deviations <- unlist(deviations)
 
   if (length(sums) == 0L) {
     cli::cli_abort(
@@ -141,16 +166,24 @@ grimmer_values_scalar <- function(
     )
   }
 
-  grimmer_values_tibble(sums, sums_squares, n, items_averaged, n_dev)
+  grimmer_values_tibble(
+    sums,
+    sums_squares,
+    deviations,
+    n,
+    items_averaged,
+    n_dev
+  )
 }
 
 
-# The mean and SD that a sum and a sum of squares of `n` integers give;
+# The mean and SD that a sum and a sum of squared deviations of `n` integers give;
 # see `sd_square_term()` for the formula. One row of `NA` for an undecidable
 # value set, so that it still has a row in the output.
 grimmer_values_tibble <- function(
   sums,
   sums_squares,
+  deviations,
   n,
   items_averaged,
   n_dev
@@ -158,7 +191,7 @@ grimmer_values_tibble <- function(
   tibble::tibble(
     # As doubles: the product of two integers overflows from 46,341 each:
     x = sums / (as.numeric(n) * items_averaged),
-    sd = sqrt((sums_squares - sums^2 / n) / n_dev) / items_averaged,
+    sd = sqrt(deviations / n_dev) / items_averaged,
     sum = sums,
     sum_squares = sums_squares
   )
@@ -186,7 +219,9 @@ grimmer_values_tibble <- function(
 #'
 #'   The number of pairs grows with `n`, `items_averaged`, and `sd`, and
 #'   shrinks with `digits_x` and `digits_sd`. More than a million pairs for one
-#'   value set is an error, since the output has one row for each.
+#'   value set is an error, since the output has one row for each. So is a sum
+#'   of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
+#'   [`grimmer()`] tests such value sets all the same.
 #'
 #'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
 #'   may round away from `x` or `sd`, as in [`grim_values()`].

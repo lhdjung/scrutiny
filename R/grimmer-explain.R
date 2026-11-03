@@ -272,7 +272,7 @@ grimmer_explain <- function(
     }
   }
 
-  n_dev <- sd_denominator(n, sd_meaning)
+  n_dev <- sd_denominator(as.numeric(n), sd_meaning)
 
   text_formula <- paste0(
     "Together, the sum and the ",
@@ -335,6 +335,7 @@ grimmer_explain <- function(
   text_candidates <- character()
   n_failed <- 0L
   passed <- FALSE
+  too_large <- FALSE
 
   for (s in sums[1L]:sums[2L]) {
     candidate <- grimmer_candidate(
@@ -345,7 +346,16 @@ grimmer_explain <- function(
     )
     passed <- candidate$pass_test3
 
-    if (passed || n_failed < 3L) {
+    # The paragraphs show the sums of squares before the shift that the test
+    # works with, and as numbers, which can't be exact from `2^53` on:
+    absolute <- grimmer_candidate_absolute(candidate)
+    if (is.null(absolute)) {
+      too_large <- TRUE
+    } else {
+      candidate[names(absolute)] <- absolute
+    }
+
+    if (!too_large && (passed || n_failed < 3L)) {
       text_candidates <- c(
         text_candidates,
         grimmer_explain_candidate(
@@ -372,7 +382,18 @@ grimmer_explain <- function(
     )
   }
 
-  if (n_failed > 3L) {
+  if (too_large) {
+    text_candidates <- paste0(
+      "The sums of squares reach 2^53, about 9e15, which is too large to show ",
+      "them here as exact numbers. GRIMMER compares them in exact whole-number ",
+      "arithmetic, and ",
+      if (passed) {
+        "one of the sums passes."
+      } else {
+        "none of the sums passes."
+      }
+    )
+  } else if (n_failed > 3L) {
     text_candidates <- append(
       text_candidates,
       paste(

@@ -6,70 +6,145 @@
 # to a bound becomes a comparison of integers (#86). The functions below extend
 # this to the sums of squares that GRIMMER's test 1 needs.
 #
-# This is exact while every integer involved stays below `2^53`. The sums of
-# squares themselves are the largest of them, on the order of `n * x^2`, so
-# `grimmer_scalar()` refuses a value set whose sums of squares reach `2^53`
-# (`check_grimmer_exact()`). The intermediate products are kept small by
-# splitting each fraction into whole part and remainder, but those of the SD's
-# term grow with its denominator times `n`, not with the sums of squares, so
-# that check covers them separately; `sd_square_term()` splits its own with
-# `compare_products()`.
+# They work on numbers shifted to a sum below `n`. Subtracting a whole number
+# `q` from each of `n` numbers subtracts `n * q` from their sum and keeps their
+# deviations, so with `s = n * q + r`, the sum `s` passes the tests exactly if
+# the remainder `r` does, with every sum of squares lowered by `q * (s + r)`.
+# Its range then depends on the SD alone: from `r^2 / n` plus the SD's term at
+# the lower bound to the same at the upper bound. The size of the mean no longer
+# matters, and the numbers stay below `2^53` unless the SD itself, times `n`,
+# gets very large.
 #
-# Dividing two such integers is exact as well, so `floor(a / b)` and
-# `ceiling(a / b)` need no correction. IEEE 754 division returns the double
-# nearest the true quotient, and a quotient that is not an integer lies at least
-# `1 / b` from every integer -- more than half the spacing of doubles there, as
-# long as `|a| < 2^53`. Don't add a check that multiplies the result back out:
-# below that limit it never corrects anything, and above it, where the product
-# rounds, it turns correct results into wrong ones more often than the reverse.
+# Even so, the SD's term multiplies `n_dev` by a squared fraction, and these
+# products can pass `2^53`. `sd_square_term()` keeps them in doubles where they
+# are exact (`compare_products()` and its relatives), and otherwise switches to
+# whole numbers of any size (`big()`); see `R/exact-arithmetic.R`.
 
-# The floor of a sum of two fractions, `a1 / b1 + a2 / b2` (`b1`, `b2` positive
-# integers), plus a flag for whether the sum is an integer, which callers need
-# to honor an exclusive bound. Splitting each fraction into integer part and
-# remainder first keeps every product below `2 * b1 * b2`; putting both over
-# `b1 * b2` directly would leave the exact range far sooner.
+# The sum of squared deviations at an SD bound `num / denom` is `n_dev *
+# (num / denom)^2 * items^2`, where `n_dev` is `n - 1` for a sample SD, `n` for
+# a population SD, and `n * (n - 1)` for an SE (`sd_denominator()`). It does not
+# depend on the candidate sum, so it is computed once per bound, outside
+# GRIMMER's loop. In doubles, it is split into a whole part `int` and a fraction
+# `num / den`; with too large a factor, it is kept as whole numbers of any size
+# instead (`big = TRUE`). `approx` is its value as a double, for estimates.
 
-floor_frac_sum <- function(a1, b1, a2, b2) {
-  q1 <- floor(a1 / b1)
-  q2 <- floor(a2 / b2)
-  # Both remainders are non-negative and smaller than their own denominator, so
-  # the combined numerator below stays under `2 * b1 * b2`:
-  num <- (a1 - q1 * b1) * b2 + (a2 - q2 * b2) * b1
-  den <- b1 * b2
-  # The fractional parts sum to less than 2, so this carry is 0 or 1:
-  carry <- floor(num / den)
-  list(floor = q1 + q2 + carry, exact = num == carry * den)
+sd_square_term <- function(num, n, items, denom, sd_meaning) {
+  # In lowest terms first, which keeps the numbers small: an SD bound of
+  # 1.640625 is 105/64, not 1640625/10^6.
+  bound <- lowest_terms(num, denom)
+  n_dev <- sd_denominator(n, sd_meaning)
+
+  # Below this, `num * items` and `den` square to less than `2^53`:
+  root_max <- sqrt(2^53)
+  in_doubles <- bound$num * items < root_max &&
+    bound$den < root_max &&
+    n_dev < 2^53
+
+  if (in_doubles) {
+    numerator <- (bound$num * items)^2
+    denom_sq <- bound$den^2
+    whole <- floor_product_ratio(n_dev, numerator, denom_sq)$floor
+    # The shifted sums of squares add less than `n` to this:
+    if (whole + n + 2 < 2^53) {
+      remainder <- product_difference(n_dev, numerator, whole, denom_sq)
+      return(list(
+        int = whole,
+        num = remainder,
+        den = denom_sq,
+        approx = whole + remainder / denom_sq
+      ))
+    }
+  }
+
+  # `n_dev` as a product, since `n * (n - 1)` can pass `2^53` on its own:
+  n_dev_big <- switch(
+    sd_meaning,
+    sd_pop = big(n),
+    se = big_mul(big(n), big(n - 1)),
+    big(n - 1)
+  )
+  num_items <- big_mul(big(bound$num), big(items))
+  numerator <- big_mul(num_items, num_items)
+  denom_sq <- big_mul(big(bound$den), big(bound$den))
+  term_scaled <- big_mul(n_dev_big, numerator)
+  list(
+    big = TRUE,
+    denom_sq = denom_sq,
+    # Over the common denominator `n * denom_sq`, the term's numerator:
+    numerator_n = big_mul(term_scaled, big(n)),
+    denominator_n = big_mul(denom_sq, big(n)),
+    approx = big_double(term_scaled) / big_double(denom_sq)
+  )
 }
 
 
-# The sum of squares of the item-level values is
-#
-#   ((n - 1) * sd^2 + n * (s / (n * items))^2) * items^2 ==
-#     (n - 1) * sd^2 * items^2 + s^2 / n # nolint
-#
-# for a sample SD, and the same with `n` in place of `n - 1` for a population
-# SD; `n_dev` is that denominator. With `sd` given as `num / denom`, both terms
-# are exact rationals. The first does not depend on the candidate sum `s`, so it
-# is pre-computed once per SD bound, outside GRIMMER's loop, split into an
-# integer part and a proper fraction to keep the products small. Returns that
-# integer part plus the numerator and denominator of the fraction.
+# The range of sums of squares, shifted as described above, that `n` whole
+# numbers with the sum `r` (`0 <= r < n`) can have under the SD's bounds,
+# before asking which of them whole numbers attain. A list of `lower` and
+# `upper`, each a double if below `2^53`, else a `big()` number; if `lower` is
+# greater than `upper`, none fits.
+sum_squares_range_shifted <- function(r, n, sd_bounds) {
+  low <- sum_squares_floor(r, n, sd_bounds$term_lower)
+  lower <- low$floor
+  if (!low$exact || !sd_bounds$incl_lower) {
+    lower <- whole_add(lower, 1)
+  }
 
-sd_square_term <- function(num, n_dev, items, denom) {
-  # In lowest terms first, which keeps the denominator small: an SD bound of
-  # 1.640625 is 105/64, not 1640625/10^6. `floor_frac_sum()` multiplies it by
-  # `n`, which `check_grimmer_exact()` keeps below `2^53`:
-  bound <- lowest_terms(num, denom)
-  numerator <- bound$num^2 * items^2
-  denom_sq <- bound$den^2
+  high <- sum_squares_floor(r, n, sd_bounds$term_upper)
+  upper <- high$floor
+  if (high$exact && !sd_bounds$incl_upper) {
+    upper <- whole_add(upper, -1)
+  }
 
-  # `n_dev * numerator` can pass `2^53` well before the sums of squares do, so
-  # the whole part and the remainder are found by exact products:
-  whole <- floor_product_ratio(n_dev, numerator, denom_sq)$floor
-  list(
-    int = whole,
-    num = product_difference(n_dev, numerator, whole, denom_sq),
-    den = denom_sq
-  )
+  list(lower = lower, upper = upper)
+}
+
+
+# The floor of `r^2 / n` plus the SD's term at one bound, and whether that sum
+# is a whole number, which an exclusive bound needs to know.
+sum_squares_floor <- function(r, n, term) {
+  if (isTRUE(term$big)) {
+    r_big <- big(r)
+    numerator <- big_add(
+      big_mul(big_mul(r_big, r_big), term$denom_sq),
+      term$numerator_n
+    )
+    division <- big_divmod(numerator, term$denominator_n)
+    return(list(
+      floor = big_or_double(division$quotient),
+      exact = big_cmp(division$remainder, 0) == 0
+    ))
+  }
+
+  # `r^2 / n` as whole part and remainder. `r^2` only passes `2^53` with an `n`
+  # of some 1e8:
+  if (r < sqrt(2^53)) {
+    whole_r <- floor(r^2 / n)
+    remainder_r <- r^2 - whole_r * n
+  } else {
+    whole_r <- floor_product_ratio(r, r, n)$floor
+    remainder_r <- product_difference(r, r, whole_r, n)
+  }
+
+  # The two fractions, `term$num / term$den` and `remainder_r / n`, are each
+  # below 1, so they carry 0 or 1. Over the common denominator if that is
+  # exact, which is cheaper; else by comparing `term$num / term$den` with
+  # `1 - remainder_r / n` as products:
+  if (term$den * n < 2^52) {
+    numerator <- term$num * n + remainder_r * term$den
+    denominator <- term$den * n
+    carry <- floor(numerator / denominator)
+    exact <- numerator == carry * denominator
+  } else if (term$num == 0 && remainder_r == 0) {
+    carry <- 0
+    exact <- TRUE
+  } else {
+    comparison <- compare_products(term$num, n, term$den, n - remainder_r)
+    carry <- as.numeric(comparison >= 0)
+    exact <- comparison == 0
+  }
+
+  list(floor = term$int + whole_r + carry, exact = exact)
 }
 
 
@@ -269,45 +344,4 @@ is_sum_three_squares <- function(m) {
     m[divisible] <- m[divisible] / 4
   }
   m %% 8 != 7
-}
-
-
-# Range of integer sums of squares consistent with candidate sum `s`, given the
-# pre-computed SD terms from `sd_square_term()`. Returns a length-2 numeric
-# vector; if the first element is greater than the second, no sum of squares
-# fits, and the candidate sum fails GRIMMER's first test.
-
-sum_squares_range <- function(
-  s,
-  n,
-  term_lower,
-  term_upper,
-  incl_lower,
-  incl_upper
-) {
-  # `s^2 / n` with `s = q * n + r` is `q^2 * n + 2 * q * r + r^2 / n`: a whole
-  # part no larger than the sum of squares itself, and a fraction whose
-  # numerator stays below `n^2`. Squaring `s` directly would leave the exact
-  # range at `s` of about 9.5e7, i.e., at means of 1e7 with `n = 10`, while
-  # the sum of squares is still far below `2^53`:
-  q <- s %/% n
-  r <- s - q * n
-  s_squared_whole <- q^2 * n + 2 * q * r
-  r_squared <- r^2
-
-  # An integer lower bound is its own ceiling; anything else, or an excluded
-  # bound, takes the next integer up:
-  low <- floor_frac_sum(term_lower$num, term_lower$den, r_squared, n)
-  lower <- term_lower$int + s_squared_whole + low$floor
-  if (!low$exact || !incl_lower) {
-    lower <- lower + 1
-  }
-
-  high <- floor_frac_sum(term_upper$num, term_upper$den, r_squared, n)
-  upper <- term_upper$int + s_squared_whole + high$floor
-  if (high$exact && !incl_upper) {
-    upper <- upper - 1
-  }
-
-  c(lower, upper)
 }
