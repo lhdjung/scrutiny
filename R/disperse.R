@@ -150,6 +150,7 @@ disperse <- function(
     add_class("scrutiny_disperse")
 
   if (!is.null(constant)) {
+    check_constant_names(constant, colnames(out))
     repeat_constant <- function(constant, out, name = "constant") {
       if (!is.null(constant) && length(constant) != 2L) {
         abort_in_export(
@@ -340,4 +341,20 @@ names_constant_cols <- function(constant) {
   unnamed <- is.na(names_constant) | names_constant == ""
   names_constant[unnamed] <- paste0("constant", seq_along(constant))[unnamed]
   names_constant
+}
+
+
+# A `constant` column named like another column of the output would overwrite
+# it, or be overwritten. Shared with `function_map_total_n()`, whose output has
+# more columns:
+check_constant_names <- function(constant, names_taken) {
+  clashes <- intersect(names_constant_cols(constant), names_taken)
+  if (length(clashes) > 0L) {
+    abort_in_export(
+      "`constant` has names that the output needs for other columns.",
+      "x" = "{wrap_in_backticks(clashes)} {cli::qty(length(clashes))}\\
+      {?is/are} taken.",
+      "i" = "Rename {cli::qty(length(clashes))}{?it/them}."
+    )
+  }
 }

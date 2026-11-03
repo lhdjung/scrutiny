@@ -438,6 +438,22 @@ function_map_total_n <- function(
 
       check_factory_dots(fn, name_fn, ...)
 
+      # A `constant` named like a column of the output is the first mistake:
+      check_constant_names(
+        constant,
+        c(
+          reported,
+          "n",
+          "n_change",
+          "both_consistent",
+          "case",
+          "dir",
+          name_key_result,
+          `!!`(digits_args_names),
+          `!!`(args_helper_fn)
+        )
+      )
+
       # The other columns of `data` are returned as they are, so one named like
       # a result column, or like a group's reported values, would be
       # overwritten -- or would overwrite them:

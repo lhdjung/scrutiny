@@ -245,3 +245,13 @@ test_that("an `items_averaged` column works like the argument", {
   from_col <- df_grimmer |> dplyr::mutate(items_averaged = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2)
   from_col |> expect_equal(from_arg)
 })
+
+
+test_that("a `constant` named like an output column is an error", {
+  # `case` replaced the row numbers, and `both_consistent` the verdicts:
+  df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(case = c(7, 8)))            |> expect_error("`case` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(both_consistent = c(7, 8))) |> expect_error("`both_consistent` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(n = c(7, 8)))               |> expect_error("`n` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(k = c(7, 8)))               |> expect_s3_class("scrutiny_map_total_n")
+})

@@ -174,3 +174,10 @@ test_that("a repeated step counts once", {
   disperse(5, dispersion = c(1, 1)) |> expect_equal(disperse(5, dispersion = 1))
   disperse_total(50, dispersion = c(1, 1)) |> nrow() |> expect_equal(2L)
 })
+
+
+test_that("a `constant` named like an output column is an error", {
+  # It replaced `n` without a word:
+  37 |> disperse_total(constant = list(n = c(1, 2)))                  |> expect_error("`n` is taken")
+  37 |> disperse_total(constant = list(k = c(1, 2), n_change = 1:2)) |> expect_error("`n_change` is taken")
+})
