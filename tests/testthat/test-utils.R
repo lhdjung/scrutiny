@@ -182,6 +182,8 @@ test_that("`check_newly_numeric()` rejects a value with more decimal places", {
   99999.9999999999  |> check_newly_numeric(10) |> expect_error("significant digits")
   1e15              |> check_newly_numeric(0)  |> expect_error("has 16")
   1234567.89        |> check_newly_numeric(9)  |> expect_error("has 16")
+  # Leading zeros are not significant:
+  0.5               |> check_newly_numeric(15) |> expect_error("has 15")
 })
 
 

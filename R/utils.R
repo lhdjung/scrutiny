@@ -497,11 +497,15 @@ check_newly_numeric <- function(
   if (is.numeric(x) && is.finite(x) && abs(x) * 10^(digits + 1L) >= 2^52) {
     name <- deparse(substitute(digits))
     name_x <- deparse(substitute(x))
-    digits_int <- nchar(sprintf("%.0f", floor(abs(x))))
+    # Leading zeros, as in `0.05`, are not significant:
+    digits_significant <- sprintf("%.*f", digits, abs(x)) |>
+      sub(pattern = ".", replacement = "", fixed = TRUE) |>
+      sub(pattern = "^0+", replacement = "") |>
+      nchar()
     abort_in_export(
       "`{name_x}` has too many significant digits.",
       "x" = "With `{name} = {digits}`, `{name_x} = {sprintf('%.*f', digits, x)}` \\
-      has {digits + digits_int}.",
+      has {digits_significant}.",
       "i" = "A double holds about 15 significant digits, so the tests are not \\
       exact beyond that: `{name_x} * 10^({name} + 1)` must stay below 2^52, \\
       about 4.5e15."
