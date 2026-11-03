@@ -584,9 +584,6 @@ function_map_seq <- function(
       # - `results_reported`: the verdict of every input row, which
       #   `audit_seq()` reports for each case without re-testing.
       # - `name_key_result`: `audit_seq()` has no other way to learn it.
-      # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` require a
-      #   `dispersion` with ascending steps. A single step trivially is one,
-      #   but `is_seq_ascending()` needs two.
       # - `values_reported`: the tested columns of the input, so that output of
       #   calls on different data can't be combined, which would number two
       #   cases as one (see `R/bind-rows.R`).
@@ -610,8 +607,6 @@ function_map_seq <- function(
         list(
           results_reported = results,
           name_key_result = name_key_result,
-          # Of the steps taken: `seq_disperse()` takes a repeated one once.
-          dispersion_linear = is_steps_ascending(dispersion),
           values_reported = values_reported,
           # A variable without rows in a piece of this output, as from
           # `filter()`, was removed if it had rows here; otherwise, `out_min`
@@ -640,12 +635,4 @@ function_map_seq <- function(
     .reported,
     insert_after = 1L + length(digits_args_names)
   )
-}
-
-
-is_steps_ascending <- function(dispersion) {
-  # As `seq_disperse()` takes them: once each, and none of 0:
-  steps <- unique(round_whole(dispersion))
-  steps <- steps[steps != 0]
-  length(steps) < 2L || is_seq_ascending(steps)
 }

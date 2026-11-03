@@ -145,14 +145,13 @@ test_that("changing `dispersion` in the sequence mapper is
 })
 
 
-test_that("`audit_seq()` rejects a `dispersion` that is not linear", {
-  seq_nonlinear <- pigs1[1:2, ] |>
-    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(3, 1, 2))
-  seq_nonlinear |> audit_seq() |> expect_error("in ascending order")
-  seq_nonlinear |> reverse_map_seq() |> expect_error("in ascending order")
-  # A step of 0 is not taken:
-  seq_zero <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(0, 2, 3))
-  seq_zero |> audit_seq() |> expect_equal(pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 2:3) |> audit_seq())
+test_that("`audit_seq()` and `reverse_map_seq()` take any order of steps", {
+  # Each row records its own step in `diff_var`, so neither order, repeats,
+  # nor a step of 0 matter:
+  ascending <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(1, 3, 7))
+  shuffled  <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(7, 0, 1, 3, 3))
+  shuffled |> audit_seq()       |> expect_equal(audit_seq(ascending))
+  shuffled |> reverse_map_seq() |> expect_equal(reverse_map_seq(ascending))
 })
 
 

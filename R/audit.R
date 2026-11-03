@@ -195,8 +195,6 @@ audit_seq <- function(data) {
     )
   }
 
-  check_dispersion_linear(data, "audit_seq")
-
   # The key result column is `"consistency"` unless the mapper was created with
   # a different `.name_key_result`, which `function_map_seq()` records:
   meta <- attr(data, "scrutiny", exact = TRUE)

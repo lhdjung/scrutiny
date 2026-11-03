@@ -1673,38 +1673,6 @@ abort_lost_settings <- function() {
 }
 
 
-#' Check for ascending dispersion in sequence mapper output
-#'
-#' @description Errors if a sequence mapper's output, e.g. from
-#'   `grim_map_seq()`, was computed with a `dispersion` whose steps, without 0
-#'   and repeats, are not in ascending order. The default `1:5` is, as is
-#'   `c(1, 3, 7)`, but `5:1` and `c(3, 7, 2)` are not.
-#'
-#' @param data Data frame returned by a function made by `function_map_seq()`.
-#' @param name_fn String (length 1). Name of the calling function.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
-check_dispersion_linear <- function(data, name_fn) {
-  if (isFALSE(attr(data, "scrutiny", exact = TRUE)$dispersion_linear)) {
-    name_mapper <- class(data) |>
-      call_on(\(x) x[grepl("_map_seq$", x)]) |>
-      call_on(\(x) x[x != "scrutiny_map_seq"]) |>
-      sub(pattern = "scrutiny_*", replacement = "")
-
-    abort_in_export(
-      "Invalid for data with this dispersion.",
-      "!" = "`{name_fn}()` is only applicable if the steps of `dispersion` \\
-      in `{name_mapper}()` are in ascending order, as in the default `1:5`.",
-      "i" = "Steps of 0 and repeated steps don't count, so `c(0, 2, 2, 3)` \\
-      would do.",
-      "i" = "This limitation may be removed in a future version of scrutiny."
-    )
-  }
-}
-
-
 #' Generate code to process the `"consistency"` column
 #'
 #' @description Called within a function factory such as `function_map()`. It

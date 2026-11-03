@@ -128,7 +128,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - An error in a row of `data` names that row instead of coming wrapped in purrr's "In index" context. In the total-n mappers, the row is that of the reported values, not of a hypothetical scenario.
 
-- `reverse_map_seq()` and `audit_seq()` reconstruct the reported values from the `diff_var` column. They used to infer them from the gap in the sequence, which failed when `out_min` or `out_max` cut it short, so that `audit_seq()` could report the opposite result.
+- `reverse_map_seq()` and `audit_seq()` reconstruct the reported values from the `diff_var` column. They used to infer them from the gap in the sequence, which failed when `out_min` or `out_max` cut it short, so that `audit_seq()` could report the opposite result. Both now accept any `dispersion`, not only a linearly increasing one.
 
 - `audit_seq()` reports the verdicts that the sequence mapper recorded instead of re-testing reconstructed data, which could drop `percent`, `threshold`, or `symmetric` and flip the verdict. It works with a `dispersion` of length 1, with output that has no rows, and with cases whose sequence `out_min` or `out_max` emptied. A consistent reported value set included by `include_reported = TRUE` counts once in `hits_total`, not once per dispersed variable. A count or distance that depends on an `NA` verdict, or on a variable whose reported value is missing and so was not dispersed, is `NA` rather than counting such value sets as misses.
 

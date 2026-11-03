@@ -34,8 +34,6 @@ reverse_map_seq <- function(data) {
     )
   }
 
-  check_dispersion_linear(data, "reverse_map_seq")
-
   # The tested columns are those left of the key result column, whose name the
   # sequence mapper records:
   name_key_result <- attr(data, "scrutiny", exact = TRUE)$name_key_result

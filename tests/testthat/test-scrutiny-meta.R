@@ -17,7 +17,7 @@ test_that("`scrutiny_meta()` returns the recorded settings, or `NULL`", {
   meta_seq <- scrutiny_meta(out_seq)
   meta_seq$added_by |> unique() |> expect_equal(c("grim_map", "grim_map_seq"))
   meta_seq |> dplyr::filter(!default) |> _$setting |> expect_equal("dispersion")
-  meta_seq$setting |> intersect(c("results_reported", "name_key_result", "dispersion_linear")) |> expect_length(0L)
+  meta_seq$setting |> intersect(c("results_reported", "name_key_result")) |> expect_length(0L)
   out_seq |> attr("scrutiny") |> _$results_reported |> expect_equal(out$consistency)
 
   out_total_n <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |> grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, n_min = 5)
