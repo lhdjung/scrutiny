@@ -13,7 +13,7 @@ function_map_seq_proto <- function(
 ) {
   # --- Start of the manufactured helper function ---
 
-  function(data, .var, .out_min, .out_max, .cases = seq_len(nrow(data)), ...) {
+  function(data, .var, .out_min, .out_max, .cases, ...) {
     # A case can be decided with a value missing, if the other values rule it
     # out, as in `grimmer(x = 5.19, sd = NA, n = 28)`. There is nothing to
     # disperse that value from, but the others still are:
@@ -71,10 +71,15 @@ function_map_seq_proto <- function(
         .before = all_of(match(.var, colnames(data)))
       )
 
+    cases_seq <- rep(as.integer(.cases), nrow_list_var)
+
+    # A row of `data_seq` is a dispersed value set, not a row of the user's
+    # `data`:
     fn(data_seq, ...) |>
+      with_rows_of_data(cases_seq) |>
       dplyr::mutate(
         diff_var = as_integer_if_lossless(df_var$diff_var),
-        case = rep(as.integer(.cases), nrow_list_var)
+        case = cases_seq
       )
   }
 

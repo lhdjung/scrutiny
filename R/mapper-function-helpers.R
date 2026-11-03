@@ -314,6 +314,27 @@ signal_in_row <- function(error, row) {
   rlang::cnd_signal(error)
 }
 
+# Evaluates `expr`, a call of a basic mapper on data that the sequence or
+# total-n mapper built, and makes an error in its row `i` name row `rows[i]`
+# of the user's `data` instead.
+with_rows_of_data <- function(expr, rows) {
+  withCallingHandlers(
+    expr,
+    error = function(cnd) {
+      if (is.null(cnd$scrutiny_row)) {
+        return()
+      }
+      cnd$body[length(cnd$body)] <- paste0(
+        "In row ",
+        rows[cnd$scrutiny_row],
+        " of `data`."
+      )
+      cnd$scrutiny_row <- NULL
+      rlang::cnd_signal(cnd)
+    }
+  )
+}
+
 # Does `test_row(row)` run without an error? Its warnings are not muffled, for
 # the reason given in `function_map()`:
 passes_row <- function(test_row, row) {

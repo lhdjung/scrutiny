@@ -121,3 +121,10 @@ test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
 test_that("`show_rec` must be `TRUE` or `FALSE`", {
   tibble::tibble(x = 0.5, sd = 0.5, n = 4) |> debit_map(digits_x = 1, digits_sd = 1, show_rec = NA) |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
 })
+
+test_that("an error in a sequence mapper names the row of `data`, not of the dispersed values", {
+  # Dispersing `x = 0.02` below 0 is only possible without `out_min`:
+  tibble::tibble(x = c(0.5, 0.5, 0.02), sd = c(0.5, 0.51, 0.13), n = c(30, 30, 50)) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, out_min = NULL, include_consistent = TRUE) |>
+    expect_error("In row 3 of `data`", fixed = TRUE)
+})
