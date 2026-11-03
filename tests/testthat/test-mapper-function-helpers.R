@@ -23,3 +23,8 @@ test_that("`manage_helper_col()` without a default leaves a missing helper missi
   tibble::tibble(x = 1:2, items = 1:2)    |> mapper(items = 1:3) |> expect_error("already in")
   tibble::tibble(x = 1:4, items = c(1:2, 1:2)) |> mapper(items = 1:2) |> expect_error("already in")
 })
+
+test_that("`manage_helper_col()` adds a column to a plain data frame with no rows", {
+  mapper <- function(data, items = 1) manage_helper_col(data, items, 1)
+  data.frame(x = numeric(0)) |> mapper(items = 2) |> colnames() |> expect_equal(c("x", "items"))
+})

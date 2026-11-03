@@ -269,7 +269,8 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
         {nrow(data)} row{?s}."
       )
     }
-    data[[var_name]] <- var_arg
+    # `[[<-` on a data frame doesn't recycle a single value to zero rows:
+    data[[var_name]] <- rep_len(var_arg, nrow(data))
   }
 
   data
