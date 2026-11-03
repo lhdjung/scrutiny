@@ -274,3 +274,9 @@ test_that("`audit()` says when `group_by()` removed the class", {
   out |> dplyr::group_by(n) |> explain_map() |> expect_error("before grouping")
   iris |> audit() |> expect_error("no method")
 })
+
+test_that("`.by` on sequence output names what the output keeps", {
+  df <- tibble::tibble(study = c("a", "b"), x = c(5.19, 4.2), n = c(28, 30))
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1) |> audit(.by = study) |> expect_error("`case` column numbers the input rows")
+  df |> grim_map(digits_x = 2, items_averaged = 1) |> audit(.by = nope) |> expect_error("doesn't exist")
+})

@@ -64,7 +64,22 @@ audit <- function(data, ..., .by = NULL) {
 # "scrutiny" attribute that `audit()` and its methods need, which
 # `dplyr::group_by()` would not:
 audit_by <- function(data, by) {
-  cols <- tidyselect::eval_select(by, data, error_call = rlang::caller_env())
+  cols <- tryCatch(
+    tidyselect::eval_select(by, data, error_call = rlang::caller_env()),
+    vctrs_error_subscript_oob = function(cnd) {
+      # Sequence and total-n output has the tested columns and its results,
+      # but not the other columns of the input:
+      if (!is_map_seq_df(data) && !is_map_total_n_df(data)) {
+        rlang::cnd_signal(cnd)
+      }
+      abort_in_export(
+        "`.by` selects a column that `data` doesn't have.",
+        "x" = "There is no column {wrap_in_backticks(cnd$i)}.",
+        "i" = "Sequence and total-n output doesn't keep the other columns \\
+        of the input. Its `case` column numbers the input rows."
+      )
+    }
+  )
   if (length(cols) == 0L) {
     return(audit(data))
   }
