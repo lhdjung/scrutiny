@@ -370,9 +370,10 @@ check_sum_range_exact <- function(
 # A `threshold` with decimal places scales the rounding bounds and their
 # denominator by a power of ten (`roundwork::bound_numerators()`), and with them
 # the numbers that must stay exact. That power, or 1. The common whole
-# threshold is answered without asking roundwork:
+# threshold is answered without asking roundwork, and so is an invalid one,
+# which roundwork ignores unless `rounding` uses it, and then rejects before:
 rounding_scale <- function(rounding, threshold, symmetric) {
-  if (threshold == round(threshold)) {
+  if (!is.numeric(threshold) || !isTRUE(threshold != round(threshold))) {
     return(1)
   }
   roundwork::bound_numerators(1, -1L, rounding, threshold, symmetric)$denom
