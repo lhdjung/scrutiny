@@ -93,7 +93,7 @@ disperse <- function(
   # Compared to the limits as the whole numbers they are shown as:
   # A step listed twice is the same pair of group sizes:
   dispersion <- unique(round_whole(dispersion))
-  check_disperse_exact(abs(n) + max(dispersion, 0))
+  check_disperse_exact(abs(n) + max(dispersion, 0), whole = is_whole_number(n))
 
   # Main part ---
 
@@ -348,14 +348,26 @@ check_constant_names <- function(constant, names_taken) {
 
 
 # From 2^53 on, a double skips whole numbers, so a step of 1 may change nothing
-# and an odd total may look even. `largest` is the largest group size or total:
-check_disperse_exact <- function(largest) {
-  if (largest >= 2^53) {
+# and an odd total may look even. `largest` is the largest group size or total.
+# A half-way `n`, which `disperse2()` disperses from for an odd total, needs a
+# double that holds halves, as one only does below 2^52:
+check_disperse_exact <- function(largest, whole = TRUE) {
+  if (whole && largest >= 2^53) {
     abort_in_export(
       "`n` is too large to disperse exactly.",
       "x" = "The group sizes reach {format(largest, digits = 3L)}, beyond 2^53, \\
       about 9e15.",
       "i" = "Beyond that, a double skips whole numbers."
+    )
+  }
+  if (!whole && largest >= 2^52) {
+    abort_in_export(
+      "`n` is too large to disperse exactly.",
+      "x" = "The values dispersed reach \\
+      {formatC(largest, format = 'f', digits = 1L)}, beyond 2^52, \\
+      about 4.5e15.",
+      "i" = "Beyond that, a double skips the halves between whole numbers, \\
+      which an odd total is split around."
     )
   }
 }

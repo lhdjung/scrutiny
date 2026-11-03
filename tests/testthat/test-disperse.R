@@ -186,4 +186,10 @@ test_that("group sizes from 2^53 on are refused", {
   # A double skips whole numbers there, and `%%` warned of a loss of accuracy:
   2^60 |> disperse_total() |> expect_error("too large to disperse exactly")
   2^53 |> disperse()       |> expect_error("too large to disperse exactly")
+  # An odd total is split around a half, which a double only holds below 2^52;
+  # the pairs used to add up to one less than the total:
+  (2^53 - 3) |> disperse_total(dispersion = 0:2) |> expect_error("beyond 2\\^52")
+  (2^52 - 0.5) |> disperse(dispersion = 0:1)     |> expect_error("beyond 2\\^52")
+  out <- (2^52 - 3) |> disperse_total(dispersion = 0:2)
+  (out$n[c(TRUE, FALSE)] + out$n[c(FALSE, TRUE)]) |> expect_equal(rep(2^52 - 3, 3))
 })
