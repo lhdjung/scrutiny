@@ -832,6 +832,20 @@ check_class <- function(x, cl) {
 #'
 #' @noRd
 as_tibble_input <- function(data) {
+  # An empty or missing name is no name, not one that is taken twice:
+  unnamed <- which(is.na(colnames(data)) | colnames(data) == "")
+  if (is.data.frame(data) && length(unnamed) > 0L) {
+    msg_which <- if (length(unnamed) == 1L) {
+      paste("Column", unnamed, "has none.")
+    } else {
+      paste("Columns", toString(unnamed), "have none.")
+    }
+    abort_in_export(
+      "!" = "Every column of `data` must have a name.",
+      "x" = msg_which
+    )
+  }
+
   if (is.data.frame(data) && anyDuplicated(colnames(data)) > 0L) {
     names_dup <- unique(colnames(data)[duplicated(colnames(data))])
     abort_in_export(
