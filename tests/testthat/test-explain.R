@@ -274,3 +274,11 @@ test_that("only the first `n` sums are tested, and the rest are counted", {
   text |> expect_match("The remaining 19999999 sums fail as well")
   text |> expect_match("Inconsistent")
 })
+
+test_that("numbers past 2^53 are shown exactly", {
+  # Doubles printed 27000720006300016, and named k = 149999999 as the largest:
+  0.5 |> debit_explain(0.0009, 300003, 1, 4, sd_meaning = "se") |> format() |> expect_match("27000720006300018")
+  e <- 0 |> debit_explain(0.4, 3e8 + 1, 0, 1, sd_meaning = "se") |> format()
+  e |> expect_match("27000000180000000300000000")
+  e |> expect_match("largest of these SEs, for k = 150000000")
+})

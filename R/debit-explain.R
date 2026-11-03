@@ -274,6 +274,11 @@ debit_explain <- function(
   )
 
   n_dev <- sd_denominator(n, sd_meaning)
+  # Shown in full, so the products are exact even past 2^53, where a double
+  # would print a neighbor:
+  n_dev_exact <- if (sd_meaning == "se") whole_mul(n, n - 1) else n_dev
+  text_n_dev <- whole_format(n_dev_exact)
+  text_n_n_dev <- whole_format(whole_mul(n, n_dev_exact))
 
   text_formula <- paste0(
     "With k ones among ",
@@ -290,7 +295,7 @@ debit_explain <- function(
     " - k) / (",
     n,
     " * ",
-    n_dev,
+    text_n_dev,
     "))."
   )
 
@@ -305,6 +310,9 @@ debit_explain <- function(
   passed <- !below & !above
   # Only to pick the `k` to show, so a double is close enough:
   spread <- ones * (n - ones)
+  # The spread `k * (n - k)` is the greater the closer `k` is to `n / 2`. This
+  # orders it exactly, where `spread` would tie neighbors past 2^53:
+  centrality <- -abs(2 * ones - n)
   spread_middle <- mean(vapply(spread_range, whole_double, numeric(1L)))
 
   if (any(passed) != consistency) {
@@ -322,7 +330,7 @@ debit_explain <- function(
       " * ",
       n - k,
       " / ",
-      n * n_dev,
+      text_n_n_dev,
       ") = ",
       format_number(
         sqrt(k * (n - k) / (n * n_dev)),
@@ -359,7 +367,7 @@ debit_explain <- function(
   } else if (all(below)) {
     # The spread, and with it the SD, is greatest for the `k` closest to half
     # of `n`, so that one stands for all:
-    k <- ones[which.max(spread)]
+    k <- ones[which.max(centrality)]
 
     paste0(
       "Even the largest of these ",
@@ -371,7 +379,7 @@ debit_explain <- function(
       ", which is below that range."
     )
   } else if (all(above)) {
-    k <- ones[which.min(spread)]
+    k <- ones[which.min(centrality)]
 
     paste0(
       "Even the smallest of these ",
@@ -385,8 +393,8 @@ debit_explain <- function(
   } else {
     # Some SDs are below the range and some above, and none in it: those next
     # to it skip over it.
-    k_below <- ones[below][which.max(spread[below])]
-    k_above <- ones[!below][which.min(spread[!below])]
+    k_below <- ones[below][which.max(centrality[below])]
+    k_above <- ones[!below][which.min(centrality[!below])]
 
     paste0(
       "These ",
