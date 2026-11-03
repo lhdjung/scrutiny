@@ -842,6 +842,10 @@ test_that("the SD's term is exact beyond 2^53", {
 test_that("an `n` too large to enumerate is an error, not a hang", {
   5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
   5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
+  # With the mean unknown, every remainder modulo `n` that the SD can reach is
+  # a candidate:
+  NA   |> grimmer(sd = 0.73, n = 1e6 + 3, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("the mean unknown")
+  NA   |> grimmer(sd = 1e-4, n = 1e8,     digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_na()
 
   # The limit is far above anything a published summary statistic looks like,
   # so a large but plausible `n` still goes through:

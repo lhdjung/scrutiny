@@ -454,6 +454,7 @@ grimmer_scalar <- function(
     } else {
       c(0, reach, n - reach, n - 1)
     }
+    check_enumeration_size(sums_consistent, n = n, digits_x = NULL)
   }
 
   passed <- grimmer_sums_pass(sums_consistent, n, items_averaged, sd_bounds)

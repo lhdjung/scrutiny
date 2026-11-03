@@ -174,24 +174,32 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 #'
 #' @description `grimmer_scalar()` loops over the integer sums the reported
 #'   mean admits, about `n * items_averaged / 10^digits_x` of them, but no more
-#'   than `n`, so a huge `n` (e.g., a typo) would run for a very long time. The
-#'   limit is far above any published summary statistic.
+#'   than `n`, so a huge `n` (e.g., a typo) would run for a very long time. With
+#'   the mean unknown, it loops over up to `n` remainders. The limit is far
+#'   above any published summary statistic.
 #'
-#' @param bounds Numeric (length 2). The `c(lower, upper)` of the sums.
-#' @param n,digits_x Numeric (length 1). For the message.
+#' @param bounds Numeric. Pairs of `lower, upper` of the sums, as in
+#'   `grimmer_sums_pass()`.
+#' @param n,digits_x Numeric (length 1). For the message; `digits_x = NULL`
+#'   for an unknown mean.
 #' @param limit Numeric (length 1). The largest number of sums admitted.
 #'
 #' @return No return value. Might throw an error.
 #'
 #' @noRd
 check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
-  size <- bounds[2L] - bounds[1L] + 1
+  lower <- bounds[c(TRUE, FALSE)]
+  size <- sum(bounds[c(FALSE, TRUE)] - lower + 1)
   if (isTRUE(size > limit)) {
+    msg_given <- if (is.null(digits_x)) {
+      "With `n = {n}` and the mean unknown"
+    } else {
+      "With `n = {n}` and `digits_x = {digits_x}`"
+    }
     abort_in_export(
       "`n` is too large for GRIMMER.",
-      "x" = "With `n = {n}` and `digits_x = {digits_x}`, GRIMMER checks \
-      {round(size)} candidate sums.",
-      "i" = "The limit is {limit}."
+      "x" = paste0(msg_given, ", GRIMMER checks {round(size)} candidate sums."),
+      "i" = "The limit is {format(limit, big.mark = ',', scientific = FALSE)}."
     )
   }
 }
