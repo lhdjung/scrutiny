@@ -283,3 +283,10 @@ test_that("`compare_products()` and `floor_product_ratio()` are exact beyond 2^5
   3 |> floor_product_ratio(2^52 + 1, 3) |> expect_equal(list(floor = 2^52 + 1, exact = TRUE))
   3 |> floor_product_ratio(2^51 + 1, 2) |> expect_equal(list(floor = 3 * 2^50 + 1, exact = FALSE))
 })
+
+test_that("`whole_add()` keeps a sum from 2^53 on as a big number", {
+  (2^53 - 1) |> whole_add(1) |> is_big() |> expect_true()
+  (2^53 - 1) |> whole_add(1) |> whole_cmp(big_or_double(big(2^53))) |> expect_equal(0)
+  (2^53 - 1) |> whole_add(2) |> whole_format() |> expect_equal("9007199254740993")
+  (2^53 - 2) |> whole_add(1) |> expect_equal(2^53 - 1)
+})

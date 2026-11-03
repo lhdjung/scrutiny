@@ -237,9 +237,14 @@ is_big <- function(x) {
   inherits(x, "scrutiny_big")
 }
 
+# A double sum is exact below `2^53`; from there on, it must become a `big()`
+# number, or it would compare as less than an equal one:
 whole_add <- function(x, k) {
   if (!is_big(x)) {
-    return(x + k)
+    if (x + k < 2^53) {
+      return(x + k)
+    }
+    return(big_or_double(big_add(big(x), big(k))))
   }
   x <- unclass(x)
   big_or_double(if (k >= 0) big_add(x, big(k)) else big_sub(x, big(-k)))
