@@ -358,6 +358,21 @@ check_sum_range_exact <- function(x_num, n_items, digits, arg = "x") {
 }
 
 
+# GRIMMER and DEBIT count up to `n` and subtract from it, which is exact only
+# well below 2^53, and with the mean unknown, nothing else limits `n`. No sample
+# is this large anyway:
+check_n_exact <- function(n) {
+  if (n >= 2^52) {
+    abort_in_export(
+      "`n` is too large for an exact test.",
+      "x" = "It is {format(n, digits = 2L)}, but it must be below 2^52, \\
+      about 4.5e15.",
+      "i" = "Beyond that, a double skips whole numbers."
+    )
+  }
+}
+
+
 # Round the values within `WHOLE_NUMBER_TOLERANCE` of a whole number to it, so
 # that a value is tested as the whole number it is accepted as: `100 * 0.29` is
 # 28.999999999999996, which `is_decidable_n_items()` takes for 29, but the

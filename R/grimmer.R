@@ -297,6 +297,7 @@ grimmer_scalar <- function(
     }
     return(NA)
   }
+  check_n_exact(n)
 
   # With both values missing, nothing is left to decide on. With one of them,
   # the other may still rule the case out: a mean that fails GRIM does so for

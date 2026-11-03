@@ -607,6 +607,12 @@ test_that("a large `n` is tested exactly", {
   0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop") |> expect_false()
 })
 
+test_that("an `n` beyond exact arithmetic is an error, not a wrong verdict or a hang", {
+  0  |> debit(0.2, 1e20, 2, 1, sd_meaning = "sd_pop") |> expect_error("`n` is too large")
+  NA |> debit(0.3, 1e18, 2, 1, sd_meaning = "sd_pop") |> expect_error("`n` is too large")
+  NA |> grimmer(0.5, 2^53 + 2, 1, 1, 1)                |> expect_error("`n` is too large")
+})
+
 test_that("`formula = \"mean_n\"` is exact with `digits_x = 15`", {
   # `10^16 - lower` is beyond 2^53 and odd, so a double would round it:
   x  <- c(0.051274316068421, 0.005965150648999, 0.073856388835611, 0.032662407549849, 0.080178459855802)

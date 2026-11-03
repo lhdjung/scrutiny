@@ -551,6 +551,7 @@ debit_scalar <- function(
   # As a double: an integer `n` squared below overflows from 46341, as it can
   # under `"sd_pop"`, where the denominator is `n` itself:
   n <- as.numeric(n)
+  check_n_exact(n)
 
   # A missing decimal count is a missing value like any other: no rounding
   # bounds follow from it. With both values missing, nothing is left to decide
