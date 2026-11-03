@@ -170,7 +170,8 @@ df2_rows_1_3_expected <- tibble::tibble(
           "grim_map_total_n"
         )
       ),
-      reported = "x"
+      reported = "x",
+      values_reported = as.list(df2)
     ),
     class = c(
       "scrutiny_map_total_n",

@@ -57,3 +57,19 @@ test_that("output of different mappers or tiers can't be combined", {
   seq_custom <- function_map_seq(.fn = grim_map, .reported = c("x", "n"), .name_test = "GRIM", .name_class = "my_class")
   dplyr::bind_rows(seq_custom(df, digits_x = 2, items_averaged = 1), seq_custom(df, digits_x = 2, items_averaged = 1, rounding = "up")) |> expect_error("`rounding`")
 })
+
+test_that("output of sequence and total-n calls on different data is not combined", {
+  seq1 <- tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  seq2 <- tibble::tibble(x = 6.24, n = 30) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  seq1 |> dplyr::bind_rows(seq2) |> expect_error("different value sets")
+  seq1 |> dplyr::bind_rows(seq1[0, ]) |> nrow() |> expect_equal(nrow(seq1))
+
+  total1 <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  total2 <- tibble::tibble(x1 = 2.97, x2 = 4.42, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  total1 |> dplyr::bind_rows(total2) |> expect_error("different value sets")
+
+  data <- tibble::tibble(a = 1, b = 2, c = 3, total = 3)
+  sum3 <- data |> add_up_to_map(summands = c(a, b, c), total = total)
+  sum2 <- data |> add_up_to_map(summands = c(a, b), total = total)
+  sum3 |> dplyr::bind_rows(sum2) |> expect_error("Can't combine")
+})

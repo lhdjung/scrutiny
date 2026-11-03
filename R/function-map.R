@@ -756,6 +756,13 @@ function_map <- function(
         )
       )
 
+      # Which columns a variadic argument selected, such as the summands of
+      # `add_up_to_map()`: output of calls that selected others must not be
+      # combined (see `R/bind-rows.R`):
+      if (!is.null(reported_variadic)) {
+        attr(out, "scrutiny")$cols_variadic <- names(cols_variadic)
+      }
+
       # Unnest the key result column if it is a list, and rename it if
       # `.name_key_result` was specified:
       `!!!`(write_code_col_key_result(

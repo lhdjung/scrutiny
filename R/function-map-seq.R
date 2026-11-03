@@ -387,6 +387,7 @@ function_map_seq <- function(
       # the output. The input's column names tell the result columns apart
       # from the rest of `data` below:
       cols_input <- colnames(data)
+      values_reported <- as.list(data)[reported]
       data <- do.call(
         fn,
         c(list(data), digits_vals, helper_vals, setting_vals, list(...))
@@ -569,6 +570,9 @@ function_map_seq <- function(
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` require a
       #   linearly increasing `dispersion`. A single step is trivially linear,
       #   but `is_seq_ascending()` needs two.
+      # - `values_reported`: the key columns of the input, so that output of
+      #   calls on different data can't be combined, which would number two
+      #   cases as one (see `R/bind-rows.R`).
       meta_fn$settings <- dplyr::bind_rows(
         meta_fn$settings,
         new_settings(
@@ -590,7 +594,8 @@ function_map_seq <- function(
           results_reported = results,
           name_key_result = name_key_result,
           # Of the steps taken: `seq_disperse()` takes a repeated one once.
-          dispersion_linear = is_steps_ascending(dispersion)
+          dispersion_linear = is_steps_ascending(dispersion),
+          values_reported = values_reported
         )
       )
 
