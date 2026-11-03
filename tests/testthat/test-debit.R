@@ -606,3 +606,10 @@ test_that("a large `n` is tested exactly", {
   0.9216 |> debit(0.2688, 625, 4, 4, "mean_n", "floor") |> expect_true()
   0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop") |> expect_false()
 })
+
+test_that("`formula = \"mean_n\"` is exact with `digits_x = 15`", {
+  # `10^16 - lower` is beyond 2^53 and odd, so a double would round it:
+  x  <- c(0.051274316068421, 0.005965150648999, 0.073856388835611, 0.032662407549849, 0.080178459855802)
+  sd <- c(0.231321824820205, 0.077383953227377, 0.286499471546682, 0.181934399876087, 0.303623686557375)
+  x |> debit(sd, c(11, 102, 6, 22, 5), 15, 15, formula = "mean_n") |> expect_equal(c(TRUE, TRUE, TRUE, TRUE, FALSE))
+})

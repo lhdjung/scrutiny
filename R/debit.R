@@ -342,8 +342,8 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
   # The spreads at the bounds of the mean, over `denom_x^2`, with the
   # inclusivity of the bound each comes from:
   spreads <- list(
-    whole_mul(bounds_x$lower, denom_x - bounds_x$lower),
-    whole_mul(bounds_x$upper, denom_x - bounds_x$upper)
+    whole_mul(bounds_x$lower, denom_minus(denom_x, bounds_x$lower)),
+    whole_mul(bounds_x$upper, denom_minus(denom_x, bounds_x$upper))
   )
   incl <- c(bounds_x$incl_lower, bounds_x$incl_upper)
   comparison <- whole_cmp(spreads[[1L]], spreads[[2L]])
@@ -401,6 +401,16 @@ binary_sd_attainable_mean_n <- function(bounds_x, n, bounds_sd, sd_meaning) {
     (min_vs_sd_max == 0 && incl_min && bounds_sd$incl_upper)) &&
     (sd_min_vs_max < 0 ||
       (sd_min_vs_max == 0 && bounds_sd$incl_lower && incl_max))
+}
+
+
+# `denom - num` for `0 <= num <= denom`. With `digits_x = 15`, `denom` is 1e16,
+# a power of ten that a double holds exactly, but the difference may not be:
+denom_minus <- function(denom, num) {
+  if (denom < 2^53) {
+    return(denom - num)
+  }
+  big_or_double(big_sub(big(denom), big(num)))
 }
 
 
