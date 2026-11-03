@@ -21,6 +21,11 @@
 # package that creates a mapper at the top level evaluates `function_map()` at
 # install time, where the registration is lost, so `.onLoad()` registers
 # scrutiny's own again.
+#
+# Mapper output and a plain data frame don't combine either. `vec_rbind()`
+# would return a plain tibble, but `dplyr::bind_rows()` then restores the
+# classes and record of its first input, under which `audit_seq()` would count
+# rows that no call tested.
 
 bind_classes <- new.env(parent = emptyenv())
 
@@ -30,7 +35,7 @@ register_bind_methods <- function(class) {
   }
   assign(class, TRUE, envir = bind_classes)
   ns <- asNamespace("vctrs")
-  for (other in ls(bind_classes)) {
+  for (other in c(ls(bind_classes), "tbl_df", "data.frame")) {
     for (key in unique(paste0(c(class, other), ".", c(other, class)))) {
       registerS3method("vec_ptype2", key, vec_ptype2_scrutiny, envir = ns)
       registerS3method("vec_cast", key, vec_cast_scrutiny, envir = ns)
@@ -102,6 +107,26 @@ restore_scrutiny <- function(out, template) {
 # that has lost its record has nothing to compare; the functions that need the
 # record say so themselves:
 check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
+  is_plain <- !c(class(x)[[1L]], class(y)[[1L]]) %in% ls(bind_classes)
+  if (any(is_plain)) {
+    msg_which <- if (c(x_arg, y_arg)[is_plain][[1L]] == "") {
+      "One of the inputs is not mapper output."
+    } else {
+      "{.arg {c(x_arg, y_arg)[is_plain][[1L]]}} is not mapper output."
+    }
+    cli::cli_abort(
+      c(
+        "Can't combine mapper output with other data.",
+        "x" = msg_which,
+        "i" = "The rows would be read under the mapper call's settings, which \\
+        {.fn audit} and others read, although the call never tested them.",
+        "i" = "To combine them as plain data, convert the mapper output with \\
+        {.fn tibble::as_tibble} first."
+      ),
+      call = call
+    )
+  }
+
   meta_x <- attr(x, "scrutiny", exact = TRUE)
   meta_y <- attr(y, "scrutiny", exact = TRUE)
   same_class <- identical(class(x), class(y))

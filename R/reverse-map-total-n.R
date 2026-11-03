@@ -64,6 +64,9 @@ reverse_map_total_n <- function(data) {
       "i" = "Each pair of consecutive rows is one split of the total."
     )
   }
+  # A pair is a step of one case in one direction; the step is the first
+  # group's `n_change`. Both rows of a step of 0 may be the same:
+  check_rows_unique(data[first, ], c("case", "dir", "n_change"))
 
   # The two group sizes in any pair add up to the reported total, so the first
   # pair of each case will do:

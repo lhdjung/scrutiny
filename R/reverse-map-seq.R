@@ -44,6 +44,7 @@ reverse_map_seq <- function(data) {
   }
 
   check_cols_needed(data, c("case", "var", "diff_var", name_key_result))
+  check_rows_unique(data, c("case", "var", "diff_var"))
 
   var <- data |>
     select_tested_cols(before = name_key_result) |>
@@ -94,4 +95,20 @@ reverse_map_seq <- function(data) {
   cols |>
     rlang::set_names(var) |>
     tibble::as_tibble()
+}
+
+
+# Rows that occur twice, as from binding an output to itself, would be counted
+# twice by `audit_seq()` and `audit_total_n()`. No two rows of a mapper's
+# output agree on all of `cols`. Shared with `reverse_map_total_n()`:
+check_rows_unique <- function(data, cols) {
+  if (anyDuplicated(data[cols]) > 0L) {
+    abort_in_export(
+      "`data` has value sets that occur more than once.",
+      "x" = "No two rows of a mapper's output agree on all of \\
+      {wrap_in_backticks(cols)}.",
+      "i" = "Was the output combined with itself, or with that of an \\
+      identical call?"
+    )
+  }
 }

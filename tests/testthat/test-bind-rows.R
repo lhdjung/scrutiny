@@ -98,3 +98,21 @@ test_that("the errors name what differs, in the order given", {
   df_grim <- tibble::tibble(x = 5.19, n = 28)
   dplyr::rows_append(grim_map(df_grim, digits_x = 2, items_averaged = 1), grim_map(df_grim, digits_x = 2, items_averaged = 1, rounding = "up")) |> expect_error("`x` and `y`")
 })
+
+test_that("mapper output doesn't combine with a plain data frame, in either order", {
+  # `bind_rows()` kept the mapper's record for rows it never tested:
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1)
+  plain <- tibble::tibble(x = 1, n = 5, consistency = TRUE)
+  dplyr::bind_rows(out, plain)                    |> expect_error("`..2` is not mapper output")
+  dplyr::bind_rows(plain, out)                    |> expect_error("`..1` is not mapper output")
+  dplyr::bind_rows(out, as.data.frame(plain))     |> expect_error("is not mapper output")
+  dplyr::bind_rows(tibble::as_tibble(out), plain) |> nrow() |> expect_equal(2L)
+})
+
+test_that("an output bound to itself can't be audited", {
+  # Each row was counted twice:
+  seq_out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  tot_out <- tibble::tibble(x1 = 3.84, x2 = 4.21, n = 41) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  dplyr::bind_rows(seq_out, seq_out) |> audit_seq()     |> expect_error("occur more than once")
+  dplyr::bind_rows(tot_out, tot_out) |> audit_total_n() |> expect_error("occur more than once")
+})
