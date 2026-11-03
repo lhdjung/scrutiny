@@ -353,3 +353,12 @@ test_that("an error names the row of `data`, not of the scenarios", {
     grim_map_total_n(digits_x = 1, items_averaged = 1) |>
     expect_error("In row 1 of `data`", fixed = TRUE)
 })
+
+test_that("an `.args_by_row` argument other than `digits_*` must be a single value", {
+  g  <- function(x, n, digits_x, w = 1) x * w < n
+  gm <- function_map(.fn = g, .reported = c("x", "n"), .name_test = "G", .args_by_row = c("digits_x", "w"))
+  gt <- function_map_total_n(.fn = gm, .reported = "x", .name_test = "G")
+  d  <- tibble::tibble(x1 = 3.1, x2 = 4.2, n = 20)
+  d |> gt(digits_x = 1, w = c(1, 3)) |> expect_error("`w` must be a single value here")
+  d |> gt(digits_x = 1, w = 2)       |> nrow() |> expect_gt(0L)
+})

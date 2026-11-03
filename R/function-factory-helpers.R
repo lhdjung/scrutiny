@@ -802,3 +802,22 @@ check_fn_result <- function(result, fn_name) {
   }
   invisible(result)
 }
+
+
+# An `.args_by_row` argument of a basic mapper other than `digits_*` reaches
+# the re-tests of a sequence or total-n mapper through the dots, with one value
+# per row of the user's `data`, not of the rows tested. So it must be a single
+# value there:
+check_args_by_row_single <- function(args_by_row, dots, name_fn, tier) {
+  for (name in intersect(names(dots), args_by_row)) {
+    if (length(dots[[name]]) > 1L) {
+      abort_in_export(
+        "`{name}` must be a single value here.",
+        "x" = "It has length {length(dots[[name]])}.",
+        "i" = "{tier} mappers test other rows than those of `data`, so an \\
+        argument can't have one value per row there.",
+        "i" = "Basic mappers such as `{name_fn}()` do accept one value per row."
+      )
+    }
+  }
+}

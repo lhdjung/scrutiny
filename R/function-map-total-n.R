@@ -305,6 +305,10 @@ function_map_total_n <- function(
   # `items_averaged`:
   args_helper_fn <- attr(.fn, "scrutiny_args_helper", exact = TRUE)
   helper_formals <- formals(.fn)[args_helper_fn]
+  args_by_row_fn <- setdiff(
+    attr(.fn, "scrutiny_args_by_row", exact = TRUE),
+    digits_args_names
+  )
 
   # And for the settings of `.fn`, such as `rounding`:
   setting_formals <- formals_settings(
@@ -437,6 +441,12 @@ function_map_total_n <- function(
       # Checks ---
 
       check_factory_dots(fn, name_fn, ...)
+      check_args_by_row_single(
+        `!!`(args_by_row_fn),
+        list(...),
+        name_fn,
+        "Total-n"
+      )
 
       # A `constant` named like a column of the output is the first mistake:
       check_constant_names(

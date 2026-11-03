@@ -806,6 +806,8 @@ function_map <- function(
   # `function_map_seq()` and `function_map_total_n()` must not pass it again
   # when they re-test. They read this attribute to know which ones those are:
   attr(fn_out, "scrutiny_args_helper") <- args_helper
+  # The other tiers take these as single values only, `digits_*` aside:
+  attr(fn_out, "scrutiny_args_by_row") <- args_by_row
   # The result columns that the mapper may add, which `function_map_total_n()`
   # keeps a `constant` from being named like:
   attr(fn_out, "scrutiny_cols_result") <- c(names(.cols_derived), .col_names)

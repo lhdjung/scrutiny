@@ -275,6 +275,11 @@ function_map_seq <- function(
     replicate(length(digits_args_names), NULL, simplify = FALSE),
     digits_args_names
   )
+  # Other arguments that the basic mapper takes one value per row of:
+  args_by_row_fn <- setdiff(
+    attr(.fn, "scrutiny_args_by_row", exact = TRUE),
+    digits_args_names
+  )
 
   # The sequence mapper's own settings are recorded next to those of `.fn`,
   # and compared to these defaults:
@@ -340,6 +345,12 @@ function_map_seq <- function(
       check_args_disabled(args_disabled)
 
       check_factory_dots(fn, name_fn, ...)
+      check_args_by_row_single(
+        `!!`(args_by_row_fn),
+        list(...),
+        name_fn,
+        "Sequence"
+      )
 
       # `include_reported` is checked by `seq_disperse()`, and so is
       # `dispersion`, but only if there is a case to disperse:
