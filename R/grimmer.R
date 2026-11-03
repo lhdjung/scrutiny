@@ -156,8 +156,14 @@ grimmer_candidate <- function(
   # impossible. A range with none that is possible fails test 1 after all, like
   # one that ends below the minimum:
   if (n < 5 && out$pass_test3) {
-    check_grimmer_attainable_exact(upper, n)
-    out$attained <- sum_squares_attainable(r, n, lower, upper)
+    if (n == 1) {
+      # One number has only the minimum, which is 0 after the shift. Exact at
+      # any size:
+      out$attained <- if (whole_cmp(lower, 0) == 0) 0 else NA_real_
+    } else {
+      check_grimmer_attainable_exact(upper, n)
+      out$attained <- sum_squares_attainable(r, n, lower, upper)
+    }
     if (is.na(out$attained)) {
       out$pass_test1 <- FALSE
       out$pass_test3 <- FALSE
@@ -192,18 +198,28 @@ grimmer_candidate_absolute <- function(candidate) {
 }
 
 
-# Which sums of squares fewer than five whole numbers can have is worked out in
-# doubles (`sum_squares_attainable()`). Its rules for two and three numbers
-# reach up to twice the sum of squares, so the range must stay below `2^52`.
-# Shifted, it only gets there with an SD of some 4e7 for each value.
+# Which sums of squares two to four whole numbers can have is worked out in
+# doubles (`sum_squares_attainable()`). The rules for two and three numbers
+# reach up to twice the sum of squares, so the range must stay below `2^52`;
+# for four, below `2^53`. Shifted, it only gets there with an SD of some 4e7
+# for each value. One number is decided exactly in `grimmer_candidate()`.
 check_grimmer_attainable_exact <- function(upper, n) {
-  if (is_big(upper) || upper >= 2^52) {
+  limit <- if (n == 4) 2^53 else 2^52
+  if (is_big(upper) || upper >= limit) {
+    msg_limit <- if (n == 4) "2^53, about 9e15" else "2^52, about 4.5e15"
+    msg_why <- if (n == 4) {
+      "beyond that, a double skips whole numbers."
+    } else {
+      "telling which of them {n} whole numbers can have takes numbers up to \\
+      twice as large, and beyond 2^53, a double skips whole numbers."
+    }
     abort_in_export(
-      "The SD is too large for GRIMMER with `n` below 5.",
-      "x" = "With `n = {n}`, the sums of squares to test reach 2^52, about \\
-      4.5e15. Telling which of them {n} whole numbers can have takes numbers \\
-      up to twice as large, and beyond 2^53, a double skips whole numbers.",
-      "i" = "With five or more values, GRIMMER has no such limit."
+      "The SD is too large for GRIMMER with `n` from 2 to 4.",
+      "x" = paste0(
+        "With `n = {n}`, the sums of squares to test reach {msg_limit}, and ",
+        msg_why
+      ),
+      "i" = "With one or five or more values, GRIMMER has no such limit."
     )
   }
 }
