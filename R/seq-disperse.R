@@ -80,18 +80,19 @@ seq_disperse <- function(
 
   check_length(from, 1L)
 
-  # A factor is its label, not its code:
+  # A factor is its label, not its code, and `TRUE` is no number to disperse,
+  # though `as.numeric()` would make it 1:
   if (is.factor(from)) {
     from <- as.character(from)
   }
-  check_type(dispersion, c("double", "integer"))
-  # `is_whole_number(Inf)` is `NA`, which the check below can't take:
-  if (!all(is.finite(dispersion))) {
-    abort_in_export(
-      "`dispersion` must not contain missing values or infinities."
-    )
+  if (is.logical(from)) {
+    check_type(from, c("double", "integer", "character"))
   }
-  check_non_negative(dispersion)
+  check_dispersion(
+    dispersion,
+    "Each value is a number of steps up and down from `from`, on the level \\
+    of its last decimal place."
+  )
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse
   # on:
@@ -106,24 +107,9 @@ seq_disperse <- function(
   # A step of 0 is `from` itself, twice over. Whether `from` is included is up
   # to `include_reported`, and a duplicate would be counted twice by
   # `audit_seq()`. A near-whole step like `4e-16` is the 0 it is accepted as,
-  # and a step listed twice is the same step. The error below counts the
-  # values as given:
-  dispersion_given <- dispersion
+  # and a step listed twice is the same step:
   dispersion <- unique(round_whole(dispersion))
   dispersion <- dispersion[dispersion != 0]
-
-  # A fractional step would land off the decimal level of `from`. `disperse()`
-  # rejects it for the same reason:
-  if (!all(is_whole_number(dispersion))) {
-    offenders <- dispersion_given[!is_whole_number(dispersion_given)]
-    abort_in_export(
-      "`dispersion` must be whole numbers.",
-      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
-      {offenders}.",
-      "i" = "Each value is a number of steps up and down from `from`, on \\
-      the level of its last decimal place."
-    )
-  }
 
   # Main part ---
 
@@ -200,6 +186,19 @@ seq_disperse <- function(
   # applied before the values are compared to the limits:
   if (offset_from != 0L) {
     from <- round(from + (by * offset_from), digits_out)
+  }
+
+  # From 2^53 units of the last decimal place on, a double skips values, so
+  # steps would collapse into one:
+  units_max <- (abs(from) / by + max(dispersion, 0)) * 10^digits_out * by
+  if (units_max >= 2^53) {
+    abort_in_export(
+      "`from` is too large to disperse exactly.",
+      "x" = "At {digits_out} decimal place{?s}, the values reach about \\
+      {format(units_max, digits = 3L)} units of the last one, beyond 2^53, \\
+      about 9e15.",
+      "i" = "Beyond that, a double skips values."
+    )
   }
 
   # Both limits apply to both sides of the sequence: with `from = 30` and
@@ -338,4 +337,30 @@ seq_disperse_df_internal <- function(
       track_diff_var = track_diff_var
     ) |>
     tibble::as_tibble(.name_repair = function(x) c("x", "diff_var"))
+}
+
+
+# Steps of dispersion must be finite, non-negative whole numbers: a fractional
+# step would land off the decimal level of the value, or split a member of a
+# group. Shared with `disperse()` and the sequence mappers, which check it even
+# if no case is dispersed. `hint` says what a step is. The values are counted
+# as given, before repeated ones are dropped:
+check_dispersion <- function(dispersion, hint) {
+  check_type(dispersion, c("double", "integer"))
+  # `is_whole_number(Inf)` is `NA`, which the check below can't take:
+  if (!all(is.finite(dispersion))) {
+    abort_in_export(
+      "`dispersion` must not contain missing values or infinities."
+    )
+  }
+  check_non_negative(dispersion)
+  if (!all(is_whole_number(dispersion))) {
+    offenders <- dispersion[!is_whole_number(dispersion)]
+    abort_in_export(
+      "`dispersion` must be whole numbers.",
+      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
+      {offenders}.",
+      "i" = hint
+    )
+  }
 }

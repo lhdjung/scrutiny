@@ -1674,11 +1674,12 @@ abort_lost_settings <- function() {
 }
 
 
-#' Check for linearly increasing dispersion in sequence mapper output
+#' Check for ascending dispersion in sequence mapper output
 #'
 #' @description Errors if a sequence mapper's output, e.g. from
-#'   `grim_map_seq()`, was computed with a `dispersion` that is not linearly
-#'   increasing. The default `1:5` is, but `5:1` and `c(3, 7, 2)` are not.
+#'   `grim_map_seq()`, was computed with a `dispersion` whose steps, without 0
+#'   and repeats, are not in ascending order. The default `1:5` is, as is
+#'   `c(1, 3, 7)`, but `5:1` and `c(3, 7, 2)` are not.
 #'
 #' @param data Data frame returned by a function made by `function_map_seq()`.
 #' @param name_fn String (length 1). Name of the calling function.
@@ -1695,8 +1696,10 @@ check_dispersion_linear <- function(data, name_fn) {
 
     abort_in_export(
       "Invalid for data with this dispersion.",
-      "!" = "`{name_fn}()` is only applicable if `dispersion` \\
-      in `{name_mapper}()` is a linearly increasing sequence.",
+      "!" = "`{name_fn}()` is only applicable if the steps of `dispersion` \\
+      in `{name_mapper}()` are in ascending order, as in the default `1:5`.",
+      "i" = "Steps of 0 and repeated steps don't count, so `c(0, 2, 2, 3)` \\
+      would do.",
       "i" = "This limitation may be removed in a future version of scrutiny."
     )
   }

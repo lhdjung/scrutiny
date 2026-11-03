@@ -341,8 +341,14 @@ function_map_seq <- function(
 
       check_factory_dots(fn, name_fn, ...)
 
-      # `include_reported` is checked by `seq_disperse()`:
+      # `include_reported` is checked by `seq_disperse()`, and so is
+      # `dispersion`, but only if there is a case to disperse:
       check_flag(include_consistent)
+      check_dispersion(
+        dispersion,
+        "Each value is a number of steps up and down from a reported value, \\
+        on the level of its last decimal place."
+      )
 
       # A missing `digits_*` argument is left out, as the helpers above are, so
       # that `fn()` raises its own error about it. `mget()` would force the
@@ -579,7 +585,7 @@ function_map_seq <- function(
       #   `audit_seq()` reports for each case without re-testing.
       # - `name_key_result`: `audit_seq()` has no other way to learn it.
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` require a
-      #   linearly increasing `dispersion`. A single step is trivially linear,
+      #   `dispersion` with ascending steps. A single step trivially is one,
       #   but `is_seq_ascending()` needs two.
       # - `values_reported`: the tested columns of the input, so that output of
       #   calls on different data can't be combined, which would number two

@@ -148,8 +148,8 @@ test_that("changing `dispersion` in the sequence mapper is
 test_that("`audit_seq()` rejects a `dispersion` that is not linear", {
   seq_nonlinear <- pigs1[1:2, ] |>
     grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(3, 1, 2))
-  seq_nonlinear |> audit_seq() |> expect_error("linearly increasing")
-  seq_nonlinear |> reverse_map_seq() |> expect_error("linearly increasing")
+  seq_nonlinear |> audit_seq() |> expect_error("in ascending order")
+  seq_nonlinear |> reverse_map_seq() |> expect_error("in ascending order")
   # A step of 0 is not taken:
   seq_zero <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(0, 2, 3))
   seq_zero |> audit_seq() |> expect_equal(pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 2:3) |> audit_seq())

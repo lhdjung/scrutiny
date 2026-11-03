@@ -181,3 +181,9 @@ test_that("a `constant` named like an output column is an error", {
   37 |> disperse_total(constant = list(n = c(1, 2)))                  |> expect_error("`n` is taken")
   37 |> disperse_total(constant = list(k = c(1, 2), n_change = 1:2)) |> expect_error("`n_change` is taken")
 })
+
+test_that("group sizes from 2^53 on are refused", {
+  # A double skips whole numbers there, and `%%` warned of a loss of accuracy:
+  2^60 |> disperse_total() |> expect_error("too large to disperse exactly")
+  2^53 |> disperse()       |> expect_error("too large to disperse exactly")
+})

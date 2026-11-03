@@ -213,3 +213,11 @@ test_that("the flags must be `TRUE` or `FALSE`", {
 test_that("the error about fractional steps counts them as given", {
   4.02 |> seq_disperse(dispersion = c(1.5, 1.5)) |> expect_error("2 values that are not")
 })
+
+
+test_that("`from` must be a number small enough to step from", {
+  1e300              |> seq_disperse(dispersion = 1) |> expect_error("too large to disperse exactly")
+  123456789012345678 |> seq_disperse(dispersion = 1) |> expect_error("too large to disperse exactly")
+  # `TRUE` was dispersed as 1:
+  TRUE               |> seq_disperse()               |> expect_error("`from` must be one of these types")
+})

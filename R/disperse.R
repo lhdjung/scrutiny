@@ -85,29 +85,15 @@ disperse <- function(
   }
   # Compared to the limits as the whole number it is shown as:
   n <- round_whole(n)
-  check_type(dispersion, c("double", "integer"))
-  # `is_whole_number(Inf)` is `NA`, which the check below can't take:
-  if (!all(is.finite(dispersion))) {
-    abort_in_export(
-      "`dispersion` must not contain missing values or infinities."
-    )
-  }
-  check_non_negative(dispersion)
-
-  # A group has a whole number of members, so a fractional step means nothing:
-  if (!all(is_whole_number(dispersion))) {
-    offenders <- dispersion[!is_whole_number(dispersion)]
-    abort_in_export(
-      "`dispersion` must be whole numbers.",
-      "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
-      {offenders}.",
-      "i" = "Each value is a number of units by which the group sizes are \\
-      moved apart, and a group has a whole number of members."
-    )
-  }
+  check_dispersion(
+    dispersion,
+    "Each value is a number of units by which the group sizes are moved \\
+    apart, and a group has a whole number of members."
+  )
   # Compared to the limits as the whole numbers they are shown as:
   # A step listed twice is the same pair of group sizes:
   dispersion <- unique(round_whole(dispersion))
+  check_disperse_exact(abs(n) + max(dispersion, 0))
 
   # Main part ---
 
@@ -283,6 +269,7 @@ disperse_total <- function(
     )
   }
   n <- round_whole(n)
+  check_disperse_exact(n)
 
   # Main part ---
 
@@ -355,6 +342,20 @@ check_constant_names <- function(constant, names_taken) {
       "x" = "{wrap_in_backticks(clashes)} {cli::qty(length(clashes))}\\
       {?is/are} taken.",
       "i" = "Rename {cli::qty(length(clashes))}{?it/them}."
+    )
+  }
+}
+
+
+# From 2^53 on, a double skips whole numbers, so a step of 1 may change nothing
+# and an odd total may look even. `largest` is the largest group size or total:
+check_disperse_exact <- function(largest) {
+  if (largest >= 2^53) {
+    abort_in_export(
+      "`n` is too large to disperse exactly.",
+      "x" = "The group sizes reach {format(largest, digits = 3L)}, beyond 2^53, \\
+      about 9e15.",
+      "i" = "Beyond that, a double skips whole numbers."
     )
   }
 }

@@ -1691,3 +1691,11 @@ test_that("`include_consistent` must be `TRUE` or `FALSE`", {
   tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = "yes") |> expect_error("`include_consistent` must be `TRUE` or `FALSE`")
   tibble::tibble(x = 5.19, n = 3) |> grim_map_seq(digits_x = 2, items_averaged = 1, include_consistent = NA)    |> expect_error("`include_consistent` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("`dispersion` is checked even if no case is dispersed", {
+  # 5.18 with n = 28 is consistent, so nothing reached `seq_disperse()`:
+  df <- tibble::tibble(x = 5.18, n = 28)
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(-1, NA))   |> expect_error("missing values or infinities")
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(1.5, 1.5)) |> expect_error("2 values that are not")
+})
