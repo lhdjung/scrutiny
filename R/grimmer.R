@@ -201,8 +201,9 @@ grimmer_candidate_absolute <- function(candidate) {
 # Which sums of squares two to four whole numbers can have is worked out in
 # doubles (`sum_squares_attainable()`). The rules for two and three numbers
 # reach up to twice the sum of squares, so the range must stay below `2^52`;
-# for four, below `2^53`. Shifted, it only gets there with an SD of some 4e7
-# for each value. One number is decided exactly in `grimmer_candidate()`.
+# for four, below `2^53`. Shifted, it only gets there with an SD of 4.7e7 to
+# 6.7e7, divided by `items_averaged`. One number is decided exactly in
+# `grimmer_candidate()`.
 check_grimmer_attainable_exact <- function(upper, n) {
   limit <- if (n == 4) 2^53 else 2^52
   if (is_big(upper) || upper >= limit) {

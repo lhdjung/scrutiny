@@ -256,7 +256,7 @@ test_that("a test runs in a data mask, called from a user's function", {
     dplyr::pull(consistency) |>
     expect_equal(c(FALSE, TRUE))
   # roundwork walks the stack with its own copy of that code when it rejects an
-  # argument, so it needs the fix as well (roundwork > 0.1.0):
+  # argument, so it needs the fix as well:
   bad <- function(x) grim(x, 35, digits_x = 2, items_averaged = 1, rounding = "nope")
   rlang::eval_tidy(quote(bad(x)), list(x = 3.41)) |>
     expect_error(class = "rlang_error") |>
