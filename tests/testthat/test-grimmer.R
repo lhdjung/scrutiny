@@ -1318,6 +1318,9 @@ test_that("sums of squares beyond 2^53 are compared exactly", {
   # Fewer than five values with an SD this large have sums of squared
   # deviations beyond 2^53, which `sum_squares_attainable()` can't handle:
   grimmer(5.25, 1e8, 4, 2, 0, 1) |> expect_error("too large for GRIMMER with `n` below 5")
+  # Below 2^53, but the rule for three numbers works with 1.5 times the sum of
+  # squares, and this was FALSE, though c(-17364762, -48535175, 65899938) fits:
+  grimmer(0.33, 34156502.5532014, 3, 2, 7, 1, sd_meaning = "se") |> expect_error("too large for GRIMMER with `n` below 5")
 })
 
 test_that("a large mean is exact as long as the sums of squares are", {

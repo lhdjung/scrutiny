@@ -193,14 +193,16 @@ grimmer_candidate_absolute <- function(candidate) {
 
 
 # Which sums of squares fewer than five whole numbers can have is worked out in
-# doubles (`sum_squares_attainable()`), so their range must stay below `2^53`.
-# Shifted, it only gets there with an SD of some 5e7 for each value.
+# doubles (`sum_squares_attainable()`). Its rules for two and three numbers
+# reach up to twice the sum of squares, so the range must stay below `2^52`.
+# Shifted, it only gets there with an SD of some 4e7 for each value.
 check_grimmer_attainable_exact <- function(upper, n) {
-  if (is_big(upper)) {
+  if (is_big(upper) || upper >= 2^52) {
     abort_in_export(
       "The SD is too large for GRIMMER with `n` below 5.",
-      "x" = "With `n = {n}`, the sums of squares to test reach 2^53, about \\
-      9e15, beyond which a double skips whole numbers.",
+      "x" = "With `n = {n}`, the sums of squares to test reach 2^52, about \\
+      4.5e15. Telling which of them {n} whole numbers can have takes numbers \\
+      up to twice as large, and beyond 2^53, a double skips whole numbers.",
       "i" = "With five or more values, GRIMMER has no such limit."
     )
   }
