@@ -82,3 +82,9 @@ test_that("a near-whole count or decimal count is tested as the whole number", {
   10           |> is_percentage_of(31.3, 32, digits_percentage = 1 - 1e-9) |> expect_true()
   tibble::tibble(absolute = 100 * 0.29, percentage = 72.5, n = 40) |> is_percentage_of_map(digits_percentage = 1) |> _$consistency |> expect_true()
 })
+
+test_that("a count too large for exact arithmetic is an error", {
+  # 100 * 6622 / 12791 is 51.770776327104996..., which rounds to ...710:
+  6622 |> is_percentage_of(51.77077632711, 12791, digits_percentage = 11) |> expect_error("too large for an exact test")
+  6622 |> is_percentage_of(51.77,          12791, digits_percentage = 2)  |> expect_true()
+})

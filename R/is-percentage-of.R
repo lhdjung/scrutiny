@@ -41,6 +41,12 @@ is_percentage_of_scalar <- function(
   # The counts out of `n` whose share would be reported as `percentage`, in
   # exact integer arithmetic -- the same range that GRIM, with `percent = TRUE`,
   # checks for containing any count at all. Here, it must contain `absolute`:
+  check_sum_range_exact(
+    percentage / 100,
+    n,
+    digits_percentage + 2L,
+    arg = "percentage"
+  )
   counts <- roundwork::sum_range(
     x_num = percentage / 100,
     n_items = n,
