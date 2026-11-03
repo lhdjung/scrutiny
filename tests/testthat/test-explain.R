@@ -268,3 +268,9 @@ test_that("an explanation names the missing value that left the mean unknown", {
   debit_explain(0.5, 0.9, 10, NA, 1)     |> format() |> expect_match("digits_x is missing")
   grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop") |> format() |> expect_match("1 whole number with")
 })
+test_that("only the first `n` sums are tested, and the rest are counted", {
+  # This looped over 20 million sums; all fail, as the first two do:
+  text <- grimmer_explain(5, 1e-8, 2, digits_x = 0, digits_sd = 8, items_averaged = 1e7) |> format()
+  text |> expect_match("The remaining 19999999 sums fail as well")
+  text |> expect_match("Inconsistent")
+})

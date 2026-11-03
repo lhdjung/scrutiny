@@ -337,7 +337,11 @@ grimmer_explain <- function(
   passed <- FALSE
   too_large <- FALSE
 
-  for (s in sums[1L]:sums[2L]) {
+  # A sum passes exactly if its remainder modulo `n` does, so the first `n`
+  # sums decide, as in `grimmer_scalar()`; if none of them passes, no sum does:
+  sums_tested <- c(sums[[1L]], min(sums[[2L]], sums[[1L]] + n - 1))
+
+  for (s in sums_tested[1L]:sums_tested[2L]) {
     candidate <- grimmer_candidate(
       s = s,
       n = n,
@@ -374,6 +378,11 @@ grimmer_explain <- function(
     }
     n_failed <- n_failed + 1L
   }
+  # Up to three failures are shown, which may be all of the first `n`:
+  n_shown <- min(n_failed, 3L)
+  if (!passed) {
+    n_failed <- sums[[2L]] - sums[[1L]] + 1
+  }
 
   if (passed != consistency) {
     cli::cli_abort(
@@ -393,19 +402,19 @@ grimmer_explain <- function(
         "none of the sums passes."
       }
     )
-  } else if (n_failed > 3L) {
+  } else if (n_failed > n_shown) {
     text_candidates <- append(
       text_candidates,
       paste(
         "The",
         if (passed) "next" else "remaining",
-        if (n_failed - 3L == 1L) {
+        if (n_failed - n_shown == 1L) {
           "sum fails as well."
         } else {
-          paste(n_failed - 3L, "sums fail as well.")
+          paste(n_failed - n_shown, "sums fail as well.")
         }
       ),
-      after = 3L
+      after = n_shown
     )
   }
 

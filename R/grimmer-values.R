@@ -86,7 +86,31 @@ grimmer_values_scalar <- function(
     symmetric = symmetric
   )
 
-  candidate_sums <- sums_consistent[1L]:sums_consistent[2L]
+  value_set <- list(x = x, sd = sd, n = n, items_averaged = items_averaged)
+
+  # A sum passes exactly if its remainder modulo `n` does, so the first `n`
+  # sums tell which remainders pass, and only the sums with these are listed.
+  # Each has a pair at least, so they are counted before any is allocated: a
+  # mean with many decimal places and a large `items_averaged` admits millions.
+  sum_last <- sums_consistent[[2L]]
+  window <- sums_consistent[[1L]]:min(sum_last, sums_consistent[[1L]] + n - 1)
+  passing <- window[vapply(
+    window,
+    function(s) {
+      grimmer_candidate(
+        s = s,
+        n = n,
+        items_averaged = items_averaged,
+        sd_bounds = sd_bounds
+      )$pass_test3
+    },
+    logical(1L)
+  )]
+  check_values_size(sum((sum_last - passing) %/% n + 1), "pairs", value_set)
+  candidate_sums <- passing |>
+    lapply(function(s) seq(s, sum_last, by = n)) |>
+    unlist() |>
+    sort()
 
   # One element per candidate sum, joined once at the end: appending to a
   # vector in the loop copies it each time, which gets quadratic by `n = 20000`.
@@ -95,11 +119,9 @@ grimmer_values_scalar <- function(
   deviations <- sums
 
   # Counted as they come, before anything big is allocated: the pairs grow with
-  # `n^2` for SDs with few decimal places, and `check_enumeration_size()` only
-  # caps the sums. At `x = 50`, `sd = 20`, `n = 5000`, both with no decimals,
-  # there are 5e8.
+  # `n^2` for SDs with few decimal places. At `x = 50`, `sd = 20`, `n = 5000`,
+  # both with no decimals, there are 5e8.
   n_pairs <- 0
-  value_set <- list(x = x, sd = sd, n = n, items_averaged = items_averaged)
 
   for (i in seq_along(candidate_sums)) {
     s <- candidate_sums[i]

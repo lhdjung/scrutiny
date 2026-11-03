@@ -240,3 +240,11 @@ test_that("integer `n` and `items_averaged` don't overflow in the output", {
   out <- grimmer_values(NA, 1, 46341L, 0, 0, 46341L) |> expect_no_warning()
   out |> nrow() |> expect_equal(1L)
 })
+
+
+test_that("only sums with a passing remainder are enumerated, and they are counted first", {
+  # These looped over 1e7 sums; the first one has 10,001 passing sums, the
+  # second, too many to list:
+  5 |> grimmer_values(0, 1000, digits_x = 0, digits_sd = 7, items_averaged = 1e4) |> nrow() |> expect_equal(10001)
+  5 |> grimmer_values(0, 10,   digits_x = 0, digits_sd = 7, items_averaged = 1e7) |> expect_error("Too many achievable pairs")
+})
