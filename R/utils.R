@@ -1647,18 +1647,6 @@ check_var_bounds <- function(var_bounds) {
 }
 
 
-#' Check for linearly increasing dispersion in sequence mapper output
-#'
-#' @description Errors if a sequence mapper's output, e.g. from
-#'   `grim_map_seq()`, was computed with a `dispersion` that is not linearly
-#'   increasing. The default `1:5` is, but `5:1` and `c(3, 7, 2)` are not.
-#'
-#' @param data Data frame returned by a function made by `function_map_seq()`.
-#' @param name_fn String (length 1). Name of the calling function.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
 # For functions that read the "scrutiny" attribute of sequence or total-n
 # output, such as `audit_seq()`, when an element is gone:
 abort_lost_settings <- function() {
@@ -1671,6 +1659,18 @@ abort_lost_settings <- function() {
 }
 
 
+#' Check for linearly increasing dispersion in sequence mapper output
+#'
+#' @description Errors if a sequence mapper's output, e.g. from
+#'   `grim_map_seq()`, was computed with a `dispersion` that is not linearly
+#'   increasing. The default `1:5` is, but `5:1` and `c(3, 7, 2)` are not.
+#'
+#' @param data Data frame returned by a function made by `function_map_seq()`.
+#' @param name_fn String (length 1). Name of the calling function.
+#'
+#' @return No return value; might throw an error.
+#'
+#' @noRd
 check_dispersion_linear <- function(data, name_fn) {
   if (isFALSE(attr(data, "scrutiny", exact = TRUE)$dispersion_linear)) {
     name_mapper <- class(data) |>

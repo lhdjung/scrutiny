@@ -51,7 +51,7 @@ write_doc_audit <- function(sample_output, name_test) {
   # empty description to fill in:
   output_text_known <- c(
     all_cases = "total number of value sets.",
-    testable_cases = "number of value sets that could be tested.",
+    testable_cases = "number of value sets with a positive `exp_incon`.",
     incon_cases = glue::glue("number of {name_test}-inconsistent value sets."),
     emp_incon = glue::glue("proportion of {name_test}-inconsistent value sets.")
   )
