@@ -209,3 +209,7 @@ test_that("the flags must be `TRUE` or `FALSE`", {
   4.02 |> seq_disperse_df(.include_reported = NA)  |> expect_error("`.include_reported` must be `TRUE` or `FALSE`")
   4.02 |> seq_disperse_df(.track_diff_var = "yes") |> expect_error("`.track_diff_var` must be `TRUE` or `FALSE`")
 })
+
+test_that("the error about fractional steps counts them as given", {
+  4.02 |> seq_disperse(dispersion = c(1.5, 1.5)) |> expect_error("2 values that are not")
+})

@@ -105,15 +105,17 @@ seq_disperse <- function(
 
   # A step of 0 is `from` itself, twice over. Whether `from` is included is up
   # to `include_reported`, and a duplicate would be counted twice by
-  # `audit_seq()`. A near-whole step like `4e-16` is the 0 it is accepted as:
-  # A step listed twice is the same value:
+  # `audit_seq()`. A near-whole step like `4e-16` is the 0 it is accepted as,
+  # and a step listed twice is the same step. The error below counts the
+  # values as given:
+  dispersion_given <- dispersion
   dispersion <- unique(round_whole(dispersion))
   dispersion <- dispersion[dispersion != 0]
 
   # A fractional step would land off the decimal level of `from`. `disperse()`
   # rejects it for the same reason:
   if (!all(is_whole_number(dispersion))) {
-    offenders <- dispersion[!is_whole_number(dispersion)]
+    offenders <- dispersion_given[!is_whole_number(dispersion_given)]
     abort_in_export(
       "`dispersion` must be whole numbers.",
       "x" = "It has {length(offenders)} value{?s} that {?is/are} not: \\
