@@ -406,12 +406,14 @@ function_map_total_n <- function(
 
       # One value applies to both groups and every row. A vector would be
       # recycled across the alternating group rows, pairing values with the
-      # wrong groups in the `"back"` direction:
+      # wrong groups in the `"back"` direction. `NULL` is none, as in the basic
+      # mapper, which says if it needs one:
       for (arg_helper in names(helper_vals)) {
-        if (length(helper_vals[[arg_helper]]) != 1L) {
+        vals_helper <- helper_vals[[arg_helper]]
+        if (!is.null(vals_helper) && length(vals_helper) != 1L) {
           abort_in_export(
             "`{arg_helper}` must be a single value here.",
-            "x" = "It has length {length(helper_vals[[arg_helper]])}.",
+            "x" = "It has length {length(vals_helper)}.",
             "i" = "Total-n mappers test hypothetical group sizes, so one \\
             value applies to both groups. For values that differ by row, \\
             give `data` an `{arg_helper}` column."

@@ -1101,4 +1101,5 @@ test_that("a `NULL` helper argument adds no column", {
   helper_null_map <- function_map(.fn = helper_null, .reported = c("x", "n"), .name_test = "H", .cols_helper = "w")
   tibble::tibble(x = 1:2, n = 3:4) |> helper_null_map() |> colnames() |> expect_equal(c("x", "n", "consistency"))
   tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = NULL) |> expect_error("Need to specify `items_averaged`")
+  tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = NULL) |> expect_error("Need to specify `items_averaged`")
 })
