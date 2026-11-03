@@ -63,6 +63,7 @@ grimmer_sd_bounds <- function(
   }
 
   n_dev <- sd_denominator(n, sd_meaning)
+  sd_bounds$n_dev <- n_dev
 
   sd_bounds$term_lower <- sd_square_term(
     sd_bounds$lower,
@@ -86,7 +87,8 @@ grimmer_sd_bounds <- function(
 # the windows of `sum_squares_attainable_all()` could not advance (#D2 of the
 # 2026-11-02 audit: an endless loop). The largest sum of squares in play is
 # the upper bound for the largest candidate sum, and the SD's own squared
-# numerator has to fit as well. An error, like too many candidate sums.
+# numerator has to fit as well, as do the products of the SD's term (see
+# `sd_square_term()`). An error, like too many candidate sums.
 check_grimmer_exact <- function(x, sd, n, items_averaged, sums, sd_bounds) {
   s_max <- max(abs(sums))
   sum_squares_max <- sum_squares_range(
@@ -98,17 +100,25 @@ check_grimmer_exact <- function(x, sd, n, items_averaged, sums, sd_bounds) {
     incl_upper = TRUE
   )[[2L]]
 
+  # `floor_frac_sum()` puts the SD's term over `n`, with products below twice
+  # its denominator times `n`. `n_dev` is a factor of `compare_products()`:
+  term_den <- max(sd_bounds$term_lower$den, sd_bounds$term_upper$den)
+  term_max <- max(term_den * 2 * n, sd_bounds$n_dev)
+
   if (
     (sd_bounds$upper * items_averaged)^2 >= 2^53 ||
-      sum_squares_max >= 2^53
+      sum_squares_max >= 2^53 ||
+      term_max >= 2^53
   ) {
     abort_in_export(
-      "`x`, `sd`, or `n` is too large for GRIMMER.",
+      "`x`, `sd`, or `n` is too large for GRIMMER, or `sd` has too many \\
+      decimal places.",
       "x" = "With `x = {x}`, `sd = {sd}`, `n = {n}`, and `items_averaged = \\
-      {items_averaged}`, the sums of squares to compare reach 2^53, about \\
+      {items_averaged}`, the whole numbers to compare reach 2^53, about \\
       9e15, beyond which a double skips whole numbers.",
       "i" = "The sum of squares is about `n * (x^2 + sd^2) * \\
-      items_averaged^2`."
+      items_averaged^2`, and the arithmetic on the SD grows with `n` times \\
+      `10^(2 * digits_sd)`."
     )
   }
 }

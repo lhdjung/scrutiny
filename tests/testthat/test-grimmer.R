@@ -828,6 +828,14 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 })
 
 
+test_that("the SD's term is exact or refused", {
+  # 36864 values with the sum 315 and the sum of squares 99225 have the SD
+  # 105/64 = 1.640625 exactly:
+  0.008544921875 |> grimmer(1.64063,   36864, 12, 5, 1)                     |> expect_true()
+  # SE 35/256, but the other bound's products reach 2^53:
+  0.11328125     |> grimmer(0.1367188, 64,    8,  7, 4, sd_meaning = "se") |> expect_error("too many")
+})
+
 test_that("an `n` too large to enumerate is an error, not a hang", {
   5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
   5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")

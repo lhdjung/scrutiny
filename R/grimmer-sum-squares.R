@@ -9,8 +9,11 @@
 # This is exact while every integer involved stays below `2^53`. The sums of
 # squares themselves are the largest of them, on the order of `n * x^2`, so
 # `grimmer_scalar()` refuses a value set whose sums of squares reach `2^53`
-# (`check_grimmer_exact()`); the intermediate products are kept below the
-# sums of squares by splitting each fraction into whole part and remainder.
+# (`check_grimmer_exact()`). The intermediate products are kept small by
+# splitting each fraction into whole part and remainder, but those of the SD's
+# term grow with its denominator times `n`, not with the sums of squares, so
+# that check covers them separately; `sd_square_term()` splits its own with
+# `compare_products()`.
 #
 # Dividing two such integers is exact as well, so `floor(a / b)` and
 # `ceiling(a / b)` need no correction. IEEE 754 division returns the double
@@ -52,13 +55,19 @@ floor_frac_sum <- function(a1, b1, a2, b2) {
 # integer part plus the numerator and denominator of the fraction.
 
 sd_square_term <- function(num, n_dev, items, denom) {
-  # `sd^2 * items^2` as a fraction over `denom^2`:
-  numerator <- num^2 * items^2
-  denom_sq <- denom^2
-  whole <- floor(numerator / denom_sq)
+  # In lowest terms first, which keeps the denominator small: an SD bound of
+  # 1.640625 is 105/64, not 1640625/10^6. `floor_frac_sum()` multiplies it by
+  # `n`, which `check_grimmer_exact()` keeps below `2^53`:
+  bound <- lowest_terms(num, denom)
+  numerator <- bound$num^2 * items^2
+  denom_sq <- bound$den^2
+
+  # `n_dev * numerator` can pass `2^53` well before the sums of squares do, so
+  # the whole part and the remainder are found by exact products:
+  whole <- floor_product_ratio(n_dev, numerator, denom_sq)$floor
   list(
-    int = n_dev * whole,
-    num = n_dev * (numerator - whole * denom_sq),
+    int = whole,
+    num = product_difference(n_dev, numerator, whole, denom_sq),
     den = denom_sq
   )
 }

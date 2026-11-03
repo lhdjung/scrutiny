@@ -273,3 +273,11 @@ test_that("a mapper records an enum setting it was not given as its first value"
   out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
   out |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })
+
+test_that("`compare_products()` and `floor_product_ratio()` are exact beyond 2^53", {
+  (2^52 + 1) |> compare_products(2^52 - 1, 2^52, 2^52)     |> expect_equal(-1)
+  (2^52 + 1) |> compare_products(2^52 + 1, 2^52, 2^52 + 2) |> expect_equal(1)
+  3          |> compare_products(2^52 + 1, 2^52 + 1, 3)    |> expect_equal(0)
+  3 |> floor_product_ratio(2^52 + 1, 3) |> expect_equal(list(floor = 2^52 + 1, exact = TRUE))
+  3 |> floor_product_ratio(2^51 + 1, 2) |> expect_equal(list(floor = 3 * 2^50 + 1, exact = FALSE))
+})

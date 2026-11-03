@@ -351,6 +351,87 @@ check_sum_range_exact <- function(x_num, n_items, digits) {
 }
 
 
+# Euclid's algorithm, exact for whole numbers below `2^53`. Reducing a rounding
+# bound such as 1640625 / 10^6 to 105 / 64 keeps the products that the tests
+# compare it in far below that limit:
+gcd <- function(a, b) {
+  while (b > 0) {
+    remainder <- a %% b
+    a <- b
+    b <- remainder
+  }
+  a
+}
+
+lowest_terms <- function(num, den) {
+  divisor <- gcd(abs(num), den)
+  list(num = num / divisor, den = den / divisor)
+}
+
+
+# The sign of `a * b - c * d` for whole numbers below `2^53`, exact although
+# the products may reach `2^106`. Each product is the double nearest to it plus
+# the exact remainder, found by splitting the factors into halves of 26 bits
+# (Dekker, 1971). Rounding to the nearest double never reverses an order, so
+# the nearest doubles decide unless they are equal, and the remainders then do.
+compare_products <- function(a, b, c, d) {
+  ab <- two_product(a, b)
+  cd <- two_product(c, d)
+  if (ab[[1L]] != cd[[1L]]) {
+    return(sign(ab[[1L]] - cd[[1L]]))
+  }
+  sign(ab[[2L]] - cd[[2L]])
+}
+
+two_product <- function(a, b) {
+  product <- a * b
+  a_high <- split_high(a)
+  b_high <- split_high(b)
+  a_low <- a - a_high
+  b_low <- b - b_high
+  remainder <- ((a_high * b_high - product) +
+    a_high * b_low +
+    a_low * b_high) +
+    a_low * b_low
+  c(product, remainder)
+}
+
+split_high <- function(a) {
+  scaled <- 134217729 * a # 2^27 + 1
+  scaled - (scaled - a)
+}
+
+
+# `a * b - c * d` for whole numbers below `2^53` whose products may pass it,
+# as long as the difference itself is below `2^53`. The nearest doubles of the
+# products are then so close that subtracting them is exact (Sterbenz), and so
+# is subtracting the remainders, which are whole numbers below `2^53`.
+product_difference <- function(a, b, c, d) {
+  ab <- two_product(a, b)
+  cd <- two_product(c, d)
+  (ab[[1L]] - cd[[1L]]) + (ab[[2L]] - cd[[2L]])
+}
+
+
+# `floor(a * b / d)` for whole numbers below `2^53` whose quotient is below it,
+# too, plus whether the division is exact. The quotient in floating point is
+# off by a few units at most, which `compare_products()` corrects:
+floor_product_ratio <- function(a, b, d) {
+  q <- floor(a * b / d)
+  # Not a whole number any more, let alone exact; the callers refuse it:
+  if (q >= 2^53) {
+    return(list(floor = q, exact = FALSE))
+  }
+  while (q > 0 && compare_products(q, d, a, b) > 0) {
+    q <- q - 1
+  }
+  while (compare_products(q + 1, d, a, b) <= 0) {
+    q <- q + 1
+  }
+  list(floor = q, exact = compare_products(q, d, a, b) == 0)
+}
+
+
 # Round the values within `WHOLE_NUMBER_TOLERANCE` of a whole number to it, so
 # that a value is tested as the whole number it is accepted as: `100 * 0.29` is
 # 28.999999999999996, which `is_decidable_n_items()` takes for 29, but the
