@@ -130,9 +130,15 @@ check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
   meta_x <- attr(x, "scrutiny", exact = TRUE)
   meta_y <- attr(y, "scrutiny", exact = TRUE)
   same_class <- identical(class(x), class(y))
+  # Pieces of one output share the very same record, which `identical()` sees
+  # at once; comparing it element by element would make binding many pieces
+  # take quadratic time:
   if (
     same_class &&
-      (is.null(meta_x) || is.null(meta_y) || same_value(meta_x, meta_y))
+      (is.null(meta_x) ||
+        is.null(meta_y) ||
+        identical(meta_x, meta_y) ||
+        same_value(meta_x, meta_y))
   ) {
     return(invisible(NULL))
   }
