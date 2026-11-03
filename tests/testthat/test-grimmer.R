@@ -1337,3 +1337,9 @@ test_that("a large mean is exact as long as the sums of squares are", {
     grimmer(round(mean(values), 2), round(stats::sd(values), 2), 1000, 2, 2, 1) |> expect_true()
   }
 })
+
+test_that("only the sums that GRIMMER tests count toward its limit", {
+  # The mean admits some 7.4 million sums, but only `n` of them are distinct
+  # modulo `n`, and only these are tested:
+  grimmer(-1, 0.11235448985, 59299, 0, 11, 125, rounding = "ceiling_or_floor", sd_meaning = "sd_pop") |> expect_true()
+})

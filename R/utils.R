@@ -172,10 +172,10 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 
 #' Refuse too many candidate sums for GRIMMER
 #'
-#' @description `grimmer_scalar()` loops over every integer sum the reported
-#'   mean admits, about `n * items_averaged / 10^digits_x` of them, so a huge
-#'   `n` (e.g., a typo) would run for a very long time. The limit is far above
-#'   any published summary statistic.
+#' @description `grimmer_scalar()` loops over the integer sums the reported
+#'   mean admits, about `n * items_averaged / 10^digits_x` of them, but no more
+#'   than `n`, so a huge `n` (e.g., a typo) would run for a very long time. The
+#'   limit is far above any published summary statistic.
 #'
 #' @param bounds Numeric (length 2). The `c(lower, upper)` of the sums.
 #' @param n,digits_x Numeric (length 1). For the message.
@@ -189,8 +189,8 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
   if (isTRUE(size > limit)) {
     abort_in_export(
       "`n` is too large for GRIMMER.",
-      "x" = "With `n = {n}` and `digits_x = {digits_x}`, the mean admits \
-      {round(size)} integer sums, and GRIMMER checks each of them.",
+      "x" = "With `n = {n}` and `digits_x = {digits_x}`, GRIMMER checks \
+      {round(size)} candidate sums.",
       "i" = "The limit is {limit}."
     )
   }
