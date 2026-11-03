@@ -1473,8 +1473,7 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
       "`threshold` has too many decimal places for an exact test.",
       "x" = "It is {threshold}, which roundwork can't scale to whole \\
       numbers, so the rounding bounds would not be exact.",
-      "i" = "From roundwork 0.1.1 on, a `threshold` with up to six decimal \\
-      places is exact."
+      "i" = "A `threshold` with up to six decimal places is exact."
     )
   }
   invisible(NULL)

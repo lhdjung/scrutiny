@@ -443,12 +443,9 @@ test_that("a decimal `threshold` counts toward the digits that must stay exact",
   # 4.5 scales the bounds by 10, so 14 decimal places are too many for `x = 1`:
   1 |> grim(2, 14, 1, rounding = "down_from", threshold = 4.5) |> expect_error("multiply this by 10")
   1 |> grim(2, 13, 1, rounding = "down_from", threshold = 4.5) |> expect_true()
-  # roundwork 0.1.0 can't scale 9.99, which no double holds exactly, to whole
-  # numbers; later versions can:
-  if (utils::packageVersion("roundwork") <= "0.1.0") {
-    1 |> grim(2, 2, 1, rounding = "down_from", threshold = 9.99) |> expect_error("too many decimal places")
-  } else {
-    1 |> grim(2, 14, 1, rounding = "down_from", threshold = 9.99) |> expect_error("multiply this by 100")
-    1 |> grim(2, 2,  1, rounding = "down_from", threshold = 9.99) |> expect_true()
-  }
+  # 9.99, which no double holds exactly, scales to whole numbers by 100:
+  1 |> grim(2, 14, 1, rounding = "down_from", threshold = 9.99) |> expect_error("multiply this by 100")
+  1 |> grim(2, 2,  1, rounding = "down_from", threshold = 9.99) |> expect_true()
+  # roundwork scales up to six decimal places:
+  1 |> grim(2, 2,  1, rounding = "down_from", threshold = 1.2345678) |> expect_error("too many decimal places")
 })
