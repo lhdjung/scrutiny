@@ -206,9 +206,6 @@ test_that("strings and factors are tested by their numeric values", {
 test_that("a vector of nothing but `NA` returns `NA`, whatever its type", {
   c(NA, NA, NA)                     |> is_seq_linear()     |> expect_na()
   rep(NA_character_, 3L)            |> is_seq_linear()     |> expect_na()
-  # A missing string might be no number at all, unlike `c(NA, NA)` below:
-  c(NA_character_, NA_character_)   |> is_seq_linear()     |> expect_na()
-  NA_character_                     |> is_seq_linear()     |> expect_na()
   c(NA, NA, NA)                     |> is_seq_ascending()  |> expect_na()
   c(NA, NA, NA) |> is_seq_dispersed(from = 5) |> expect_na()
 })
@@ -342,4 +339,28 @@ test_that("anything but a numeric, character, or factor vector is an error", {
   c(NA, NA, NA)                 |> is_seq_linear()          |> expect_na()
   c("a", "b")                   |> is_seq_linear()          |> expect_false()
   factor(c("1", "2", "3"))      |> is_seq_linear()          |> expect_true()
+})
+
+test_that("`tolerance` admits the rounding error of arithmetic on the values", {
+  # `dplyr::near()` compares with `<`, so a `tolerance` of 0 failed everything:
+  1:3          |> is_seq_linear(tolerance = 0)                |> expect_true()
+  1:3          |> is_seq_ascending(tolerance = 0)             |> expect_true()
+  c(1, 2, 3)   |> is_seq_dispersed(from = 2, tolerance = 0)   |> expect_true()
+  c(1, NA, 3)  |> is_seq_linear(tolerance = 0)                |> expect_na()
+  c(1, NA, 4)  |> is_seq_dispersed(from = 2, tolerance = 0)   |> expect_false()
+  c(0.1, 0.2, 0.3) |> is_seq_linear(tolerance = 0)            |> expect_true()
+  # Steps between large values are off by more than the default tolerance:
+  s <- seq_disperse("123456789.01", dispersion = 1:3)
+  s |> is_seq_linear()                                        |> expect_true()
+  s |> is_seq_dispersed(from = "123456789.01")                |> expect_true()
+  c(123456789.01, 123456789.02, 123456789.04) |> is_seq_linear() |> expect_false()
+})
+
+test_that("a missing string is a missing number", {
+  c(NA_character_, NA_character_) |> is_seq_linear() |> expect_true()
+  NA_character_                   |> is_seq_linear() |> expect_true()
+  factor(NA)                      |> is_seq_linear() |> expect_true()
+  c("NA", "NA")                   |> is_seq_linear() |> expect_true()
+  c("1", NA_character_)           |> is_seq_linear() |> expect_true()
+  c(NA_character_, NA, NA)        |> is_seq_linear() |> expect_na()
 })

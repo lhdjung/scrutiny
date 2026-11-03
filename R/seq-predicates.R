@@ -10,6 +10,16 @@ is_seq_descending_basic <- function(x) {
 }
 
 
+# Like `dplyr::near()`, but a `tolerance` of 0 means exact, and no tolerance is
+# finer than the rounding error of arithmetic on numbers as large as `values`:
+# steps between values of about 1e8 are off by 1e-8 already, which the default
+# would reject. `NA` for an infinity, as `near(Inf, Inf)` is:
+near_seq <- function(x, y, tolerance, values) {
+  magnitude <- max(abs(values[is.finite(values)]), 0)
+  abs(x - y) <= max(tolerance, 8 * .Machine$double.eps * magnitude)
+}
+
+
 # The sequence predicates take numbers, or strings or factors that may show
 # them, such as `"1.10"` with its trailing zero. Anything else is a mistake in
 # the call, not a sequence that fails the test: a data frame or a list would
@@ -85,14 +95,12 @@ is_seq_basic <- function(
   }
 
   # A vector of all `NA`s leaves the question open, whatever its type -- unless
-  # no values could close it: any one or two numbers are linear. A string could
-  # be no number, so only a logical or numeric `NA` is sure to be one.
+  # no values could close it: any one or two numbers are linear. A missing
+  # string stands for a missing number, as the string `"NA"` does below.
   # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
   # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
   if (length(x) > 0L && all(is.na(x))) {
-    linear_anyway <- is.null(test_special) &&
-      length(x) <= 2L &&
-      (is.logical(x) || is.numeric(x))
+    linear_anyway <- is.null(test_special) && length(x) <= 2L
     return(if (linear_anyway) TRUE else NA)
   }
 
@@ -145,7 +153,7 @@ is_seq_basic <- function(
       steps <- diff(x[known]) / diff(known)
       if (
         (length(x_orig) > 2L && any(is.infinite(x[known]))) ||
-          !isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))
+          !isTRUE(all(near_seq(steps, steps[1L], tolerance, x)))
       ) {
         return(FALSE)
       }
@@ -175,7 +183,7 @@ is_seq_basic <- function(
           centers <- (x_orig + rev(x_orig)) / 2
           pass_pairs <- is.finite(from) &&
             !any(is.infinite(x_orig)) &&
-            all(dplyr::near(centers[!is.na(centers)], from, tol = tolerance))
+            all(near_seq(centers[!is.na(centers)], from, tolerance, c(x, from)))
           # Two known values of a linear sequence fix its step, and so its
           # central value, even if no mirrored pair is known in full:
           known_orig <- which(!is.na(x_orig))
@@ -183,7 +191,7 @@ is_seq_basic <- function(
             step <- steps[1L]
             center <- x_orig[known_orig[1L]] +
               step * ((length(x_orig) + 1L) / 2L - known_orig[1L])
-            pass_pairs && dplyr::near(center, from, tol = tolerance)
+            pass_pairs && near_seq(center, from, tolerance, c(x, from))
           } else {
             pass_pairs
           }
@@ -204,7 +212,7 @@ is_seq_basic <- function(
   # step, hence `isTRUE()`, here and in the other tests:
   if (test_linear && length(x) > 2L) {
     steps <- diff(x)
-    if (!isTRUE(all(dplyr::near(steps, steps[1L], tol = tolerance)))) {
+    if (!isTRUE(all(near_seq(steps, steps[1L], tolerance, x)))) {
       return(FALSE)
     }
   }
@@ -249,7 +257,10 @@ is_seq_basic <- function(
 #' @param test_linear Logical. Should linearity be tested as well? Default is
 #'   `TRUE`. Not in `is_seq_linear()`.
 #' @param tolerance Numeric. Tolerance for comparing values. Default is about
-#'   `1.5e-8`, as in [`dplyr::near()`].
+#'   `1.5e-8`, as in [`dplyr::near()`]. Any tolerance is widened to the
+#'   rounding error of arithmetic on the values, about `2e-15` times the
+#'   largest, so `0` allows that error only, and large values such as
+#'   `123456789.01` are compared as precisely as doubles can.
 #'
 #' @return Logical (length 1). If `x` contains `NA`:
 #'   - `NA` if some values substituted for the `NA`s would make `x` the kind of
@@ -387,7 +398,7 @@ is_seq_dispersed_basic <- function(
   index_central_x <- index_central(x)
 
   # `isTRUE()` because `near(Inf, Inf)` is `NA`:
-  if (!isTRUE(dplyr::near(x[index_central_x], from, tolerance))) {
+  if (!isTRUE(near_seq(x[index_central_x], from, tolerance, c(x, from)))) {
     return(FALSE)
   }
 
@@ -396,5 +407,5 @@ is_seq_dispersed_basic <- function(
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
-  all(dplyr::near(from, from_reconstructed, tolerance))
+  all(near_seq(from, from_reconstructed, tolerance, c(x, from)))
 }

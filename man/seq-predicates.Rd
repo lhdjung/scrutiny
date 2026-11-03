@@ -29,7 +29,10 @@ values are \code{NA}. Any other type, such as a list or a data frame, is an
 error.}
 
 \item{tolerance}{Numeric. Tolerance for comparing values. Default is about
-\code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}.}
+\code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}. Any tolerance is widened to the
+rounding error of arithmetic on the values, about \code{2e-15} times the
+largest, so \code{0} allows that error only, and large values such as
+\code{123456789.01} are compared as precisely as doubles can.}
 
 \item{test_linear}{Logical. Should linearity be tested as well? Default is
 \code{TRUE}. Not in \code{is_seq_linear()}.}
