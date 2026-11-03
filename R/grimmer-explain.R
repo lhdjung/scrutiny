@@ -168,7 +168,7 @@ grimmer_explain <- function(
 
   # With the mean unknown, the only way to a verdict is an SD that no sum of
   # whole numbers admits; `grimmer_scalar()` checked every sum by its remainder
-  # and parity:
+  # when divided by `n`:
   if (is.na(x) || is.na(digits_x)) {
     sd_bounds <- grimmer_sd_bounds(
       sd = sd,
@@ -190,7 +190,8 @@ grimmer_explain <- function(
       sd_bounds$incl_upper
     )
     text_sums <- paste0(
-      "x is missing, so the sum of the ",
+      if (is.na(x)) "x" else "digits_x",
+      " is missing, so the sum of the ",
       if (items_averaged == 1) "values" else "respondents' totals",
       " is unknown. But whether a sum admits the SD only depends on its ",
       "remainder when divided by ",
@@ -198,8 +199,8 @@ grimmer_explain <- function(
       ", and none passes: for a sum with any remainder, ",
       "the sums of squares that ",
       n,
-      " whole numbers with that sum can have miss the range that the SD ",
-      "requires."
+      if (n == 1) " whole number" else " whole numbers",
+      " with that sum can have miss the range that the SD requires."
     )
     return(explain(c(text_bounds, text_sums)))
   }

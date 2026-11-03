@@ -262,3 +262,9 @@ test_that("a negative zero is shown as zero", {
   -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3")
   -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> format() |> paste(collapse = " ") |> expect_no_match("-0.0[^0-9]")
 })
+
+test_that("an explanation names the missing value that left the mean unknown", {
+  grimmer_explain(5.2, 0.3, 4, NA, 1, 1) |> format() |> expect_match("digits_x is missing")
+  debit_explain(0.5, 0.9, 10, NA, 1)     |> format() |> expect_match("digits_x is missing")
+  grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop") |> format() |> expect_match("1 whole number with")
+})

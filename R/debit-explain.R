@@ -163,16 +163,19 @@ debit_explain <- function(
       bounds_sd$incl_lower,
       bounds_sd$incl_upper
     )
+    name_missing <- if (is.na(x)) "x" else "digits_x"
     text_none <- if (formula == "exact") {
       paste0(
-        "x is missing, so the number of ones is unknown. But it is a whole ",
+        name_missing,
+        " is missing, so the number of ones is unknown. But it is a whole ",
         "number from 0 to ",
         n,
         ", and none of these gives an SD in that range."
       )
     } else {
       paste0(
-        "x is missing, so the mean is unknown. But it lies between 0 and 1, ",
+        name_missing,
+        " is missing, so the mean is unknown. But it lies between 0 and 1, ",
         "and no mean in that range gives an SD in the SD's range."
       )
     }
