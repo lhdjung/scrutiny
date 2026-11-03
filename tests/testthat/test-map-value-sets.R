@@ -246,10 +246,20 @@ test_that("a value within tolerance of a whole number is tested as that number",
 
 test_that("a test runs in a data mask, called from a user's function", {
   # A function called in a data mask names itself as its parent in
-  # `sys.parents()`, which made `name_last_export()` loop forever:
+  # `sys.parents()`, which made `name_last_export()` loop forever. The time
+  # limit makes a relapse fail instead of hang:
+  setTimeLimit(elapsed = 10, transient = TRUE)
+  on.exit(setTimeLimit(), add = TRUE)
   test <- function(x, n) grim(x, n, digits_x = 2, items_averaged = 1)
   tibble::tibble(x = c(3.41, 3.43), n = 35) |>
     dplyr::mutate(consistency = test(x, n)) |>
     dplyr::pull(consistency) |>
     expect_equal(c(FALSE, TRUE))
+  # roundwork walks the stack with its own copy of that code when it rejects an
+  # argument, so it needs the fix as well (roundwork > 0.1.0):
+  bad <- function(x) grim(x, 35, digits_x = 2, items_averaged = 1, rounding = "nope")
+  rlang::eval_tidy(quote(bad(x)), list(x = 3.41)) |>
+    expect_error(class = "rlang_error") |>
+    call_on(\(e) e$call) |>
+    expect_identical(quote(grim(x, 35, digits_x = 2, items_averaged = 1, rounding = "nope")))
 })
