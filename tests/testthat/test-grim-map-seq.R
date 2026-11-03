@@ -499,10 +499,7 @@ pigs1_exp <- tibble::tibble(
 ) |>
   structure(
     # The verdicts of the reported value sets, which `audit_seq()` reports:
-    scrutiny = meta_seq(
-      grim_map(pigs1, digits_x = 2, items_averaged = 1)$consistency,
-      pigs1
-    ),
+    scrutiny = meta_seq(grim_map(pigs1, digits_x = 2, items_averaged = 1)),
     class = c(
       "scrutiny_map_seq",
       "scrutiny_grim_map_seq",
@@ -832,13 +829,7 @@ pigs2_exp <- tibble::tibble(
 ) |>
   structure(
     scrutiny = meta_seq(
-      grim_map(
-        pigs2,
-        digits_x = 1,
-        items_averaged = 1,
-        percent = TRUE
-      )$consistency,
-      pigs2,
+      grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE),
       percent = TRUE
     ),
     class = c(
@@ -1396,8 +1387,7 @@ pigs1_include_reported_exp <- tibble::tibble(
 ) |>
   structure(
     scrutiny = meta_seq(
-      grim_map(pigs1, digits_x = 2, items_averaged = 1)$consistency,
-      pigs1,
+      grim_map(pigs1, digits_x = 2, items_averaged = 1),
       include_reported = TRUE
     ),
     class = c(

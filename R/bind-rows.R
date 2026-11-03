@@ -8,9 +8,9 @@
 # make such a combination an error; pieces of one output, as from `filter()`
 # or `[`, have identical attributes and combine as before. Basic mappers record
 # only settings, since each row stands alone, but sequence and total-n output
-# number their cases from 1, so they record the key columns of their input as
-# well: otherwise, two calls with the same settings would combine, and
-# `audit_seq()` would count two cases as one.
+# number their cases from 1, so they record the values they tested as well --
+# key and helper columns, `digits_*`: otherwise, two calls with the same
+# settings would combine, and `audit_seq()` would count two cases as one.
 #
 # vctrs dispatches on the first class of each input, so a method is needed for
 # every pair of classes that come first in a mapper's output, in either order:

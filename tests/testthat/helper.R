@@ -37,10 +37,10 @@ grim_args_default <- list(
 grim_settings_default <- settings_tbl(grim_args_default, TRUE, "grim_map")
 
 
-# The whole `"scrutiny"` attribute of `grim_map_seq()` output:
+# The whole `"scrutiny"` attribute of `grim_map_seq()` output, given the
+# `grim_map()` output of its reported value sets:
 meta_seq <- function(
-  results_reported,
-  values_reported,
+  tested,
   percent = FALSE,
   var = c("x", "n"),
   include_reported = FALSE
@@ -73,10 +73,10 @@ meta_seq <- function(
         "grim_map_seq"
       )
     ),
-    results_reported = results_reported,
+    results_reported = tested$consistency,
     name_key_result = "consistency",
     dispersion_linear = TRUE,
-    values_reported = as.list(values_reported)[c("x", "n")]
+    values_reported = as.list(tested)[c("x", "n", "items_averaged", "digits_x")]
   )
 }
 

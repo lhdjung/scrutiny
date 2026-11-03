@@ -73,3 +73,15 @@ test_that("output of sequence and total-n calls on different data is not combine
   sum2 <- data |> add_up_to_map(summands = c(a, b), total = total)
   sum3 |> dplyr::bind_rows(sum2) |> expect_error("Can't combine")
 })
+
+test_that("calls that differ in a helper or a decimal count can't be combined", {
+  df <- tibble::tibble(x = 5.19, n = 28)
+  seq_1 <- df |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  dplyr::bind_rows(seq_1, df |> grim_map_seq(digits_x = 2, items_averaged = 2)) |> expect_error("different calls")
+  dplyr::bind_rows(seq_1, df |> grim_map_seq(digits_x = 3, items_averaged = 1)) |> expect_error("different calls")
+  df_tot <- tibble::tibble(x1 = 3.1, x2 = 2.9, n = 41)
+  tot_1 <- df_tot |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  dplyr::bind_rows(tot_1, df_tot |> grim_map_total_n(digits_x = 2, items_averaged = 2)) |> expect_error("different calls")
+  dplyr::bind_rows(tot_1, df_tot |> dplyr::mutate(items_averaged = 2) |> grim_map_total_n(digits_x = 2)) |> expect_error("different calls")
+  dplyr::bind_rows(tot_1[1:3, ], tot_1[-(1:3), ]) |> expect_equal(tot_1)
+})

@@ -392,7 +392,6 @@ function_map_seq <- function(
       # the output. The input's column names tell the result columns apart
       # from the rest of `data` below:
       cols_input <- colnames(data)
-      values_reported <- as.list(data)[reported]
       data <- do.call(
         fn,
         c(list(data), digits_vals, helper_vals, setting_vals, list(...))
@@ -403,6 +402,13 @@ function_map_seq <- function(
       # Mapper and sequence mapper must have the same `.name_key_result`. Catch
       # a mismatch here, not as a `NULL` further down:
       check_key_result_col(data, name_key_result, name_fn)
+
+      # What `fn()` tested: the key columns, helper columns such as
+      # `items_averaged`, and the `digits_*` columns, all left of the key
+      # result:
+      values_reported <- as.list(data)[
+        seq_len(match(name_key_result, colnames(data)) - 1L)
+      ]
 
       # Like `dplyr::filter(data, !consistency)`, but much faster. `which()`
       # drops the `NA` of an undecidable case, which has no values to disperse;
@@ -575,7 +581,7 @@ function_map_seq <- function(
       # - `dispersion_linear`: `audit_seq()` and `reverse_map_seq()` require a
       #   linearly increasing `dispersion`. A single step is trivially linear,
       #   but `is_seq_ascending()` needs two.
-      # - `values_reported`: the key columns of the input, so that output of
+      # - `values_reported`: the tested columns of the input, so that output of
       #   calls on different data can't be combined, which would number two
       #   cases as one (see `R/bind-rows.R`).
       meta_fn$settings <- dplyr::bind_rows(

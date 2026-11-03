@@ -673,10 +673,17 @@ function_map_total_n <- function(
       # `reverse_map_total_n()` needs to know which columns were reported for
       # both groups; their place relative to `n` depends on the basic mapper:
       meta$reported <- `!!`(.reported)
-      # The key columns of the input, so that output of calls on different
+      # What was tested: the key and helper columns of the input and the
+      # `digits_*` and helper arguments, so that output of calls on different
       # data can't be combined, which would number two cases as one (see
       # `R/bind-rows.R`):
-      meta$values_reported <- as.list(data)[c(reported_reduplicated, "n")]
+      # A helper is recorded the same way as a column or an argument:
+      meta$values_reported <- c(
+        as.list(data)[c(reported_reduplicated, "n")],
+        digits_vals,
+        as.list(data)[intersect(`!!`(args_helper_fn), colnames(data))],
+        helper_vals
+      )
       attr(out, "scrutiny") <- meta
 
       # A case whose total leaves no pair of group sizes within the limits has

@@ -171,7 +171,7 @@ df2_rows_1_3_expected <- tibble::tibble(
         )
       ),
       reported = "x",
-      values_reported = as.list(df2)
+      values_reported = c(as.list(df2), list(digits_x = 2, items_averaged = 1))
     ),
     class = c(
       "scrutiny_map_total_n",
