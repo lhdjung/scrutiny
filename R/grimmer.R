@@ -587,6 +587,14 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`
 #'   decides exactly whether a mean and SD are possible within the bounds.
 #'
+#'   `x` and `sd` are limited to about 15 significant digits, as in
+#'   [`grim()`]. Beyond that, `grimmer()` decides value sets of any size
+#'   exactly, but refuses some it would take too long to decide, none of which
+#'   occur in practice: an SD of about 3e5 or more for `n` from 2 to 4
+#'   (divided by `items_averaged`), an `n` of 2^52 or more, and a value set
+#'   that leaves more than a million candidate sums to test, which takes an
+#'   `n` of more than a million.
+#'
 #' @param x Numeric. The reported mean.
 #' @param sd Numeric. The reported standard deviation.
 #' @param n Integer. The reported sample size.

@@ -291,7 +291,8 @@ grim_total <- function(
 
   # A double, not an integer: from `digits_x = 10` on (8 with `percent =
   # TRUE`), the count can exceed `.Machine$integer.max`, and the type should not
-  # depend on the values. Doubles are exact for whole numbers up to 2^53.
+  # depend on the values. Doubles are exact for whole numbers up to 2^53; a
+  # count beyond is the nearest double, as documented.
   #
   # If the possible means lie closer together than the rounding interval is
   # wide, every reported value is consistent. The subtraction then gives a

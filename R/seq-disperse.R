@@ -36,7 +36,8 @@
 #'   `seq_disperse_df()`.
 #'
 #' @details Unlike [`base::seq()`], these functions need not return a regular
-#'   sequence: `dispersion` can be any numeric vector.
+#'   sequence: `dispersion` can be any non-negative whole numbers, in any
+#'   order, such as `c(1, 4, 9)`. Steps of 0 and repeated steps are dropped.
 #'
 #' @return
 #'   - `seq_disperse()` returns a numeric vector, which is integer if `from`

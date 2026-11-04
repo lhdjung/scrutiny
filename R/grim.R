@@ -149,6 +149,12 @@ grim_scalar <- function(
 #'   common length by the tidyverse rules: an argument has length 1 or the
 #'   length of the longest. All other arguments must have length 1.
 #'
+#'   Numbers beyond the precision of a double are an error rather than a
+#'   guess. `x` with its `digits_x` may have about 15 significant digits:
+#'   `x * 10^(digits_x + 1)` must be below 2^52, about 4.5e15, and
+#'   `(x * 10^(digits_x + 1) + 10) * n * items_averaged` below 2^53, about
+#'   9e15. A `threshold` with decimal places raises the power of ten.
+#'
 #' @param x Numeric. The reported mean or percentage.
 #' @param n Integer. The reported sample size.
 #' @param digits_x Integer. The number of decimal places in `x`, including

@@ -83,7 +83,8 @@ of \code{seq_disperse()} with a leading dot.
 }
 \details{
 Unlike \code{\link[base:seq]{base::seq()}}, these functions need not return a regular
-sequence: \code{dispersion} can be any numeric vector.
+sequence: \code{dispersion} can be any non-negative whole numbers, in any
+order, such as \code{c(1, 4, 9)}. Steps of 0 and repeated steps are dropped.
 }
 \examples{
 seq_disperse(from = 4.02)

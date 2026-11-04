@@ -76,6 +76,12 @@ would let multi-item scales pass unnoticed.
 \code{x}, \code{n}, \code{digits_x}, and \code{items_averaged} are vectorized and recycled to a
 common length by the tidyverse rules: an argument has length 1 or the
 length of the longest. All other arguments must have length 1.
+
+Numbers beyond the precision of a double are an error rather than a
+guess. \code{x} with its \code{digits_x} may have about 15 significant digits:
+\code{x * 10^(digits_x + 1)} must be below 2^52, about 4.5e15, and
+\code{(x * 10^(digits_x + 1) + 10) * n * items_averaged} below 2^53, about
+9e15. A \code{threshold} with decimal places raises the power of ten.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:

@@ -69,6 +69,10 @@ testing many cases.
 \code{x}, \code{sd}, \code{n}, \code{digits_x}, and \code{digits_sd} are vectorized and
 recycled to a common length by the tidyverse rules. All other arguments
 must have length 1.
+
+\code{x} and \code{sd} are limited to about 15 significant digits, as in
+\code{\link[=grim]{grim()}}. Beyond that, \code{debit()} decides value sets of any size
+exactly, but refuses an \code{n} of 2^52 or more.
 }
 \examples{
 debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)

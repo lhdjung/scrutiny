@@ -98,6 +98,14 @@ proposed by Anaya (2016).
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
 decides exactly whether a mean and SD are possible within the bounds.
+
+\code{x} and \code{sd} are limited to about 15 significant digits, as in
+\code{\link[=grim]{grim()}}. Beyond that, \code{grimmer()} decides value sets of any size
+exactly, but refuses some it would take too long to decide, none of which
+occur in practice: an SD of about 3e5 or more for \code{n} from 2 to 4
+(divided by \code{items_averaged}), an \code{n} of 2^52 or more, and a value set
+that leaves more than a million candidate sums to test, which takes an
+\code{n} of more than a million.
 }
 \section{SD meaning}{
  The sample and population SDs differ by a factor of
