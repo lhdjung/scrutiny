@@ -111,7 +111,7 @@ grim_values_scalar <- function(
   sum2 <- sums[2L]
 
   # An empty range means no whole-number sum total would have been reported as
-  # `x`; i.e., GRIM-inconsistency:
+  # `x`; i.e., GRIM inconsistency:
   if (sum1 > sum2) {
     return(grim_values_tibble(numeric(0L), parts))
   }

@@ -1,4 +1,4 @@
-#' Compare GRIM-inconsistency rates to random means
+#' Compare GRIM inconsistency rates to random means
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
@@ -11,7 +11,7 @@
 #'   Correctly reported means are always consistent. Thus, any study not on the
 #'   dotted line at zero indicates some problem; either with the study itself or
 #'   with the GRIM analysis. The dashed diagonal marks studies where
-#'   GRIM-inconsistencies are as frequent as expected if the means' digits were
+#'   GRIM inconsistencies are as frequent as expected if the means' digits were
 #'   random.
 #'
 #' @param data Data frame returned by [`grim_map()`].
@@ -144,7 +144,7 @@ grim_plot_rates <- function(data, study) {
     ) +
     ggplot2::coord_equal(xlim = c(0, 1), ylim = c(0, 1)) +
     ggplot2::labs(
-      x = "Observed GRIM-inconsistency rate",
+      x = "Observed GRIM inconsistency rate",
       y = "Rate expected for random means"
     ) +
     ggplot2::theme_minimal()

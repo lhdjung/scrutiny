@@ -2,7 +2,7 @@
 % Please edit documentation in R/grim-plot-rates.R
 \name{grim_plot_rates}
 \alias{grim_plot_rates}
-\title{Compare GRIM-inconsistency rates to random means}
+\title{Compare GRIM inconsistency rates to random means}
 \usage{
 grim_plot_rates(data, study)
 }
@@ -27,7 +27,7 @@ usage. See \emph{Details}.
 Correctly reported means are always consistent. Thus, any study not on the
 dotted line at zero indicates some problem; either with the study itself or
 with the GRIM analysis. The dashed diagonal marks studies where
-GRIM-inconsistencies are as frequent as expected if the means' digits were
+GRIM inconsistencies are as frequent as expected if the means' digits were
 random.
 }
 \details{
