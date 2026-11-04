@@ -1,0 +1,118 @@
+---
+title: "GRIMMER in depth"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GRIMMER in depth}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+# Print enough significant digits that values like `10.46` are not
+# abbreviated to `10.5` in the output tibbles:
+options(pillar.sigfig = 4)
+```
+
+```{r setup, include = FALSE}
+library(scrutiny)
+```
+
+This vignette builds on `vignette("grimmer")`, which covers the basics of GRIMMER testing with `grimmer()` and `grimmer_map()`. Here are SDs computed by other conventions, bounded scales, the means and SDs behind a test result, plots, and the values around the reported ones with `grimmer_map_seq()` and `grimmer_map_total_n()`. The last few work like their GRIM counterparts in `vignette("grim-in-depth")`.
+
+## Sample or population SD
+
+GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software, such as NumPy's `np.std()` or Excel's `STDEV.P`, reports the population SD, which divides by $n$. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
+
+```{r}
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1)
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop")
+```
+
+`sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under either convention, and the `reason` column of `grimmer_map()` says which one. It accepts more SDs than either convention alone, and a study has most likely computed all its SDs the same way, so testing under `"sd_sample"` and `"sd_pop"` separately tells you more.
+
+`sd_meaning = "se"` tests whether a standard error was reported as an SD. This test is weak; see `vignette("interpreting-results")`.
+
+## Bounded scales
+
+GRIMMER does not use the bounds of a scale. For data on a bounded scale, such as a five-point Likert scale, see the [strait](https://github.com/ianhussey/strait) package, whose `brimmest()` decides exactly whether a mean and SD are possible within the bounds.
+
+## Achievable means and SDs
+
+`grimmer_values()` returns every pair of a mean and an SD that a sample of `n` integers can have and that would be reported as `x` and `sd`, with the sum and sum of squares behind each. It is the counterpart of `grim_values()`, and like it, it returns one row per achievable pair, with `case` for the value set, and none if the value set is inconsistent:
+
+```{r}
+grimmer_values(x = 5.3, sd = 0.7, n = 30, digits_x = 1, digits_sd = 1, items_averaged = 1)
+grimmer_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
+```
+
+Through the integers, a statistic computed from several groups, such as a *t*-value, can be compared exactly with its reported value. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
+
+## A single value set: `grimmer_plot_values()`
+
+`grimmer_plot_values()` draws the test for a single value set, like `grim_plot_values()` does for means; it helps to explain a result. It shows the SDs that could have been reported around the reported one and marks those that a sample with the given mean and size can have:
+
+```{r, fig.width=7, fig.height=3}
+grimmer_plot_values(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1)
+```
+
+## Many value sets: `grim_plot_grid()`
+
+`grim_plot_grid()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER result:
+
+```{r, fig.width=6, fig.height=5.5}
+pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  grim_plot_grid()
+```
+
+## Values around the reported ones: `grimmer_map_seq()`
+
+`grimmer_map_seq()` varies `x`, `sd`, and `n` around the reported values, by default only for inconsistent value sets:
+
+```{r}
+out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1)
+out_seq1
+
+audit_seq(out_seq1)
+```
+
+The summary is the same as for GRIM, with `hits_sd` and the `diff_sd*` columns added. More steps typically find more hits:
+
+```{r}
+out_seq2 <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  dispersion = 1:10
+)
+audit_seq(out_seq2)
+```
+
+`grim_plot_grid()` accepts this output as well, and `var` restricts the dispersion to one variable:
+
+```{r, fig.width=6, fig.height=5.5}
+grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, var = "n") |>
+  grim_plot_grid()
+```
+
+## Unknown group sizes: `grimmer_map_total_n()`
+
+If only the total sample size of two groups is known, `grimmer_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim-in-depth")` for a case study.
+
+```{r}
+flying_pigs4 <- tibble::tribble(
+  ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
+  3.43 , 5.28 , 1.09 , 2.12 , 70 ,
+  2.97 , 4.42 , 0.43 , 1.65 , 65
+)
+
+out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1)
+out_total_n
+
+audit_total_n(out_total_n)
+```

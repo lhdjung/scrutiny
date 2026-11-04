@@ -208,6 +208,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 ## Documentation
 
+- The GRIM and GRIMMER vignettes were each split in two. `vignette("grim")` and `vignette("grimmer")` cover the basics, including how to explain a verdict with `explain_print()`; `vignette("grim-in-depth")` and `vignette("grimmer-in-depth")` cover the values behind a verdict, the sequence and total-n mappers, and, for GRIM, the GRIM statistics.
+
 - `vignette("consistency-tests-in-depth")` was updated (#74), the GRIMMER documentation was improved (#66), and "Related software" has new entries.
 
 # scrutiny 0.6.1

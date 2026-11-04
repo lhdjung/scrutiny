@@ -156,7 +156,7 @@ function_map_seq_proto <- function(
 #'   | \strong{Manufactured function}   | \strong{Dispersed variables}         | \strong{Test vignette}
 #'   | ---                              | ---                                  | ---
 #'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim-in-depth")`
-#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer")`
+#'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer-in-depth")`
 #'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'
 #'   The settings of `.fn`, i.e., its arguments after `...`, such as

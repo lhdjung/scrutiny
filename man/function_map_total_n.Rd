@@ -49,7 +49,7 @@ defaults to \code{NULL}, which stands for that value.}
 A function such as these:\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
    \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"x"} \tab \code{vignette("grim-in-depth")} \cr
-   \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer")} \cr
+   \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer-in-depth")} \cr
    \code{\link[=debit_map_total_n]{debit_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
 }
 

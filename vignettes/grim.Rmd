@@ -1,9 +1,9 @@
 ---
-title: "GRIM"
+title: "GRIM basics"
 output:
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{GRIM}
+  %\VignetteIndexEntry{GRIM basics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 bibliography: references.bib
@@ -25,7 +25,7 @@ library(scrutiny)
 
 Granularity-related inconsistency of means, or GRIM, tests whether a reported mean or percentage of integer data is possible given the reported sample size [@brown_grim_2017]. The mean of $n$ integers is a whole number divided by $n$, so only certain values can occur. If none of these values would have been reported as the reported mean, given its number of decimal places, the mean and the sample size are GRIM-inconsistent.
 
-This vignette covers the basics: `grim()` and `grim_map()` for the test itself, `explain_print()` to explain a verdict, `audit()` for summaries, and `grim_plot_grid()` for visualization. `vignette("grim-in-depth")` goes further.
+This vignette covers the basics: `grim()` and `grim_map()` for the test itself, `explain_print()` to explain a result, `audit()` for summaries, and `grim_plot_grid()` for visualization. `vignette("grim-in-depth")` goes further.
 
 ## Basic GRIM testing
 
@@ -39,7 +39,7 @@ grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
 
 `digits_x` is the number of decimal places the mean was reported with. It cannot be inferred from the value, because a mean reported as 5.30 is stored as `5.3`.
 
-`items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below. Neither argument has a default, since the verdict depends on both.
+`items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below. Neither argument has a default, since the result depends on both.
 
 `grim()` is vectorized, but for more than a few cases, `grim_map()` is more convenient.
 
@@ -70,7 +70,7 @@ grim_map(flying_pigs1, digits_x = 2, items_averaged = 1)
 If a mean is the average of several items, it is a multiple of $1 / (n \cdot \text{items})$ rather than of $1 / n$. Give the number of items, not of scale points, as `items_averaged`: a mean over three 7-point items has `items_averaged = 3`. Taken as single items, half of these means from a three-item scale are wrongly flagged:
 
 ```{r}
-jpap_1 <- tibble::tribble(
+scale_means <- tibble::tribble(
   ~x   ,
   5.90 ,
   5.71 ,
@@ -81,17 +81,17 @@ jpap_1 <- tibble::tribble(
 ) |>
   dplyr::mutate(n = 40)
 
-jpap_1 |>
+scale_means |>
   grim_map(digits_x = 2, items_averaged = 1)
 
-jpap_1 |>
+scale_means |>
   grim_map(digits_x = 2, items_averaged = 3)
 ```
 
 An `items_averaged` column of `data` lets the number vary by row:
 
 ```{r}
-jpap_2 <- tibble::tribble(
+mixed_scales <- tibble::tribble(
   ~x   , ~items_averaged ,
   6.92 ,               1 ,
   3.48 ,               1 ,
@@ -102,7 +102,7 @@ jpap_2 <- tibble::tribble(
 ) |>
   dplyr::mutate(n = 30)
 
-jpap_2 |>
+mixed_scales |>
   grim_map(digits_x = 2)
 ```
 
@@ -111,7 +111,7 @@ jpap_2 |>
 A percentage with one decimal place is a proportion with three. `percent = TRUE` divides `x` by 100 and adds 2 to `digits_x`, so these percentages are tested as proportions with three decimal places:
 
 ```{r}
-jpap_3 <- tibble::tribble(
+percentages <- tibble::tribble(
   ~x   , ~n  ,
   32.5 , 438 ,
   35.6 , 455 ,
@@ -119,7 +119,7 @@ jpap_3 <- tibble::tribble(
   39.3 , 516 ,
 )
 
-jpap_3 |>
+percentages |>
   grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
 
@@ -127,9 +127,9 @@ GRIM is therefore much more powerful for percentages than for means with the sam
 
 A percentage can average several items, too: the mean percent correct on a test of `k` questions is a multiple of $1 / (n \cdot k)$, as is a pooled proportion of successes over `k` trials per participant. Set `items_averaged = k` in such cases.
 
-## Explaining verdicts
+## Explaining consistency results
 
-`explain_print()` explains the verdicts of `grim_map()` in plain words, with every number needed to check them by hand. It picks rows like `dplyr::slice()`, so this explains the first inconsistent value set:
+`explain_print()` explains the results of `grim_map()` in plain words, with every number needed to check them by hand. It picks rows like `dplyr::slice()`, so this explains the first inconsistent value set:
 
 ```{r}
 flying_pigs1 |>
@@ -138,7 +138,7 @@ flying_pigs1 |>
   explain_print(1)
 ```
 
-`explain_map()` adds the explanations to the data frame as an `explanation` column instead, e.g., to save them with the results. Both test each row again with the settings of the `grim_map()` call, such as `rounding`, and throw an error if a verdict differs from the `consistency` column. For a single value set, use `grim_explain()`, which takes the same arguments as `grim()`.
+`explain_map()` adds the explanations to the data frame as an `explanation` column instead, e.g., to save them with the results. Both test each row again with the settings of the `grim_map()` call, such as `rounding`, and throw an error if a result differs from the `consistency` column. For a single value set, use `grim_explain()`, which takes the same arguments as `grim()`.
 
 To see the test rather than read it, draw one value set with `grim_plot_values()`; see `vignette("grim-in-depth")`.
 
@@ -162,7 +162,7 @@ flying_pigs1 |>
 `grim_plot_grid()` takes the output of `grim_map()`:
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 <- tibble::tribble(
+many_means <- tibble::tribble(
   ~x   , ~n ,
   7.19 , 28 ,
   4.56 , 34 ,
@@ -176,7 +176,7 @@ jpap_5 <- tibble::tribble(
   5.66 , 18 ,
 )
 
-jpap_5 |>
+many_means |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   grim_plot_grid()
 ```
@@ -184,7 +184,7 @@ jpap_5 |>
 Each value set is plotted at its sample size (x-axis) and the fractional part of its mean (y-axis), in blue if consistent and red if not. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (light) or not (dark). It depends on the number of decimal places, which `grim_plot_grid()` reads from the `digits_x` column, and on the rounding method, which the mapper recorded in its output:
 
 ```{r, fig.width=6, fig.height=5.5}
-jpap_5 |>
+many_means |>
   grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
   grim_plot_grid()
 ```
@@ -195,6 +195,6 @@ In the first plot, the light vertical lines at $n = 40$ and $n = 80$ come from t
 
 ## Going further
 
-`vignette("grim-in-depth")` shows the numbers behind a verdict, tests values around the reported ones with `grim_map_seq()` and unknown group sizes with `grim_map_total_n()`, and covers the GRIM statistics. `vignette("interpreting-results")` discusses what to make of an inconsistency.
+`vignette("grim-in-depth")` shows the numbers behind a result, tests values around the reported ones with `grim_map_seq()` and unknown group sizes with `grim_map_total_n()`, and covers the GRIM statistics. `vignette("interpreting-results")` discusses what to make of an inconsistency.
 
 # References

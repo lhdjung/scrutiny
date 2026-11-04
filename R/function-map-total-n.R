@@ -219,7 +219,7 @@ function_map_total_n_proto <- function(
 #'   | \strong{Manufactured function}   | \strong{Reported statistics}  | \strong{Test vignette}
 #'   | ---                              | ---                           | ---
 #'   | [`grim_map_total_n()`]           | `"x"`                         | `vignette("grim-in-depth")`
-#'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer")`
+#'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer-in-depth")`
 #'   | [`debit_map_total_n()`]          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'
 #'   The settings of `.fn`, i.e., its arguments after `...`, such as
