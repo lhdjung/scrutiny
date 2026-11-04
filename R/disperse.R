@@ -93,7 +93,7 @@ disperse <- function(
   # Compared to the limits as the whole numbers they are shown as:
   # A step listed twice is the same pair of group sizes:
   dispersion <- unique(round_whole(dispersion))
-  check_disperse_exact(abs(n) + max(dispersion, 0), whole = is_whole_number(n))
+  check_disperse_exact(abs(n) + max(dispersion, 0))
 
   # Main part ---
 
@@ -198,6 +198,8 @@ disperse2 <- function(
   }
   # Their mean, `2.5 - 5e-10` for `2 - 1e-9` and 3, is not near-whole anymore:
   n <- round_whole(n)
+  # Checked before taking the mean, which rounds a half from 2^52 on:
+  check_disperse_exact(max(abs(n)))
 
   if (!dplyr::near(n[2L] - n[1L], 1)) {
     cli::cli_warn(c(
@@ -269,7 +271,7 @@ disperse_total <- function(
     )
   }
   n <- round_whole(n)
-  check_disperse_exact(n)
+  check_disperse_exact(n / 2)
 
   # Main part ---
 
@@ -348,26 +350,17 @@ check_constant_names <- function(constant, names_taken) {
 
 
 # From 2^53 on, a double skips whole numbers, so a step of 1 may change nothing
-# and an odd total may look even. `largest` is the largest group size or total.
-# A half-way `n`, which `disperse2()` disperses from for an odd total, needs a
-# double that holds halves, as one only does below 2^52:
-check_disperse_exact <- function(largest, whole = TRUE) {
-  if (whole && largest >= 2^53) {
+# and an odd total may look even; from 2^52 on, it skips the halves that
+# `disperse2()` disperses from. Sizes that large occur in no study, so all
+# group sizes must stay below 2^52. `largest` is the largest one:
+check_disperse_exact <- function(largest) {
+  if (largest >= 2^52) {
     abort_in_export(
       "`n` is too large to disperse exactly.",
-      "x" = "The group sizes reach {format(largest, digits = 3L)}, beyond 2^53, \\
-      about 9e15.",
-      "i" = "Beyond that, a double skips whole numbers."
-    )
-  }
-  if (!whole && largest >= 2^52) {
-    abort_in_export(
-      "`n` is too large to disperse exactly.",
-      "x" = "The values dispersed reach \\
-      {formatC(largest, format = 'f', digits = 1L)}, beyond 2^52, \\
-      about 4.5e15.",
-      "i" = "Beyond that, a double skips the halves between whole numbers, \\
-      which an odd total is split around."
+      "x" = "The group sizes reach {format(largest, digits = 3L)}, beyond \\
+      2^52, about 4.5e15.",
+      "i" = "Beyond that, a double skips halves, and from 2^53 on, whole \\
+      numbers."
     )
   }
 }

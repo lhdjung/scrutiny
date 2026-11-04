@@ -219,6 +219,10 @@ test_that("the error about fractional steps counts them as given", {
 test_that("`from` must be a number small enough to step from", {
   1e300              |> seq_disperse(dispersion = 1) |> expect_error("too large to disperse exactly")
   123456789012345678 |> seq_disperse(dispersion = 1) |> expect_error("too large to disperse exactly")
+  # A double's spacing passes 0.01 there, so values repeated and left the
+  # decimal places:
+  "80000000000000.01" |> seq_disperse(dispersion = 1:3) |> expect_error("beyond 2\\^52")
+  "4000000000000.01"  |> seq_disperse(dispersion = 1:3) |> unique() |> length() |> expect_equal(7)
   # `TRUE` was dispersed as 1:
   TRUE               |> seq_disperse()               |> expect_error("`from` must be one of these types")
 })

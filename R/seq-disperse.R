@@ -188,15 +188,16 @@ seq_disperse <- function(
     from <- round(from + (by * offset_from), digits_out)
   }
 
-  # From 2^53 units of the last decimal place on, a double skips values, so
-  # steps would collapse into one:
-  units_max <- (abs(from) / by + max(dispersion, 0)) * 10^digits_out * by
-  if (units_max >= 2^53) {
+  # From 2^52 units of the last decimal place on, a double's spacing passes a
+  # unit, so steps would collapse into one, and values would leave the decimal
+  # places. No study reports numbers that long:
+  units_max <- (abs(from) + max(dispersion, 0) * by) * 10^digits_out
+  if (units_max >= 2^52) {
     abort_in_export(
       "`from` is too large to disperse exactly.",
       "x" = "At {digits_out} decimal place{?s}, the values reach about \\
-      {format(units_max, digits = 3L)} units of the last one, beyond 2^53, \\
-      about 9e15.",
+      {format(units_max, digits = 3L)} units of the last one, beyond 2^52, \\
+      about 4.5e15.",
       "i" = "Beyond that, a double skips values."
     )
   }
