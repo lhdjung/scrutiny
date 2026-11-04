@@ -113,6 +113,9 @@ could not be decided.
 be decided.
 }
 
+A count is \code{NA} if it depends on a split that could not be decided, or on
+rows removed from the output, as by \code{filter()}.
+
 Call \code{\link[=audit]{audit()}} on \code{audit_total_n()} output to summarize these columns
 further.
 }

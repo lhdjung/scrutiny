@@ -308,3 +308,12 @@ test_that("a variable whose rows were filtered out has unknown hits", {
   # The pieces of one output, put together again, are complete:
   out |> split(out$case) |> dplyr::bind_rows() |> audit_seq() |> expect_equal(audit_seq(out))
 })
+
+test_that("`audit_total_n()` leaves hits unknown that an undecided split could add to", {
+  out <- tibble::tibble(x1 = c(NA, 5.19), x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> audit_total_n()
+  out$hits_forth      |> expect_equal(c(NA, 2L))
+  out$hits_back       |> expect_equal(c(NA, 0L))
+  out$hits_total      |> expect_equal(c(NA, 2L))
+  out$scenarios_total |> expect_equal(c(6L, 12L))
+  out$hit_rate[1]     |> expect_na()
+})

@@ -364,11 +364,23 @@ audit_total_n <- function(data) {
     purrr::map(function(x) dplyr::filter(x, dir == "back")) |>
     map_nrow_half()
 
+  # An undecidable split, with `both_consistent` missing, might be a hit, so it
+  # leaves the hits of its direction unknown, as in `audit_seq()`:
+  has_na <- function(direction) {
+    vapply(
+      df_list,
+      function(x) anyNA(x$both_consistent[x$dir == direction]),
+      logical(1L),
+      USE.NAMES = FALSE
+    )
+  }
+  hits_forth[has_na("forth")] <- NA
+  hits_back[has_na("back")] <- NA
+
   hits_total <- hits_forth + hits_back
 
-  # An undecidable split, with `both_consistent` missing, is neither a hit nor
-  # a miss, so it is left out of the total, as `audit_seq()` leaves out
-  # undecidable cases. A case with no decidable split has no hit rate:
+  # Such a split is left out of the total of scenarios, which counts the
+  # decided ones. A case with no decidable split has no hit rate:
   scenarios_total <- df_list |>
     purrr::map(function(x) dplyr::filter(x, !is.na(both_consistent))) |>
     map_nrow_half()

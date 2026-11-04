@@ -61,6 +61,9 @@
 #'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could
 #'  be decided.
 #'
+#'  A count is `NA` if it depends on a split that could not be decided, or on
+#'  rows removed from the output, as by `filter()`.
+#'
 #' @export
 #'
 #' @examples

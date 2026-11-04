@@ -98,6 +98,9 @@ could not be decided.
 \item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no split could
 be decided.
 }
+
+A count is \code{NA} if it depends on a split that could not be decided, or on
+rows removed from the output, as by \code{filter()}.
 }
 
 \examples{

@@ -93,8 +93,8 @@ distances to the nearest consistent value above and below.
 }
 
 A count or distance is \code{NA} if it depends on a dispersed value set whose
-verdict is \code{NA}, or on a variable whose reported value is missing, which
-is not dispersed.
+verdict is \code{NA}, on a variable whose reported value is missing, which
+is not dispersed, or on rows removed from the output, as by \code{filter()}.
 
 Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
 }
