@@ -501,16 +501,9 @@ debit_scalar <- function(
     error_digits_missing(sd)
   }
 
-  check_newly_numeric(
-    x,
-    digits_x,
-    scale = rounding_scale(rounding, threshold, symmetric)
-  )
-  check_newly_numeric(
-    sd,
-    digits_sd,
-    scale = rounding_scale(rounding, threshold, symmetric)
-  )
+  scale <- rounding_scale(rounding, threshold, symmetric)
+  check_newly_numeric(x, digits_x, scale = scale)
+  check_newly_numeric(sd, digits_sd, scale = scale)
 
   check_debit_inputs_all(x, sd)
 
@@ -594,13 +587,7 @@ debit_scalar <- function(
     # reported as `x`: GRIM's range of sums, confined to the 0 to `n` ones that
     # `n` binary values can have. If there is no such number, `sum_lower` is
     # greater than `sum_upper`.
-    check_sum_range_exact(
-      x,
-      n,
-      digits_x,
-      hint_items = FALSE,
-      scale = rounding_scale(rounding, threshold, symmetric)
-    )
+    check_sum_range_exact(x, n, digits_x, hint_items = FALSE, scale = scale)
     sums <- roundwork::sum_range(x, n, digits_x, rounding, threshold, symmetric)
     sums <- c(max(sums[1L], 0), min(sums[2L], n))
   } else {
