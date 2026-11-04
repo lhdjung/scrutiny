@@ -205,13 +205,19 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
   size <- sum(bounds[c(FALSE, TRUE)] - lower + 1)
   if (isTRUE(size > limit)) {
     msg_given <- if (is.null(digits_x)) {
-      "With `n = {n}` and the mean unknown"
+      "With `n = {format(n, big.mark = ',', scientific = FALSE)}` and the mean \\
+      unknown"
     } else {
-      "With `n = {n}` and `digits_x = {digits_x}`"
+      "With `n = {format(n, big.mark = ',', scientific = FALSE)}` and \\
+      `digits_x = {digits_x}`"
     }
     abort_in_export(
       "`n` is too large for GRIMMER.",
-      "x" = paste0(msg_given, ", GRIMMER checks {round(size)} candidate sums."),
+      "x" = paste0(
+        msg_given,
+        ", GRIMMER checks {format(size, big.mark = ',', scientific = FALSE)} ",
+        "candidate sums."
+      ),
       "i" = "The limit is {format(limit, big.mark = ',', scientific = FALSE)}."
     )
   }

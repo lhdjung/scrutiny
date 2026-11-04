@@ -201,27 +201,18 @@ grimmer_candidate_absolute <- function(candidate) {
 
 
 # Which sums of squares two to four whole numbers can have is worked out in
-# doubles (`sum_squares_attainable()`). The rules for two and three numbers
-# reach up to twice the sum of squares, so the range must stay below `2^52`;
-# for four, below `2^53`. Shifted, it only gets there with an SD of 4.7e7 to
-# 6.7e7, divided by `items_averaged`. One number is decided exactly in
+# doubles (`sum_squares_attainable()`), and for three, by generating the
+# numbers `x^2 + xy + y^2`, which takes seconds and gigabytes from about 2^40
+# on. That takes an SD of about 3e5 to 1e6, divided by `items_averaged`,
+# which no study reports for so few values. One number is decided exactly in
 # `grimmer_candidate()`.
 check_grimmer_attainable_exact <- function(upper, n) {
-  limit <- if (n == 4) 2^53 else 2^52
-  if (is_big(upper) || upper >= limit) {
-    msg_limit <- if (n == 4) "2^53, about 9e15" else "2^52, about 4.5e15"
-    msg_why <- if (n == 4) {
-      "beyond that, a double skips whole numbers."
-    } else {
-      "telling which of them {n} whole numbers can have takes numbers up to \\
-      twice as large, and beyond 2^53, a double skips whole numbers."
-    }
+  if (is_big(upper) || upper >= 2^40) {
     abort_in_export(
       "The SD is too large for GRIMMER with `n` from 2 to 4.",
-      "x" = paste0(
-        "With `n = {n}`, the sums of squares to test reach {msg_limit}, and ",
-        msg_why
-      ),
+      "x" = "With `n = {n}`, the sums of squares to test reach 2^40, about \\
+      1.1e12, beyond which telling which of them {n} whole numbers can have \\
+      is slow.",
       "i" = "With one or five or more values, GRIMMER has no such limit."
     )
   }
@@ -421,6 +412,7 @@ grimmer_scalar <- function(
     return(NA)
   }
 
+  all_remainders <- !x_known
   if (x_known) {
     # All integer sums consistent with the reported mean. `sum_range()` is the
     # same helper `grim_scalar()` uses, so the two always agree on which sums
@@ -436,29 +428,31 @@ grimmer_scalar <- function(
       symmetric = symmetric
     )
     # A sum passes exactly if its remainder modulo `n` does (see
-    # `grimmer_candidate()`), so `n` consecutive sums stand for all of them:
-    if (sums_consistent[[2L]] - sums_consistent[[1L]] >= n) {
-      sums_consistent[[2L]] <- sums_consistent[[1L]] + n - 1
-    }
-    check_enumeration_size(sums_consistent, n = n, digits_x = digits_x)
-  } else {
-    # With the mean unknown, any whole-number sum is a candidate. Adding 1 to
-    # each number adds `n` to the sum and keeps the deviations, so whether a sum
-    # admits the SD depends only on its remainder `r` modulo `n`, and the sums
-    # `0:(n - 1)` stand for all of them. Their least sum of squared deviations
-    # is `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a remainder further
+    # `grimmer_candidate()`), so `n` consecutive sums stand for all of them,
+    # as with the mean unknown:
+    all_remainders <- sums_consistent[[2L]] - sums_consistent[[1L]] >= n - 1
+  }
+  if (all_remainders) {
+    # Then any whole-number sum is a candidate. Adding 1 to each number adds
+    # `n` to the sum and keeps the deviations, so whether a sum admits the SD
+    # depends only on its remainder `r` modulo `n`, and the sums `0:(n - 1)`
+    # stand for all of them. Their least sum of squared deviations is
+    # `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a remainder further
     # than twice the SD's term from 0 and `n` can't pass. Skipping these keeps
-    # a tiny SD with a large `n` from taking minutes:
-    # `approx` is the term as a double, so the reach is widened against its
-    # rounding error:
+    # a tiny SD with a large `n` from taking minutes. `approx` is the term as a
+    # double, so the reach is widened against its rounding error:
     reach <- floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
     sums_consistent <- if (2 * reach + 1 >= n) {
       c(0, n - 1)
     } else {
       c(0, reach, n - reach, n - 1)
     }
-    check_enumeration_size(sums_consistent, n = n, digits_x = NULL)
   }
+  check_enumeration_size(
+    sums_consistent,
+    n = n,
+    digits_x = if (x_known) digits_x
+  )
 
   passed <- grimmer_sums_pass(sums_consistent, n, items_averaged, sd_bounds)
 
