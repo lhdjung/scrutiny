@@ -197,3 +197,9 @@ test_that("group sizes from 2^52 on are refused", {
   out <- (2^52 - 3) |> disperse_total(dispersion = 0:2)
   (out$n[c(TRUE, FALSE)] + out$n[c(FALSE, TRUE)]) |> expect_equal(rep(2^52 - 3, 3))
 })
+
+test_that("a name repeated in `constant` is an error", {
+  # Only the last of the columns was kept:
+  5 |> disperse(1, constant = list(a = 1:2, a = 3:4))             |> expect_error("`a` occurs more than once")
+  tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(a = 1:2, a = 3:4)) |> expect_error("`a` occurs more than once")
+})

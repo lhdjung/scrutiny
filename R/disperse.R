@@ -337,7 +337,10 @@ names_constant_cols <- function(constant) {
 # it, or be overwritten. Shared with `function_map_total_n()`, whose output has
 # more columns:
 check_constant_names <- function(constant, names_taken) {
-  clashes <- intersect(names_constant_cols(constant), names_taken)
+  # A repeated name would keep only the last of its columns:
+  names_cols <- names_constant_cols(constant)
+  check_unique_names(rlang::set_names(names_cols), "constant")
+  clashes <- intersect(names_cols, names_taken)
   if (length(clashes) > 0L) {
     abort_in_export(
       "`constant` has names that the output needs for other columns.",
