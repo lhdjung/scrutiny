@@ -86,8 +86,8 @@ reverse_map_total_n <- function(data) {
   # direction. If the first pair of a case is a back pair, as after
   # `filter(dir == "back")`, the rows change places:
   is_back <- data_reduced$dir[locations1] == "back"
-  data1 <- data_reduced[ifelse(is_back, locations2, locations1), ]
-  data2 <- data_reduced[ifelse(is_back, locations1, locations2), ]
+  data1 <- data_reduced[dplyr::if_else(is_back, locations2, locations1), ]
+  data2 <- data_reduced[dplyr::if_else(is_back, locations1, locations2), ]
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]

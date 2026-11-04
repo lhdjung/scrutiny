@@ -1426,7 +1426,7 @@ wrap_in_quotes_or_backticks <- function(x) {
     "`NULL`"
   } else if (is.character(x)) {
     # A missing string is no string:
-    ifelse(is.na(x), "`NA`", paste0("\"", x, "\""))
+    dplyr::if_else(is.na(x), "`NA`", paste0("\"", x, "\""))
   } else {
     paste0("`", x, "`")
   }

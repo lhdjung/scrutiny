@@ -63,7 +63,7 @@ test_that("p-values agree with the exact binomial and keep their precision", {
   set.seed(42)
   p <- runif(10L, 0.1, 0.9)
   outcomes <- rep(list(0:1), 10L) |> expand.grid() |> as.matrix()
-  prob_outcome <- outcomes |> apply(1L, function(o) prod(ifelse(o == 1L, p, 1 - p)))
+  prob_outcome <- outcomes |> apply(1L, function(o) prod(dplyr::if_else(o == 1L, p, 1 - p)))
   pmf_brute <- outcomes |> rowSums() |> factor(levels = 0:10) |> split(x = prob_outcome) |> vapply(sum, numeric(1L))
   p |> poibin_p_values("less")    |> expect_equal(unname(cumsum(pmf_brute)))
   p |> poibin_p_values("greater") |> expect_equal(unname(rev(cumsum(rev(pmf_brute)))))
