@@ -73,7 +73,7 @@ two whole numbers, out of \code{10^digits_x} (\code{10^(digits_x + 2)} with
 \code{percent = TRUE}).
 }
 
-See \code{vignette("grim")}, section \emph{GRIM statistics}.
+See \code{vignette("grim-in-depth")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:

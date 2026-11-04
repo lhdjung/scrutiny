@@ -218,7 +218,7 @@ function_map_total_n_proto <- function(
 #'
 #'   | \strong{Manufactured function}   | \strong{Reported statistics}  | \strong{Test vignette}
 #'   | ---                              | ---                           | ---
-#'   | [`grim_map_total_n()`]           | `"x"`                         | `vignette("grim")`
+#'   | [`grim_map_total_n()`]           | `"x"`                         | `vignette("grim-in-depth")`
 #'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer")`
 #'   | [`debit_map_total_n()`]          | `"x"`, `"sd"`                 | `vignette("debit")`
 #'

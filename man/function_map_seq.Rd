@@ -72,7 +72,7 @@ dispersed as well? Default is \code{FALSE}.}
 \value{
 A function such as these:\tabular{lll}{
    \strong{Manufactured function} \tab \strong{Dispersed variables} \tab \strong{Test vignette} \cr
-   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"} \tab \code{vignette("grim")} \cr
+   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"} \tab \code{vignette("grim-in-depth")} \cr
    \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("grimmer")} \cr
    \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
 }

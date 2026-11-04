@@ -11,7 +11,7 @@
 #'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
 #'   `percent = TRUE`).
 #'
-#'   See `vignette("grim")`, section *GRIM statistics*.
+#'   See `vignette("grim-in-depth")`, section *GRIM statistics*.
 #'
 #' @param x Numeric. The mean or percentage. Its value only matters if it is
 #'   missing or infinite, which makes the result `NA`; the argument mirrors

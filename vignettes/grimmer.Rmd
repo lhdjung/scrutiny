@@ -175,7 +175,7 @@ grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, var = "n
 
 ## Unknown group sizes: `grimmer_map_total_n()`
 
-If only the total sample size of two groups is known, `grimmer_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim")` for a case study.
+If only the total sample size of two groups is known, `grimmer_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim-in-depth")` for a case study.
 
 ```{r}
 flying_pigs4 <- tibble::tribble(

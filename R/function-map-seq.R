@@ -155,7 +155,7 @@ function_map_seq_proto <- function(
 #'
 #'   | \strong{Manufactured function}   | \strong{Dispersed variables}         | \strong{Test vignette}
 #'   | ---                              | ---                                  | ---
-#'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim")`
+#'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim-in-depth")`
 #'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer")`
 #'   | [`debit_map_seq()`]              | `"x"`, `"sd"`, `"n"`                 | `vignette("debit")`
 #'

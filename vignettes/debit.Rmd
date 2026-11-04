@@ -127,7 +127,7 @@ audit_seq(out_seq2)
 
 ## Unknown group sizes: `debit_map_total_n()`
 
-If only the total sample size of two groups is known, `debit_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim")` for a case study.
+If only the total sample size of two groups is known, `debit_map_total_n()` tests hypothetical splits of it, as `grim_map_total_n()` does; see `vignette("grim-in-depth")` for a case study.
 
 ```{r}
 flying_pigs2 <- tibble::tribble(

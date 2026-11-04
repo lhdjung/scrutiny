@@ -406,7 +406,7 @@ Group means and standard deviations are not always reported with their group siz
 
 ## Practical steps
 
-`function_map_total_n()` creates functions that do this. See `vignette("grim")`, section *Unknown group sizes*, for a case study. This is `grimmer_map_total_n()`:
+`function_map_total_n()` creates functions that do this. See `vignette("grim-in-depth")`, section *Unknown group sizes*, for a case study. This is `grimmer_map_total_n()`:
 
 ```{r, eval=FALSE}
 grimmer_map_total_n <- function_map_total_n(
