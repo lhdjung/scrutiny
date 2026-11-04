@@ -108,6 +108,11 @@ pigs5 |>
 pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   audit()
+
+# Explain the verdicts in plain words:
+pigs5 |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  explain_print(1:2)
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -117,4 +122,8 @@ https://aurelienallard.netlify.app/post/anaytic-grimmer-possibility-standard-dev
 Anaya, J. (2016). The GRIMMER test: A method for testing the validity of
 reported measures of variability. \emph{PeerJ Preprints.}
 https://peerj.com/preprints/2400v1/
+}
+\seealso{
+\code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
+verdict in plain words.
 }

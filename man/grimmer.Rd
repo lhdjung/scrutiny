@@ -182,6 +182,7 @@ reported measures of variability. \emph{PeerJ Preprints.}
 https://peerj.com/preprints/2400v1/
 }
 \seealso{
-\code{\link[=grimmer_map]{grimmer_map()}} for data frames, \code{\link[=grimmer_values]{grimmer_values()}} for the
-means and SDs behind a consistent value set.
+\code{\link[=grimmer_explain]{grimmer_explain()}} to explain a verdict in plain words,
+\code{\link[=grimmer_map]{grimmer_map()}} for data frames, and \code{\link[=grimmer_values]{grimmer_values()}} for the means
+and SDs behind a consistent value set.
 }

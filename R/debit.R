@@ -697,7 +697,8 @@ debit_scalar <- function(
 #'   `sd`. A sample SD divides by `n - 1`, so under `sd_meaning =
 #'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
 #'
-#' @seealso [`debit_map()`] for data frames.
+#' @seealso [`debit_explain()`] to explain a verdict in plain words, and
+#'   [`debit_map()`] for data frames.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.

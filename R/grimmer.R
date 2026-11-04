@@ -652,8 +652,9 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   reported measures of variability. *PeerJ Preprints.*
 #'   https://peerj.com/preprints/2400v1/
 #'
-#' @seealso [`grimmer_map()`] for data frames, [`grimmer_values()`] for the
-#'   means and SDs behind a consistent value set.
+#' @seealso [`grimmer_explain()`] to explain a verdict in plain words,
+#'   [`grimmer_map()`] for data frames, and [`grimmer_values()`] for the means
+#'   and SDs behind a consistent value set.
 #'
 #' @export
 #'

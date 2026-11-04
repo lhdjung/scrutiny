@@ -72,6 +72,9 @@
 #' 6. `ratio`: ratio of `emp_incon` to `exp_incon`, both computed over the
 #'    value sets that could be decided.
 #'
+#' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
+#'   verdict in plain words.
+#'
 #' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -98,6 +101,11 @@
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
+#'
+#' # Explain the verdicts in plain words:
+#' pigs1 |>
+#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   explain_print(1:2)
 #'
 #' # A table of means and percentages, tested part by part. Each part records
 #' # its own settings, so the two are kept apart:

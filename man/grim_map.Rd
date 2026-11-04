@@ -126,6 +126,11 @@ pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 
+# Explain the verdicts in plain words:
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1) |>
+  explain_print(1:2)
+
 # A table of means and percentages, tested part by part. Each part records
 # its own settings, so the two are kept apart:
 df <- tibble::tibble(
@@ -145,4 +150,8 @@ Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
 https://journals.sagepub.com/doi/10.1177/1948550616673876
+}
+\seealso{
+\code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
+verdict in plain words.
 }

@@ -62,6 +62,9 @@
 #' 5. `fail_test1`, `fail_test3`: number of value sets that fail GRIMMER's
 #'    first or third test. Test 2 is implied by test 1, so it never fails.
 #'
+#' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
+#'   verdict in plain words.
+#'
 #' @include audit.R grimmer.R function-map.R
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
@@ -87,6 +90,11 @@
 #' pigs5 |>
 #'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   audit()
+#'
+#' # Explain the verdicts in plain words:
+#' pigs5 |>
+#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+#'   explain_print(1:2)
 
 grimmer_map <- function_map(
   .fn = grimmer_scalar,
