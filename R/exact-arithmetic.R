@@ -116,8 +116,12 @@ floor_product_ratio <- function(a, b, d) {
 BIG_BASE <- 2^24
 
 # A whole double of any size, exactly: dividing by a power of two is exact, and
-# so is taking off the multiple of the base that `floor()` leaves.
+# so is taking off the multiple of the base that `floor()` leaves. A negative
+# or infinite `x` would never reach 0:
 big <- function(x) {
+  if (!is.finite(x) || x < 0) {
+    cli::cli_abort("`x` must be finite and non-negative.", .internal = TRUE)
+  }
   out <- numeric(0L)
   repeat {
     high <- floor(x / BIG_BASE)
