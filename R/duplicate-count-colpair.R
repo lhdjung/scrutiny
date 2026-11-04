@@ -46,7 +46,13 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     abort_in_export("`data` must be a data frame.")
   }
   check_unique_names(data, "data")
-  if (!tibble::is_tibble(data) || !rlang::is_named(data)) {
+  check_atomic_cols(data, "data")
+  # Unnamed columns are named by position, as in the other `duplicate_*()`
+  # functions; tibble would reject them:
+  if (!rlang::is_named(data)) {
+    data <- data |>
+      tibble::as_tibble(.name_repair = function(x) paste0("col", seq_along(x)))
+  } else if (!tibble::is_tibble(data)) {
     data <- data |>
       tibble::as_tibble()
   }

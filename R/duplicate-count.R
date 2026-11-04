@@ -188,6 +188,7 @@ check_duplicate_input <- function(x) {
       {?is/are}."
     )
   }
+  check_atomic_cols(x, "x")
   check_unique_names(x, "x")
   if (is.data.frame(x)) {
     return(invisible(NULL))
@@ -198,6 +199,20 @@ check_duplicate_input <- function(x) {
       "The elements of `x` must have the same length.",
       "x" = "Their lengths are {lengths_x}.",
       "i" = "A list is read as columns, one per element."
+    )
+  }
+}
+
+
+# Values are compared as strings, which a list-column has no single one of, so
+# `1:3` would become `"1:3"`. Shared with `duplicate_count_colpair()`:
+check_atomic_cols <- function(x, name) {
+  index_list <- which(!vapply(x, is.atomic, logical(1L), USE.NAMES = FALSE))
+  if (length(index_list) > 0L) {
+    abort_in_export(
+      "The columns of `{name}` must be atomic vectors.",
+      "x" = "{cli::qty(length(index_list))}Column{?s} {index_list} \\
+      {?is a list/are lists}."
     )
   }
 }

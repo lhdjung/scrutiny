@@ -1105,3 +1105,21 @@ test_that("repeated column names and bad suffixes are errors", {
   tibble::tibble(a = 1:2) |> duplicate_tally(colname_end = NA)          |> expect_error("single string")
   tibble::tibble(a = 1:2) |> duplicate_tally(colname_end = c("x", "y")) |> expect_error("single string")
 })
+
+test_that("list-columns are an error in all `duplicate_*()` functions", {
+  # `1:3` was compared as the string `"1:3"`, or `sort.int()` failed:
+  df <- tibble::tibble(a = list(1:3, 2), b = 1:2)
+  df                          |> duplicate_count()         |> expect_error("Column 1 is a list")
+  df                          |> duplicate_tally()         |> expect_error("Column 1 is a list")
+  df                          |> duplicate_count_colpair() |> expect_error("Column 1 is a list")
+  list(a = list(1, 2), b = 1:2) |> duplicate_count()       |> expect_error("Column 1 is a list")
+})
+
+test_that("`duplicate_count_colpair()` names unnamed columns by position", {
+  # tibble rejected them:
+  df <- structure(list(1:2, 2:3), class = "data.frame", row.names = 1:2)
+  out <- df |> duplicate_count_colpair()
+  out$x     |> expect_equal("col1")
+  out$y     |> expect_equal("col2")
+  out$count |> expect_equal(1L)
+})

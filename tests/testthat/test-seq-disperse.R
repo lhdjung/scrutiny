@@ -225,4 +225,5 @@ test_that("`from` must be a number small enough to step from", {
   "4000000000000.01"  |> seq_disperse(dispersion = 1:3) |> unique() |> length() |> expect_equal(7)
   # `TRUE` was dispersed as 1:
   TRUE               |> seq_disperse()               |> expect_error("`from` must be one of these types")
+  list(1)            |> seq_disperse()               |> expect_error("`from` must be one of these types")
 })

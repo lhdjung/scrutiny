@@ -81,11 +81,11 @@ seq_disperse <- function(
   check_length(from, 1L)
 
   # A factor is its label, not its code, and `TRUE` is no number to disperse,
-  # though `as.numeric()` would make it 1:
+  # though `as.numeric()` would make it 1. A list has no number at all:
   if (is.factor(from)) {
     from <- as.character(from)
   }
-  if (is.logical(from)) {
+  if (!is.numeric(from) && !is.character(from)) {
     check_type(from, c("double", "integer", "character"))
   }
   check_dispersion(
