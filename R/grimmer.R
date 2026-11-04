@@ -95,7 +95,9 @@ grimmer_candidate <- function(
   sd_bounds
 ) {
   # Shifted to the sum `r`; see `R/grimmer-sum-squares.R`. Every sum of squares
-  # below is lower by `shift` than the one with the sum `s`:
+  # below is lower by `shift` than the one with the sum `s`. As doubles, since
+  # `q * (s + r)` overflows an integer, as from an integer `n` column:
+  n <- as.numeric(n)
   q <- s %/% n
   r <- s - n * q
   range <- sum_squares_range_shifted(r, n, sd_bounds)

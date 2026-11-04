@@ -1353,3 +1353,9 @@ test_that("only the sums that GRIMMER tests count toward its limit", {
   # modulo `n`, and only these are tested:
   grimmer(-1, 0.11235448985, 59299, 0, 11, 125, rounding = "ceiling_or_floor", sd_meaning = "sd_pop") |> expect_true()
 })
+
+test_that("an integer `n` doesn't overflow in the shift of a large mean", {
+  5000.12 |> grimmer(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_no_warning()
+  grimmer_explain(5000.12, 10.12, 100L, 2, 2, items_averaged = 1)$consistency           |> expect_true()
+  5000.12 |> grimmer_values(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1) |> nrow() |> expect_equal(10)
+})
