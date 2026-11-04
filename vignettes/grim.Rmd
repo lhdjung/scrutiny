@@ -93,12 +93,12 @@ An `items_averaged` column of `data` lets the number vary by row:
 ```{r}
 jpap_2 <- tibble::tribble(
   ~x   , ~items_averaged ,
-  6.92 ,              1 ,
-  3.48 ,              1 ,
-  1.59 ,              2 ,
-  2.61 ,              2 ,
-  4.04 ,              3 ,
-  4.50 ,              3 ,
+  6.92 ,               1 ,
+  3.48 ,               1 ,
+  1.59 ,               2 ,
+  2.61 ,               2 ,
+  4.04 ,               3 ,
+  4.50 ,               3 ,
 ) |>
   dplyr::mutate(n = 30)
 
@@ -160,7 +160,12 @@ grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns one row per achievable mean, and `case` says which value set it belongs to. An inconsistent value set has no rows:
 
 ```{r}
-grim_values(x = c(5.19, 5.19, 5.19), n = c(32, 300, 28), digits_x = 2, items_averaged = 1)
+grim_values(
+  x = c(5.19, 5.19, 5.19),
+  n = c(32, 300, 28),
+  digits_x = 2,
+  items_averaged = 1
+)
 ```
 
 To line the values up with the data they came from, number its rows as `case` and join. An inner join leaves out the inconsistent rows, and `suffix` keeps the achievable `x` apart from the reported one:
@@ -277,7 +282,12 @@ audit_seq(out_seq1)
 The default `dispersion` is `1:5`, for five steps up and down. With more steps, more hits are typically found:
 
 ```{r}
-out_seq2 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, dispersion = 1:10)
+out_seq2 <- grim_map_seq(
+  pigs1,
+  digits_x = 2,
+  items_averaged = 1,
+  dispersion = 1:10
+)
 audit_seq(out_seq2)
 ```
 
@@ -292,7 +302,12 @@ grim_plot_grid(out_seq1)
 Restrict the dispersion to one variable with `var`:
 
 ```{r, fig.width=6, fig.height=5.5}
-out_seq1_only_n <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, var = "n")
+out_seq1_only_n <- grim_map_seq(
+  pigs1,
+  digits_x = 2,
+  items_averaged = 1,
+  var = "n"
+)
 grim_plot_grid(out_seq1_only_n)
 ```
 
@@ -333,8 +348,16 @@ The formula is exact for rounding methods in which exactly one range of unrounde
 
 ```{r}
 grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+
 grim_exp_incon(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
-grim_exp_incon(x = 84.27, n = 40, digits_x = 2, items_averaged = 1, percent = TRUE)
+
+grim_exp_incon(
+  x = 84.27,
+  n = 40,
+  digits_x = 2,
+  items_averaged = 1,
+  percent = TRUE
+)
 ```
 
 `grim_total()` returns a count instead of a proportion: the number of the $10^D$ possible fractional parts that are inconsistent:
@@ -364,6 +387,7 @@ grim_binomial_power(p0 = 0.5, p1 = 0.9, k = 10)
 Both functions are experimental. `grim_plot_rates()` shows the same comparison for several studies. Each point is a study, placed at its observed rate of inconsistency against the rate that random means would show; the point area is the number of testable value sets. A study on the dotted line at zero is as expected, and one on the dashed diagonal is as inconsistent as random digits:
 
 ```{r, eval = rlang::is_installed("ggrepel"), fig.width=6, fig.height=5}
+# fmt: skip
 codes <- c(
   "B", "B", "C", "C", "A", "C",
   "A", "D", "A", "A", "A", "A"
@@ -372,7 +396,7 @@ codes <- c(
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::mutate(study = codes) |>
-  grim_plot_rates(study = study)
+  grim_plot_rates(study)
 ```
 
 ### Granularity
