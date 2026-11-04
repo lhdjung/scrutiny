@@ -121,11 +121,26 @@ grim_plot_rates <- function(data, study) {
     rates,
     ggplot2::aes(x = .data$observed, y = .data$expected, label = .data[[study]])
   ) +
-    ggplot2::geom_abline(linetype = "dashed", colour = "grey50") +
-    ggplot2::geom_vline(
-      xintercept = 0,
+    # Diagonal reference line for random means. `annotate()` draws it once;
+    # `geom_segment()` would draw it once per study:
+    ggplot2::annotate(
+      "segment",
+      x = 0,
+      y = 0,
+      xend = 1,
+      yend = 1,
+      linetype = "dashed",
+      colour = "grey40"
+    ) +
+    # Vertical reference line for all-consistent means:
+    ggplot2::annotate(
+      "segment",
+      x = 0,
+      y = 0,
+      xend = 0,
+      yend = 1,
       linetype = "dotted",
-      colour = "grey50"
+      colour = "grey40"
     ) +
     ggplot2::geom_point(
       ggplot2::aes(size = .data$value_sets, colour = .data$ratio),
