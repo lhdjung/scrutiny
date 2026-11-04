@@ -162,5 +162,7 @@ grim_plot_rates <- function(data, study) {
       x = "Observed GRIM inconsistency rate",
       y = "Rate expected for random means"
     ) +
-    ggplot2::theme_minimal()
+    ggplot2::theme_minimal() +
+    # Rates between the quarters mean nothing, as in `debit_plot()`:
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
 }
