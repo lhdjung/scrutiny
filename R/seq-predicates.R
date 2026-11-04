@@ -13,10 +13,14 @@ is_seq_descending_basic <- function(x) {
 # Like `dplyr::near()`, but a `tolerance` of 0 means exact, and no tolerance is
 # finer than the rounding error of arithmetic on numbers as large as `values`:
 # steps between values of about 1e8 are off by 1e-8 already, which the default
-# would reject. `NA` for an infinity, as `near(Inf, Inf)` is:
+# would reject. A step or center is off by at most two units in the last place
+# of the largest value; a step of one unit in the 15th significant digit is at
+# least 4.5 of these, so any wider floor merges such steps. `NA` for an
+# infinity, as `near(Inf, Inf)` is:
 near_seq <- function(x, y, tolerance, values) {
   magnitude <- max(abs(values[is.finite(values)]), 0)
-  abs(x - y) <= max(tolerance, 8 * .Machine$double.eps * magnitude)
+  ulp <- if (magnitude > 0) 2^(floor(log2(magnitude)) - 52) else 0
+  abs(x - y) <= max(tolerance, 2 * ulp)
 }
 
 
@@ -258,8 +262,8 @@ is_seq_basic <- function(
 #'   `TRUE`. Not in `is_seq_linear()`.
 #' @param tolerance Numeric. Tolerance for comparing values. Default is about
 #'   `1.5e-8`, as in [`dplyr::near()`]. Any tolerance is widened to the
-#'   rounding error of arithmetic on the values, about `2e-15` times the
-#'   largest, so `0` allows that error only, and large values such as
+#'   rounding error of arithmetic on the values, at most about `4e-16` times
+#'   the largest, so `0` allows that error only, and large values such as
 #'   `123456789.01` are compared as precisely as doubles can.
 #'
 #' @return Logical (length 1). If `x` contains `NA`:

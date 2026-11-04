@@ -364,3 +364,11 @@ test_that("a missing string is a missing number", {
   c("1", NA_character_)           |> is_seq_linear() |> expect_true()
   c(NA_character_, NA, NA)        |> is_seq_linear() |> expect_na()
 })
+
+test_that("the tolerance floor tells steps apart in the 15th significant digit", {
+  c(9e14, 9e14 + 1, 9e14 + 3)                                    |> is_seq_linear()                  |> expect_false()
+  c(9e14 - 1, 9e14, 9e14 + 2)                                    |> is_seq_dispersed(from = 9e14)    |> expect_false()
+  c("996757367080.986", "996757367080.987", "996757367080.989") |> is_seq_linear()                  |> expect_false()
+  c("996757367080.986", "996757367080.987", "996757367080.988") |> is_seq_linear()                  |> expect_true()
+  c(990000000.000000, 990000000.000001, 990000000.000003)       |> is_seq_linear(tolerance = 0)     |> expect_false()
+})
