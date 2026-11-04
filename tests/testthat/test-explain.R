@@ -282,3 +282,11 @@ test_that("numbers past 2^53 are shown exactly", {
   e |> expect_match("27000000180000000300000000")
   e |> expect_match("largest of these SEs, for k = 150000000")
 })
+
+test_that("`debit_explain()` writes the bounds of the number of ones in full", {
+  # The product was rounded to 15 digits, 450000000000000, next to a range of
+  # whole numbers ending at 449999999999999:
+  0 |> debit_explain(0.3, 899999999999999, 0, 1) |> format() |> paste(collapse = " ") |> expect_match("0.5 * 899999999999999 = 449999999999999.5", fixed = TRUE)
+  # The bound itself was rounded to 0.0222:
+  0.03 |> debit_explain(0.17, 33, 2, 2, rounding = "up_from", threshold = 2.25) |> format() |> paste(collapse = " ") |> expect_match("0.02225 * 33 = 0.73425", fixed = TRUE)
+})
