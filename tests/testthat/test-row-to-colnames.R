@@ -76,3 +76,8 @@ test_that("`drop` must be `TRUE` or `FALSE`", {
   df |> row_to_colnames(drop = "yes") |> expect_error("`drop` must be `TRUE` or `FALSE`")
   df |> row_to_colnames(drop = NULL)  |> expect_error("`drop` must be `TRUE` or `FALSE`")
 })
+
+test_that("a row given twice is used once", {
+  df <- tibble::tibble(a = c("x", "y"), b = c("u", "v"))
+  df |> row_to_colnames(row = c(1, 1)) |> names() |> expect_equal(c("x", "u"))
+})

@@ -372,3 +372,8 @@ test_that("the tolerance floor tells steps apart in the 15th significant digit",
   c("996757367080.986", "996757367080.987", "996757367080.988") |> is_seq_linear()                  |> expect_true()
   c(990000000.000000, 990000000.000001, 990000000.000003)       |> is_seq_linear(tolerance = 0)     |> expect_false()
 })
+
+test_that("an empty logical vector is judged like `numeric()`", {
+  logical() |> is_seq_linear()    |> expect_equal(is_seq_linear(numeric()))
+  logical() |> is_seq_ascending() |> expect_equal(is_seq_ascending(numeric()))
+})

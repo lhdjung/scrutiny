@@ -66,8 +66,9 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       "x" = "It includes {offenders}."
     )
   }
-  # `data[-row, ]` fails on a near-whole double like `1 + 1e-12`:
-  row <- round_whole(row)
+  # `data[-row, ]` fails on a near-whole double like `1 + 1e-12`, and a row
+  # given twice would be pasted twice:
+  row <- unique(round_whole(row))
 
   check_string(collapse)
   check_flag(drop)

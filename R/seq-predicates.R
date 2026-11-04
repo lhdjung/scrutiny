@@ -108,6 +108,11 @@ is_seq_basic <- function(
     return(if (linear_anyway) TRUE else NA)
   }
 
+  # The only logical vector left is an empty one, which is `numeric()`:
+  if (is.logical(x)) {
+    x <- numeric()
+  }
+
   if (isFALSE(is_numeric_like(x))) {
     return(FALSE)
   }
