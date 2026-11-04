@@ -5,14 +5,14 @@
 # arithmetic.
 
 test_that("`grim_values()` returns the achievable means and their sums", {
-  5.19 |> grim_values(32, digits_x = 2, items_averaged = 1) |> expect_equal(tibble::tibble(case = 1L, x = 5.1875, sum = 166))
+  5.19 |> grim_values(32, digits_x = 2, items_averaged = 1) |> expect_equal(tibble::tibble(case = 1L, x = 5.1875, n = 32, sum = 166))
   5.19 |>
     grim_values(300, digits_x = 2, items_averaged = 1) |>
-    expect_equal(tibble::tibble(case = 1L, x = c(1556, 1557, 1558) / 300, sum = c(1556, 1557, 1558)))
+    expect_equal(tibble::tibble(case = 1L, x = c(1556, 1557, 1558) / 300, n = 300, sum = c(1556, 1557, 1558)))
   # No achievable mean at all if the value set is GRIM-inconsistent:
   out <- 5.19 |> grim_values(28, digits_x = 2, items_averaged = 1)
   out |> nrow()  |> expect_equal(0L)
-  out |> names() |> expect_equal(c("case", "x", "sum"))
+  out |> names() |> expect_equal(c("case", "x", "n", "sum"))
 })
 
 
@@ -32,13 +32,18 @@ test_that("both functions are vectorized like `grim()`", {
   # One row per achievable mean, none for the inconsistent third value set:
   out |> tibble::is_tibble() |> expect_true()
   out$case |> expect_equal(c(1L, 2L, 2L, 2L))
+  out$n    |> expect_equal(c(32, 300, 300, 300))
+  # `case` counts through `n` if `x` is a single value:
+  out <- 5.19 |> grim_values(25:35, digits_x = 2, items_averaged = 1)
+  out$case |> expect_equal(c(2L, 3L, 7L, 8L))
+  out$n    |> expect_equal(c(26, 27, 31, 32))
 
   c(5.19, 5.19) |>
     grim_closest(c(32, 28), digits_x = 2, items_averaged = 1) |>
     expect_equal(c(5.1875, 145 / 28))
   5.19 |> grim_closest(25:30, digits_x = 2, items_averaged = 1) |> expect_length(6L)
 
-  numeric(0) |> grim_values(numeric(0), digits_x = 2, items_averaged = 1)  |> expect_equal(tibble::tibble(case = integer(), x = double(), sum = double()))
+  numeric(0) |> grim_values(numeric(0), digits_x = 2, items_averaged = 1)  |> expect_equal(tibble::tibble(case = integer(), x = double(), n = double(), sum = double()))
   numeric(0) |> grim_closest(numeric(0), digits_x = 2, items_averaged = 1) |> expect_identical(numeric(0))
   5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, rounding = c("up", "floor")) |> expect_error("must be length 1")
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE))     |> expect_error("must be length 1")
@@ -106,7 +111,7 @@ test_that("`percent` returns values on the scale of `x`", {
   closest |> expect_lt(74)
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
-  40 |> grim_values(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(tibble::tibble(case = 1L, x = 40, sum = 2))
+  40 |> grim_values(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(tibble::tibble(case = 1L, x = 40, n = 5, sum = 2))
   40 |> grim_closest(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(40)
 })
 
@@ -114,7 +119,8 @@ test_that("`percent` returns values on the scale of `x`", {
 test_that("`items_averaged` multiplies into the sample size", {
   2.84 |>
     grim_values(16, digits_x = 2, items_averaged = 2) |>
-    expect_equal(grim_values(2.84, 32, digits_x = 2, items_averaged = 1))
+    dplyr::select(-n) |>
+    expect_equal(grim_values(2.84, 32, digits_x = 2, items_averaged = 1) |> dplyr::select(-n))
 })
 
 
@@ -133,7 +139,7 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
   # pins the sum to exactly 0 -- attainable only by all-zero data:
   0 |>
     grim_values(40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |>
-    expect_equal(tibble::tibble(case = 1L, x = 0, sum = 0))
+    expect_equal(tibble::tibble(case = 1L, x = 0, n = 40, sum = 0))
   0 |> grim_closest(40, digits_x = 2, items_averaged = 1, rounding = "anti_trunc") |> expect_equal(0)
 })
 

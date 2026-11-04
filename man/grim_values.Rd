@@ -45,9 +45,12 @@ keep them (\code{1.40} is \code{1.4}).}
 \value{
 \itemize{
 \item For \code{grim_values()}, a tibble with one row per achievable mean. \code{case} is
-the index of the value set, \code{x} the achievable value, and \code{sum} the whole
-number behind it. An inconsistent value set has no rows, and one that
-cannot be decided has one row of \code{NA}, as in \code{\link[=grim]{grim()}}.
+the index of the value set, i.e., the position in the inputs after they
+are recycled to a common length, so it also counts through \code{n} if \code{x} is
+a single value. \code{x} is the achievable value, \code{n} the reported sample size,
+and \code{sum} the whole number behind \code{x}. An inconsistent value set has no
+rows, and one that cannot be decided has one row of \code{NA} but for \code{n}, as
+in \code{\link[=grim]{grim()}}.
 \item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
 where a value set cannot be decided.
 }
@@ -66,9 +69,11 @@ among those that would be reported as \code{x}, or, if there are none, the
 closest one overall.
 }
 
-Both are vectorized like \code{\link[=grim]{grim()}}. A reported mean may correspond to one
-achievable mean, to several, or to none, so \code{grim_values()} returns one
-row per achievable mean, and \code{case} says which value set it belongs to.
+Both are vectorized like \code{\link[=grim]{grim()}}. \code{grim_closest()} has exactly one
+value per value set, so it returns a vector, like \code{\link[=grim]{grim()}}. A reported
+mean may correspond to one achievable mean, to several, or to none, so
+\code{grim_values()} returns a tibble with one row per achievable mean, and
+\code{case} says which value set it belongs to.
 \code{\link[=grimmer_values]{grimmer_values()}} is the counterpart for GRIMMER.
 }
 \details{

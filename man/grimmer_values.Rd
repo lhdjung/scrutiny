@@ -56,9 +56,10 @@ column holds the standard error.}
 }
 \value{
 A tibble with one row per achievable pair. \code{case} is the index of
-the value set, \code{x} and \code{sd} are the achievable values, and \code{sum} and
-\code{sum_squares} the whole numbers behind them. An inconsistent value set has
-no rows, and one that cannot be decided has one row of \code{NA}, as in
+the value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \code{sd} are the achievable
+values, \code{n} the reported sample size, and \code{sum} and \code{sum_squares} the
+whole numbers behind them. An inconsistent value set has no rows, and one
+that cannot be decided has one row of \code{NA} but for \code{n}, as in
 \code{\link[=grimmer]{grimmer()}}.
 }
 \description{

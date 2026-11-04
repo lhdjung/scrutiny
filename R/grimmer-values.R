@@ -200,8 +200,8 @@ grimmer_values_scalar <- function(
 
 
 # The mean and SD that a sum and a sum of squared deviations of `n` integers give;
-# see `sd_square_term()` for the formula. One row of `NA` for an undecidable
-# value set, so that it still has a row in the output.
+# see `sd_square_term()` for the formula. One row of `NA` but for `n` for an
+# undecidable value set, so that it still has a row in the output.
 grimmer_values_tibble <- function(
   sums,
   sums_squares,
@@ -214,6 +214,7 @@ grimmer_values_tibble <- function(
     # As doubles: the product of two integers overflows from 46,341 each:
     x = sums / (as.numeric(n) * items_averaged),
     sd = sqrt(deviations / n_dev) / items_averaged,
+    n = as.numeric(n),
     sum = sums,
     sum_squares = sums_squares
   )
@@ -255,9 +256,10 @@ grimmer_values_tibble <- function(
 #'   column holds the standard error.
 #'
 #' @return A tibble with one row per achievable pair. `case` is the index of
-#'   the value set, `x` and `sd` are the achievable values, and `sum` and
-#'   `sum_squares` the whole numbers behind them. An inconsistent value set has
-#'   no rows, and one that cannot be decided has one row of `NA`, as in
+#'   the value set, as in [`grim_values()`]. `x` and `sd` are the achievable
+#'   values, `n` the reported sample size, and `sum` and `sum_squares` the
+#'   whole numbers behind them. An inconsistent value set has no rows, and one
+#'   that cannot be decided has one row of `NA` but for `n`, as in
 #'   [`grimmer()`].
 #'
 #' @seealso [`grimmer()`], [`grimmer_map()`], and [`grim_values()`].

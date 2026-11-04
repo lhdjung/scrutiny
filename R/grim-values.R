@@ -72,6 +72,7 @@ grim_sums_scalar <- function(
 
   list(
     sums = sums,
+    n = as.numeric(n),
     n_items = n_items,
     # Values are returned on the scale of `x`, so that they can be read against
     # it. Internally, a percentage is a decimal number:
@@ -126,10 +127,12 @@ grim_values_scalar <- function(
 
 
 # The means, on the scale of `x`, that whole-number sums give. One row of `NA`
-# for an undecidable value set, so that it still has a row in the output.
+# but for `n` for an undecidable value set, so that it still has a row in the
+# output.
 grim_values_tibble <- function(sums, parts) {
   tibble::tibble(
     x = sums * parts$scale / parts$n_items,
+    n = parts$n,
     sum = sums
   )
 }
@@ -198,9 +201,11 @@ grim_closest_scalar <- function(
 #'   among those that would be reported as `x`, or, if there are none, the
 #'   closest one overall.
 #'
-#'   Both are vectorized like [`grim()`]. A reported mean may correspond to one
-#'   achievable mean, to several, or to none, so `grim_values()` returns one
-#'   row per achievable mean, and `case` says which value set it belongs to.
+#'   Both are vectorized like [`grim()`]. `grim_closest()` has exactly one
+#'   value per value set, so it returns a vector, like [`grim()`]. A reported
+#'   mean may correspond to one achievable mean, to several, or to none, so
+#'   `grim_values()` returns a tibble with one row per achievable mean, and
+#'   `case` says which value set it belongs to.
 #'   [`grimmer_values()`] is the counterpart for GRIMMER.
 #'
 #' @details The achievable means are the whole numbers in the range that
@@ -234,9 +239,12 @@ grim_closest_scalar <- function(
 #'
 #' @return
 #' - For `grim_values()`, a tibble with one row per achievable mean. `case` is
-#'   the index of the value set, `x` the achievable value, and `sum` the whole
-#'   number behind it. An inconsistent value set has no rows, and one that
-#'   cannot be decided has one row of `NA`, as in [`grim()`].
+#'   the index of the value set, i.e., the position in the inputs after they
+#'   are recycled to a common length, so it also counts through `n` if `x` is
+#'   a single value. `x` is the achievable value, `n` the reported sample size,
+#'   and `sum` the whole number behind `x`. An inconsistent value set has no
+#'   rows, and one that cannot be decided has one row of `NA` but for `n`, as
+#'   in [`grim()`].
 #' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
 #'   where a value set cannot be decided.
 #'

@@ -1,6 +1,6 @@
 test_that("`grimmer_values()` returns the achievable pairs", {
   out <- 5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
-  out |> names() |> expect_equal(c("case", "x", "sd", "sum", "sum_squares"))
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "sum", "sum_squares"))
   out |> nrow() |> expect_equal(1L)
   out$case |> expect_equal(1L)
   out$x  |> expect_equal(out$sum / 31)
@@ -10,7 +10,7 @@ test_that("`grimmer_values()` returns the achievable pairs", {
   # No achievable pair at all if the value set is inconsistent:
   out <- 5.23 |> grimmer_values(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   out |> nrow()  |> expect_equal(0L)
-  out |> names() |> expect_equal(c("case", "x", "sd", "sum", "sum_squares"))
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "sum", "sum_squares"))
 })
 
 
@@ -104,7 +104,7 @@ test_that("`grimmer_values()` is vectorized like `grimmer()`", {
   out |> tibble::is_tibble() |> expect_true()
   out$case |> expect_equal(1L)
 
-  numeric(0) |> grimmer_values(numeric(0), 31, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(tibble::tibble(case = integer(), x = double(), sd = double(), sum = double(), sum_squares = double()))
+  numeric(0) |> grimmer_values(numeric(0), 31, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(tibble::tibble(case = integer(), x = double(), sd = double(), n = double(), sum = double(), sum_squares = double()))
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = c("up", "floor")) |> expect_error("must be length 1")
   c(5.23, 5.1) |> grimmer_values(2.55, c(31, 35, 40), digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error()
 })

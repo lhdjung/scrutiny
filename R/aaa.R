@@ -81,12 +81,14 @@ WRITTEN_OUT_MAX <- 100000L
 PTYPE_GRIM_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
+  n = double(),
   sum = double()
 )
 PTYPE_GRIMMER_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
   sd = double(),
+  n = double(),
   sum = double(),
   sum_squares = double()
 )
