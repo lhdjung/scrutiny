@@ -440,9 +440,24 @@ count_rows_by <- function(case, other) {
 
 # A function telling whether rows of a group that `recorded` counts are missing
 # from the data given by `case` and `other`. A group not recorded had no rows to
-# begin with, and output without the record is taken as complete:
+# begin with, and output without the record is taken as complete. Rows beyond
+# the record, as from a join with other data, were never tested by the call
+# whose record they would be read under, so they are an error:
 rows_removed_by <- function(recorded, case, other) {
   present <- count_rows_by(case, other)
+  if (!is.null(recorded)) {
+    before <- unname(recorded[names(present)])
+    if (any(is.na(before) | present > before)) {
+      abort_in_export(
+        "`data` has rows that the mapper call didn't return.",
+        "x" = "Some cases have more rows than the call recorded, as after the \\
+        output was bound to itself, joined with other data, or bound with \\
+        `rbind()`.",
+        "i" = "Rows added to mapper output would be read under its settings \\
+        and verdicts."
+      )
+    }
+  }
   function(case, other) {
     key <- paste(case, other, sep = "\r")
     before <- unname(recorded[key])

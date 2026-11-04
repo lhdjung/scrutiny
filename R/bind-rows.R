@@ -31,8 +31,9 @@
 # `vctrs::vec_cbind()`, behind `dplyr::bind_cols()`, `tidyr::nest()`, and
 # `dplyr::group_modify()`, asks the same `vec_ptype2()` methods for the type of
 # its inputs, but passes them without columns, whereas `vec_rbind()` passes
-# their columns. Casting an input without rows adds none, as in
-# `bind_rows(out, tibble())`.
+# their columns. Either way, `vec_ptype2()` sees no rows, so a plain data frame
+# is only rejected when it is cast, and only if it has rows to add: an empty
+# one, as in `bind_rows(out, tibble(x = numeric()))`, adds none.
 
 bind_classes <- new.env(parent = emptyenv())
 
@@ -77,7 +78,7 @@ vec_ptype2_scrutiny <- function(
   call = rlang::caller_env()
 ) {
   if (ncol(x) > 0L && ncol(y) > 0L) {
-    check_same_mapper_call(x, y, x_arg, y_arg, call)
+    check_same_mapper_call(x, y, x_arg, y_arg, call, allow_plain = TRUE)
   }
   vctrs::df_ptype2(x, y, ..., x_arg = x_arg, y_arg = y_arg, call = call) |>
     restore_scrutiny(x)
@@ -117,8 +118,18 @@ restore_scrutiny <- function(out, template) {
 # Output of different mappers is never combined. An output of the same mapper
 # that has lost its record has nothing to compare; the functions that need the
 # record say so themselves:
-check_same_mapper_call <- function(x, y, x_arg, y_arg, call) {
+check_same_mapper_call <- function(
+  x,
+  y,
+  x_arg,
+  y_arg,
+  call,
+  allow_plain = FALSE
+) {
   is_plain <- !c(class(x)[[1L]], class(y)[[1L]]) %in% ls(bind_classes)
+  if (any(is_plain) && allow_plain) {
+    return(invisible(NULL))
+  }
   if (any(is_plain)) {
     msg_which <- if (c(x_arg, y_arg)[is_plain][[1L]] == "") {
       "One of the inputs is not mapper output."

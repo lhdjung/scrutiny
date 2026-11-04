@@ -104,11 +104,13 @@ test_that("mapper output doesn't combine with a plain data frame, in either orde
   out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1)
   plain <- tibble::tibble(x = 1, n = 5, consistency = TRUE)
   dplyr::bind_rows(out, plain)                    |> expect_error("`..2` is not mapper output")
-  dplyr::bind_rows(plain, out)                    |> expect_error("`..1` is not mapper output")
+  dplyr::bind_rows(plain, out)                    |> expect_error("One of the inputs is not mapper output")
   dplyr::bind_rows(out, as.data.frame(plain))     |> expect_error("is not mapper output")
   dplyr::bind_rows(tibble::as_tibble(out), plain) |> nrow() |> expect_equal(2L)
   dplyr::rows_append(out, plain)                  |> expect_error("`y` is not mapper output")
   dplyr::bind_rows(out, tibble::tibble(.rows = 3)) |> expect_error("is not mapper output")
+  # An empty data frame adds no rows, whatever its columns:
+  dplyr::bind_rows(out, tibble::tibble(x = numeric())) |> audit() |> expect_equal(audit(out))
 })
 
 test_that("columns can be added to mapper output, and nothing but columns", {
@@ -131,7 +133,7 @@ test_that("an output bound to itself can't be audited", {
   seq_out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
   tot_out <- tibble::tibble(x1 = 3.84, x2 = 4.21, n = 41) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
   dplyr::bind_rows(seq_out, seq_out) |> audit_seq()     |> expect_error("occur more than once")
-  dplyr::bind_rows(tot_out, tot_out) |> audit_total_n() |> expect_error("occur more than once")
+  dplyr::bind_rows(tot_out, tot_out) |> audit_total_n() |> expect_error("bound to itself")
 })
 
 test_that("total-n calls record a helper or `digits_*` the same whichever way it was given", {
@@ -139,4 +141,13 @@ test_that("total-n calls record a helper or `digits_*` the same whichever way it
   out <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1)
   dplyr::bind_rows(out, df |> dplyr::mutate(items_averaged = 1L) |> grim_map_total_n(digits_x = 2)) |> nrow() |> expect_equal(2L * nrow(out))
   dplyr::bind_rows(out, df |> grim_map_total_n(digits_x = c(2, 2), items_averaged = 1))             |> nrow() |> expect_equal(2L * nrow(out))
+})
+
+test_that("the sequence and total-n audits reject rows added by a join", {
+  # `full_join()` is no row binding, so the vctrs methods never see it:
+  seq_out   <- tibble::tibble(x = c(5.19, 3.41), n = c(28, 30))           |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  seq_other <- tibble::tibble(x = c(5.19, 3.41, 6.22), n = c(28, 30, 31)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  tot_out   <- tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65)               |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit_seq()     |> expect_error("rows that the mapper call didn't return")
+  rbind(tot_out, tot_out[1, ])                                                     |> audit_total_n() |> expect_error("rows that the mapper call didn't return")
 })
