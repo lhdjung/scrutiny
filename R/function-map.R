@@ -50,10 +50,12 @@
 #'   `.fn` unpacks into, as with `show_rec = TRUE`. The first name must be
 #'   `.name_key_result`. If `data` has no rows, only the key result column is
 #'   created.
-#' @param .cols_derived Optionally, a named list of functions that compute
-#'   further columns from the same per-row input, such as
-#'   `list(exp_incon = grim_exp_incon)`. Each gets only the arguments it
-#'   has formals for. The columns follow the key result column.
+#' @param .cols_derived Optionally, a named list of vectorized functions that
+#'   compute further columns from the same input, such as
+#'   `list(exp_incon = grim_exp_incon)`. Each is called once, with the whole
+#'   columns and only the arguments it has formals for, and must return one
+#'   value per row; a `.reported_variadic` argument comes as a list of each
+#'   row's values. The columns follow the key result column.
 #' @param ... These dots must be empty.
 #'
 #' @details The new function has an argument for every argument of `.fn` that
@@ -665,19 +667,17 @@ function_map <- function(
 
       # Derived columns, such as `exp_incon` in `grim_map()`. Each function only gets the
       # arguments it has formals for, so it needs to know nothing about the
-      # test around it:
+      # test around it. It is called once on the whole columns: once per row,
+      # the call itself took most of `grim_map()`'s time:
       cols_derived <- list()
 
       for (col_name in names(cols_derived_funs)) {
         fn_derived <- cols_derived_funs[[col_name]]
         args_names_derived <- names(formals(fn_derived))
         vals_derived <- do.call(
-          purrr::pmap,
+          fn_derived,
           c(
-            list(
-              cols_tested[intersect(names(cols_tested), args_names_derived)],
-              fn_derived
-            ),
+            cols_tested[intersect(names(cols_tested), args_names_derived)],
             args_const_vals[
               intersect(names(args_const_vals), args_names_derived)
             ]

@@ -487,7 +487,7 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
     consistency <- abs(gap) < 10^-digits_total
     if (show_rec) list(consistency, sum(parts), gap) else consistency
   }
-  count_parts <- function(parts) length(parts)
+  count_parts <- function(parts) lengths(parts)
 
   sum_check_map <- function_map(
     .fn = sum_check_scalar,
@@ -521,7 +521,7 @@ test_that("`.reported_variadic` composes with the factory's other arguments", {
     ))
   out$consistency |> expect_equal(c(TRUE, FALSE))
   out$rec_sum |> expect_equal(c(4, 5))
-  # `.cols_derived` gets the row's values as one vector, like the test itself:
+  # `.cols_derived` gets each row's values as one vector, like the test itself:
   out$n_parts |> expect_equal(c(2L, 2L))
   df |>
     sum_check_map(digits_total = c(1, 2), parts = c(i1, i2)) |>

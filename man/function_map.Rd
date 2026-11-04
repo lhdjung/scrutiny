@@ -66,10 +66,12 @@ argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 \code{.name_key_result}. If \code{data} has no rows, only the key result column is
 created.}
 
-\item{.cols_derived}{Optionally, a named list of functions that compute
-further columns from the same per-row input, such as
-\code{list(exp_incon = grim_exp_incon)}. Each gets only the arguments it
-has formals for. The columns follow the key result column.}
+\item{.cols_derived}{Optionally, a named list of vectorized functions that
+compute further columns from the same input, such as
+\code{list(exp_incon = grim_exp_incon)}. Each is called once, with the whole
+columns and only the arguments it has formals for, and must return one
+value per row; a \code{.reported_variadic} argument comes as a list of each
+row's values. The columns follow the key result column.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of
 \code{.fn} that takes the values of one row as a vector. The new function gets

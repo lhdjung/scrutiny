@@ -121,7 +121,7 @@ Every other argument of `.fn` becomes an argument of the mapper, with the same d
 | `.args_fixed` | Values always passed to `.fn`; the mapper has no argument for them | `list(show_reason = TRUE)` in `grimmer_map()` |
 | `.args_disabled` | Arguments of `.fn` that the mapper should not have | |
 | `.col_names` | Names of the columns that a list returned by `.fn` unpacks into; the first is the key result | `show_rec = TRUE` columns |
-| `.cols_derived` | Functions that compute further columns from the same row | `list(exp_incon = grim_exp_incon)` |
+| `.cols_derived` | Vectorized functions that compute further columns from the same columns | `list(exp_incon = grim_exp_incon)` |
 | `.name_class` | Extra classes for the output | |
 | `.name_key_result` | Name of the result column, `"consistency"` by default | |
 
