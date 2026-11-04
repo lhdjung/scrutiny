@@ -41,3 +41,11 @@ test_that("the granularity functions reject non-positive input", {
   0  |> grim_granularity()       |> expect_error("`n` must be positive")
   20 |> grim_granularity(0)      |> expect_error("`items_averaged` must be positive")
 })
+
+
+test_that("the granularity functions recycle like the tidyverse", {
+  c(10, 20) |> grim_granularity(2)            |> expect_equal(c(0.05, 0.025))
+  c(10, 20) |> grim_granularity(c(1, 2, 3, 4)) |> expect_error("Can't recycle")
+  c(10, 20) |> grim_granularity(numeric(0))    |> expect_error("Can't recycle")
+  c(10, 20) |> grim_items(c(0.1, 0.05, 0.1))   |> expect_error("Can't recycle") |> suppressWarnings()
+})

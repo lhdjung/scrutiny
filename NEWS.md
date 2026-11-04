@@ -164,7 +164,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - A key column name such as `x = "mean"` can be passed in a variable or through `lapply()` and `purrr::map()`. `.name_key_result` works in all three function factories. `function_map_seq()` works for a mapper with a single reported variable. `is_map_df()` and the related predicates recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
 
-- `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2 and for a fractional `n` or count, reject non-numeric input, and recycle their arguments by the tidyverse rules.
+- `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2 and for a fractional `n` or count, reject non-numeric input, and recycle their arguments by the tidyverse rules, as do `grim_granularity()` and `grim_items()`.
 
 - `grim()` and `grim_map()` no longer fail when `n` and `items_averaged` are integers whose product exceeds the integer range.
 

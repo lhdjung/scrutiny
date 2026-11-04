@@ -29,6 +29,11 @@
 grim_granularity <- function(n, items_averaged = 1) {
   check_positive(n)
   check_positive(items_averaged)
+  # `*` would recycle any length into any other:
+  recycle_length_common(
+    lengths(list(n, items_averaged)),
+    c("n", "items_averaged")
+  )
   1 / (as.numeric(n) * items_averaged)
 }
 
@@ -56,6 +61,7 @@ grim_items <- function(n, gran, tolerance = .Machine$double.eps^0.5) {
   )
   check_positive(n)
   check_positive(gran)
+  recycle_length_common(lengths(list(n, gran)), c("n", "gran"))
   out <- 1 / (n * gran)
   out_is_whole <- is_whole_number(out, tolerance)
 
