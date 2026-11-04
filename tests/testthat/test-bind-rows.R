@@ -107,6 +107,23 @@ test_that("mapper output doesn't combine with a plain data frame, in either orde
   dplyr::bind_rows(plain, out)                    |> expect_error("`..1` is not mapper output")
   dplyr::bind_rows(out, as.data.frame(plain))     |> expect_error("is not mapper output")
   dplyr::bind_rows(tibble::as_tibble(out), plain) |> nrow() |> expect_equal(2L)
+  dplyr::rows_append(out, plain)                  |> expect_error("`y` is not mapper output")
+  dplyr::bind_rows(out, tibble::tibble(.rows = 3)) |> expect_error("is not mapper output")
+})
+
+test_that("columns can be added to mapper output, and nothing but columns", {
+  # These hit the guard against rows since vctrs asks for the type of the
+  # inputs when binding columns, too:
+  data <- tibble::tibble(x = c(5.19, 3.2), n = c(28, 40), study = c("a", "b"))
+  out <- data |> grim_map(digits_x = 2, items_averaged = 1)
+  wider <- out |> dplyr::bind_cols(tibble::tibble(z = 1:2))
+  wider |> class()                             |> expect_equal(class(out))
+  wider |> attr("scrutiny", exact = TRUE)      |> expect_identical(attr(out, "scrutiny", exact = TRUE))
+  wider |> audit()                             |> expect_equal(audit(out))
+  out |> dplyr::bind_cols(data.frame(w = 1:2)) |> ncol() |> expect_equal(ncol(out) + 1L)
+  out |> tidyr::nest(data = -study)            |> nrow() |> expect_equal(2L)
+  out |> dplyr::bind_rows(tibble::tibble())    |> expect_equal(out)
+  data |> dplyr::group_by(study) |> dplyr::group_modify(~ grim_map(.x, digits_x = 2, items_averaged = 1)) |> nrow() |> expect_equal(2L)
 })
 
 test_that("an output bound to itself can't be audited", {

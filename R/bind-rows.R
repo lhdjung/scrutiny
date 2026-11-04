@@ -26,6 +26,13 @@
 # would return a plain tibble, but `dplyr::bind_rows()` then restores the
 # classes and record of its first input, under which `audit_seq()` would count
 # rows that no call tested.
+#
+# Only rows can be read under the wrong record, so adding columns is fine.
+# `vctrs::vec_cbind()`, behind `dplyr::bind_cols()`, `tidyr::nest()`, and
+# `dplyr::group_modify()`, asks the same `vec_ptype2()` methods for the type of
+# its inputs, but passes them without columns, whereas `vec_rbind()` passes
+# their columns. Casting an input without rows adds none, as in
+# `bind_rows(out, tibble())`.
 
 bind_classes <- new.env(parent = emptyenv())
 
@@ -69,7 +76,9 @@ vec_ptype2_scrutiny <- function(
   y_arg = "",
   call = rlang::caller_env()
 ) {
-  check_same_mapper_call(x, y, x_arg, y_arg, call)
+  if (ncol(x) > 0L && ncol(y) > 0L) {
+    check_same_mapper_call(x, y, x_arg, y_arg, call)
+  }
   vctrs::df_ptype2(x, y, ..., x_arg = x_arg, y_arg = y_arg, call = call) |>
     restore_scrutiny(x)
 }
@@ -84,7 +93,9 @@ vec_cast_scrutiny <- function(
   call = rlang::caller_env()
 ) {
   # `x` is cast to `to`, which comes first, as in `rows_append(to, x)`:
-  check_same_mapper_call(to, x, to_arg, x_arg, call)
+  if (nrow(x) > 0L) {
+    check_same_mapper_call(to, x, to_arg, x_arg, call)
+  }
   vctrs::df_cast(x, to, ..., x_arg = x_arg, to_arg = to_arg, call = call) |>
     restore_scrutiny(to)
 }
