@@ -22,28 +22,12 @@ test_that("bla", {
 })
 
 
-# The rounding methods that `grim()` and `grimmer()` know. DEBIT used to know
-# only eight of them because its bounds came from the pre-1.0.0 `unround()`,
-# which had its own, shorter list -- even though `debit_map()`'s documentation
-# said that `rounding` is passed on to `debit()` just like everywhere else.
-rounding_methods <- c(
-  "up_or_down",
-  "up",
-  "down",
-  "even",
-  "ceiling",
-  "floor",
-  "ceiling_or_floor",
-  "trunc",
-  "anti_trunc",
-  "up_from",
-  "down_from",
-  "up_from_or_down_from"
-)
-
-
+# DEBIT used to know only eight rounding methods because its bounds came from
+# the pre-1.0.0 `unround()`, which had its own, shorter list -- even though
+# `debit_map()`'s documentation said that `rounding` is passed on to `debit()`
+# just like everywhere else.
 test_that("`debit()` accepts every rounding method that `grim()` accepts", {
-  for (r in rounding_methods) {
+  for (r in ROUNDING_METHODS) {
     0.53 |>
       debit(
         sd = 0.50,
@@ -281,7 +265,7 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples", {
 # exactly at a tie.
 
 oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
-  if (is_tie && rounding == "even") {
+  if (is_tie && rounding %in% c("even", "ties_even")) {
     c(twice - 1, twice + 1) / 2 / 10^digits
   } else {
     roundwork::reround(
@@ -313,11 +297,7 @@ oracle_sds <- function(k, n, digits, rounding, symmetric) {
 
 specs <- tibble::tibble(
   rounding = c(
-    rounding_methods,
-    "ties_up",
-    "ties_down",
-    "ties_away",
-    "ties_zero",
+    ROUNDING_METHODS,
     "up_or_down",
     "up",
     "down",
@@ -325,7 +305,7 @@ specs <- tibble::tibble(
     "down_from",
     "up_from_or_down_from"
   ),
-  symmetric = rep(c(FALSE, TRUE), c(length(rounding_methods) + 4L, 6L))
+  symmetric = rep(c(FALSE, TRUE), c(length(ROUNDING_METHODS), 6L))
 )
 
 test_that("`formula = \"exact\"` passes exactly the real binary samples (full)", {

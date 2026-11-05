@@ -19,17 +19,7 @@
 # those methods take a `threshold`, so there is no single grid to precompute.
 # The `"ties_*"` methods are shorthand that `resolve_ties_rounding()` turns into
 # these names before the lookup.
-rounding_methods <- c(
-  "up_or_down",
-  "up",
-  "down",
-  "even",
-  "ceiling_or_floor",
-  "ceiling",
-  "floor",
-  "trunc",
-  "anti_trunc"
-)
+rounding_methods <- ROUNDING_METHODS[!grepl("_from|^ties_", ROUNDING_METHODS)]
 
 keys <- tidyr::expand_grid(
   digits = 1:2,

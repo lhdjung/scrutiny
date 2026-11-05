@@ -120,23 +120,15 @@ test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
 # derivation of the verdict that had drifted away from the verdict itself. They
 # are now the sum range that decides it, so the two cannot come apart.
 
-rounding_methods_predictable <- c(
-  "up_or_down",
-  "up",
-  "down",
-  "ceiling_or_floor",
-  "ceiling",
-  "floor",
-  "trunc",
-  "anti_trunc"
-)
-
 # `"even"` is not predictable in this sense; see the comment further below.
-rounding_methods <- c(rounding_methods_predictable, "even")
+rounding_methods_predictable <- setdiff(
+  ROUNDING_METHODS,
+  c("even", "ties_even")
+)
 
 
 test_that("`consistency` accords with the displayed sum range, row by row", {
-  for (rounding in rounding_methods) {
+  for (rounding in ROUNDING_METHODS) {
     out <- df3 |>
       grim_map(digits_x = 0, items_averaged = 1, show_rec = TRUE, rounding = rounding) |>
       suppressMessages()
@@ -347,13 +339,8 @@ grim_rounds_back <- function(x, n, digits, rounding, threshold = 5) {
 }
 
 test_that("GRIM agrees with the rounding functions themselves", {
-  predictable <- c(
-    "up_or_down", "up", "down", "ceiling_or_floor",
-    "ceiling", "floor", "trunc", "anti_trunc"
-  )
-
   for (n in c(40, 80)) {
-    for (rounding in predictable) {
+    for (rounding in rounding_methods_predictable) {
       consistency <- tibble::tibble(x = df1$x, n = n) |>
         grim_map(digits_x = 2, items_averaged = 1, rounding = rounding) |>
         purrr::pluck("consistency")
