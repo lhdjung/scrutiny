@@ -49,3 +49,11 @@ test_that("the granularity functions recycle like the tidyverse", {
   c(10, 20) |> grim_granularity(numeric(0))    |> expect_error("Can't recycle")
   c(10, 20) |> grim_items(c(0.1, 0.05, 0.1))   |> expect_error("Can't recycle") |> suppressWarnings()
 })
+
+test_that("`grim_granularity()` rejects strings and factors", {
+  # A factor gave 1 with a base R warning, and a string 0.0625:
+  factor(16) |> grim_granularity()      |> expect_error("must be one of these types")
+  "16"       |> grim_granularity()      |> expect_error("must be one of these types")
+  16         |> grim_granularity("2")   |> expect_error("must be one of these types")
+  c(16, NA)  |> grim_granularity()      |> expect_equal(c(0.0625, NA))
+})

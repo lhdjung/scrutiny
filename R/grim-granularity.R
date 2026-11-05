@@ -27,6 +27,13 @@
 #' grim_granularity(n = 16, items_averaged = 2)
 
 grim_granularity <- function(n, items_averaged = 1) {
+  # As in `grim()`, a string or factor is a mistake, but missing values are not:
+  if (!is.numeric(n) && !all(is.na(n))) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !all(is.na(items_averaged))) {
+    check_type(items_averaged, c("double", "integer"))
+  }
   check_positive(n)
   check_positive(items_averaged)
   # `*` would recycle any length into any other:
