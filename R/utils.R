@@ -1551,6 +1551,26 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
       "i" = paste(msg_vignette, "to learn more.")
     )
   }
+  # roundwork reads `threshold` and `symmetric` only under the methods that use
+  # them, but every call records them, as in the print header of mapper output:
+  if (
+    length(threshold) == 1L &&
+      !(is.numeric(threshold) && is.finite(threshold))
+  ) {
+    abort_in_export(
+      "`threshold` must be a finite number.",
+      "x" = "It is {wrap_in_quotes_or_backticks(threshold)}."
+    )
+  }
+  if (
+    length(symmetric) == 1L && !(is.logical(symmetric) && !is.na(symmetric))
+  ) {
+    abort_in_export(
+      "`symmetric` must be `TRUE` or `FALSE`.",
+      "x" = "It is {wrap_in_quotes_or_backticks(symmetric)}."
+    )
+  }
+
   # At zero, the bounds are the offsets alone:
   bounds <- rethrow_in_export(
     roundwork::bound_numerators(0, 0L, rounding, threshold, symmetric)

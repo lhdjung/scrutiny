@@ -298,11 +298,14 @@ test_that("`whole_add()` keeps a sum from 2^53 on as a big number", {
 })
 
 
-test_that("an invalid `threshold` that the rounding method ignores is ignored", {
-  # `rounding_scale()` failed on these with a base R error:
-  5.19 |> grim(28, 2, 1, threshold = NA)        |> expect_false()
-  0.5  |> debit(0.5, 10, 2, 2, threshold = "5") |> expect_false()
-  5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA) |> expect_error("must be a single number")
+test_that("an invalid `threshold` or `symmetric` is an error, even if the rounding method ignores it", {
+  # `rounding_scale()` failed on these with a base R error, and then they were
+  # accepted, and recorded in the print header:
+  5.19 |> grim(28, 2, 1, threshold = NA)                                      |> expect_error("must be a finite number")
+  0.5  |> debit(0.5, 10, 2, 2, threshold = "5")                               |> expect_error("must be a finite number")
+  5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA)                |> expect_error("must be a finite number")
+  pigs1 |> grim_map(2, items_averaged = 1, threshold = "5")                   |> expect_error("must be a finite number")
+  5.19 |> grim(28, 2, 1, symmetric = "no")                                    |> expect_error("`TRUE` or `FALSE`")
 })
 
 
