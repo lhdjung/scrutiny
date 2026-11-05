@@ -292,6 +292,15 @@ test_that("`audit_seq()` says `NA` for hits that a missing value leaves unknown"
 })
 
 
+test_that("`audit_seq()` reads `case` as case numbers, whatever its type", {
+  # Case 2 is consistent, so the cases are 1 and 3, and a factor has the codes
+  # 1 and 2:
+  out <- tibble::tibble(x = c(5.19, 2.50, 4.56), n = c(28, 10, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out |> dplyr::mutate(case = factor(case))       |> audit_seq() |> expect_equal(audit_seq(out))
+  out |> dplyr::mutate(case = as.character(case)) |> audit_seq() |> expect_equal(audit_seq(out))
+  out |> dplyr::mutate(case = letters[case])      |> audit_seq() |> expect_error("rows that the mapper call didn't return")
+})
+
 test_that("a variable whose rows were filtered out has unknown hits", {
   # They were counted as 0, like a variable that `out_max` left without any:
   out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)

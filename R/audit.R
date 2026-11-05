@@ -245,7 +245,12 @@ audit_seq <- function(data) {
   # One row per case, in the order of `case`, as `split()` below has it:
   data_rev <- reverse_map_seq(data)
   cases <- sort(unique(data$case))
-  consistency <- results_reported[cases]
+
+  # By case number: a `case` column made a factor or strings, as for a plot,
+  # would index by level code or by name. Anything that is no case number has
+  # no record, which `rows_removed_by()` below reports:
+  index_cases <- suppressWarnings(as.integer(as.character(cases)))
+  consistency <- results_reported[index_cases]
   rows_by_case <- split(seq_len(nrow(data)), data$case)
 
   # A dispersed value set with an `NA` verdict may or may not be a hit, so a
