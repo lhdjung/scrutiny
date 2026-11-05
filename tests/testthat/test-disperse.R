@@ -205,7 +205,9 @@ test_that("a name repeated in `constant` is an error", {
 })
 
 test_that("an integer `n` near the integer limit is an error, not an `NA` row", {
-  # `n + dispersion` overflowed with a base R warning:
-  2147483647L |> disperse(dispersion = 0:1) |> expect_error("too large to disperse as an integer")
-  2147483647  |> disperse(dispersion = 0:1) |> _$n |> anyNA() |> expect_false()
+  # `n + dispersion` overflowed with a base R warning, and `n - dispersion`
+  # for a negative `n`:
+  2147483647L  |> disperse(dispersion = 0:1) |> expect_error("too large to disperse as an integer")
+  -2147483647L |> disperse(dispersion = 0:1) |> expect_error("too large to disperse as an integer")
+  2147483647   |> disperse(dispersion = 0:1) |> _$n |> anyNA() |> expect_false()
 })

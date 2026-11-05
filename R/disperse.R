@@ -94,17 +94,18 @@ disperse <- function(
   # A step listed twice is the same pair of group sizes:
   dispersion <- unique(round_whole(dispersion))
   check_disperse_exact(abs(n) + max(dispersion, 0))
-  # Integers would overflow to `NA` with a base R warning. No group is that
-  # large, so this is refused rather than computed with another type:
+  # Integers would overflow to `NA` with a base R warning, in either direction.
+  # No group is that large, so this is refused rather than computed with
+  # another type:
   if (
     is.integer(n) &&
       is.integer(dispersion) &&
-      as.numeric(n) + max(dispersion, 0) > .Machine$integer.max
+      abs(as.numeric(n)) + max(dispersion, 0) > .Machine$integer.max
   ) {
     abort_in_export(
       "`n` is too large to disperse as an integer.",
-      "x" = "The group sizes would pass the largest integer, \
-      {(.Machine$integer.max)}.",
+      "x" = "The group sizes would leave the integer range, which ends at \
+      {(.Machine$integer.max)} and {(-.Machine$integer.max)}.",
       "i" = "Convert `n` with `as.numeric()` first."
     )
   }
