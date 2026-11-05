@@ -34,9 +34,10 @@ reverse_map_seq <- function(data) {
     )
   }
 
-  # The tested columns are those left of the key result column, whose name the
-  # sequence mapper records:
-  name_key_result <- attr(data, "scrutiny", exact = TRUE)$name_key_result
+  # The sequence mapper records the name of the key result column and the
+  # tested columns:
+  meta <- attr(data, "scrutiny", exact = TRUE)
+  name_key_result <- meta$name_key_result
   if (is.null(name_key_result)) {
     name_key_result <- "consistency"
   }
@@ -44,9 +45,24 @@ reverse_map_seq <- function(data) {
   check_cols_needed(data, c("case", "var", "diff_var", name_key_result))
   check_rows_unique(data, c("case", "var", "diff_var"))
 
-  var <- data |>
-    select_tested_cols(before = name_key_result) |>
-    colnames()
+  # The tested columns by their recorded names, not by position: a renamed
+  # column would pass for one that no row disperses, and its first dispersed
+  # value for the reported one. Output without the record has them left of the
+  # key result column:
+  var <- names(meta$values_reported)
+
+  if (is.null(var)) {
+    var <- data |>
+      select_tested_cols(before = name_key_result) |>
+      colnames()
+  } else {
+    var <- var[!startsWith(var, "digits_")]
+    check_cols_needed(
+      data,
+      var,
+      "i" = "Was a column of the mapper's output renamed or removed?"
+    )
+  }
 
   # With no inconsistent case, the sequence mapper returns no rows:
   if (nrow(data) == 0L) {

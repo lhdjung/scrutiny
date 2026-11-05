@@ -99,6 +99,20 @@ test_that("a missing column is an error, not wrong counts or a base R error", {
   out |> dplyr::select(-consistency) |> reverse_map_seq() |> expect_error("Missing: `consistency`")
 })
 
+test_that("a renamed or removed tested column is an error, not a dispersed value", {
+  out <- tibble::tibble(x = c(5.19, 2.50, 4.56), n = c(28, 10, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out |> dplyr::rename(mean = x) |> reverse_map_seq() |> expect_error("Missing: `x`")
+  out |> dplyr::rename(mean = x) |> audit_seq()       |> expect_error("Missing: `x`")
+  out |> dplyr::select(-n)       |> audit_seq()       |> expect_error("Missing: `n`")
+})
+
+test_that("the tested columns are found wherever they were moved", {
+  out <- tibble::tibble(x = c(5.19, 2.50, 4.56), n = c(28, 10, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out |> dplyr::relocate(consistency)         |> reverse_map_seq() |> expect_equal(reverse_map_seq(out))
+  out |> dplyr::relocate(consistency)         |> audit_seq()       |> expect_equal(audit_seq(out))
+  out |> dplyr::relocate(case, var, diff_var) |> audit_seq()       |> expect_equal(audit_seq(out))
+})
+
 test_that("a whole-number variable other than `n` is recovered from a single dispersed value", {
   out <- tibble::tibble(absolute = 0, percentage = 5, n = 20) |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = 1)
   out |> nrow() |> expect_equal(1L)
