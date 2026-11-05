@@ -247,8 +247,9 @@ decimal_places_df <- function(
   # group. The output is ungrouped:
   data <- dplyr::ungroup(data)
   quo_cols <- rlang::enquo(cols)
+  # A rename in `cols`, as in `c(new = a)`, would leave the column unfound:
   names_selected <- quo_cols |>
-    tidyselect::eval_select(data) |>
+    tidyselect::eval_select(data, allow_rename = FALSE) |>
     names()
 
   # Only columns that `cols` selected are worth a warning:

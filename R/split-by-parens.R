@@ -131,7 +131,13 @@ split_by_parens <- function(
   }
 
   cols_to_select <- rlang::expr({{ cols }} & !!selection2)
-  cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+  # A rename in `cols`, as in `c(new = a)`, would name the new columns after
+  # it and leave the old one unsplit:
+  cols_to_select <- tidyselect::eval_select(
+    cols_to_select,
+    data,
+    allow_rename = FALSE
+  )
 
   endings <- rep(c(end1, end2), times = length(cols_to_select))
 
@@ -200,7 +206,8 @@ split_by_parens <- function(
   # `decimal_places_df()`:
   names_selected <- names(tidyselect::eval_select(
     rlang::expr({{ cols }}),
-    data
+    data,
+    allow_rename = FALSE
   ))
 
   names_wrong_cols <-

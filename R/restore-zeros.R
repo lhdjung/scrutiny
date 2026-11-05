@@ -244,7 +244,12 @@ restore_zeros_df <- function(
   }
 
   cols_to_select <- rlang::expr({{ cols }} & !!selection2 & !!selection3)
-  cols_to_select <- tidyselect::eval_select(cols_to_select, data)
+  # A rename in `cols`, as in `c(new = a)`, would add a column:
+  cols_to_select <- tidyselect::eval_select(
+    cols_to_select,
+    data,
+    allow_rename = FALSE
+  )
 
   # Selected columns that aren't numeric-like, only possible with
   # `check_numeric_like = FALSE`. `restore_zeros()` turns their non-numeric

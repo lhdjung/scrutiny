@@ -199,3 +199,12 @@ test_that("a data frame without columns comes back as it is", {
   tibble::tibble() |> decimal_places_df() |> expect_identical(tibble::tibble())
   tibble::tibble() |> restore_zeros_df()  |> expect_identical(tibble::tibble())
 })
+
+test_that("`cols` can't rename columns in the `*_df()` functions", {
+  # A rename failed with a vctrs error, added a column, or split into columns
+  # named after the new name while warning that it was not split:
+  data <- tibble::tibble(a = c("1.5", "2.25"), b = c("1 (2)", "3 (4)"))
+  data |> decimal_places_df(cols = c(new = a)) |> expect_error("Can't rename")
+  data |> restore_zeros_df(cols = c(new = a))  |> expect_error("Can't rename")
+  data |> split_by_parens(cols = c(new = b))   |> expect_error("Can't rename")
+})
