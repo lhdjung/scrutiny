@@ -107,19 +107,24 @@ number_to_string <- function(x) {
     out <- sub(mark, ".", out, fixed = TRUE)
   }
 
-  for (i in grep("e", out, fixed = TRUE)) {
-    digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[i])))
-    if (digits >= 15L) {
-      for (digits in 1:15) {
-        spelled <- format(x[i], digits = digits, decimal.mark = ".")
-        if (as.numeric(spelled) == x[i]) {
-          break
-        }
-      }
-    }
-    out[i] <- format(
-      x[i],
-      digits = digits,
+  has_exponent <- grep("e", out, fixed = TRUE)
+  digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[has_exponent])))
+
+  # The search runs over all such numbers at once; one by one, it took a
+  # second for 5,000 of them:
+  search <- which(digits >= 15L)
+  x_search <- x[has_exponent[search]]
+  open <- rep(TRUE, length(search))
+  for (d in 1:15) {
+    fits <- open & as.numeric(sprintf("%.*g", d, x_search)) == x_search
+    digits[search[fits]] <- d
+    open <- open & !fits
+  }
+
+  for (j in seq_along(has_exponent)) {
+    out[has_exponent[j]] <- format(
+      x[has_exponent[j]],
+      digits = digits[j],
       scientific = FALSE,
       decimal.mark = "."
     )
