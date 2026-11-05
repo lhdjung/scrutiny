@@ -123,7 +123,7 @@ Collate:
     'split-by-parens.R'
     'write-doc-audit.R'
 Suggests:
-    ggrepel,
+    ggrepel (>= 0.9.3),
     knitr,
     pillar,
     rmarkdown,

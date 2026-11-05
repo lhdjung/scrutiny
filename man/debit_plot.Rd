@@ -53,8 +53,8 @@ reported mean and SD. Value sets with \code{NA} in a column needed for drawing
 are left out with a warning.
 
 The labels come from \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, which places them at
-random to minimize overlap. Resizing the plot or running the function
-again may give better placements.
+random to minimize overlap. A fixed seed makes the placement the same on
+every run; resizing the plot may give a better one.
 
 Colors come from one scale for \code{colour} and \code{fill}, mapped to
 \code{consistency}. Add another to change them, as in the examples.

@@ -25,8 +25,8 @@
 #'   are left out with a warning.
 #'
 #'   The labels come from [`ggrepel::geom_text_repel()`], which places them at
-#'   random to minimize overlap. Resizing the plot or running the function
-#'   again may give better placements.
+#'   random to minimize overlap. A fixed seed makes the placement the same on
+#'   every run; resizing the plot may give a better one.
 #'
 #'   Colors come from one scale for `colour` and `fill`, mapped to
 #'   `consistency`. Add another to change them, as in the examples.
@@ -397,7 +397,10 @@ debit_plot <- function(
         segment.alpha = 0.5,
         segment.linetype = 3,
         segment.size = 0.75,
-        size = 3.5
+        size = 3.5,
+        # The same placement on every run. Since ggrepel 0.9.3, this leaves the
+        # session's random numbers alone:
+        seed = 1L
       )
   }
 

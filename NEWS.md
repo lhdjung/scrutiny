@@ -78,7 +78,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `decimal_places()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` literally, and the default is `"."` instead of `"\\."`.
 
-- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1 (undo it with `ggplot2::theme(aspect.ratio = NULL)`) and a new `split_by_digits` argument that returns one plot per number of decimal places. `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible.
+- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1 (undo it with `ggplot2::theme(aspect.ratio = NULL)`) and a new `split_by_digits` argument that returns one plot per number of decimal places. `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
 
 - `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
 
