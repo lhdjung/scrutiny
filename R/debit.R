@@ -678,8 +678,7 @@ debit_scalar <- function(
 #'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, although a mean
 #'   of 0.05 with `n = 20` means one 1 in 20, whose SD rounds to 0.22.
 #' @param rounding String. The rounding method assumed to have produced `x`
-#'   and `sd`. Default is `"up_or_down"`. See
-#'   `vignette("rounding-options", package = "roundwork")`.
+#'   and `sd`. Default is `"up_or_down"`. See [`grim()`] for the others.
 #' @param threshold,symmetric The same as in [`grim()`].
 #' @param sd_meaning String. What `sd` really is: the sample SD,
 #'   `"sd_sample"` (the default); the population SD, `"sd_pop"`; either one,

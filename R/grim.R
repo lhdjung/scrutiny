@@ -163,7 +163,11 @@ grim_scalar <- function(
 #' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
-#'   Default is `"up_or_down"`, which accepts either direction. See
+#'   Default is `"up_or_down"`, which accepts either direction. The others are
+#'   `"up_from_or_down_from"`, `"ceiling_or_floor"`, `"up"`, `"down"`, `"even"`,
+#'   `"up_from"`, `"down_from"`, `"ceiling"`, `"floor"`, `"trunc"`,
+#'   `"anti_trunc"`, `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`,
+#'   and `"ties_even"`. See
 #'   `vignette("rounding-options", package = "roundwork")`.
 #' @param threshold Numeric. For `rounding = "up_from"`, `"down_from"`, or
 #'   `"up_from_or_down_from"`, the point within a step at which rounding

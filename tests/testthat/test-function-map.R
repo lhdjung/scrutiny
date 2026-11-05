@@ -858,7 +858,7 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   err <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, rounding = "nonsense") |> tryCatch_error()
   err |> expect_s3_class("error")
   msg <- error_message_full(err)
-  msg |> expect_match("designated string values")
+  msg |> expect_match("one of the rounding methods")
   msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
 
   # Same for the missing-argument case, which is what the pre-application was

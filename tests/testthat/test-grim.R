@@ -382,9 +382,9 @@ test_that("invalid rounding arguments are errors from the function called", {
     tryCatch(expr, error = function(cnd) as.character(cnd$call[[1L]]))
   }
 
-  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2)                       |> expect_error("must be a string")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = 2)                       |> expect_error("\"up_or_down\", \"up_from_or_down_from\"")
   5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = NA)    |> expect_error("`TRUE` or `FALSE`")
-  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "nope")                  |> expect_error("designated string values")
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "nope")                  |> expect_error("or \"ties_even\"")
   5.19 |> grim(28, digits_x = 2, items_averaged = 1, rounding = "up_from", threshold = 0) |> expect_error("greater than 0")
 
   tibble::tibble(x = -5.19, n = 28) |>
@@ -399,7 +399,7 @@ test_that("invalid rounding arguments are errors from the function called", {
   tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> caller_of() |> expect_equal("grim_map")
   tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = 2) |> caller_of() |> expect_equal("grim_map_seq")
   # With no rows, there is no first row to fail on:
-  tibble::tibble(x = numeric(), n = numeric()) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> expect_error("must be a string")
+  tibble::tibble(x = numeric(), n = numeric()) |> grim_map(digits_x = 2, items_averaged = 1, rounding = 2) |> expect_error("one of the rounding methods")
 })
 
 

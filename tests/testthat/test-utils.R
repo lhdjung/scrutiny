@@ -270,6 +270,12 @@ test_that("every `sd_meaning` and `formula` default spells out its constant", {
   n_checked |> expect_equal(21L)
 })
 
+test_that("roundwork accepts every value in `ROUNDING_METHODS`", {
+  for (rounding in ROUNDING_METHODS) {
+    rounding |> check_rounding_args() |> expect_null()
+  }
+})
+
 test_that("a mapper records an enum setting it was not given as its first value", {
   out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
   out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")

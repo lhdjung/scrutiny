@@ -1488,6 +1488,18 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
   if (is.null(symmetric)) {
     symmetric <- FALSE
   }
+  # A vector of several values is left to the length checks, which say why:
+  if (
+    length(rounding) == 1L &&
+      !(is.character(rounding) && rounding %in% ROUNDING_METHODS)
+  ) {
+    abort_in_export(
+      "`rounding` must be one of the rounding methods.",
+      "x" = "It is {.val {rounding}}.",
+      "i" = "Valid methods are {.or {.val {ROUNDING_METHODS}}}.",
+      "i" = "See `vignette(\"rounding-options\", package = \"roundwork\")`."
+    )
+  }
   # At zero, the bounds are the offsets alone:
   bounds <- rethrow_in_export(
     roundwork::bound_numerators(0, 0L, rounding, threshold, symmetric)

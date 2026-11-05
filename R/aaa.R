@@ -152,3 +152,16 @@ LIST_MIN_DISTANCE_FUNCTIONS <- list(
 # decimal digits, and an optional exponent.
 PATTERN_DECIMAL_SPELLING <-
   "^([+-]?)([0-9]*)\\.?([0-9]*)(?:[eE]([+-]?[0-9]+))?$"
+
+# All valid values of `rounding`, as roundwork accepts them. roundwork's own
+# error for a wrong value only points to a vignette, so `check_rounding_args()`
+# names all of them instead. A test in test-utils.R requires roundwork to accept
+# each one.
+
+# fmt: skip
+ROUNDING_METHODS <- c(
+  "up_or_down", "up_from_or_down_from", "ceiling_or_floor",
+  "up", "down", "even", "up_from", "down_from",
+  "ceiling", "floor", "trunc", "anti_trunc",
+  "ties_up", "ties_down", "ties_away", "ties_zero", "ties_even"
+)
