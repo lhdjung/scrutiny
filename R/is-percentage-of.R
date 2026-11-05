@@ -29,13 +29,15 @@ is_percentage_of_scalar <- function(
   # Counts are whole numbers, `n` must be a positive one, and a count is at most
   # its total. Anything else describes no data set that the percentage could
   # have been computed from, so the case is undecidable, as a fractional `n` is
-  # under GRIM:
+  # under GRIM. A missing count is checked below:
+  absolute_missing <- is.na(absolute)
   if (
     !is_decidable_n_items(n) ||
-      !is.finite(absolute) ||
-      absolute < 0 ||
-      absolute > n ||
-      abs(absolute - round(absolute)) >= WHOLE_NUMBER_TOLERANCE ||
+      (!absolute_missing &&
+        (!is.finite(absolute) ||
+          absolute < 0 ||
+          absolute > n ||
+          abs(absolute - round(absolute)) >= WHOLE_NUMBER_TOLERANCE)) ||
       !is.finite(percentage) ||
       is.na(digits_percentage)
   ) {
@@ -61,6 +63,12 @@ is_percentage_of_scalar <- function(
     threshold = threshold,
     symmetric = symmetric
   )
+
+  # A missing count could decide the case either way only if some count from 0
+  # to `n` has the percentage:
+  if (absolute_missing) {
+    return(if (max(counts[1L], 0) <= min(counts[2L], n)) NA else FALSE)
+  }
 
   counts[1L] <= absolute && absolute <= counts[2L]
 }
@@ -104,7 +112,8 @@ is_percentage_of_scalar <- function(
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
 #'   and `NA` if the case cannot be decided: if a value is missing or infinite,
 #'   if `absolute` is not a whole number from 0 to `n`, or if `n` is not a
-#'   positive whole number.
+#'   positive whole number. A missing `absolute` is `FALSE` if no count from 0
+#'   to `n` gives `percentage`.
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
 #'

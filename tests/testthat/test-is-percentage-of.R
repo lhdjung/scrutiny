@@ -39,6 +39,18 @@ test_that("`is_percentage_of()` is `NA` for undecidable cases", {
   1 |> is_percentage_of(50, 2, NA) |> expect_equal(NA)
 })
 
+test_that("a missing `absolute` is `FALSE` if no count has the percentage", {
+  # This was `NA`, although GRIM rules out 33.4% of 120:
+  NA |> is_percentage_of(33.4, 120, 1) |> expect_false()
+  NA |> is_percentage_of(101, 120, 0)  |> expect_false()
+  NA |> is_percentage_of(33.3, 120, 1) |> expect_equal(NA)
+  # `NA` exactly where GRIM finds some count, over every percentage with one
+  # decimal place:
+  percentage <- seq(0, 100, by = 0.1)
+  some_count <- percentage |> grim(37, digits_x = 1, items_averaged = 1, percent = TRUE)
+  NA |> is_percentage_of(percentage, 37, 1) |> is.na() |> expect_equal(some_count)
+})
+
 test_that("`is_percentage_of()` requires `digits_percentage`", {
   40 |> is_percentage_of(33, 120) |> expect_error("digits_percentage")
   "40" |> is_percentage_of(33, 120, 0) |> expect_error("absolute")
