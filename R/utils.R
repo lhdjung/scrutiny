@@ -436,11 +436,38 @@ check_n_exact <- function(n) {
 # arithmetic would use as is, and `disperse_total()` would split as odd. Other
 # values, such as a fractional `n`, are left for the tests to reject:
 round_whole <- function(x) {
+  # Named if the caller's variable is the argument, as in `round_whole(n)`:
+  name <- substitute(x)
+  check_not_integer64(x, if (is.symbol(name)) as.character(name))
+
   if (is.double(x)) {
     whole <- which(is_whole_number(x))
     x[whole] <- round(x[whole])
   }
   x
+}
+
+
+# An `integer64` vector, as a database returns for counts, is a double by type,
+# so it passes for a number, but it stores each whole number in the bits of a
+# double: 28 would be read as 1.4e-322, and every test would say `NA`. Only
+# bit64 can convert it, so that is left to the user. `name` is the argument or
+# column. `round_whole()`, which every whole-number argument goes through,
+# checks those that no mapper or vectorized test has checked by name:
+check_not_integer64 <- function(x, name = NULL) {
+  if (inherits(x, "integer64")) {
+    what <- if (is.null(name)) {
+      "A whole-number argument"
+    } else {
+      paste0("`", name, "`")
+    }
+
+    abort_in_export(
+      "{what} must not be a 64-bit integer vector.",
+      "x" = "Its class is `integer64`, which can't be read as plain numbers.",
+      "i" = "Convert it with `as.numeric()` first."
+    )
+  }
 }
 
 

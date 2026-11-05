@@ -520,6 +520,7 @@ function_map_total_n <- function(
         )
       }
 
+      check_not_integer64(data$n, "n")
       data$n <- round_whole(data$n)
 
       # 2 is the smallest total that splits into two groups. A missing total

@@ -533,6 +533,10 @@ function_map <- function(
         cols_tested[[arg]] <- data[[arg]]
       }
 
+      for (arg in names(cols_tested)) {
+        check_not_integer64(cols_tested[[arg]], arg)
+      }
+
       # Tested as the whole numbers they are accepted as; see `round_whole()`:
       for (arg in intersect(ARGS_WHOLE, names(cols_tested))) {
         cols_tested[[arg]] <- round_whole(cols_tested[[arg]])

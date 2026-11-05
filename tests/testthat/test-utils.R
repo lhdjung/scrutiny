@@ -325,3 +325,19 @@ test_that("`gcd()` is exact past a quotient of 2^52", {
   gcd(2^53 + 2, 6)   |> expect_equal(2)
   0 |> debit(0, 10, 1, 15, rounding = "up_from", threshold = 0.07) |> expect_no_warning() |> expect_true()
 })
+
+test_that("an `integer64` vector is an error, not an `NA` result", {
+  # It is a double by type, but 28 is stored as 1.4e-322. Without bit64, which
+  # is no dependency, the class alone stands in for it:
+  n64 <- structure(c(28, 30), class = "integer64")
+  n64_single <- structure(28, class = "integer64")
+  msg <- "must not be a 64-bit integer vector"
+  5.25 |> grim(n64_single, 2, items_averaged = 1)                                              |> expect_error(paste("`n`", msg))
+  5.25 |> grim_explain(n64_single, 2, items_averaged = 1)                                      |> expect_error(paste("`n`", msg))
+  tibble::tibble(x = c(5.25, 2.5), n = n64) |> grim_map(digits_x = 2, items_averaged = 1)      |> expect_error(paste("`n`", msg))
+  tibble::tibble(x1 = 5.25, x2 = 1.5, n = n64_single) |> grim_map_total_n(2, items_averaged = 1) |> expect_error(paste("`n`", msg))
+  tibble::tibble(a = n64, b = 1:2, total = 3:4) |> add_up_to_map(summands = c(a, b))           |> expect_error(paste("`a`", msg))
+  list(n64) |> add_up_to(58)                                                                   |> expect_error(paste("`summands`", msg))
+  # A column that is not tested, such as an ID, is none of the test's business:
+  tibble::tibble(x = c(5.25, 2.5), n = c(28, 30), id = n64) |> grim_map(digits_x = 2, items_averaged = 1) |> _$consistency |> expect_equal(c(TRUE, TRUE))
+})

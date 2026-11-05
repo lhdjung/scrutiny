@@ -57,6 +57,10 @@ map_value_sets <- function(fn, along, type = "logical") {
   names_along <- along[along %in% args_supplied]
   names_scalar <- args_supplied[!args_supplied %in% along]
 
+  for (name in names_along) {
+    check_not_integer64(vals[[name]], name)
+  }
+
   # Tested as the whole numbers they are accepted as; see `round_whole()`:
   for (name in intersect(ARGS_WHOLE, names_along)) {
     vals[[name]] <- round_whole(vals[[name]])

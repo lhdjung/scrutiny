@@ -5,6 +5,9 @@ add_up_to_scalar <- function(summands, total) {
   if (!is.numeric(total) && !is.na(total)) {
     check_type(total, c("double", "integer"))
   }
+  # Here, since `add_up_to()` hands `summands` down inside a list:
+  check_not_integer64(summands, "summands")
+
   # An empty vector, such as `NULL`, passes the `NA` test but has no values to
   # add up:
   if (

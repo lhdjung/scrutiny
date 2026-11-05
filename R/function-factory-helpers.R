@@ -494,6 +494,10 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
     )
   }
 
+  for (col in names(index)) {
+    check_not_integer64(data[[index[[col]]]], col)
+  }
+
   offenders <- intersect(colnames(data)[index], spoken_for)
 
   if (length(offenders) == 0L) {
