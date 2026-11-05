@@ -80,8 +80,11 @@ vec_ptype2_scrutiny <- function(
   if (ncol(x) > 0L && ncol(y) > 0L) {
     check_same_mapper_call(x, y, x_arg, y_arg, call, allow_plain = TRUE)
   }
+  # A plain data frame comes first in `bind_rows(tibble(), out)`, but the type
+  # is still the mapper output's:
+  template <- if (class(x)[[1L]] %in% ls(bind_classes)) x else y
   vctrs::df_ptype2(x, y, ..., x_arg = x_arg, y_arg = y_arg, call = call) |>
-    restore_scrutiny(x)
+    restore_scrutiny(template)
 }
 
 

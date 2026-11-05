@@ -104,13 +104,17 @@ test_that("mapper output doesn't combine with a plain data frame, in either orde
   out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1)
   plain <- tibble::tibble(x = 1, n = 5, consistency = TRUE)
   dplyr::bind_rows(out, plain)                    |> expect_error("`..2` is not mapper output")
-  dplyr::bind_rows(plain, out)                    |> expect_error("One of the inputs is not mapper output")
+  dplyr::bind_rows(plain, out)                    |> expect_error("`..1` is not mapper output")
   dplyr::bind_rows(out, as.data.frame(plain))     |> expect_error("is not mapper output")
   dplyr::bind_rows(tibble::as_tibble(out), plain) |> nrow() |> expect_equal(2L)
   dplyr::rows_append(out, plain)                  |> expect_error("`y` is not mapper output")
   dplyr::bind_rows(out, tibble::tibble(.rows = 3)) |> expect_error("is not mapper output")
   # An empty data frame adds no rows, whatever its columns:
   dplyr::bind_rows(out, tibble::tibble(x = numeric())) |> audit() |> expect_equal(audit(out))
+  # This failed, since the type was taken from the plain data frame. dplyr
+  # restores the classes of its first input, so only vctrs keeps the record:
+  tibble::tibble() |> vctrs::vec_rbind(out) |> audit() |> expect_equal(audit(out))
+  tibble::tibble() |> dplyr::bind_rows(out) |> class()  |> expect_identical(c("tbl_df", "tbl", "data.frame"))
 })
 
 test_that("columns can be added to mapper output, and nothing but columns", {
