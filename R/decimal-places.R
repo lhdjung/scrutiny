@@ -98,11 +98,21 @@ decimal_places <- function(x, sep = ".") {
 # for. The common case costs one fixed-string match:
 number_to_string <- function(x) {
   out <- as.character(x)
+
+  # `as.character()` and `format()` write the decimal mark of
+  # `options(OutDec = )`, such as a comma, but everything that reads these
+  # strings takes a point:
+  mark <- getOption("OutDec")
+  if (!identical(mark, ".")) {
+    out <- sub(mark, ".", out, fixed = TRUE)
+  }
+
   for (i in grep("e", out, fixed = TRUE)) {
     digits <- nchar(gsub("[^0-9]", "", sub("e.*$", "", out[i])))
     if (digits >= 15L) {
       for (digits in 1:15) {
-        if (as.numeric(format(x[i], digits = digits)) == x[i]) {
+        spelled <- format(x[i], digits = digits, decimal.mark = ".")
+        if (as.numeric(spelled) == x[i]) {
           break
         }
       }

@@ -410,3 +410,15 @@ test_that("a string too large for a double is an infinity", {
 test_that("`check_numeric_like` must be a flag", {
   iris |> decimal_places_df(check_numeric_like = NA) |> expect_error("`check_numeric_like` must be `TRUE` or `FALSE`")
 })
+
+test_that("a decimal comma from `options(OutDec = )` changes no result", {
+  # `as.character(0.5)` is then `"0,5"`, which was read as a whole number:
+  rlang::local_options(OutDec = ",")
+  c(0.5, 123.25, 1e-5)  |> decimal_places() |> expect_equal(c(1L, 2L, 5L))
+  1.23456789012345e-5   |> decimal_places() |> expect_equal(19L)
+  c(0.5, 123.25, 2)     |> restore_zeros()  |> expect_equal(c("0.50", "123.25", "2.00"))
+  4.02                  |> seq_disperse(dispersion = 1:2) |> expect_equal(c(4.00, 4.01, 4.02, 4.03, 4.04))
+  5.19 |> grim(40, digits_x = 1, items_averaged = 1) |> expect_error("More decimal places than specified digits")
+  data.frame(a = c(0.5, 1), b = c("0.5", "1")) |> duplicate_count() |> _$frequency |> expect_equal(c(2L, 2L))
+  tibble::tibble(x = c(5.19, 2.56), n = c(40, 20)) |> grim_map_seq(digits_x = 2, items_averaged = 1) |> audit_seq() |> _$hits_total |> expect_equal(c(10L, 5L))
+})
