@@ -391,7 +391,15 @@ explain_sd_sample_or_pop <- function(explain_type, consistency, n) {
 
   if (!isTRUE(verdict)) {
     population <- explain_type("sd_pop")
-    is_new <- !population$paragraphs %in% out$paragraphs
+    # The shared paragraphs are those at the start, such as the GRIM test. A
+    # later one may say the same as one of the sample SD's, such as "The
+    # remaining 4 sums fail as well.", but about other numbers:
+    paragraphs_both <- list(out$paragraphs, population$paragraphs)
+    n_both <- min(lengths(paragraphs_both))
+    is_shared <- out$paragraphs[seq_len(n_both)] ==
+      population$paragraphs[seq_len(n_both)]
+    n_shared <- if (all(is_shared)) n_both else which.min(is_shared) - 1L
+    is_new <- seq_along(population$paragraphs) > n_shared
 
     out$paragraphs <- if (is.na(population$consistency)) {
       # Undecidable either way, and the population SD's requirements are the
@@ -468,9 +476,19 @@ print.scrutiny_explain <- function(x, ...) {
 }
 
 
-# Why a case is undecidable, in the order in which the tests check it. `values`
-# is a named list of the values that must not be missing.
+# Why a case is undecidable. `values` is a named list of the values that must
+# not be missing. An `n` or item count that the test can't take leaves the case
+# open whatever else is missing, so it comes first, unless it is missing itself:
+# at `n = 1` under `"sd_sample_or_pop"`, a missing `x` is not why the sample SD
+# is undecidable.
 explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
+  if (
+    !anyNA(c(n, items_averaged)) &&
+      !is_decidable_n_items(n, items_averaged, min_n)
+  ) {
+    return(explain_n_items(n, items_averaged, min_n))
+  }
+
   for (name in names(values)) {
     if (is.na(values[[name]])) {
       return(paste0(
@@ -490,6 +508,11 @@ explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
     }
   }
 
+  explain_n_items(n, items_averaged, min_n)
+}
+
+
+explain_n_items <- function(n, items_averaged, min_n) {
   if (is_decidable_n_items(n, min_n = min_n)) {
     paste0(
       "The test needs the number of items to be a positive whole number, but ",
