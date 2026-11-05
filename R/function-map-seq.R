@@ -436,8 +436,6 @@ function_map_seq <- function(
       cases <- which(if (include_consistent) !is.na(results) else !results)
       data <- data[cases, ]
 
-      # Only key columns are dispersed; `items_averaged`, for one, is not a
-      # rounded value:
       # With no variable, nothing would be dispersed, and the warning would name
       # a variable "``":
       if (length(var) == 0L) {
@@ -447,6 +445,8 @@ function_map_seq <- function(
         )
       }
 
+      # Only key columns are dispersed; `items_averaged`, for one, is not a
+      # rounded value:
       if (!all(var %in% reported)) {
         abort_in_export(
           "`var` must only name the reported columns.",

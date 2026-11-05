@@ -109,16 +109,6 @@ an_a <- function(x) {
 }
 
 
-#' Prefix an object's type with "an" or "a"
-#'
-#' For messages. Writes `"factor"` for a factor, `"double (numeric value)"`
-#' for a double, and `"string"` for a character vector.
-#'
-#' @param x Any object.
-#'
-#' @return String.
-#'
-#' @noRd
 # The `*_df()` functions take a data frame or a matrix. `alt` names the
 # function for vectors that the user may have meant:
 as_data_frame_input <- function(data, alt) {
@@ -136,6 +126,16 @@ as_data_frame_input <- function(data, alt) {
 }
 
 
+#' Prefix an object's type with "an" or "a"
+#'
+#' For messages. Writes `"factor"` for a factor, `"double (numeric value)"`
+#' for a double, and `"string"` for a character vector.
+#'
+#' @param x Any object.
+#'
+#' @return String.
+#'
+#' @noRd
 an_a_type <- function(x) {
   type <- typeof(x)
 
