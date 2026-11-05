@@ -467,7 +467,7 @@ grimmer_scalar <- function(
 grimmer_sums_reachable <- function(sums, n, sd_bounds) {
   lower <- sums[[1L]]
   upper <- min(sums[[2L]], lower + n - 1)
-  reach <- floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
+  reach <- grimmer_reach(sd_bounds)
   if (2 * reach + 1 >= n) {
     return(c(lower, upper))
   }
@@ -477,6 +477,13 @@ grimmer_sums_reachable <- function(sums, n, sd_bounds) {
   ends <- pmin(multiples + reach, upper)
   keep <- starts <= ends
   as.vector(rbind(starts[keep], ends[keep]))
+}
+
+
+# How far from a multiple of `n` a sum can be and still pass; see
+# `grimmer_sums_reachable()`. `grimmer_explain()` names it:
+grimmer_reach <- function(sd_bounds) {
+  floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
 }
 
 

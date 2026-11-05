@@ -342,9 +342,43 @@ grimmer_explain <- function(
   sums_tested <- sums |>
     grimmer_sums_reachable(n, sd_bounds) |>
     sums_from_bounds()
+  none_reachable <- length(sums_tested) == 0L
   # If none can, the first one shows why:
-  if (length(sums_tested) == 0L) {
+  if (none_reachable) {
     sums_tested <- sums[[1L]]
+  }
+
+  # Sums out of reach are skipped, so the reader needs to know why the sums
+  # shown are not the first ones:
+  n_window <- min(sums[[2L]] - sums[[1L]], n - 1) + 1
+  text_reach <- if (length(sums_tested) < n_window) {
+    paste0(
+      "Not every sum needs to be tried. Of ",
+      n,
+      " whole numbers with a given sum, those closest to each other have the ",
+      "smallest sum of squares: sum^2 / ",
+      n,
+      " plus r * (",
+      n,
+      " - r) / ",
+      n,
+      ", where r is the remainder of the sum divided by ",
+      n,
+      ". For a sum more than ",
+      grimmer_reach(sd_bounds),
+      " away from a multiple of ",
+      n,
+      ", that addition alone is larger than ",
+      n_dev,
+      " * ",
+      sd_term(sd_upper),
+      ", so the sum fails. ",
+      if (none_reachable) {
+        "This holds for every sum here, as the first one shows."
+      } else {
+        "Only the other sums are tried below."
+      }
+    )
   }
 
   for (s in sums_tested) {
@@ -397,6 +431,8 @@ grimmer_explain <- function(
   }
 
   if (too_large) {
+    # No sum is shown, so there is nothing to say about the ones skipped:
+    text_reach <- NULL
     text_candidates <- paste0(
       "The sums of squares reach 2^53, about 9e15, which is too large to show ",
       "them here as exact numbers. GRIMMER compares them in exact whole-number ",
@@ -408,22 +444,24 @@ grimmer_explain <- function(
       }
     )
   } else if (n_failed > n_shown) {
+    # Skipped sums may come before the ones shown, so the count is of all
+    # those below the one that passes, not of the next ones:
+    n_other <- n_failed - n_shown
     text_candidates <- append(
       text_candidates,
-      paste(
-        "The",
-        if (passed) "next" else "remaining",
-        if (n_failed - n_shown == 1L) {
-          "sum fails as well."
-        } else {
-          paste(n_failed - n_shown, "sums fail as well.")
-        }
+      paste0(
+        "The ",
+        if (passed) "other " else "remaining ",
+        if (n_other == 1L) "sum" else paste(n_other, "sums"),
+        if (passed) paste0(" below ", s),
+        if (n_other == 1L) " fails" else " fail",
+        " as well."
       ),
       after = n_shown
     )
   }
 
-  explain(c(text_grim, text_bounds, text_formula, text_candidates))
+  explain(c(text_grim, text_bounds, text_formula, text_reach, text_candidates))
 }
 
 

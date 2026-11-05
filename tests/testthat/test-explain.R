@@ -282,6 +282,17 @@ test_that("only the first `n` sums are tested, and the rest are counted", {
   text |> expect_match("Inconsistent")
 })
 
+test_that("sums out of reach of the SD are said to be skipped, and counted", {
+  # The sums from 4500000 on were skipped, yet counted among "the next 499772
+  # sums" after the three shown, from 4999549:
+  text <- grimmer_explain(5, 0.01, 1e6, 0, 2, 1)$paragraphs |> paste(collapse = " ")
+  text |> expect_match("more than 451 away from a multiple of 1000000")
+  text |> expect_match("The other 499772 sums below 4999775 fail as well")
+  text |> expect_no_match("next")
+  # Nothing is skipped when every sum is within reach:
+  grimmer_explain(3, 1.2, 6, 0, 1, 1)$paragraphs |> paste(collapse = " ") |> expect_no_match("Not every sum")
+})
+
 test_that("numbers past 2^53 are shown exactly", {
   # Doubles printed 27000720006300016, and named k = 149999999 as the largest:
   0.5 |> debit_explain(0.0009, 300003, 1, 4, sd_meaning = "se") |> format() |> expect_match("27000720006300018")
