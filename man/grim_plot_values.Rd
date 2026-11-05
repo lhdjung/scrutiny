@@ -13,8 +13,8 @@ grim_plot_values(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  color_cons = "#2f7d74",
-  color_incons = "#6f685e",
+  color_con = "#2f7d74",
+  color_incon = "#6f685e",
   color_reported = "#c1522e"
 )
 }
@@ -23,12 +23,12 @@ grim_plot_values(
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
 
-\item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
+\item{color_con, color_incon}{Strings. Colors of the teeth for attainable
 and unattainable values.}
 
 \item{color_reported}{String. Color of the marker for the reported value
 and of the strip behind the teeth, if the value is inconsistent. A
-consistent value is marked in \code{color_cons}.}
+consistent value is marked in \code{color_con}.}
 }
 \value{
 A ggplot object.

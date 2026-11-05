@@ -190,10 +190,10 @@ test_that("the displayed sum range is exactly the range of admissible sums", {
 df4 <- df1 |>
   grim_map(digits_x = 2, items_averaged = 2)
 
-df4_cons_true <- df4$consistency[df4$consistency]
+df4_con_true <- df4$consistency[df4$consistency]
 
 test_that("", {
-  df4_cons_true |> expect_length(6)
+  df4_con_true |> expect_length(6)
 })
 
 

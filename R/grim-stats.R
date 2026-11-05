@@ -297,13 +297,13 @@ grim_total <- function(
   # If the possible means lie closer together than the rounding interval is
   # wide, every reported value is consistent. The subtraction then gives a
   # negative number, which `pmax()` turns into 0.
-  n_incons <- pmax(
+  n_incon <- pmax(
     n_values - div_common * n_multiples,
     0
   )
 
-  n_incons[!decidable] <- NA_real_
-  n_incons
+  n_incon[!decidable] <- NA_real_
+  n_incon
 }
 
 

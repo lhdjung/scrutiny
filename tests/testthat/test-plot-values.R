@@ -100,15 +100,15 @@ test_that("`grim_plot_values()` draws one tooth per value in the unit window", {
 })
 
 test_that("the marker says and shows the verdict", {
-  incons <- 5.19 |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1) |> marker()
-  cons   <- 5.19 |> grim_plot_values(n = 26, digits_x = 2, items_averaged = 1) |> marker()
-  incons$label  |> expect_equal("5.19\ninconsistent")
-  cons$label    |> expect_equal("5.19\nconsistent")
-  incons$colour |> expect_equal("#c1522e")
-  cons$colour   |> expect_equal("#2f7d74")
+  incon <- 5.19 |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1) |> marker()
+  con   <- 5.19 |> grim_plot_values(n = 26, digits_x = 2, items_averaged = 1) |> marker()
+  incon$label  |> expect_equal("5.19\ninconsistent")
+  con$label    |> expect_equal("5.19\nconsistent")
+  incon$colour |> expect_equal("#c1522e")
+  con$colour   |> expect_equal("#2f7d74")
   # 145 / 28 and 146 / 28:
-  incons$neighbors |> expect_equal(c("5.18", "5.21"))
-  cons$neighbors   |> expect_length(0L)
+  incon$neighbors |> expect_equal(c("5.18", "5.21"))
+  con$neighbors   |> expect_length(0L)
 
   # Attainable percentages at `n = 40` are 2.5 points apart, so the window
   # reaches 3 points beyond the unit on either side:

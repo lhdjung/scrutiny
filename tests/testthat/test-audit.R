@@ -69,7 +69,7 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
 ) |>
   structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
-data_incons <- pigs1 |>
+data_incon <- pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   dplyr::filter(!consistency) |>
   dplyr::select(x, n, items_averaged, consistency) |>
@@ -78,7 +78,7 @@ data_incons <- pigs1 |>
 
 test_that("`audit_seq()` has correct output", {
   audit_seq_grim |> dim() |> expect_equal(c(8, 13))
-  audit_seq_grim[1:4] |> expect_equal(data_incons)
+  audit_seq_grim[1:4] |> expect_equal(data_incon)
   audit_seq_grim[[5]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
   audit_seq_grim[[6]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
   audit_seq_grim[[7]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))

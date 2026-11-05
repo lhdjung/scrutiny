@@ -15,8 +15,8 @@ grimmer_plot_values(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  color_cons = "#2f7d74",
-  color_incons = "#6f685e",
+  color_con = "#2f7d74",
+  color_incon = "#6f685e",
   color_reported = "#c1522e"
 )
 }
@@ -24,12 +24,12 @@ grimmer_plot_values(
 \item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
 must have length 1.}
 
-\item{color_cons, color_incons}{Strings. Colors of the teeth for attainable
+\item{color_con, color_incon}{Strings. Colors of the teeth for attainable
 and unattainable values.}
 
 \item{color_reported}{String. Color of the marker for the reported value
 and of the strip behind the teeth, if the value is inconsistent. A
-consistent value is marked in \code{color_cons}.}
+consistent value is marked in \code{color_con}.}
 }
 \value{
 A ggplot object.

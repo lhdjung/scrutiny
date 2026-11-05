@@ -137,7 +137,7 @@ grim_plot_grid <- function(
         which() |>
         length()
       if (n_grimmer_cases > 0L) {
-        msg_incons <- if (n_grimmer_cases == 1L) {
+        msg_incon <- if (n_grimmer_cases == 1L) {
           "inconsistency"
         } else {
           "inconsistencies"
@@ -149,7 +149,7 @@ grim_plot_grid <- function(
         } else {
           msg_viz <- "Visualizing"
         }
-        cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incons}.")
+        cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incon}.")
       }
     } else if (show_data) {
       abort_in_export(

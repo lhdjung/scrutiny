@@ -17,8 +17,8 @@ plot_comb <- function(
   label_value,
   claim,
   x_label,
-  color_cons,
-  color_incons,
+  color_con,
+  color_incon,
   color_reported
 ) {
   bare_tooth <- function(keep, height) {
@@ -170,7 +170,7 @@ plot_comb <- function(
   marker_grob <- grid::gTree(
     children = marker_children,
     gp = grid::gpar(
-      col = color_cons,
+      col = color_con,
       fontsize = fontsize,
       lineheight = lineheight
     )
@@ -198,8 +198,8 @@ plot_comb <- function(
       colour = "grey60",
       linewidth = 0.5
     ) +
-    geom_teeth(bare_tooth(!possible, 0.3), colour = color_incons) +
-    geom_teeth(bare_tooth(possible, 1), colour = color_cons, linewidth = 0.9) +
+    geom_teeth(bare_tooth(!possible, 0.3), colour = color_incon) +
+    geom_teeth(bare_tooth(possible, 1), colour = color_con, linewidth = 0.9) +
     # The reported value points down at the comb from above rather than being
     # drawn across it. A full-height marker would stand exactly where the tooth
     # it is asking about stands, and hide the one thing the figure is for:
@@ -321,11 +321,11 @@ check_comb_value <- function(value, digits, name) {
 #' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
-#' @param color_cons,color_incons Strings. Colors of the teeth for attainable
+#' @param color_con,color_incon Strings. Colors of the teeth for attainable
 #'   and unattainable values.
 #' @param color_reported String. Color of the marker for the reported value
 #'   and of the strip behind the teeth, if the value is inconsistent. A
-#'   consistent value is marked in `color_cons`.
+#'   consistent value is marked in `color_con`.
 #'
 #' @details The comb runs from the whole number at or below `x` to the next one
 #'   up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
@@ -375,8 +375,8 @@ grim_plot_values <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  color_cons = "#2f7d74",
-  color_incons = "#6f685e",
+  color_con = "#2f7d74",
+  color_incon = "#6f685e",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
@@ -463,8 +463,8 @@ grim_plot_values <- function(
       },
       ")"
     ),
-    color_cons = color_cons,
-    color_incons = color_incons,
-    color_reported = if (consistent) color_cons else color_reported
+    color_con = color_con,
+    color_incon = color_incon,
+    color_reported = if (consistent) color_con else color_reported
   )
 }

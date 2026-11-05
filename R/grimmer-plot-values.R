@@ -57,8 +57,8 @@ grimmer_plot_values <- function(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  color_cons = "#2f7d74",
-  color_incons = "#6f685e",
+  color_con = "#2f7d74",
+  color_incon = "#6f685e",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
@@ -155,8 +155,8 @@ grimmer_plot_values <- function(
       },
       ")"
     ),
-    color_cons = color_cons,
-    color_incons = color_incons,
-    color_reported = if (consistent) color_cons else color_reported
+    color_con = color_con,
+    color_incon = color_incon,
+    color_reported = if (consistent) color_con else color_reported
   )
 }
