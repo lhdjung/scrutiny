@@ -61,3 +61,9 @@ test_that("the string \"NA\" is missing, as in `decimal_places()`", {
   c("NaN", "NA")  |> is_numeric_like() |> expect_na()
   tibble::tibble(a = c("1.5", "NaN", "2.25")) |> restore_zeros_df() |> dplyr::pull(a) |> expect_equal(c("1.50", NA, "2.25"))
 })
+
+test_that("a non-breaking space next to a number is numeric-like", {
+  # `decimal_places()` counted it, but `decimal_places_df()` skipped the column:
+  "1.50 " |> is_numeric_like() |> expect_true()
+  tibble::tibble(a = c("1.50 ", "2.1")) |> decimal_places_df() |> _$a |> expect_equal(c(2L, 1L))
+})

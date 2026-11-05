@@ -82,6 +82,9 @@ is_numeric_like <- function(x) {
   # The string `"NA"` is missing, as in `decimal_places()` and
   # `restore_zeros()`:
   x <- x[!is.na(x) & x != "NA"]
+  # `as.numeric()` only trims ASCII whitespace, but `decimal_places()` also
+  # reads a value next to a non-breaking space, as from a copied table:
+  x <- trimws(x, whitespace = "[\\h\\v]")
   x <- suppressWarnings(as.numeric(x))
   # So is the string `"NaN"`, as `NaN` is everywhere in scrutiny:
   x <- x[!is.nan(x)]
