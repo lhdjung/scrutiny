@@ -232,21 +232,35 @@ grim_binomial_power <- function(
 # precision far below `1e-16`, where `1 - poibin::ppoibin()` would be 0, and a
 # stronger result can't get a larger p-value.
 poibin_p_values <- function(p, alternative) {
-  # The probability of each count of successes, one trial at a time. The
-  # vector is allocated once: growing it with `c()` copied it at every step,
-  # which took some 20 seconds for 8,000 trials.
-  pmf <- numeric(length(p) + 1L)
-  pmf[1L] <- 1
-  for (i in seq_along(p)) {
-    p_trial <- p[[i]]
-    index <- seq_len(i)
-    pmf[index + 1L] <- pmf[index + 1L] * (1 - p_trial) + pmf[index] * p_trial
-    pmf[1L] <- pmf[1L] * (1 - p_trial)
-  }
+  if (length(p) > 0L && all(p == p[[1L]])) {
+    # Equal probabilities make it a plain binomial, which `pbinom()` gives
+    # precisely in both tails, in linear time: the loop below is quadratic,
+    # and took a second for 10,000 trials. `P(X <= x)` and `P(X >= x)`:
+    trials <- length(p)
+    p_lower <- stats::pbinom(0:trials, trials, p[[1L]])
+    p_upper <- stats::pbinom(
+      -1:(trials - 1L),
+      trials,
+      p[[1L]],
+      lower.tail = FALSE
+    )
+  } else {
+    # The probability of each count of successes, one trial at a time. The
+    # vector is allocated once: growing it with `c()` copied it at every step,
+    # which took some 20 seconds for 8,000 trials.
+    pmf <- numeric(length(p) + 1L)
+    pmf[1L] <- 1
+    for (i in seq_along(p)) {
+      p_trial <- p[[i]]
+      index <- seq_len(i)
+      pmf[index + 1L] <- pmf[index + 1L] * (1 - p_trial) + pmf[index] * p_trial
+      pmf[1L] <- pmf[1L] * (1 - p_trial)
+    }
 
-  # `P(X <= x)` and `P(X >= x)` for each `x`:
-  p_lower <- pmin(cumsum(pmf), 1)
-  p_upper <- pmin(rev(cumsum(rev(pmf))), 1)
+    # `P(X <= x)` and `P(X >= x)` for each `x`:
+    p_lower <- pmin(cumsum(pmf), 1)
+    p_upper <- pmin(rev(cumsum(rev(pmf))), 1)
+  }
 
   switch(
     alternative,

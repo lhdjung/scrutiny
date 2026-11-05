@@ -108,3 +108,14 @@ test_that("`poibin_p_values()` matches a direct convolution", {
   poibin_p_values(p, "less") |> expect_equal(pmin(cumsum(pmf), 1))
   poibin_p_values(p, "greater") |> expect_equal(pmin(rev(cumsum(rev(pmf))), 1))
 })
+
+test_that("a shared `p0` is a plain binomial, in linear time", {
+  # The Poisson binomial loop did not finish in 280 s:
+  0.5 |> grim_binomial_power(0.9, k = 1e6) |> expect_equal(1)
+  # The same as with a hair of difference between the trials, which takes the loop:
+  p <- rep(0.3, 50L)
+  p_loop <- p + c(1e-15, rep(0, 49L))
+  for (alternative in c("greater", "less", "two.sided")) {
+    p |> poibin_p_values(alternative) |> expect_equal(poibin_p_values(p_loop, alternative))
+  }
+})
