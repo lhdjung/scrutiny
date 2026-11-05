@@ -1493,11 +1493,18 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
     length(rounding) == 1L &&
       !(is.character(rounding) && rounding %in% ROUNDING_METHODS)
   ) {
+    # Without hyperlinks, `.vignette` would print `vignette(pkg::name)`, which
+    # is not valid R, so the call is written out instead:
+    msg_vignette <- if (isTRUE(cli::ansi_hyperlink_types()[["vignette"]])) {
+      "Click {.vignette roundwork::rounding-options}"
+    } else {
+      "See `vignette(\"rounding-options\", package = \"roundwork\")`"
+    }
     abort_in_export(
       "`rounding` must be one of the rounding methods.",
       "x" = "It is {.val {rounding}}.",
       "i" = "Valid methods are {.or {.val {ROUNDING_METHODS}}}.",
-      "i" = "See `vignette(\"rounding-options\", package = \"roundwork\")`."
+      "i" = paste(msg_vignette, "to learn more.")
     )
   }
   # At zero, the bounds are the offsets alone:

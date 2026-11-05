@@ -204,7 +204,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `disperse()`, `disperse2()`, `disperse_total()`, and the `*_map_total_n()` functions lost `constant_index`, and `function_map_total_n()` lost `.constant_index`. The `constant` columns always follow `n_change`; move them with `dplyr::relocate()`.
 
-- scrutiny requires purrr >= 1.0.0 (#87), dplyr >= 1.1.0, and ggplot2 >= 3.4.0. It no longer depends on corrr, and suggests ggrepel instead of importing it.
+- scrutiny requires purrr >= 1.0.0 (#87), dplyr >= 1.1.0, ggplot2 >= 3.4.0, and cli >= 3.4.0. It no longer depends on corrr, and it suggests ggrepel instead of importing it. When using ggrepel, it needs a version >= 0.9.3.
 
 ## Documentation
 
