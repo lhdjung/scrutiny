@@ -16,7 +16,7 @@ grimmer_plot_values(
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   color_cons = "#2f7d74",
-  color_incons = "#d9d4ca",
+  color_incons = "#6f685e",
   color_reported = "#c1522e"
 )
 }

@@ -376,7 +376,7 @@ grim_plot_values <- function(
   threshold = 5,
   symmetric = FALSE,
   color_cons = "#2f7d74",
-  color_incons = "#d9d4ca",
+  color_incons = "#6f685e",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
