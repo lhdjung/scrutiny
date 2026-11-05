@@ -303,9 +303,12 @@ seq_disperse_df <- function(
     diff_var <- NULL
   }
 
-  # Plain dots, not captured expressions, so that a caller's local variable is
-  # found:
-  tibble::tibble(x, diff_var, ...)
+  # The dots are evaluated here, where a caller's local variable is found.
+  # Handed on to `tibble()`, a variable named `x` or `diff_var`, as in `n = x`,
+  # would be taken for the column of that name:
+  cols_other <- rlang::dots_list(..., .named = TRUE)
+
+  tibble::tibble(x, diff_var, !!!cols_other)
 }
 
 

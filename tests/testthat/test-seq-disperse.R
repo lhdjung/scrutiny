@@ -62,6 +62,18 @@ test_that("`seq_disperse_df()` evaluates the dots where they were written", {
   add_n() |> purrr::pluck("n") |> expect_equal(c(45, 45, 45))
 })
 
+# Handed on to `tibble()`, a variable named like an output column was taken for
+# that column:
+test_that("`seq_disperse_df()` finds a caller's variable named `x` or `diff_var`", {
+  add_n <- function(x, diff_var) {
+    seq_disperse_df(.from = 4.02, n = x, group = diff_var, .dispersion = 1, .track_diff_var = TRUE)
+  }
+  out <- add_n(x = 45, diff_var = "a")
+  out$n        |> expect_equal(c(45, 45, 45))
+  out$group    |> expect_equal(c("a", "a", "a"))
+  out$diff_var |> expect_equal(-1:1)
+})
+
 # The sequence must stay on the decimal level given by `by` (or, if `by` is not
 # specified, by `from`), no matter how far `dispersion` reaches. Floating-point
 # arithmetic used to break this: `3.14 - (305 * 0.01)` is `0.0899999999999999`
