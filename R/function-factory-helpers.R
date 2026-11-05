@@ -348,6 +348,18 @@ write_result_cols <- function(results, col_names, fn_name) {
 
   lengths_results <- lengths(results)
 
+  # A result without a value, such as `NULL`, would be dropped by `unlist()`,
+  # and the other rows' results recycled into its place:
+  n_empty <- sum(lengths_results == 0L)
+
+  if (n_empty > 0L) {
+    abort_in_export(
+      "`{fn_name}()` returned no value for {n_empty} row{?s}.",
+      "x" = "It must return a single logical value, or a list starting with \\
+      one, for every row."
+    )
+  }
+
   if (all(lengths_results == 1L)) {
     check_fn_results(unlist(results, use.names = FALSE), fn_name)
     out <- list(unlist(results, use.names = FALSE))

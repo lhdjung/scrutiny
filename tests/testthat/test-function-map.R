@@ -984,6 +984,13 @@ test_that("`.fn` must return a single logical value", {
   tibble::tibble(x = 1:2, n = 0:1) |> nul() |> expect_error("single logical value")
 })
 
+test_that("a `NULL` from `.fn` in a later row is an error, not another row's result", {
+  # `unlist()` dropped the `NULL`s, and the first row's `TRUE` was recycled:
+  later <- function_map(.fn = function(x, n) if (x > 1) NULL else TRUE, .reported = c("x", "n"), .name_test = "T")
+  tibble::tibble(x = 1:3, n = 1) |> later() |> expect_error("returned no value for 2 rows")
+  tibble::tibble(x = c(1, 1), n = 1) |> later() |> _$consistency |> expect_equal(c(TRUE, TRUE))
+})
+
 test_that("a variadic column can't be renamed to a name the output uses", {
   tibble::tibble(a = 1:2, b = 3:4, total = 4:5) |>
     add_up_to_map(summands = c(total = a, b)) |>
