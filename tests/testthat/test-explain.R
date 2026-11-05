@@ -116,6 +116,13 @@ test_that("bounds of values with many decimal places are shown in full", {
   0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)                      |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
 })
 
+test_that("`grim_explain()` shows its bounds exactly", {
+  # The bound 5.18255 was shown as 5.1826, and the range of 2e14 as a point:
+  5.19 |> grim_explain(28, 2, 1, rounding = "up_from", threshold = 2.55) |> format() |> paste(collapse = " ") |> expect_match("5.18255 * 28 = 145.1114", fixed = TRUE)
+  2e14 |> grim_explain(3, 0, 1) |> format() |> paste(collapse = " ") |> expect_match("199999999999999.5 * 3 = 599999999999998.5", fixed = TRUE)
+  -5.19 |> grim_explain(28, 2, 1) |> format() |> paste(collapse = " ") |> expect_match("-5.195 * 28 = -145.46", fixed = TRUE)
+})
+
 
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1) |> expect_error("length 1")

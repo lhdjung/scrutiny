@@ -442,25 +442,3 @@ binary_ones_shown <- function(sum_lower, sum_upper, n, spread_range) {
   ones <- c(sum_lower, sum_upper, ones, n - ones)
   sort(unique(pmin(pmax(ones, sum_lower), sum_upper)))
 }
-
-
-# `n * num / den` for a bound of the mean, `num / den`, written out in full, as
-# is the bound itself with `n = 1`: as
-# a double rounded to 15 digits, `0.5 * 899999999999999` showed as
-# `450000000000000`, next to a range that ends at 449999999999999. `den` is a
-# power of ten, so the decimal point only needs to be placed:
-format_product_exact <- function(n, num, den, digits) {
-  places <- round(log10(den))
-  if (10^places != den) {
-    return(format_number(n * num / den, digits))
-  }
-  text <- whole_format(whole_mul(n, num))
-  if (places == 0) {
-    return(text)
-  }
-  text <- paste0(strrep("0", max(places + 1L - nchar(text), 0L)), text)
-  cut <- nchar(text) - places
-  fraction <- sub("0+$", "", substring(text, cut + 1L))
-  integer <- substr(text, 1L, cut)
-  if (fraction == "") integer else paste0(integer, ".", fraction)
-}

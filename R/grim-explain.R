@@ -130,16 +130,30 @@ grim_explain <- function(
     threshold,
     symmetric
   )
-  x_lower <- format_number(bounds$lower * scale_x / bounds$denom, digits_num)
-  x_upper <- format_number(bounds$upper * scale_x / bounds$denom, digits_num)
-
-  n_items <- as.numeric(n) * items_averaged
-  sum_lower_exact <- format_number(
-    n_items * bounds$lower / bounds$denom,
+  x_lower <- format_product_exact(
+    scale_x,
+    bounds$lower,
+    bounds$denom,
     digits_num
   )
-  sum_upper_exact <- format_number(
-    n_items * bounds$upper / bounds$denom,
+  x_upper <- format_product_exact(
+    scale_x,
+    bounds$upper,
+    bounds$denom,
+    digits_num
+  )
+
+  n_items <- as.numeric(n) * items_averaged
+  sum_lower_exact <- format_product_exact(
+    n_items,
+    bounds$lower,
+    bounds$denom,
+    digits_num
+  )
+  sum_upper_exact <- format_product_exact(
+    n_items,
+    bounds$upper,
+    bounds$denom,
     digits_num
   )
 
@@ -522,6 +536,30 @@ format_number <- function(x, digits = 0L, bounds = numeric()) {
   x |>
     vapply(round_apart, numeric(1L), max(4L, digits + 2L), bounds) |>
     vapply(format, character(1L), scientific = FALSE, digits = 15L, trim = TRUE)
+}
+
+
+# `n * num / den` for a bound of the mean, `num / den`, written out in full, as
+# is the bound itself with `n = 1`. As a double rounded to 15 digits,
+# `0.5 * 899999999999999` showed as `450000000000000`, next to a range that ends
+# at 449999999999999, and `format_number()` showed the bound 5.18255 as
+# 5.1826. `den` is a power of ten, so the decimal point only needs to be placed:
+format_product_exact <- function(n, num, den, digits) {
+  places <- round(log10(den))
+  if (10^places != den) {
+    return(format_number(n * num / den, digits))
+  }
+  text <- whole_format(whole_mul(n, num))
+  sign <- if (startsWith(text, "-")) "-" else ""
+  text <- sub("^-", "", text)
+  if (places == 0) {
+    return(paste0(sign, text))
+  }
+  text <- paste0(strrep("0", max(places + 1L - nchar(text), 0L)), text)
+  cut <- nchar(text) - places
+  fraction <- sub("0+$", "", substring(text, cut + 1L))
+  integer <- substr(text, 1L, cut)
+  paste0(sign, if (fraction == "") integer else paste0(integer, ".", fraction))
 }
 
 
