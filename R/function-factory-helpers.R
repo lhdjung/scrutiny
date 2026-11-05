@@ -498,6 +498,22 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
     check_not_integer64(data[[index[[col]]]], col)
   }
 
+  # The selected columns are combined row by row with `c()`, which takes a
+  # factor's level codes or a date's day count for numbers next to a numeric
+  # column. So they must have a common type:
+  tryCatch(
+    vctrs::vec_ptype_common(!!!as.list(data[index])),
+    error = function(cnd) {
+      reason <- conditionMessage(cnd)
+
+      abort_in_export(
+        "The columns that `{name}` selects in {fn_name} must have a common \\
+        type.",
+        "x" = "{reason}"
+      )
+    }
+  )
+
   offenders <- intersect(colnames(data)[index], spoken_for)
 
   if (length(offenders) == 0L) {

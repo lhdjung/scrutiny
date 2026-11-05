@@ -48,3 +48,13 @@ test_that("a `NULL` element of `summands` is a type error", {
   add_up_to(list(list()), 0)          |> expect_error("`summands` must be one of these types")
   add_up_to(list(numeric(0)), 0)      |> expect_true()
 })
+
+test_that("`add_up_to_map()` doesn't add up a factor's level codes", {
+  # `c()` would combine the codes 1 and 2 with the numbers of `b`:
+  f <- function(...) tibble::tibble(...) |> add_up_to_map(summands = c(a, b))
+  f(a = factor(c(10, 20)),   b = c(3, 4),           total = c(13, 24)) |> expect_error("Can't combine `a` <factor")
+  f(a = c(3, 4),             b = factor(c(10, 20)), total = c(13, 24)) |> expect_error("Can't combine `a` <double> and `b` <factor")
+  f(a = Sys.Date() + 0:1,    b = c(3, 4),           total = c(13, 24)) |> expect_error("must have a common type")
+  f(a = factor(c(10, 20)),   b = factor(c(3, 4)),   total = c(13, 24)) |> expect_error("It is a factor")
+  f(a = c(10L, 20L),         b = c(3, 4),           total = c(13, 24)) |> _$consistency |> expect_equal(c(TRUE, TRUE))
+})
