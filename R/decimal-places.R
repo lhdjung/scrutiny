@@ -126,6 +126,8 @@ number_to_string <- function(x) {
       x[has_exponent[j]],
       digits = digits[j],
       scientific = FALSE,
+      # `1e23` came with a leading space:
+      trim = TRUE,
       decimal.mark = "."
     )
   }

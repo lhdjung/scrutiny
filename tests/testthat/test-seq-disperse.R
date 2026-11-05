@@ -239,3 +239,8 @@ test_that("`from` must be a number small enough to step from", {
   TRUE               |> seq_disperse()               |> expect_error("`from` must be one of these types")
   list(1)            |> seq_disperse()               |> expect_error("`from` must be one of these types")
 })
+
+test_that("`from` with more decimal places than a double scales to is an error", {
+  # Its step underflowed to 0, and a base R error followed:
+  "1e-400" |> seq_disperse() |> expect_error("too many decimal places")
+})

@@ -65,7 +65,14 @@ audit <- function(data, ..., .by = NULL) {
 # `dplyr::group_by()` would not:
 audit_by <- function(data, by) {
   cols <- tryCatch(
-    tidyselect::eval_select(by, data, error_call = rlang::caller_env()),
+    # A rename, as in `c(new = study)`, would be ignored; dplyr's `.by` rejects
+    # it as well:
+    tidyselect::eval_select(
+      by,
+      data,
+      allow_rename = FALSE,
+      error_call = rlang::caller_env()
+    ),
     vctrs_error_subscript_oob = function(cnd) {
       # Sequence and total-n output has the tested columns and its results,
       # but not the other columns of the input:

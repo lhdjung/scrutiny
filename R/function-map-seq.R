@@ -438,6 +438,15 @@ function_map_seq <- function(
 
       # Only key columns are dispersed; `items_averaged`, for one, is not a
       # rounded value:
+      # With no variable, nothing would be dispersed, and the warning would name
+      # a variable "``":
+      if (length(var) == 0L) {
+        abort_in_export(
+          "`var` must name at least one column.",
+          "i" = "These are {wrap_in_backticks(reported)}."
+        )
+      }
+
       if (!all(var %in% reported)) {
         abort_in_export(
           "`var` must only name the reported columns.",

@@ -1705,3 +1705,8 @@ test_that("`dispersion` is checked even if no case is dispersed", {
   df |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(-1, NA))   |> expect_error("missing values or infinities")
   df |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(1.5, 1.5)) |> expect_error("2 values that are not")
 })
+
+test_that("an empty `var` is an error", {
+  # It warned about a variable "``":
+  pigs1 |> grim_map_seq(2, items_averaged = 1, var = character()) |> expect_error("at least one column")
+})

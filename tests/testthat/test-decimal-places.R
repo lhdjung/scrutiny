@@ -426,3 +426,7 @@ test_that("a decimal comma from `options(OutDec = )` changes no result", {
 test_that("a column named `sep` is counted, not taken for the argument", {
   tibble::tibble(aug = c("1.25", "3"), sep = c("2.5", "1.75")) |> decimal_places_df() |> expect_equal(tibble::tibble(aug = c(2L, 0L), sep = 1:2))
 })
+
+test_that("large numbers are written without a leading space", {
+  1e23 |> number_to_string() |> expect_equal("99999999999999991611392")
+})

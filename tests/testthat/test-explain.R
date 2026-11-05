@@ -307,3 +307,11 @@ test_that("`debit_explain()` explains a mean that fails with `digits_sd` missing
 test_that("`debit_explain()` rejects a string `n`, as `debit()` does", {
   0.5 |> debit_explain(0.5, "10", 1, 1) |> expect_error("must be one of these types")
 })
+
+test_that("`explain_map()` doesn't overwrite a column of the user's", {
+  out <- tibble::tibble(x = 5.19, n = 28, explanation = "mine") |> grim_map(2, items_averaged = 1)
+  out |> explain_map() |> expect_error("already has an `explanation` column")
+  # Its own column from an earlier call is the same, so it is kept:
+  explained <- pigs1 |> grim_map(2, items_averaged = 1) |> explain_map()
+  explained |> explain_map() |> expect_identical(explained)
+})

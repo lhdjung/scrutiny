@@ -143,10 +143,11 @@ split_by_parens <- function(
 
   # `dplyr::across()` would silently overwrite a column of the same name, so
   # the new names must be new:
+  # `recycle0`: with no column to split, `paste0()` would return `"_"`:
   names_new <- cols_to_select |>
     names() |>
     rep(each = 2L) |>
-    paste0("_", endings)
+    paste0("_", endings, recycle0 = TRUE)
   if (identical(end1, end2)) {
     abort_in_export(
       "!" = "`end1` and `end2` must be different.",

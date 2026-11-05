@@ -326,3 +326,8 @@ test_that("`audit_total_n()` leaves hits unknown that an undecided split could a
   out$scenarios_total |> expect_equal(c(6L, 12L))
   out$hit_rate[1]     |> expect_na()
 })
+
+test_that("`.by` can't rename a column", {
+  # The new name was ignored:
+  pigs1 |> dplyr::mutate(s = rep(c("a", "b"), 6)) |> grim_map(2, items_averaged = 1) |> audit(.by = c(new = s)) |> expect_error("Can't rename")
+})

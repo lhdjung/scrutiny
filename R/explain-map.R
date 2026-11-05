@@ -119,7 +119,7 @@ add_explanation_col <- function(
   # Plain vectors rather than the tibble, whose `[` is slow to call per row:
   columns <- as.list(data[cols])
 
-  data$explanation <- data |>
+  explanations <- data |>
     nrow() |>
     seq_len() |>
     vapply(
@@ -130,6 +130,20 @@ add_explanation_col <- function(
       fn = fn,
       args = args
     )
+
+  # A column from an earlier call is the same, but any other is the user's:
+  if (
+    "explanation" %in%
+      colnames(data) &&
+      !identical(data$explanation, explanations)
+  ) {
+    abort_in_export(
+      "`data` already has an `explanation` column.",
+      "i" = "Rename or drop it, so that it isn't overwritten."
+    )
+  }
+
+  data$explanation <- explanations
   data
 }
 

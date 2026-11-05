@@ -150,6 +150,14 @@ seq_disperse <- function(
   # before `from` becomes a number, which would drop the trailing zero of a
   # string like `"1.50"`:
   digits_out <- max(digits, decimal_places_scalar(from))
+  # A string like `"1e-400"` has more decimal places than a double can scale
+  # to, and its step underflows to 0:
+  if (!is.finite(10^digits_out)) {
+    abort_in_export(
+      "`from` has too many decimal places to disperse.",
+      "x" = "It has {digits_out}, but a double can only scale to 308."
+    )
+  }
 
   from_is_integer <- is.integer(from)
   from <- as.numeric(from)

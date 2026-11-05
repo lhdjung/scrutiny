@@ -208,3 +208,10 @@ test_that("`cols` can't rename columns in the `*_df()` functions", {
   data |> restore_zeros_df(cols = c(new = a))  |> expect_error("Can't rename")
   data |> split_by_parens(cols = c(new = b))   |> expect_error("Can't rename")
 })
+
+test_that("a column named `_` is no name clash", {
+  # With no column to split, `paste0()` made the new name `"_"`:
+  data <- tibble::tibble("_" = c("a", "b"))
+  data |> split_by_parens() |> expect_warning("not split")
+  data |> split_by_parens() |> suppressWarnings() |> colnames() |> expect_equal("_")
+})
