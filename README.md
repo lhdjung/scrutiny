@@ -39,7 +39,7 @@ install.packages("scrutiny")
 Alternatively, install the development version from GitHub:
 
 ``` r
-remotes::install_github("lhdjung/scrutiny")
+pak::pak("lhdjung/scrutiny")
 ```
 
 ## Get started
