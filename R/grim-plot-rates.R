@@ -92,6 +92,17 @@ grim_plot_rates <- function(data, study) {
     data <- data[!study_missing, ]
   }
 
+  if (nrow(data) == 0L) {
+    abort_in_export(
+      "No value set in `data` can be plotted.",
+      "x" = if (any(study_missing)) {
+        "No value set has a study."
+      } else {
+        "`data` has no rows."
+      }
+    )
+  }
+
   rates <- data |>
     dplyr::filter(.data$exp_incon > 0) |>
     dplyr::summarise(

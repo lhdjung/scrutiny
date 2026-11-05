@@ -51,6 +51,8 @@ test_that("`grim_plot_rates()` errors on a missing `study` and on nothing to plo
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
   data$study <- rep(c("A", "B"), 6)
   data |> grim_plot_rates() |> expect_error("`study` is missing")
-  data |> dplyr::mutate(exp_incon = 0) |> grim_plot_rates(study) |> expect_error("can be plotted")
-  data[0L, ] |> grim_plot_rates(study) |> expect_error("can be plotted")
+  data |> dplyr::mutate(exp_incon = 0) |> grim_plot_rates(study)     |> expect_error("Every `exp_incon` value is 0")
+  # These blamed `exp_incon`, too:
+  data[0L, ] |> grim_plot_rates(study)                                |> expect_error("`data` has no rows")
+  data |> dplyr::mutate(study = NA) |> grim_plot_rates(study)         |> expect_error("No value set has a study") |> suppressWarnings()
 })
