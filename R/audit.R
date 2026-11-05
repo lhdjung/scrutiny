@@ -249,6 +249,15 @@ audit_seq <- function(data) {
     abort_lost_settings()
   }
 
+  # Case numbers made strings or a factor, as for a plot, are numbers again,
+  # which `sort()` and `split()` would otherwise order as 1, 10, 2:
+  if (!is.numeric(data$case)) {
+    case_number <- suppressWarnings(as.integer(as.character(data$case)))
+    if (!anyNA(case_number)) {
+      data$case <- case_number
+    }
+  }
+
   # One row per case, in the order of `case`, as `split()` below has it:
   data_rev <- reverse_map_seq(data)
   cases <- sort(unique(data$case))

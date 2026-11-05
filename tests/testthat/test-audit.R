@@ -299,6 +299,10 @@ test_that("`audit_seq()` reads `case` as case numbers, whatever its type", {
   out |> dplyr::mutate(case = factor(case))       |> audit_seq() |> expect_equal(audit_seq(out))
   out |> dplyr::mutate(case = as.character(case)) |> audit_seq() |> expect_equal(audit_seq(out))
   out |> dplyr::mutate(case = letters[case])      |> audit_seq() |> expect_error("rows that the mapper call didn't return")
+  # Strings came out in the order 1, 10, 11, 12, 2, ...:
+  out <- tibble::tibble(x = c(5.19, 5.22, 5.26, 5.30, 5.33, 5.37, 5.40, 5.44, 5.48, 5.51, 5.55, 5.58), n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out |> dplyr::mutate(case = as.character(case))                    |> audit_seq() |> expect_equal(audit_seq(out))
+  out |> dplyr::mutate(case = factor(case, levels = rev(unique(case)))) |> audit_seq() |> expect_equal(audit_seq(out))
 })
 
 test_that("a variable whose rows were filtered out has unknown hits", {
