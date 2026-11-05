@@ -242,7 +242,7 @@ test_that("the value sets' colors come from a scale that another one replaces", 
     built[[length(built)]]
   }
 
-  p |> tiles() |> call_on(\(t) t$fill) |> expect_equal(c("red", "royalblue1"))
+  p |> tiles() |> call_on(\(t) t$fill) |> expect_equal(unname(COLORS_CONSISTENCY[c("FALSE", "TRUE")]))
   data$consistency |> expect_equal(c(FALSE, TRUE))
 
   scale_new <- ggplot2::scale_colour_manual(

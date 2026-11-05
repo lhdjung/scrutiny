@@ -165,3 +165,8 @@ ROUNDING_METHODS <- c(
   "ceiling", "floor", "trunc", "anti_trunc",
   "ties_up", "ties_down", "ties_away", "ties_zero", "ties_even"
 )
+
+# The colors of consistent and inconsistent value sets in `grim_plot_grid()`
+# and `debit_plot()`. The comb plots spell the same two out as defaults of
+# `color_con` and `color_reported`, so that they show in their usage.
+COLORS_CONSISTENCY <- c("TRUE" = "#2f7d74", "FALSE" = "#c1522e")

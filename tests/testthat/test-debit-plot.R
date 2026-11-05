@@ -171,7 +171,7 @@ test_that("colors come from a scale that another one replaces", {
     ggplot2::ggplot_build(p)$data[[which(is_rect)]]
   }
 
-  p |> rects() |> call_on(\(r) r$fill) |> expect_equal(c("royalblue1", "red"))
+  p |> rects() |> call_on(\(r) r$fill) |> expect_equal(unname(COLORS_CONSISTENCY))
 
   scale_new <- ggplot2::scale_colour_manual(
     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),

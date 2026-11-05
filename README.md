@@ -117,7 +117,7 @@ grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
 ```
 
 Choose how the means were rounded — below, up from 5. The plot adjusts
-to the rounding method. Blue tiles are consistent, red tiles
+to the rounding method. Teal tiles are consistent, rust tiles
 inconsistent:
 
 ``` r

@@ -2,7 +2,7 @@
 #'
 #' @description `grim_plot_grid()` plots the output of [`grim_map()`] or
 #'   [`grimmer_map()`]. Each value set is placed by its sample size and the
-#'   fractional part of its mean, in blue if consistent and red if not, on a
+#'   fractional part of its mean, in teal if consistent and rust if not, on a
 #'   background raster that shows which combinations are GRIM-consistent at
 #'   all.
 #'
@@ -94,12 +94,12 @@
 #'   grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
 #'   grim_plot_grid()
 #'
-#' # Other colors for the value sets:
+#' # Other colors for the value sets, here the ones before scrutiny 1.0.0:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   grim_plot_grid() +
 #'   ggplot2::scale_colour_manual(
-#'     values = c("TRUE" = "darkgreen", "FALSE" = "orange"),
+#'     values = c("TRUE" = "royalblue1", "FALSE" = "red"),
 #'     aesthetics = c("colour", "fill"),
 #'     guide = "none"
 #'   )
@@ -542,7 +542,7 @@ grim_plot_grid <- function(
         height = (frac_unit * tile_size) / 2
       ) +
       ggplot2::scale_colour_manual(
-        values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+        values = COLORS_CONSISTENCY,
         aesthetics = c("colour", "fill"),
         guide = "none"
       )
