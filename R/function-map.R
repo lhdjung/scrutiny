@@ -533,8 +533,13 @@ function_map <- function(
         cols_tested[[arg]] <- data[[arg]]
       }
 
+      # A number with a class, as from `tibble::num()`, is tested as a plain
+      # one: `as.character()` and `as.integer()` fail on some such classes.
       for (arg in names(cols_tested)) {
         check_not_integer64(cols_tested[[arg]], arg)
+        if (is.numeric(cols_tested[[arg]]) && is.object(cols_tested[[arg]])) {
+          cols_tested[[arg]] <- vctrs::vec_data(cols_tested[[arg]])
+        }
       }
 
       # Tested as the whole numbers they are accepted as; see `round_whole()`:

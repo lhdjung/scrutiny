@@ -521,7 +521,8 @@ function_map_total_n <- function(
       }
 
       check_not_integer64(data$n, "n")
-      data$n <- round_whole(data$n)
+      # A plain number, as in the basic mapper:
+      data$n <- round_whole(vctrs::vec_data(data$n))
 
       # 2 is the smallest total that splits into two groups. A missing total
       # can't be split either, and `disperse_total()` would fail on it with a

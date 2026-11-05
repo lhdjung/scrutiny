@@ -341,3 +341,11 @@ test_that("an `integer64` vector is an error, not an `NA` result", {
   # A column that is not tested, such as an ID, is none of the test's business:
   tibble::tibble(x = c(5.25, 2.5), n = c(28, 30), id = n64) |> grim_map(digits_x = 2, items_averaged = 1) |> _$consistency |> expect_equal(c(TRUE, TRUE))
 })
+
+test_that("`tibble::num()` columns are tested as plain numbers", {
+  # `as.character()` and `as.integer()` failed on them:
+  expected <- c(FALSE, TRUE)
+  tibble::tibble(x = tibble::num(c(5.19, 3.20), digits = 2), n = c(28, 30)) |> grim_map_seq(2, items_averaged = 1) |> nrow() |> expect_identical(20L)
+  tibble::tibble(x = c(5.19, 3.20), n = tibble::num(c(28, 30)))             |> grim_map(2, items_averaged = 1)     |> _$consistency |> expect_equal(expected)
+  tibble::tibble(x1 = 5.19, x2 = 3.2, n = tibble::num(50))                  |> grim_map_total_n(2, items_averaged = 1) |> nrow() |> expect_gt(0L)
+})
