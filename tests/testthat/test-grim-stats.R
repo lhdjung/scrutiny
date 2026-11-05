@@ -195,6 +195,18 @@ test_that("counts beyond 2^53 come without a precision warning", {
 test_that("`grim_total()` counts exactly where the steps pass 2^53", {
   # With `percent = TRUE`, the offset times `n` passed 2^53 and the count was
   # one too few or too many; the true counts are `1e16 - n` and the other:
-  1 |> grim_total(7681424021477433, 14, 1, percent = TRUE, rounding = "floor") |> expect_equal(1e16 - 7681424021477433)
-  1 |> grim_total(8950944599675727, 14, 1, percent = TRUE, rounding = "down_from", threshold = 1.25) |> expect_equal(1049055400324273)
+  1 |> grim_total(1862956302252229, 14, 1, percent = TRUE, rounding = "floor")                       |> expect_equal(1e16 - 1862956302252229)
+  1 |> grim_total(2126481517639647, 14, 1, percent = TRUE, rounding = "down_from", threshold = 1.25) |> expect_equal(1e16 - 2126481517639647)
+})
+
+test_that("`grim_total()` refuses sizes where its remainders lose accuracy", {
+  # This returned 0 with a base R warning about the modulus:
+  1.5 |> grim_total(2^53 - 1, 0, 1) |> expect_error("too large for an exact count")
+  1.5 |> grim_total(2^51, 0, 2)     |> expect_error("too large for an exact count")
+})
+
+test_that("`grim_total()` and `grim_exp_incon()` check `rounding` themselves", {
+  # roundwork's message named its own `symmetric` and `unround()`:
+  1.5 |> grim_total(20, 1, 1, rounding = "bogus")     |> expect_error("must be one of the rounding methods")
+  1.5 |> grim_exp_incon(20, 1, 1, rounding = "bogus") |> expect_error("must be one of the rounding methods")
 })

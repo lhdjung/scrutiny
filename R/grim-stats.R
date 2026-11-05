@@ -131,6 +131,8 @@ grim_total <- function(
     error_items_missing()
   }
 
+  check_rounding_args(rounding, threshold)
+
   # Tested as the whole numbers they are accepted as; see `round_whole()`:
   n <- round_whole(n)
   digits_x <- round_whole(digits_x)
@@ -187,6 +189,18 @@ grim_total <- function(
   decidable <- is_decidable_n_items(n, items_averaged) &
     is.finite(x) &
     is.finite(n_values)
+
+  # From 2^52 on, `%%` below loses accuracy. No study has that many values, and
+  # `grim()` refuses far smaller ones:
+  too_large <- decidable & n_means >= 2^52
+  if (any(too_large)) {
+    abort_in_export(
+      "`n` is too large for an exact count.",
+      "x" = "`n * items_averaged` is about \
+      {format(n_means[too_large][[1L]], digits = 4L)}, but the count is \
+      exact only below 2^52, about 4.5e15."
+    )
+  }
 
   # A reported value is consistent if at least one possible mean lies inside its
   # rounding interval. With two decimal places and the default rounding, the
