@@ -203,3 +203,9 @@ test_that("a name repeated in `constant` is an error", {
   5 |> disperse(1, constant = list(a = 1:2, a = 3:4))             |> expect_error("`a` occurs more than once")
   tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(a = 1:2, a = 3:4)) |> expect_error("`a` occurs more than once")
 })
+
+test_that("an integer `n` near the integer limit is an error, not an `NA` row", {
+  # `n + dispersion` overflowed with a base R warning:
+  2147483647L |> disperse(dispersion = 0:1) |> expect_error("too large to disperse as an integer")
+  2147483647  |> disperse(dispersion = 0:1) |> _$n |> anyNA() |> expect_false()
+})
