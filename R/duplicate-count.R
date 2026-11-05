@@ -126,15 +126,18 @@ duplicate_count <- function(
     return(out)
   }
 
-  # Location names in their order in `x`:
-  x$name <- as.character(x$name)
-  locations <- vector("list", nrow(out))
-  locations_n <- integer(nrow(out))
-  for (i in seq_along(locations)) {
-    temp <- unique(x[x$value == out$value[i], ]$name)
-    locations[i] <- list(temp[order(match(temp, names_orig))])
-    locations_n[i] <- length(locations[[i]])
-  }
+  # Location names in their order in `x`. Split once, rather than scanning `x`
+  # once per value, which took quadratic time:
+  names_by_value <- split(as.character(x$name), as.character(x$value))
+  locations <- lapply(
+    names_by_value[match(out$value, names(names_by_value))],
+    function(names) {
+      names <- unique(names)
+      names[order(match(names, names_orig))]
+    }
+  )
+  names(locations) <- NULL
+  locations_n <- lengths(locations)
 
   if (locations_type == "character") {
     locations <- vapply(
