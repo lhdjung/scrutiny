@@ -991,6 +991,21 @@ test_that("a `NULL` from `.fn` in a later row is an error, not another row's res
   tibble::tibble(x = c(1, 1), n = 1) |> later() |> _$consistency |> expect_equal(c(TRUE, TRUE))
 })
 
+test_that("several values from `.fn` without `.col_names` are an error", {
+  # Both failed with a raw tibble error:
+  later <- function_map(.fn = function(x, n) if (x > 1) c(TRUE, FALSE) else TRUE, .reported = c("x", "n"), .name_test = "T")
+  pairs <- function_map(.fn = function(x, n) list(TRUE, 1),                      .reported = c("x", "n"), .name_test = "T")
+  tibble::tibble(x = 1:2, n = 3) |> later() |> expect_error("returned 2 values for at least one row")
+  tibble::tibble(x = 1:2, n = 3) |> pairs() |> expect_error("returned 2 values for at least one row")
+})
+
+test_that("`.name_key_result` is any single string", {
+  # A space failed in `parse()`, and two strings in a coercion:
+  spaced <- function_map(.fn = function(x, n) TRUE, .reported = c("x", "n"), .name_test = "T", .name_key_result = "my result")
+  tibble::tibble(x = 1, n = 2) |> spaced() |> _$`my result` |> expect_true()
+  function_map(.fn = function(x, n) TRUE, .reported = c("x", "n"), .name_test = "T", .name_key_result = c("a", "b")) |> expect_error("single string")
+})
+
 test_that("a variadic column can't be renamed to a name the output uses", {
   tibble::tibble(a = 1:2, b = 3:4, total = 4:5) |>
     add_up_to_map(summands = c(total = a, b)) |>

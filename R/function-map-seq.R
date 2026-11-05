@@ -203,6 +203,7 @@ function_map_seq <- function(
   force(.reported)
   force(.name_test)
   force(.name_key_result)
+  check_string(.name_key_result)
   force(.name_class)
 
   # A class added here comes first; see `R/bind-rows.R`:

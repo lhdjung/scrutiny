@@ -369,7 +369,14 @@ write_result_cols <- function(results, col_names, fn_name) {
 
   # Without `.col_names`, there is nothing to unpack into:
   if (is.null(col_names)) {
-    return(list(consistency = results))
+    offenders <- unique(lengths_results[lengths_results != 1L])
+    abort_in_export(
+      "`{fn_name}()` returned {offenders[1L]} values for at least one row.",
+      "x" = "It must return a single logical value for every row, unless \
+      `.col_names` names the values it returns.",
+      "i" = "`.col_names` is an argument of `function_map()`, specified \
+      when the present function was created."
+    )
   }
 
   offenders <- unique(lengths_results[lengths_results != length(col_names)])

@@ -172,6 +172,7 @@ function_map <- function(
   rlang::check_dots_empty()
 
   check_args_disabled_unnamed(.args_disabled)
+  check_string(.name_key_result)
 
   fn_name <- deparse(substitute(.fn))
   formals_fn <- formals(.fn)

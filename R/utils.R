@@ -1805,11 +1805,14 @@ write_code_col_key_result <- function(
     })
   }
 
-  data_dollar_result <- paste0(name_data, "$", name_key_result)
-  condition_not_list <- paste0("!is.list(", data_dollar_result, ")")
-
-  condition_not_list <- rlang::parse_expr(condition_not_list)
-  data_dollar_result <- rlang::parse_expr(data_dollar_result)
+  # Built as calls, not parsed from text, which fails on a name such as
+  # `"my result"`:
+  data_dollar_result <- rlang::call2(
+    "$",
+    name_data,
+    rlang::sym(name_key_result)
+  )
+  condition_not_list <- rlang::expr(!is.list(!!data_dollar_result))
 
   rlang::expr({
     `!!!`(code_rename)
