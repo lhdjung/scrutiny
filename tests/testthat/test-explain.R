@@ -290,3 +290,13 @@ test_that("`debit_explain()` writes the bounds of the number of ones in full", {
   # The bound itself was rounded to 0.0222:
   0.03 |> debit_explain(0.17, 33, 2, 2, rounding = "up_from", threshold = 2.25) |> format() |> paste(collapse = " ") |> expect_match("0.02225 * 33 = 0.73425", fixed = TRUE)
 })
+
+test_that("`debit_explain()` explains a mean that fails with `digits_sd` missing", {
+  # The SD's bounds were formatted with `NA` decimal places and failed:
+  0.6 |> debit_explain(0.2, 2, 1, NA) |> format() |> paste(collapse = " ") |> expect_match("no number of ones fits")
+  tibble::tibble(x = c(0.6, 0.5), sd = c(0.2, 0.71), n = 2) |> debit_map(digits_x = 1, digits_sd = c(NA, 2)) |> explain_map() |> nrow() |> expect_identical(2L)
+})
+
+test_that("`debit_explain()` rejects a string `n`, as `debit()` does", {
+  0.5 |> debit_explain(0.5, "10", 1, 1) |> expect_error("must be one of these types")
+})

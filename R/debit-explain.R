@@ -48,8 +48,7 @@ debit_explain <- function(
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
-  # As a double, as in `debit_scalar()`:
-  n <- as.numeric(round_whole(n))
+  n <- round_whole(n)
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)
@@ -78,6 +77,8 @@ debit_explain <- function(
     show_rec = TRUE
   )
   consistency <- rec[[1L]]
+  # As a double, as in `debit_scalar()`, which has checked the type:
+  n <- as.numeric(n)
 
   # `debit_scalar()` has checked `sd_meaning`, and the arguments are known not
   # to be missing:
@@ -182,10 +183,6 @@ debit_explain <- function(
     return(explain(c(text_intro, text_bounds_sd, text_none)))
   }
 
-  sd_lower <- format_number(rec[[2L]], digits_sd)
-  sd_incl_lower <- rec[[3L]]
-  sd_upper <- format_number(rec[[4L]], digits_sd)
-  sd_incl_upper <- rec[[5L]]
   sum_lower <- rec[[8L]]
   sum_upper <- rec[[9L]]
 
@@ -263,14 +260,15 @@ debit_explain <- function(
   # The statistic that the bounds and the calculations below are about:
   stat <- if (sd_meaning == "se") "SE" else "SD"
 
+  # Only formatted here, since a missing `digits_sd` has no bounds:
   text_bounds_sd <- describe_reported(
     if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
     sd,
     digits_sd,
-    sd_lower,
-    sd_upper,
-    sd_incl_lower,
-    sd_incl_upper
+    format_number(rec[[2L]], digits_sd),
+    format_number(rec[[4L]], digits_sd),
+    rec[[3L]],
+    rec[[5L]]
   )
 
   n_dev <- sd_denominator(n, sd_meaning)
