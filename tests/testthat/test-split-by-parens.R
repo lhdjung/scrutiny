@@ -177,3 +177,11 @@ test_that("the flags of `split_by_parens()` must be flags", {
   df |> split_by_parens(check_sep = "no") |> expect_error("`check_sep` must be `TRUE` or `FALSE`")
   df |> split_by_parens(transform = 1)    |> expect_error("`transform` must be `TRUE` or `FALSE`")
 })
+
+test_that("a column named `sep` is split, not taken for the argument", {
+  df <- tibble::tibble(aug = c("0.09 (0.21)", "0.19 (0.28)"), sep = c("0.19 (0.13)", "0.53 (0.10)"))
+  out <- df |> split_by_parens()
+  out |> colnames() |> expect_equal(c("aug_x", "aug_sd", "sep_x", "sep_sd"))
+  out$aug_sd        |> expect_equal(c("0.21", "0.28"))
+  out$sep_x         |> expect_equal(c("0.19", "0.53"))
+})

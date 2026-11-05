@@ -278,23 +278,29 @@ restore_zeros_df <- function(
   # frame, so `restore_zeros()`'s warning that there is nothing to pad would
   # only be noise here, and it would name the column `x`:
   # `dplyr::mutate()` would re-signal the warning on its own, so it is muffled
-  # inside `across()`:
+  # in the function that `across()` applies.
+  #
+  # That function is defined out here: dplyr inlines one written inside
+  # `across()`, which then looks up `width` and the like among the columns of
+  # `data` first, so that a column of such a name would replace the argument.
+  restore <- function(x) {
+    withCallingHandlers(
+      restore_zeros(
+        x = x,
+        width = width,
+        sep_in = sep_in,
+        sep_out = sep_out,
+        check_width = check_width
+      ),
+      scrutiny_warning_no_zeros = function(cnd) rlang::cnd_muffle(cnd)
+    )
+  }
+
   data |>
     dplyr::mutate(
       dplyr::across(
         .cols = all_of(cols_to_select),
-        .fns = function(data_dummy) {
-          withCallingHandlers(
-            restore_zeros(
-              x = data_dummy,
-              width = width,
-              sep_in = sep_in,
-              sep_out = sep_out,
-              check_width = check_width
-            ),
-            scrutiny_warning_no_zeros = function(cnd) rlang::cnd_muffle(cnd)
-          )
-        }
+        .fns = restore
       )
     )
 }

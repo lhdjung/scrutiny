@@ -156,14 +156,19 @@ split_by_parens <- function(
     )
   }
 
+  # Defined out here: dplyr inlines functions written inside `across()`, which
+  # then look up `sep` among the columns of `data` first, such as one of
+  # September's values next to `aug` and `oct`:
+  split_fns <- list(
+    function(x) before_parens(string = x, sep = sep),
+    function(x) inside_parens(string = x, sep = sep)
+  )
+
   out <- data |>
     dplyr::mutate(
       dplyr::across(
         .cols = all_of(cols_to_select),
-        .fns = list(
-          function(x) before_parens(string = x, sep = sep),
-          function(x) inside_parens(string = x, sep = sep)
-        ),
+        .fns = split_fns,
         .names = "{.col}_{endings}"
       ),
       .before = 1L

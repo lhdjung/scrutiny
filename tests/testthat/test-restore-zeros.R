@@ -213,3 +213,11 @@ test_that("the flags of `restore_zeros_df()` must be flags", {
   iris |> restore_zeros_df(check_numeric_like = "no") |> expect_error("`check_numeric_like` must be `TRUE` or `FALSE`")
   iris |> restore_zeros_df(check_decimals = NA)       |> expect_error("`check_decimals` must be `TRUE` or `FALSE`")
 })
+
+test_that("a column named like an argument doesn't replace it", {
+  # dplyr inlines a function written inside `across()`, which then finds the
+  # column `width` before the argument:
+  df <- tibble::tibble(length = c(1.25, 3, 4.5), width = c(2, 4, 1))
+  df |> restore_zeros_df()          |> expect_equal(tibble::tibble(length = c("1.25", "3.00", "4.50"), width = c("2", "4", "1")))
+  df |> restore_zeros_df(width = 3) |> _$width |> expect_equal(c("2.000", "4.000", "1.000"))
+})

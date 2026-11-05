@@ -272,10 +272,14 @@ decimal_places_df <- function(
     )
   }
 
+  # Defined out here: dplyr inlines a function written inside `across()`, which
+  # then looks up `sep` among the columns of `data` first:
+  count <- function(x) decimal_places(x = x, sep = sep)
+
   data |>
     dplyr::mutate(dplyr::across(
       .cols = all_of(names_selected),
-      .fns = function(x) decimal_places(x = x, sep = sep)
+      .fns = count
     ))
 }
 
