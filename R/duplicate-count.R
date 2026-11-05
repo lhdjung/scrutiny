@@ -184,7 +184,7 @@ check_duplicate_input <- function(x) {
   if (length(index_null) > 0L) {
     abort_in_export(
       "The elements of `x` can't be `NULL`.",
-      "x" = "{cli::qty(length(index_null))}Element{?s} {index_null} \\
+      "x" = "{cli::qty(length(index_null))}Element{?s} {as.character(index_null)} \\
       {?is/are}."
     )
   }
@@ -205,14 +205,17 @@ check_duplicate_input <- function(x) {
 
 
 # Values are compared as strings, which a list-column has no single one of, so
-# `1:3` would become `"1:3"`. Shared with `duplicate_count_colpair()`:
+# `1:3` would become `"1:3"`, nor a matrix column, which has one per column.
+# Shared with `duplicate_count_colpair()`:
 check_atomic_cols <- function(x, name) {
-  index_list <- which(!vapply(x, is.atomic, logical(1L), USE.NAMES = FALSE))
-  if (length(index_list) > 0L) {
+  is_vector <- function(col) is.atomic(col) && is.null(dim(col))
+  index_bad <- which(!vapply(x, is_vector, logical(1L), USE.NAMES = FALSE))
+  if (length(index_bad) > 0L) {
     abort_in_export(
       "The columns of `{name}` must be atomic vectors.",
-      "x" = "{cli::qty(length(index_list))}Column{?s} {index_list} \\
-      {?is a list/are lists}."
+      "x" = "{cli::qty(length(index_bad))}Column{?s} {as.character(index_bad)} \\
+      {?is not one/are not}.",
+      "i" = "Lists and matrices can't be compared value by value."
     )
   }
 }

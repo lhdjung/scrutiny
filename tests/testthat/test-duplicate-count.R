@@ -1106,13 +1106,20 @@ test_that("repeated column names and bad suffixes are errors", {
   tibble::tibble(a = 1:2) |> duplicate_tally(colname_end = c("x", "y")) |> expect_error("single string")
 })
 
-test_that("list-columns are an error in all `duplicate_*()` functions", {
+test_that("list-columns and matrix columns are an error in all `duplicate_*()` functions", {
   # `1:3` was compared as the string `"1:3"`, or `sort.int()` failed:
   df <- tibble::tibble(a = list(1:3, 2), b = 1:2)
-  df                          |> duplicate_count()         |> expect_error("Column 1 is a list")
-  df                          |> duplicate_tally()         |> expect_error("Column 1 is a list")
-  df                          |> duplicate_count_colpair() |> expect_error("Column 1 is a list")
-  list(a = list(1, 2), b = 1:2) |> duplicate_count()       |> expect_error("Column 1 is a list")
+  df                          |> duplicate_count()         |> expect_error("Column 1 is not one")
+  df                          |> duplicate_tally()         |> expect_error("Column 1 is not one")
+  df                          |> duplicate_count_colpair() |> expect_error("Column 1 is not one")
+  list(a = list(1, 2), b = 1:2) |> duplicate_count()       |> expect_error("Column 1 is not one")
+  # A matrix column failed with raw errors:
+  df_matrix <- tibble::tibble(a = 1:2, m = matrix(1:4, 2))
+  df_matrix                   |> duplicate_count()         |> expect_error("Column 2 is not one")
+  df_matrix                   |> duplicate_tally()         |> expect_error("Column 2 is not one")
+  # cli failed on the numbers of two or more columns or elements:
+  tibble::tibble(a = list(1, 2), b = list(1, 2)) |> duplicate_count() |> expect_error("Columns 1 and 2 are not")
+  list(1, NULL, NULL)                            |> duplicate_count() |> expect_error("Elements 2 and 3 are")
 })
 
 test_that("`duplicate_count_colpair()` names unnamed columns by position", {
