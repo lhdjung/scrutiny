@@ -107,7 +107,7 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim_explain]{grim_explain()}} to explain a verdict in plain words,
+\code{\link[=grim_explain]{grim_explain()}} to explain a result in plain words,
 \code{\link[=grim_map]{grim_map()}} for data frames, \code{\link[=grim_values]{grim_values()}} for the means that \code{n}
 integers can produce, and \code{\link[=grim_exp_incon]{grim_exp_incon()}} for how informative the
 test is in a given case.

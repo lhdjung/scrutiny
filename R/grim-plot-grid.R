@@ -253,7 +253,7 @@ grim_plot_grid <- function(
       abort_in_export(
         "No value set in `data` could be decided.",
         "x" = "All {nrow(data)} `consistency` value{?s} {?is/are} `NA`.",
-        "i" = "A tile is colored by its verdict, so there is nothing to draw.",
+        "i" = "A tile is colored by its consistency, so there is nothing to draw.",
         "i" = "Set `show_data = FALSE` for the background raster on its own."
       )
     }
@@ -261,7 +261,7 @@ grim_plot_grid <- function(
       "!" = "Dropping {n_undecided} undecidable value set{?s} \\
       from the plot.",
       "i" = "Their `consistency` is `NA`, and a tile is colored by its \\
-      verdict, so they cannot be drawn.",
+      consistency, so they cannot be drawn.",
       "i" = "The remaining {nrow(data) - n_undecided} value set{?s} \\
       {?is/are} plotted."
     ))

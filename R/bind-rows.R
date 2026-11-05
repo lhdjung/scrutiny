@@ -209,7 +209,7 @@ check_same_mapper_call <- function(
   } else if (!same_value(meta_x$cols_variadic, meta_y$cols_variadic)) {
     "They test different columns."
   } else {
-    "They record the same settings but different value sets or verdicts."
+    "They record the same settings but different value sets or results."
   }
 
   if (x_arg == "" || y_arg == "") {

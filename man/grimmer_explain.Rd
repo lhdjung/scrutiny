@@ -62,7 +62,7 @@ standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
 if it were an SD. See \emph{SD meaning}.}
 }
 \value{
-An object of class \code{scrutiny_explain}: a list with the verdict as
+An object of class \code{scrutiny_explain}: a list with the result as
 \code{consistency} (\code{TRUE}, \code{FALSE}, or \code{NA}), the explanation's \code{paragraphs},
 and the \code{test} and its \code{inputs}. It prints as the explanation.
 }

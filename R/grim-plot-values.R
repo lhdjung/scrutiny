@@ -312,7 +312,7 @@ check_comb_value <- function(value, digits, name) {
 #'   comb. Each tooth is a mean (or percentage) that could have been reported
 #'   with `digits_x` decimal places. Teeth for means that a sample of size `n`
 #'   can have are tall. The reported value is marked above the comb and
-#'   labeled with its verdict. If it is inconsistent, the nearest attainable
+#'   labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
 #'   values on either side are labeled.
 #'
 #'   [`grim_plot_grid()`] shows many results at once; this function explains

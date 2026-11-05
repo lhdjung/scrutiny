@@ -4,7 +4,7 @@
 #'
 #'   `explain_map()` takes the output of [`grim_map()`],
 #'   [`grimmer_map()`], or [`debit_map()`] and adds an `explanation` column: the
-#'   calculation behind each row's verdict in plain words, as printed by
+#'   calculation behind each row's result in plain words, as printed by
 #'   [`grim_explain()`], [`grimmer_explain()`], and [`debit_explain()`] for a
 #'   single case. This includes the output of the sequence and total-n mappers
 #'   built on them, such as [`grim_map_seq()`].
@@ -12,7 +12,7 @@
 #'   To read the explanations, use [`explain_print()`].
 #'
 #' @details Each row is tested again from its own values and the settings of
-#'   the mapper call, such as `rounding` and `percent`. If the verdict differs
+#'   the mapper call, such as `rounding` and `percent`. If the result differs
 #'   from the row's `consistency` value, the row must have been changed after
 #'   testing, and `explain_map()` throws an error.
 #'

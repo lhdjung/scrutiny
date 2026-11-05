@@ -53,7 +53,7 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
 \value{
-An object of class \code{scrutiny_explain}: a list with the verdict as
+An object of class \code{scrutiny_explain}: a list with the result as
 \code{consistency} (\code{TRUE}, \code{FALSE}, or \code{NA}), the explanation's \code{paragraphs},
 and the \code{test} and its \code{inputs}. It prints as the explanation.
 }

@@ -40,7 +40,7 @@ A ggplot object.
 comb. Each tooth is a mean (or percentage) that could have been reported
 with \code{digits_x} decimal places. Teeth for means that a sample of size \code{n}
 can have are tall. The reported value is marked above the comb and
-labeled with its verdict. If it is inconsistent, the nearest attainable
+labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
 values on either side are labeled.
 
 \code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function explains

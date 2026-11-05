@@ -63,7 +63,7 @@
 #'    first or third test. Test 2 is implied by test 1, so it never fails.
 #'
 #' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
-#'   verdict in plain words.
+#'   result in plain words.
 #'
 #' @include audit.R grimmer.R function-map.R
 #'
@@ -91,7 +91,7 @@
 #'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   audit()
 #'
-#' # Explain the verdicts in plain words:
+#' # Explain the results in plain words:
 #' pigs5 |>
 #'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
 #'   explain_print(1:2)

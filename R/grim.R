@@ -184,7 +184,7 @@ grim_scalar <- function(
 #'   missing or infinite, or if `n` or `items_averaged` is not a positive whole
 #'   number.
 #'
-#' @seealso [`grim_explain()`] to explain a verdict in plain words,
+#' @seealso [`grim_explain()`] to explain a result in plain words,
 #'   [`grim_map()`] for data frames, [`grim_values()`] for the means that `n`
 #'   integers can produce, and [`grim_exp_incon()`] for how informative the
 #'   test is in a given case.

@@ -23,7 +23,7 @@ Two tests check whether reported percentages and sums can have been derived from
 - `is_percentage_of()` and `is_percentage_of_map()` check whether a reported percentage is consistent with a reported count and total.
 - `add_up_to()` and `add_up_to_map()` check whether reported counts, such as group sizes, sum to a reported total.
 
-The math is trivial. What the functions add is safe application at scale: the `*_map()` functions test every row of a data frame, `audit()` summarizes their results, and `is_percentage_of()` handles rounding in exact integer arithmetic, so floating-point error cannot change a verdict. All of these functions are experimental.
+The math is trivial. What the functions add is safe application at scale: the `*_map()` functions test every row of a data frame, `audit()` summarizes their results, and `is_percentage_of()` handles rounding in exact integer arithmetic, so floating-point error cannot change a result. All of these functions are experimental.
 
 ## Percentages
 

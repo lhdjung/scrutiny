@@ -454,7 +454,7 @@ rows_removed_by <- function(recorded, case, other) {
         output was bound to itself, joined with other data, or bound with \\
         `rbind()`.",
         "i" = "Rows added to mapper output would be read under its settings \\
-        and verdicts."
+        and results."
       )
     }
   }

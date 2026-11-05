@@ -2,7 +2,7 @@
 % Please edit documentation in R/grim-grid.R
 \name{grim_grid}
 \alias{grim_grid}
-\title{GRIM verdicts on a grid of sample sizes and means}
+\title{GRIM results on a grid of sample sizes and means}
 \usage{
 grim_grid(digits, rounding = "up_or_down", threshold = 5)
 }
@@ -14,7 +14,7 @@ grim_grid(digits, rounding = "up_or_down", threshold = 5)
 \value{
 A tibble with one row per cell of the grid and the columns \code{frac}
 (the fractional part of a mean), \code{n} (the sample size), and \code{consistency}
-(the GRIM verdict).
+(the GRIM result).
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

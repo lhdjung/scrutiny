@@ -4,7 +4,7 @@
 #'   with means (or percentages) and sample sizes.
 #'
 #'   Set `percent` to `TRUE` if `x` contains percentages, and `show_rec` to
-#'   `TRUE` to see the reconstructed values behind each verdict. Call
+#'   `TRUE` to see the reconstructed values behind each result. Call
 #'   [`audit()`] on the output for summary statistics and [`grim_plot_grid()`] to
 #'   visualize it.
 #'
@@ -73,7 +73,7 @@
 #'    value sets that could be decided.
 #'
 #' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
-#'   verdict in plain words.
+#'   result in plain words.
 #'
 #' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
 #'
@@ -102,7 +102,7 @@
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   audit()
 #'
-#' # Explain the verdicts in plain words:
+#' # Explain the results in plain words:
 #' pigs1 |>
 #'   grim_map(digits_x = 2, items_averaged = 1) |>
 #'   explain_print(1:2)

@@ -6,7 +6,7 @@
 #'   [`grim_plot_values()`] does for GRIM. Each tooth of the comb is an SD that
 #'   could have been reported with `digits_sd` decimal places; the ones that a
 #'   sample of size `n` with mean `x` could have are tall. The reported SD is
-#'   marked above the comb and labeled with its verdict.
+#'   marked above the comb and labeled as consistent or inconsistent.
 #'
 #'   For many value sets, [`grim_plot_grid()`] accepts [`grimmer_map()`] output
 #'   and shows the GRIM part of the test.

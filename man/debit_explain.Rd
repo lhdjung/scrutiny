@@ -41,7 +41,7 @@ and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} f
 \code{\link[=grimmer]{grimmer()}}, where the section \emph{SD meaning} has details.}
 }
 \value{
-An object of class \code{scrutiny_explain}: a list with the verdict as
+An object of class \code{scrutiny_explain}: a list with the result as
 \code{consistency} (\code{TRUE}, \code{FALSE}, or \code{NA}), the explanation's \code{paragraphs},
 and the \code{test} and its \code{inputs}. It prints as the explanation.
 }

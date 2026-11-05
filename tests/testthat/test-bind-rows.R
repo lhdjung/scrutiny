@@ -22,7 +22,7 @@ test_that("pieces of one output combine as before, with the record kept", {
 test_that("the sequence and total-n tiers reject different calls, too", {
   seq_1 <- tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1)
   seq_2 <- tibble::tibble(x = c(5.17, 4.2), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1)
-  dplyr::bind_rows(seq_1, seq_2) |> expect_error("different value sets or verdicts")
+  dplyr::bind_rows(seq_1, seq_2) |> expect_error("different value sets or results")
   dplyr::bind_rows(seq_1, seq_1[1:3, ]) |> expect_no_error()
   seq_1 |> dplyr::filter(var == "n") |> dplyr::bind_rows(seq_1 |> dplyr::filter(var == "x")) |> audit_seq() |> expect_equal(audit_seq(seq_1))
   tot_1 <- tibble::tibble(x1 = 5.19, x2 = 4.2, n = 58) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1)

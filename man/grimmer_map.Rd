@@ -109,7 +109,7 @@ pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   audit()
 
-# Explain the verdicts in plain words:
+# Explain the results in plain words:
 pigs5 |>
   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
   explain_print(1:2)
@@ -125,5 +125,5 @@ https://peerj.com/preprints/2400v1/
 }
 \seealso{
 \code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
-verdict in plain words.
+result in plain words.
 }

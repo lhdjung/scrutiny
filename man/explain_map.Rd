@@ -17,7 +17,7 @@ explain_map(data)
 
 \code{explain_map()} takes the output of \code{\link[=grim_map]{grim_map()}},
 \code{\link[=grimmer_map]{grimmer_map()}}, or \code{\link[=debit_map]{debit_map()}} and adds an \code{explanation} column: the
-calculation behind each row's verdict in plain words, as printed by
+calculation behind each row's result in plain words, as printed by
 \code{\link[=grim_explain]{grim_explain()}}, \code{\link[=grimmer_explain]{grimmer_explain()}}, and \code{\link[=debit_explain]{debit_explain()}} for a
 single case. This includes the output of the sequence and total-n mappers
 built on them, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.
@@ -26,7 +26,7 @@ To read the explanations, use \code{\link[=explain_print]{explain_print()}}.
 }
 \details{
 Each row is tested again from its own values and the settings of
-the mapper call, such as \code{rounding} and \code{percent}. If the verdict differs
+the mapper call, such as \code{rounding} and \code{percent}. If the result differs
 from the row's \code{consistency} value, the row must have been changed after
 testing, and \code{explain_map()} throws an error.
 

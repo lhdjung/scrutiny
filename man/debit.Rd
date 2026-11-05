@@ -81,6 +81,6 @@ Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{\link[=debit_explain]{debit_explain()}} to explain a verdict in plain words, and
+\code{\link[=debit_explain]{debit_explain()}} to explain a result in plain words, and
 \code{\link[=debit_map]{debit_map()}} for data frames.
 }

@@ -26,7 +26,7 @@ A tibble with one row per setting and these columns, or \code{NULL} if
 Every mapper, such as \code{\link[=grim_map]{grim_map()}}, records the settings of the call
 that produced its output. \code{scrutiny_meta()} returns them as a tibble, so
 that a report can state the rounding method or SD convention behind a
-verdict.
+result.
 
 Settings are the arguments that apply to the whole call, with defaults
 resolved, such as \code{rounding}, \code{percent}, or \code{sd_meaning}. Arguments that

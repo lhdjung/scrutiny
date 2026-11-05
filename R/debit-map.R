@@ -53,7 +53,7 @@
 #' 6. `distinct_n`: number of distinct `n` values.
 #'
 #' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
-#'   verdict in plain words.
+#'   result in plain words.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
@@ -74,7 +74,7 @@
 #'   debit_map(digits_x = 2, digits_sd = 2) |>
 #'   audit()
 #'
-#' # Explain the verdicts in plain words:
+#' # Explain the results in plain words:
 #' pigs3 |>
 #'   debit_map(digits_x = 2, digits_sd = 2) |>
 #'   explain_print(1:2)

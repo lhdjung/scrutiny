@@ -52,7 +52,7 @@
 #'   - `diff_n`, `diff_n_up`, `diff_n_down`: the same for `n`.
 #'
 #'   A count or distance is `NA` if it depends on a dispersed value set whose
-#'   verdict is `NA`, on a variable whose reported value is missing, which
+#'   consistency is `NA`, on a variable whose reported value is missing, which
 #'   is not dispersed, or on rows removed from the output, as by `filter()`.
 #'
 #'   Call `audit()` on `audit_seq()` output to summarize these columns further.

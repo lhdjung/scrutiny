@@ -21,7 +21,7 @@ rows.}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
-\code{explain_print()} prints the explanations behind the verdicts
+\code{explain_print()} prints the explanations behind the results
 of a mapper such as \code{\link[=grim_map]{grim_map()}}, one row after the other. It reads the
 \code{explanation} column that \code{\link[=explain_map]{explain_map()}} adds, or calls \code{explain_map()}
 itself if there is none yet. That way, only the printed rows are

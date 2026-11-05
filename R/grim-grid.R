@@ -1,4 +1,4 @@
-#' GRIM verdicts on a grid of sample sizes and means
+#' GRIM results on a grid of sample sizes and means
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
@@ -27,7 +27,7 @@
 #'
 #' @return A tibble with one row per cell of the grid and the columns `frac`
 #'   (the fractional part of a mean), `n` (the sample size), and `consistency`
-#'   (the GRIM verdict).
+#'   (the GRIM result).
 #'
 #' @export
 #'

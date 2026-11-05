@@ -95,7 +95,7 @@ pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   audit()
 
-# Explain the verdicts in plain words:
+# Explain the results in plain words:
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   explain_print(1:2)
@@ -106,5 +106,5 @@ Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
 \code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
-verdict in plain words.
+result in plain words.
 }

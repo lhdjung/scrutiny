@@ -72,7 +72,7 @@ The tibble has the class \code{scrutiny_grim_map}, which is recognized by
 with means (or percentages) and sample sizes.
 
 Set \code{percent} to \code{TRUE} if \code{x} contains percentages, and \code{show_rec} to
-\code{TRUE} to see the reconstructed values behind each verdict. Call
+\code{TRUE} to see the reconstructed values behind each result. Call
 \code{\link[=audit]{audit()}} on the output for summary statistics and \code{\link[=grim_plot_grid]{grim_plot_grid()}} to
 visualize it.
 }
@@ -126,7 +126,7 @@ pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   audit()
 
-# Explain the verdicts in plain words:
+# Explain the results in plain words:
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1) |>
   explain_print(1:2)
@@ -153,5 +153,5 @@ https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
 \code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
-verdict in plain words.
+result in plain words.
 }

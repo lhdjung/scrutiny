@@ -5,7 +5,7 @@
 #'   Every mapper, such as [`grim_map()`], records the settings of the call
 #'   that produced its output. `scrutiny_meta()` returns them as a tibble, so
 #'   that a report can state the rounding method or SD convention behind a
-#'   verdict.
+#'   result.
 #'
 #'   Settings are the arguments that apply to the whole call, with defaults
 #'   resolved, such as `rounding`, `percent`, or `sd_meaning`. Arguments that

@@ -2,7 +2,7 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `explain_print()` prints the explanations behind the verdicts
+#'   `explain_print()` prints the explanations behind the results
 #'   of a mapper such as [`grim_map()`], one row after the other. It reads the
 #'   `explanation` column that [`explain_map()`] adds, or calls `explain_map()`
 #'   itself if there is none yet. That way, only the printed rows are

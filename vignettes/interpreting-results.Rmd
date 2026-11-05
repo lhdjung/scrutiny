@@ -63,9 +63,9 @@ pigs5 |>
 
 1. Test all value sets with a mapper, such as `grim_map()`, and get an overview with `audit()`.
 
-2. For each inconsistent case, check the causes above. `grim_map_seq()` and `audit_seq()` show how robust a verdict is.
+2. For each inconsistent case, check the causes above. `grim_map_seq()` and `audit_seq()` show how robust a result is.
 
-3. Read the calculation behind a verdict with `explain_print()`:
+3. Read the calculation behind a result with `explain_print()`:
 
 ```{r}
 pigs1 |>
@@ -74,7 +74,7 @@ pigs1 |>
   explain_print(1)
 ```
 
-4. Record the settings under which the verdicts were reached. `scrutiny_meta()` returns them:
+4. Record the settings under which the results were reached. `scrutiny_meta()` returns them:
 
 ```{r}
 pigs1 |>

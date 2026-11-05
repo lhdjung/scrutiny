@@ -450,7 +450,7 @@ round_whole <- function(x) {
 #'   `digits_*` columns as integer, since they are whole numbers. The coercion
 #'   is skipped if `n` is not numeric, or if any value is fractional or beyond
 #'   `.Machine$integer.max`, which `as.integer()` would turn into `NA` next to
-#'   a verdict computed from the real value. A value within tolerance of a
+#'   a result computed from the real value. A value within tolerance of a
 #'   whole number is rounded to it.
 #'
 #' @param n Numeric vector; a whole-number column such as `n`.

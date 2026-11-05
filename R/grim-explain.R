@@ -12,7 +12,7 @@
 #'
 #' @inheritParams grim
 #'
-#' @return An object of class `scrutiny_explain`: a list with the verdict as
+#' @return An object of class `scrutiny_explain`: a list with the result as
 #'   `consistency` (`TRUE`, `FALSE`, or `NA`), the explanation's `paragraphs`,
 #'   and the `test` and its `inputs`. It prints as the explanation.
 #'
