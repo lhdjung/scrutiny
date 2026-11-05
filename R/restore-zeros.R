@@ -214,17 +214,7 @@ restore_zeros_df <- function(
 ) {
   check_flag(check_numeric_like)
   check_flag(check_decimals)
-  if (!is.data.frame(data)) {
-    if (is.matrix(data)) {
-      data <- tibble::as_tibble(data, .name_repair = "unique")
-    } else {
-      abort_in_export(
-        "!" = "`data` must be a data frame (or a matrix).",
-        "x" = "It is {an_a_type(data)}.",
-        ">" = "Did you mean `restore_zeros()`, without `_df`?"
-      )
-    }
-  }
+  data <- as_data_frame_input(data, "`restore_zeros()`, without `_df`")
 
   # The function works on whole columns, and grouping would get in the way:
   # `dplyr::select()` re-adds the grouping columns, and `across()` runs per

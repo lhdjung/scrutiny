@@ -119,6 +119,23 @@ an_a <- function(x) {
 #' @return String.
 #'
 #' @noRd
+# The `*_df()` functions take a data frame or a matrix. `alt` names the
+# function for vectors that the user may have meant:
+as_data_frame_input <- function(data, alt) {
+  if (is.data.frame(data)) {
+    return(data)
+  }
+  if (is.matrix(data)) {
+    return(tibble::as_tibble(data, .name_repair = "unique"))
+  }
+  abort_in_export(
+    "!" = "`data` must be a data frame (or a matrix).",
+    "x" = "It is {an_a_type(data)}.",
+    ">" = "Did you mean {alt}?"
+  )
+}
+
+
 an_a_type <- function(x) {
   type <- typeof(x)
 

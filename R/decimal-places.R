@@ -235,6 +235,7 @@ decimal_places_df <- function(
 ) {
   check_flag(check_numeric_like)
   sep_literal_value <- sep_literal(sep)
+  data <- as_data_frame_input(data, "`decimal_places()`, without `_df`")
 
   # The function works on whole columns, and grouping would get in the way:
   # `dplyr::select()` re-adds the grouping columns, and `across()` runs per

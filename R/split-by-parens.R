@@ -95,6 +95,7 @@ split_by_parens <- function(
   check_string(end2)
   # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
   force(sep)
+  data <- as_data_frame_input(data, "`before_parens()` or `inside_parens()`")
 
   # The function works on whole columns; with groups, `dplyr::select()` would
   # re-add the grouping columns, and `across()` would run per group:
@@ -171,7 +172,8 @@ split_by_parens <- function(
         .fns = split_fns,
         .names = "{.col}_{endings}"
       ),
-      .before = 1L
+      # A data frame without columns has no position 1:
+      .before = if (ncol(data) > 0L) 1L
     ) |>
     suppressWarnings()
 

@@ -185,3 +185,17 @@ test_that("a column named `sep` is split, not taken for the argument", {
   out$aug_sd        |> expect_equal(c("0.21", "0.28"))
   out$sep_x         |> expect_equal(c("0.19", "0.53"))
 })
+
+test_that("the `*_df()` functions name the vector function for a vector", {
+  # These failed with "no applicable method for 'ungroup'":
+  c(1.5, 2) |> decimal_places_df() |> expect_error("Did you mean `decimal_places()`", fixed = TRUE)
+  "1 (2)"   |> split_by_parens()   |> expect_error("Did you mean `before_parens()`", fixed = TRUE)
+  1         |> restore_zeros_df()  |> expect_error("Did you mean `restore_zeros()`", fixed = TRUE)
+})
+
+test_that("a data frame without columns comes back as it is", {
+  # `.before = 1L` had no column to refer to:
+  tibble::tibble() |> split_by_parens()   |> expect_identical(tibble::tibble())
+  tibble::tibble() |> decimal_places_df() |> expect_identical(tibble::tibble())
+  tibble::tibble() |> restore_zeros_df()  |> expect_identical(tibble::tibble())
+})
