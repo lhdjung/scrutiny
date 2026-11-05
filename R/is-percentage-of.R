@@ -26,17 +26,18 @@ is_percentage_of_scalar <- function(
     scale = rounding_scale(rounding, threshold, symmetric)
   )
 
-  # Counts are whole numbers, `n` must be a positive one, and a count is at most
-  # its total. Anything else describes no data set that the percentage could
-  # have been computed from, so the case is undecidable, as a fractional `n` is
-  # under GRIM. A missing count is checked below:
+  # Counts are whole numbers, and `n` must be a positive one. Anything else
+  # describes no data set that the percentage could have been computed from, so
+  # the case is undecidable, as a fractional `n` is under GRIM. A count above
+  # its total is tested like any other, as for answers to a question that allows
+  # several, whose percentages can sum to more than 100. A missing count is
+  # checked below:
   absolute_missing <- is.na(absolute)
   if (
     !is_decidable_n_items(n) ||
       (!absolute_missing &&
         (!is.finite(absolute) ||
           absolute < 0 ||
-          absolute > n ||
           abs(absolute - round(absolute)) >= WHOLE_NUMBER_TOLERANCE)) ||
       !is.finite(percentage) ||
       is.na(digits_percentage)
@@ -64,10 +65,10 @@ is_percentage_of_scalar <- function(
     symmetric = symmetric
   )
 
-  # A missing count could decide the case either way only if some count from 0
-  # to `n` has the percentage:
+  # A missing count could decide the case either way only if some count has
+  # the percentage:
   if (absolute_missing) {
-    return(if (max(counts[1L], 0) <= min(counts[2L], n)) NA else FALSE)
+    return(if (max(counts[1L], 0) <= counts[2L]) NA else FALSE)
   }
 
   counts[1L] <= absolute && absolute <= counts[2L]
@@ -111,9 +112,11 @@ is_percentage_of_scalar <- function(
 #'
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
 #'   and `NA` if the case cannot be decided: if a value is missing or infinite,
-#'   if `absolute` is not a whole number from 0 to `n`, or if `n` is not a
-#'   positive whole number. A missing `absolute` is `FALSE` if no count from 0
-#'   to `n` gives `percentage`.
+#'   if `absolute` is not a non-negative whole number, or if `n` is not a
+#'   positive whole number. A missing `absolute` is `FALSE` if no count gives
+#'   `percentage`. An `absolute` above `n` is tested like any other, as for
+#'   answers to a question that allows several, whose percentages can sum to
+#'   more than 100.
 #'
 #' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
 #'

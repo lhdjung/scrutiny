@@ -41,9 +41,9 @@ test_that("`is_percentage_of()` is `NA` for undecidable cases", {
 
 test_that("a missing `absolute` is `FALSE` if no count has the percentage", {
   # This was `NA`, although GRIM rules out 33.4% of 120:
-  NA |> is_percentage_of(33.4, 120, 1) |> expect_false()
-  NA |> is_percentage_of(101, 120, 0)  |> expect_false()
-  NA |> is_percentage_of(33.3, 120, 1) |> expect_equal(NA)
+  NA |> is_percentage_of(33.4, 120, 1)  |> expect_false()
+  NA |> is_percentage_of(101.0, 120, 1) |> expect_false()
+  NA |> is_percentage_of(33.3, 120, 1)  |> expect_equal(NA)
   # `NA` exactly where GRIM finds some count, over every percentage with one
   # decimal place:
   percentage <- seq(0, 100, by = 0.1)
@@ -74,11 +74,6 @@ test_that("`is_percentage_of_map_seq()` disperses all three columns", {
   out |> audit_seq() |> getElement("hits_absolute") |> expect_equal(1L)
 })
 
-test_that("a count above its total is undecidable", {
-  130 |> is_percentage_of(108.3, 120, 1) |> expect_equal(NA)
-  120 |> is_percentage_of(100, 120, 1)   |> expect_equal(TRUE)
-})
-
 test_that("an abbreviated key argument is an error, not a partial match", {
   df <- tibble::tibble(absolute = 40, percentage = 33, n = 120)
   df |> is_percentage_of_map(digits_percentage = 0, percent = TRUE) |> expect_error("`percent` is not an argument")
@@ -99,4 +94,12 @@ test_that("a count too large for exact arithmetic is an error", {
   # 100 * 6622 / 12791 is 51.770776327104996..., which rounds to ...710:
   6622 |> is_percentage_of(51.77077632711, 12791, digits_percentage = 11) |> expect_error("too large for an exact test")
   6622 |> is_percentage_of(51.77,          12791, digits_percentage = 2)  |> expect_true()
+})
+
+test_that("a count above its total is tested as any other", {
+  # It was `NA`, so `audit_seq()` counted no hits near `absolute == n`:
+  c(121, 121) |> is_percentage_of(c(100.8, 100.9), 120, 1) |> expect_equal(c(TRUE, FALSE))
+  130         |> is_percentage_of(108.3, 120, 1)           |> expect_true()
+  120         |> is_percentage_of(100, 120, 1)             |> expect_true()
+  tibble::tibble(absolute = 118, percentage = 97, n = 120) |> is_percentage_of_map_seq(digits_percentage = 0) |> audit_seq() |> _$hits_total |> expect_equal(4L)
 })

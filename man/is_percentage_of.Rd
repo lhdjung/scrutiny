@@ -48,9 +48,11 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \value{
 Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
 and \code{NA} if the case cannot be decided: if a value is missing or infinite,
-if \code{absolute} is not a whole number from 0 to \code{n}, or if \code{n} is not a
-positive whole number. A missing \code{absolute} is \code{FALSE} if no count from 0
-to \code{n} gives \code{percentage}.
+if \code{absolute} is not a non-negative whole number, or if \code{n} is not a
+positive whole number. A missing \code{absolute} is \code{FALSE} if no count gives
+\code{percentage}. An \code{absolute} above \code{n} is tested like any other, as for
+answers to a question that allows several, whose percentages can sum to
+more than 100.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
