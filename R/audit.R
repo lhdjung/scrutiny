@@ -290,6 +290,13 @@ audit_seq <- function(data) {
   # or `filter(diff_var > -3)`, has unknown hits there, unlike one that
   # `out_min` or `out_max` left without any:
   is_removed <- rows_removed_by(meta$rows_dispersed, data$case, data$var)
+  removed <- matrix(
+    is_removed(
+      rep(cases, times = length(var_names)),
+      rep(var_names, each = length(cases))
+    ),
+    nrow = length(cases)
+  )
 
   hits_total <- integer(length(cases))
   cols_hits <- matrix(NA_integer_, length(cases), length(var_names))
@@ -304,7 +311,7 @@ audit_seq <- function(data) {
 
     for (j in seq_along(var_names)) {
       var <- var_names[[j]]
-      if (is.na(data_rev[[var]][[i]]) || is_removed(cases[[i]], var)) {
+      if (is.na(data_rev[[var]][[i]]) || removed[i, j]) {
         total_unknown <- TRUE
         next
       }
@@ -396,8 +403,8 @@ audit_total_n <- function(data) {
   # `audit(.by = dir)`, leave its hits unknown, and with them the totals:
   meta <- attr(data, "scrutiny", exact = TRUE)
   is_removed <- rows_removed_by(meta$rows_tested, data$case, data$dir)
-  removed_forth <- vapply(cases, is_removed, logical(1L), other = "forth")
-  removed_back <- vapply(cases, is_removed, logical(1L), other = "back")
+  removed_forth <- is_removed(cases, "forth")
+  removed_back <- is_removed(cases, "back")
   hits_forth[removed_forth] <- NA
   hits_back[removed_back] <- NA
   removed_any <- removed_forth | removed_back
@@ -463,13 +470,15 @@ rows_removed_by <- function(recorded, case, other) {
       )
     }
   }
+  # Vectorized: looked up one group at a time, the names took quadratic time
+  # in the number of cases:
   function(case, other) {
     key <- paste(case, other, sep = "\r")
-    before <- unname(recorded[key])
-    if (length(before) == 0L || is.na(before)) {
-      return(FALSE)
+    if (is.null(recorded)) {
+      return(rep(FALSE, length(key)))
     }
+    before <- unname(recorded[key])
     now <- unname(present[key])
-    is.na(now) || now < before
+    !is.na(before) & (is.na(now) | now < before)
   }
 }
