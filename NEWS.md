@@ -130,7 +130,9 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `reverse_map_seq()` and `audit_seq()` reconstruct the reported values from the `diff_var` column. They used to infer them from the gap in the sequence, which failed when `out_min` or `out_max` cut it short, so that `audit_seq()` could report the opposite result. Both now accept any `dispersion`, not only a linearly increasing one.
 
-- `audit_seq()` reports the results that the sequence mapper recorded instead of re-testing reconstructed data, which could drop `percent`, `threshold`, or `symmetric` and flip the result. It works with a `dispersion` of length 1, with output that has no rows, and with cases whose sequence `out_min` or `out_max` emptied. A consistent reported value set included by `include_reported = TRUE` counts once in `hits_total`, not once per dispersed variable. A count or distance that depends on an `NA` result, on a variable whose reported value is missing and so was not dispersed, or on rows removed from the output, as by `filter()`, is `NA` rather than counting such value sets as misses. `audit_total_n()` does the same for rows removed from a direction.
+- `reverse_map_seq()` finds the tested columns by name. After `rename()`, it used to return a dispersed value as the reported one; a renamed or removed column is now an error.
+
+- `audit_seq()` reports the results that the sequence mapper recorded instead of re-testing reconstructed data, which could drop `percent`, `threshold`, or `symmetric` and flip the result. It works with a `dispersion` of length 1, with output that has no rows, and with cases whose sequence `out_min` or `out_max` emptied. A consistent reported value set included by `include_reported = TRUE` counts once in `hits_total`, not once per dispersed variable. A count or distance that depends on an `NA` result, on a variable whose reported value is missing and so was not dispersed, or on rows removed from the output, as by `filter()`, is `NA` rather than counting such value sets as misses. `audit_total_n()` does the same for rows removed from a direction. A `case` column turned into strings is read as case numbers again, so that the rows come out in the order 1, 2, ..., 10 rather than 1, 10, 2.
 
 - `*_map_seq()` functions disperse means and SDs down to zero, and means below it; they used to stop one decimal unit above zero. With `include_consistent = TRUE`, they skip cases without a test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns, not one without columns.
 
@@ -148,13 +150,15 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `restore_zeros()` handles scientific notation, no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`. `restore_zeros_df()` no longer warns about a column without decimal places, such as `n`, or a single row.
 
+- `decimal_places()` no longer depends on `options(OutDec = )`. With a decimal comma, it used to count no decimal places in any number, which also misled `restore_zeros()`, `seq_disperse()`, the sequence mappers, and `duplicate_count()`.
+
 ### Other
 
-- `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows, only warns about unsplit columns that `cols` selected, and keeps the column order with `transform = TRUE`.
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows or columns, only warns about unsplit columns that `cols` selected, and keeps the column order with `transform = TRUE`.
 
 - `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD".
 
-- `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `duplicate_count()` uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`.
+- `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `duplicate_count()` is linear rather than quadratic for named input, uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`. A list-column or a matrix column is an error.
 
 - `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector with `NA`s only if the answer depends on the missing values (any one or two values are linear), and test strings and factors by their numeric values. Anything other than a numeric, character, or factor vector is an error, such as a list, a data frame, or a logical vector with values other than `NA`. `tolerance = 0` no longer makes every comparison fail, and the tolerance is never finer than the rounding error of arithmetic on the values, so `seq_disperse()` output around values of 1e8 and more tests as linear and dispersed. A missing string counts as a missing number, as does the string `"NA"`.
 
@@ -170,7 +174,15 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Errors about an invalid `rounding` or `symmetric` name the function that the user called. Many errors from base R or from internal code were replaced by messages that name the argument at fault. `audit()` and `grim_plot_grid()` name the columns they need if any were dropped.
 
-- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them.
+- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, reads a number next to a non-breaking space, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them.
+
+- `decimal_places_df()` and `split_by_parens()` take a matrix, as `restore_zeros_df()` does, and name the function for vectors when given one.
+
+- A column named like an argument, such as `sep` or `width`, no longer replaces that argument in `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()`. `seq_disperse_df()` finds a caller's variable named `x` or `diff_var`. The `is_seq_*()` functions test integers as doubles, so that their differences don't overflow.
+
+- A 64-bit integer (`integer64`) vector, as databases return for counts, is an error that points to `as.numeric()`. It used to be read as numbers near zero, so that every test returned `NA`.
+
+- The mappers test a numeric column with a class, such as one from `tibble::num()`, as plain numbers. The sequence mappers failed on such an `x`, and every mapper on such an `n`.
 
 - `grim_map()` is about 2.5 times as fast, and `grimmer_map()` about 80 times.
 
@@ -186,7 +198,9 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
-- Removed: `grim_ratio()` (use `grim_exp_incon()`, which takes the rounding method into account), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_audit_special()` was removed, since `audit()` now reaches `audit_seq()` and `audit_total_n()` itself. `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()` are no longer exported.
+- Removed: `grim_ratio()` (use `grim_exp_incon()`, which takes the rounding method into account), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_audit_special()` was removed, since `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
+
+- Removed in the sense of no longer exported: `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()`.
 
 - `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
 
