@@ -405,7 +405,6 @@ grimmer_scalar <- function(
     return(NA)
   }
 
-  all_remainders <- !x_known
   if (x_known) {
     # All integer sums consistent with the reported mean. `sum_range()` is the
     # same helper `grim_scalar()` uses, so the two always agree on which sums
@@ -420,27 +419,11 @@ grimmer_scalar <- function(
       threshold = threshold,
       symmetric = symmetric
     )
-    # A sum passes exactly if its remainder modulo `n` does (see
-    # `grimmer_candidate()`), so `n` consecutive sums stand for all of them,
-    # as with the mean unknown:
-    all_remainders <- sums_consistent[[2L]] - sums_consistent[[1L]] >= n - 1
+  } else {
+    # With the mean unknown, any whole-number sum is a candidate:
+    sums_consistent <- c(0, n - 1)
   }
-  if (all_remainders) {
-    # Then any whole-number sum is a candidate. Adding 1 to each number adds
-    # `n` to the sum and keeps the deviations, so whether a sum admits the SD
-    # depends only on its remainder `r` modulo `n`, and the sums `0:(n - 1)`
-    # stand for all of them. Their least sum of squared deviations is
-    # `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a remainder further
-    # than twice the SD's term from 0 and `n` can't pass. Skipping these keeps
-    # a tiny SD with a large `n` from taking minutes. `approx` is the term as a
-    # double, so the reach is widened against its rounding error:
-    reach <- floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
-    sums_consistent <- if (2 * reach + 1 >= n) {
-      c(0, n - 1)
-    } else {
-      c(0, reach, n - reach, n - 1)
-    }
-  }
+  sums_consistent <- grimmer_sums_reachable(sums_consistent, n, sd_bounds)
   check_enumeration_size(
     sums_consistent,
     n = n,
@@ -471,6 +454,42 @@ grimmer_scalar <- function(
 }
 
 
+# The candidate sums among `sums[1]` to `sums[2]` that can pass, as pairs of
+# bounds, each pair a range of sums; the others fail. Adding 1 to each number
+# adds `n` to the sum and keeps the deviations, so whether a sum admits the SD
+# depends only on its remainder `r` modulo `n` (see `grimmer_candidate()`), and
+# the first `n` sums stand for all of them. Their least sum of squared
+# deviations is `r * (n - r) / n`, at least `min(r, n - r) / 2`, so a sum
+# further than twice the SD's term from a multiple of `n` can't pass. Skipping
+# these keeps a tiny SD with a large `n` from taking minutes. `approx` is the
+# term as a double, so the reach is widened against its rounding error. Shared
+# with `grimmer_explain()` and `grimmer_values()`:
+grimmer_sums_reachable <- function(sums, n, sd_bounds) {
+  lower <- sums[[1L]]
+  upper <- min(sums[[2L]], lower + n - 1)
+  reach <- floor(2 * sd_bounds$term_upper$approx * (1 + 2^-40)) + 2
+  if (2 * reach + 1 >= n) {
+    return(c(lower, upper))
+  }
+  # One more multiple on each side, in case a division is a hair off:
+  multiples <- seq(floor(lower / n) - 1, floor(upper / n) + 1) * n
+  starts <- pmax(multiples - reach, lower)
+  ends <- pmin(multiples + reach, upper)
+  keep <- starts <= ends
+  as.vector(rbind(starts[keep], ends[keep]))
+}
+
+
+# The sums from pairs of bounds as returned by `grimmer_sums_reachable()`:
+sums_from_bounds <- function(bounds) {
+  ranges <- lapply(
+    seq_len(length(bounds) / 2L) * 2L - 1L,
+    function(i) bounds[[i]]:bounds[[i + 1L]]
+  )
+  as.numeric(unlist(ranges))
+}
+
+
 # Run the GRIMMER tests for each candidate sum from `sums[1]` to `sums[2]`,
 # and so on for further pairs of bounds, stopping as soon as one passes them
 # all. Also says whether any candidate passed test 1, for the `reason` of a
@@ -478,7 +497,7 @@ grimmer_scalar <- function(
 grimmer_sums_pass <- function(sums, n, items_averaged, sd_bounds) {
   any_passed_test1 <- FALSE
 
-  for (i in seq(1L, length(sums), by = 2L)) {
+  for (i in seq_len(length(sums) / 2L) * 2L - 1L) {
     for (s in sums[i]:sums[i + 1L]) {
       candidate <- grimmer_candidate(
         s = s,

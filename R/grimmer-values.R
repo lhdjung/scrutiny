@@ -90,10 +90,27 @@ grimmer_values_scalar <- function(
 
   # A sum passes exactly if its remainder modulo `n` does, so the first `n`
   # sums tell which remainders pass, and only the sums with these are listed.
-  # Each has a pair at least, so they are counted before any is allocated: a
-  # mean with many decimal places and a large `items_averaged` admits millions.
+  # Only those within reach of the SD can, as in `grimmer_scalar()`. Each has
+  # a pair at least, so they are counted before any is allocated: a mean with
+  # many decimal places and a large `items_averaged` admits millions.
+  abort_too_large <- function() {
+    abort_in_export(
+      "The sums of squares are too large to list.",
+      "x" = "They reach 2^53, about 9e15, beyond which a double skips whole \\
+      numbers.",
+      "i" = "`grimmer()` tests this value set exactly all the same."
+    )
+  }
+  # A sum of squares is at least the sum of squared deviations, so all of them
+  # are too large if its lower bound is. Checked before the sums are tried:
+  if (sd_bounds$term_lower$approx >= 2^53 * (1 + 2^-40)) {
+    abort_too_large()
+  }
+
   sum_last <- sums_consistent[[2L]]
-  window <- sums_consistent[[1L]]:min(sum_last, sums_consistent[[1L]] + n - 1)
+  window <- sums_consistent |>
+    grimmer_sums_reachable(n, sd_bounds) |>
+    sums_from_bounds()
   passing <- window[vapply(
     window,
     function(s) {
@@ -139,12 +156,7 @@ grimmer_values_scalar <- function(
     # The test works with the sums of squares shifted to the sum `r`; the
     # output shows them as they are, which a double can only do below `2^53`:
     if (is.null(grimmer_candidate_absolute(candidate))) {
-      abort_in_export(
-        "The sums of squares are too large to list.",
-        "x" = "They reach 2^53, about 9e15, beyond which a double skips whole \\
-        numbers.",
-        "i" = "`grimmer()` tests this value set exactly all the same."
-      )
+      abort_too_large()
     }
 
     r <- candidate$r

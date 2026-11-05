@@ -337,11 +337,17 @@ grimmer_explain <- function(
   passed <- FALSE
   too_large <- FALSE
 
-  # A sum passes exactly if its remainder modulo `n` does, so the first `n`
-  # sums decide, as in `grimmer_scalar()`; if none of them passes, no sum does:
-  sums_tested <- c(sums[[1L]], min(sums[[2L]], sums[[1L]] + n - 1))
+  # The first `n` sums decide, and only those within reach of the SD can pass,
+  # as in `grimmer_scalar()`; if none of them passes, no sum does:
+  sums_tested <- sums |>
+    grimmer_sums_reachable(n, sd_bounds) |>
+    sums_from_bounds()
+  # If none can, the first one shows why:
+  if (length(sums_tested) == 0L) {
+    sums_tested <- sums[[1L]]
+  }
 
-  for (s in sums_tested[1L]:sums_tested[2L]) {
+  for (s in sums_tested) {
     candidate <- grimmer_candidate(
       s = s,
       n = n,
@@ -378,11 +384,10 @@ grimmer_explain <- function(
     }
     n_failed <- n_failed + 1L
   }
-  # Up to three failures are shown, which may be all of the first `n`:
+  # Up to three failures are shown, which may be all of the first `n`. The
+  # sums skipped before the one that passes, or in the whole range, fail too:
   n_shown <- min(n_failed, 3L)
-  if (!passed) {
-    n_failed <- sums[[2L]] - sums[[1L]] + 1
-  }
+  n_failed <- if (passed) s - sums[[1L]] else sums[[2L]] - sums[[1L]] + 1
 
   if (passed != consistency) {
     cli::cli_abort(
