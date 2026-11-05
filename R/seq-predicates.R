@@ -118,13 +118,12 @@ is_seq_basic <- function(
   }
 
   # Everything below is arithmetic on `x`. A factor is read by its labels, not
-  # its integer codes:
-  if (!is.numeric(x)) {
-    if (is.factor(x)) {
-      x <- as.character(x)
-    }
-    x <- suppressWarnings(as.numeric(x))
+  # its integer codes. Integers become doubles, too: a difference of integers
+  # overflows to `NA` beyond about 2.1e9.
+  if (is.factor(x)) {
+    x <- as.character(x)
   }
+  x <- suppressWarnings(as.numeric(x))
 
   if (length(x) == 1L) {
     return(TRUE)

@@ -377,3 +377,12 @@ test_that("an empty logical vector is judged like `numeric()`", {
   logical() |> is_seq_linear()    |> expect_equal(is_seq_linear(numeric()))
   logical() |> is_seq_ascending() |> expect_equal(is_seq_ascending(numeric()))
 })
+
+test_that("integers whose differences pass the integer range are tested as doubles", {
+  # `diff()` overflowed to `NA`, with a warning, and the result was `FALSE`:
+  big <- c(-1500000000L, 1500000000L)
+  big                             |> is_seq_ascending()            |> expect_true()
+  rev(big)                        |> is_seq_descending()           |> expect_true()
+  c(-2000000000L, 0L, 2000000000L) |> is_seq_linear()               |> expect_true()
+  c(-2000000000L, 0L, 2000000000L) |> is_seq_dispersed(from = 0L)   |> expect_true()
+})
