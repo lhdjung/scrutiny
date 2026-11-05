@@ -133,8 +133,9 @@ function_map_total_n_proto <- function(
 
     # Other columns of `data`, such as `items_averaged`, go along with each
     # case; `fn()` needs helper columns and returns the others as they are:
+    # `vec_slice()` takes rows of any column, such as a data frame or matrix:
     for (name in setdiff(colnames(data), c(colnames(.reported), "n"))) {
-      out_df[[name]] <- data[[name]][case]
+      out_df[[name]] <- vctrs::vec_slice(data[[name]], case)
     }
 
     # A row of `out_df` is a scenario, not a row of the user's `data`:
@@ -158,7 +159,8 @@ function_map_total_n_proto <- function(
     # is tested in the `"forth"` direction, so it is dropped here rather than
     # tested and counted twice:
     if (as.character(.dir) == "back") {
-      repeated <- out_df$n_change == 0L & 2L * out_df$n == data$n[out_df$case]
+      # A double, since `2L *` an integer overflows from a total of 2^31 on:
+      repeated <- out_df$n_change == 0L & 2 * out_df$n == data$n[out_df$case]
       out_df <- out_df[!repeated, ]
     }
 

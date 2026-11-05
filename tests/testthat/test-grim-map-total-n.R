@@ -273,3 +273,14 @@ test_that("a `constant` named like a result column of the test is an error", {
   df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
   df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(exp_incon = 1:2)) |> expect_error("`exp_incon` is taken")
 })
+
+test_that("a total of 2^31 or more has no `NA` rows", {
+  # `2L * n` overflowed, and the rows it selected were all `NA`:
+  tibble::tibble(x1 = 5, x2 = 5, n = 2^32) |> grim_map_total_n(0, items_averaged = 1, dispersion = 0:1) |> _$x |> anyNA() |> expect_false()
+})
+
+test_that("a data-frame column goes along with each case", {
+  # `[case]` selected columns of it, and tibble failed:
+  data <- tibble::tibble(x1 = 5.19, x2 = 3.2, n = 50, meta = tibble::tibble(a = 1))
+  data |> grim_map_total_n(2, items_averaged = 1, dispersion = 0:1) |> _$meta$a |> expect_equal(rep(1, 6))
+})
