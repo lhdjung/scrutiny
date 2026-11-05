@@ -290,8 +290,12 @@ debit_plot <- function(
       inherit.aes = FALSE
     )
 
-  # Room on the y-axis beyond the outermost rectangles:
-  sd_margin <- 0.025
+  # The top of the y-axis: about 0.5, the peak of an SD line, or the peak of
+  # the SE line for the smallest `n`, 0.5 / sqrt(n - 1), so that SEs don't sit
+  # at the bottom of the panel. Room beyond the outermost rectangles in
+  # proportion:
+  y_peak <- if (sd_meaning == "se") 0.5 / sqrt(min(n) - 1) else 0.5
+  sd_margin <- y_peak / 20
 
   if (show_full_scale) {
     p <- p +
@@ -300,14 +304,18 @@ debit_plot <- function(
         limits = c(0, 1)
       ) +
       ggplot2::scale_y_continuous(
-        breaks = seq(0, (max(sd_upper) + sd_margin), 0.05)
+        breaks = if (sd_meaning == "se") {
+          ggplot2::waiver()
+        } else {
+          seq(0, (max(sd_upper) + sd_margin), 0.05)
+        }
       ) +
       # Limit the y-axis on the coordinates, not the scale: a scale limit drops
       # every point of the band and lines that leaves it, rather than clipping.
       ggplot2::coord_cartesian(
         ylim = c(
           min(sd_lower) - sd_margin,
-          max((max(sd_upper) + sd_margin), 0.5)
+          max((max(sd_upper) + sd_margin), y_peak)
         )
       )
   }

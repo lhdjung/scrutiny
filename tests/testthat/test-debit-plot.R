@@ -207,6 +207,13 @@ test_that("`debit_plot()` draws the line of the SD type that was tested", {
   data[1L, ] |> debit_map(digits_x = 2, digits_sd = 2, sd_meaning = "se")     |> debit_plot() |> lines_at_half() |> expect_equal(sqrt(10 / 9 * 0.25 / 10))
 })
 
+test_that("`debit_plot()` scales the y-axis to SEs", {
+  # It was fixed to SDs, from 0 to at least 0.5, so SEs sat at the bottom:
+  y_range <- function(plot) plot |> ggplot2::ggplot_build() |> _$layout$panel_params[[1L]]$y.range
+  tibble::tibble(x = 0.52, sd = 0.012, n = 1700) |> debit_map(digits_x = 2, digits_sd = 3, sd_meaning = "se") |> debit_plot() |> y_range() |> max() |> expect_lt(0.02)
+  tibble::tibble(x = 0.52, sd = 0.12, n = 17)    |> debit_map(digits_x = 2, digits_sd = 2)                     |> debit_plot() |> y_range() |> max() |> expect_gt(0.5)
+})
+
 test_that("`debit_plot()` draws the attainable means of a large `n`", {
   data <- tibble::tibble(x = 0.5, sd = 0.5, n = 150000) |> debit_map(digits_x = 2, digits_sd = 2)
   build <- data |> debit_plot(show_labels = FALSE) |> ggplot2::ggplot_build() |> expect_no_warning()
