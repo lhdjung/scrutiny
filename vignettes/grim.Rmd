@@ -203,8 +203,12 @@ In the first plot, the grey vertical lines at $n = 40$ and $n = 80$ come from th
 
 `grim_plot_grid()` takes the output of any GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 
+## Interpreting results
+
+An inconsistency means that an assumption of the test is false or that a number was reported incorrectly, often for a benign reason. What to rule out before drawing conclusions is discussed in [the section on interpreting GRIM results](https://trustworthyresear.ch/chapters/granularity_methods.html#sec-grim-interpreting) of @hussey_trustworthiness_2026.
+
 ## Going further
 
-`vignette("grim-in-depth")` shows the numbers behind a result, tests values around the reported ones with `grim_map_seq()` and unknown group sizes with `grim_map_total_n()`, and covers the GRIM statistics. `vignette("interpreting-results")` discusses what to make of an inconsistency.
+`vignette("grim-in-depth")` shows the numbers behind a result, tests values around the reported ones with `grim_map_seq()` and unknown group sizes with `grim_map_total_n()`, and covers the GRIM statistics.
 
 # References

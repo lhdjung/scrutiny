@@ -158,4 +158,8 @@ out_total_n
 audit_total_n(out_total_n)
 ```
 
+## Interpreting results
+
+An inconsistency means that an assumption of the test is false or that a number was reported incorrectly, often for a benign reason. What to rule out before drawing conclusions is discussed in [the section on interpreting GRIM results](https://trustworthyresear.ch/chapters/granularity_methods.html#sec-grim-interpreting) of @hussey_trustworthiness_2026. The same reasoning applies to DEBIT.
+
 # References

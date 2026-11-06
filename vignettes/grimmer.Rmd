@@ -113,6 +113,10 @@ flying_pigs1 |>
 - `all_cases`, `incon_cases`, `emp_incon`: the total number of value sets, the number of inconsistent ones, and their ratio.
 - `fail_grim`, `fail_test1`, `fail_test3`: the number of value sets that failed GRIM or GRIMMER's first or third test.
 
+## Interpreting results
+
+An inconsistency means that an assumption of the test is false or that a number was reported incorrectly, often for a benign reason. What to rule out before drawing conclusions is discussed in [the section on interpreting GRIM results](https://trustworthyresear.ch/chapters/granularity_methods.html#sec-grim-interpreting) of @hussey_trustworthiness_2026. The same reasoning applies to GRIMMER.
+
 ## Going further
 
 `vignette("grimmer-in-depth")` covers SDs that are population SDs or standard errors, bounded scales, the means and SDs behind a test result with `grimmer_values()` and `grimmer_plot_line()`, plots of many value sets with `grim_plot_grid()`, values around the reported ones with `grimmer_map_seq()`, and unknown group sizes with `grimmer_map_total_n()`.
