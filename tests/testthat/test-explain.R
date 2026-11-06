@@ -397,3 +397,21 @@ test_that("continuous data are explained by their own reason, not by a missing `
     dplyr::pull(explanation) |>
     expect_match("no data set has a negative SD")
 })
+
+
+test_that("a large sum of squares with a fraction is not shown as an integer", {
+  # 15 significant digits left none for the fraction from about 1e14 on, so
+  # the range read "...420 to ...421", followed by "The only integer in this
+  # range is ...421":
+  text <- grimmer_explain(x = 12345678.3, sd = 2.5, n = 3, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |>
+    format() |>
+    paste(collapse = " ") |>
+    gsub(pattern = "\\s+", replacement = " ")
+  text |> expect_match("= 457247320530420\\.[0-9] to")
+  text |> expect_match("= 457247320530421\\.[0-9]\\. The only integer in this range is 457247320530421")
+
+  format_number(457247320530420.34) |> expect_equal("457247320530420.3")
+  format_number(457247320530420)    |> expect_equal("457247320530420")
+  format_number(5.185)              |> expect_equal("5.185")
+  format_number(145.18)             |> expect_equal("145.18")
+})

@@ -723,7 +723,27 @@ format_reported <- function(x, digits) {
 format_number <- function(x, digits = 0L, bounds = numeric()) {
   x |>
     vapply(round_apart, numeric(1L), max(4L, digits + 2L), bounds) |>
-    vapply(format, character(1L), scientific = FALSE, digits = 15L, trim = TRUE)
+    vapply(format_fraction, character(1L))
+}
+
+
+# With 15 significant digits, which hide a double's noise. From about 1e14 on,
+# these leave none for the fraction, so a sum of squares of 457247320530420.3
+# looked whole, next to a sentence that starts counting integers at the one
+# above it. A fraction then gets the 16th or 17th digit:
+format_fraction <- function(x) {
+  for (digits_significant in 15:17) {
+    out <- format(
+      x,
+      scientific = FALSE,
+      digits = digits_significant,
+      trim = TRUE
+    )
+    if (x == round(x) || grepl(getOption("OutDec"), out, fixed = TRUE)) {
+      break
+    }
+  }
+  out
 }
 
 
