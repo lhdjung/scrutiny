@@ -229,6 +229,23 @@ is_seq_basic <- function(
       if (!isTRUE(pass_test_special)) {
         return(FALSE)
       }
+
+      # A missing value stands for a number, which is between `-Inf` and
+      # `Inf`. So a single `NA` with an infinity on either side that it can't
+      # pass, or none, is monotonic whatever its value; linearity was settled
+      # above, as an infinity rules it out among more than two values:
+      if (test_special %in% c("ascending", "descending")) {
+        end_lower <- if (test_special == "ascending") -Inf else Inf
+        positions <- which(is.na(x_orig))
+        n_orig <- length(x_orig)
+        is_open <- function(i) {
+          (i == 1L || identical(x_orig[i - 1L], end_lower)) &&
+            (i == n_orig || identical(x_orig[i + 1L], -end_lower))
+        }
+        if (all(vapply(positions, is_open, logical(1L)))) {
+          return(TRUE)
+        }
+      }
     }
 
     return(NA)

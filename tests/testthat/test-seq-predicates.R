@@ -263,7 +263,7 @@ test_that("an infinity only rules out what it has to", {
   c(1, Inf)    |> is_seq_linear()                        |> expect_true()
   c(1, Inf)    |> is_seq_ascending()                     |> expect_true()
   c(Inf, 1)    |> is_seq_ascending()                     |> expect_false()
-  c(Inf, NA)   |> is_seq_descending()                    |> expect_na()
+  c(Inf, NA)   |> is_seq_descending()                    |> expect_true()
 })
 
 
@@ -410,4 +410,17 @@ test_that("a `tolerance` of 0 doesn't rule out a dispersed sequence with gaps", 
     out[sample(length(out), sample(length(out) - 2L, 1))] <- NA
     out |> is_seq_dispersed(from = from, tolerance = 0) |> isFALSE() |> expect_false()
   }
+})
+
+
+test_that("a missing value between an infinity and the end can't make a sequence non-monotonic", {
+  # A missing value stands for a number, which is between `-Inf` and `Inf`.
+  # These were `NA`:
+  c(NA, Inf)        |> is_seq_ascending()                       |> expect_true()
+  c(-Inf, NA)       |> is_seq_ascending()                       |> expect_true()
+  c(Inf, NA, -Inf)  |> is_seq_descending(test_linear = FALSE)   |> expect_true()
+  # Not two missing values in a row, nor one next to a finite value:
+  c(-Inf, NA, NA, Inf) |> is_seq_ascending(test_linear = FALSE) |> expect_na()
+  c(1, NA, Inf)        |> is_seq_ascending(test_linear = FALSE) |> expect_na()
+  c(-Inf, NA, Inf)     |> is_seq_ascending()                    |> expect_false()
 })
