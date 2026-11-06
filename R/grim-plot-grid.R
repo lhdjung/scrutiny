@@ -144,33 +144,10 @@ grim_plot_grid <- function(
   inherits_grim <- inherits(data, "scrutiny_grim_map")
   inherits_grimmer <- inherits(data, "scrutiny_grimmer_map")
 
-  if (!inherits_grim) {
-    if (inherits_grimmer) {
-      # Without a `reason` column, GRIMMER inconsistencies can't be told apart:
-      reason <- data[["reason"]]
-      reason <- reason[!is.na(reason)]
-      n_grimmer_cases <- reason |>
-        stringr::str_detect("GRIMMER") |>
-        which() |>
-        length()
-      # Not if the data are not drawn, nor before splitting them: each plot's
-      # own call says what it shows.
-      if (n_grimmer_cases > 0L && show_data && !split_by_digits) {
-        msg_incon <- if (n_grimmer_cases == 1L) {
-          "inconsistency"
-        } else {
-          "inconsistencies"
-        }
-        # "Also" if there are GRIM inconsistencies as well, which the plot is
-        # about; consistent value sets are no inconsistencies of either kind:
-        if (any(stringr::str_detect(reason, "^GRIM inconsistent"))) {
-          msg_viz <- "Also visualizing"
-        } else {
-          msg_viz <- "Visualizing"
-        }
-        cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incon}.")
-      }
-    } else if (show_data) {
+  # GRIMMER output is announced further down, once the value sets that are not
+  # drawn have been dropped:
+  if (!inherits_grim && !inherits_grimmer) {
+    if (show_data) {
       abort_in_export(
         "!" = "`grim_plot_grid()` needs GRIM or GRIMMER test results.",
         "x" = "`data` is not the output of `grim_map()`, `grim_map_seq()`, \\
@@ -220,6 +197,8 @@ grim_plot_grid <- function(
         "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
       )
     }
+    # Compared and used as the whole number it is accepted as:
+    digits <- round_whole(digits)
   }
 
   if (
@@ -446,6 +425,13 @@ grim_plot_grid <- function(
     digits <- digits_x[1L]
   }
 
+  # Not if the data are not drawn, nor before splitting them: each plot's own
+  # call says what it shows. After the value sets that are not drawn have been
+  # dropped:
+  if (inherits_grimmer && show_data) {
+    alert_grimmer_incon(data)
+  }
+
   # GRIM's granularity is `n * items_averaged`. After the `split_by_digits`
   # branch, whose recursive calls do this themselves. As a double, since two
   # integers can multiply to more than the integer range:
@@ -567,8 +553,11 @@ grim_plot_grid <- function(
       # The panel is the consistent cells, so only inconsistent ones are drawn:
       ggplot2::theme(
         panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
+        # Without the gradient, a panel of three or more decimal places
+        # shows no cells, so it is white, as without the raster: grey would
+        # call every cell consistent.
         panel.background = ggplot2::element_rect(
-          fill = raster_color,
+          fill = if (digits > 2L && !show_gradient) "white" else raster_color,
           colour = NA
         ),
         panel.grid = ggplot2::element_blank()
@@ -749,4 +738,26 @@ mirror_rounding <- function(rounding, threshold, symmetric) {
     out$threshold <- 10 - threshold
   }
   out
+}
+
+
+# GRIMMER inconsistencies are drawn like GRIM ones, which the plot is about, so
+# their number is announced. Without a `reason` column, they can't be told
+# apart.
+alert_grimmer_incon <- function(data) {
+  reason <- data[["reason"]]
+  reason <- reason[!is.na(reason)]
+  n_grimmer_cases <- sum(stringr::str_detect(reason, "GRIMMER"))
+  if (n_grimmer_cases == 0L) {
+    return(invisible())
+  }
+  msg_incon <- if (n_grimmer_cases == 1L) "inconsistency" else "inconsistencies"
+  # "Also" if there are GRIM inconsistencies as well; consistent value sets
+  # are no inconsistencies of either kind:
+  msg_viz <- if (any(stringr::str_detect(reason, "^GRIM inconsistent"))) {
+    "Also visualizing"
+  } else {
+    "Visualizing"
+  }
+  cli::cli_alert("{msg_viz} {n_grimmer_cases} GRIMMER {msg_incon}.")
 }

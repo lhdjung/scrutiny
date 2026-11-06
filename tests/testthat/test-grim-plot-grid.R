@@ -386,6 +386,25 @@ test_that("three decimal places without the gradient leave the panel plain", {
   # The tile that stands in for the raster was drawn in white at the origin:
   plot <- grim_plot_grid(show_data = FALSE, digits = 3, n = 20, show_gradient = FALSE)
   ggplot2::ggplot_build(plot)$data[[1L]]$fill |> expect_equal(NA)
+  # And the panel is white, not the grey of consistent cells:
+  plot$theme$panel.background$fill |> expect_equal("white")
+  grim_plot_grid(show_data = FALSE, digits = 3, n = 20)$theme$panel.background$fill |> expect_equal("grey75")
+})
+
+
+test_that("a near-whole `digits` is used as the whole number", {
+  # `digits <= 2` failed for 2 + 1e-12, which got the gradient instead of the
+  # raster:
+  plot <- grim_plot_grid(show_data = FALSE, digits = 2 + 1e-12, n = 20)
+  plot |> ggplot2::ggplot_build() |> _$data[[1L]] |> nrow() |> expect_gt(1L)
+  grim_plot_grid(show_data = FALSE, digits = 1 - 1e-12, n = 20) |> expect_no_error()
+})
+
+
+test_that("GRIMMER inconsistencies that are dropped are not announced", {
+  out <- tibble::tibble(x = c(NA, 5.20, 3.40), sd = c(0.01, 1.5, 1.2), n = c(10, 20, 20)) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+  out |> grim_plot_grid() |> expect_message("Visualizing 2 GRIMMER inconsistencies") |> suppressWarnings()
 })
 
 
