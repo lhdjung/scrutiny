@@ -830,6 +830,21 @@ error_data_type_missing <- function() {
 }
 
 
+# The fewest decimal places that a value with a missing decimal count can
+# have: those it shows. More decimal places only narrow the range of numbers
+# that are rounded to the value, so a value set that is inconsistent with the
+# fewest is inconsistent with any. That answer is forced, so the tests give it
+# rather than `NA`. `digits` itself if it is known, or if the value is
+# missing or infinite, which has no decimal places to count:
+digits_least <- function(x, digits) {
+  if (is.na(digits) && is.numeric(x) && is.finite(x)) {
+    decimal_places_scalar(x)
+  } else {
+    digits
+  }
+}
+
+
 # What the tests return for data that are not plainly whole numbers.
 # `test_integer` is a function that runs the test as if they were,
 # `continuous` is the result for continuous data, from `verdict_continuous()`,

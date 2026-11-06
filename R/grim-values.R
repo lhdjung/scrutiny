@@ -104,7 +104,21 @@ grim_values_scalar <- function(
   sums <- parts$sums
 
   if (anyNA(sums)) {
-    return(grim_values_tibble(NA_real_, parts))
+    # Inconsistent, not undecidable, if `grim()` says so with only `digits_x`
+    # missing; see `digits_least()`:
+    is_incon <- is.na(digits_x) &&
+      isFALSE(grim_scalar(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      ))
+    return(grim_values_tibble(if (is_incon) numeric(0L) else NA_real_, parts))
   }
 
   sum1 <- sums[1L]

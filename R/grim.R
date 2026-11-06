@@ -71,16 +71,45 @@ grim_scalar <- function(
   # such data set; a missing `x`, which may be a character `NA` that the
   # arithmetic below would fail on; an infinite `x`, which would make
   # `sum_range()` infinitely wide, i.e., consistent with everything; and a
-  # missing `digits_x`, which leaves no rounding bounds to derive.
+  # missing `digits_x`, which leaves no rounding bounds to derive, if it could
+  # decide the case either way.
   if (
     !is_decidable_n_items(n, items_averaged) ||
       !is.finite(x) ||
       is.na(digits_x)
   ) {
-    if (!show_rec) {
-      return(NA)
+    # Unless only `digits_x` is missing and `x` is inconsistent even with the
+    # fewest decimal places it can have; see `digits_least()`. An error there
+    # is about a size that the test refuses, which leaves the case open:
+    consistency <- NA
+    digits_x_least <- digits_least(x, digits_x)
+    if (
+      is.na(digits_x) &&
+        !is.na(digits_x_least) &&
+        is_decidable_n_items(n, items_averaged)
+    ) {
+      at_least <- tryCatch(
+        grim_scalar(
+          x = x,
+          n = n,
+          digits_x = digits_x_least,
+          items_averaged = items_averaged,
+          data_type = "integer",
+          x_meaning = x_meaning,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric
+        ),
+        error = function(cnd) NA
+      )
+      if (isFALSE(at_least)) {
+        consistency <- FALSE
+      }
     }
-    return(list(NA, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
+    if (!show_rec) {
+      return(consistency)
+    }
+    return(list(consistency, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_))
   }
 
   # `x` itself stays on the reported scale for the `show_rec` values:

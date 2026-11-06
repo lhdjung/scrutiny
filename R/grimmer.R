@@ -335,6 +335,38 @@ grimmer_scalar <- function(
     )
   }
 
+  # A value with its decimal places missing has at least those it shows, and a
+  # value set that is inconsistent with these is inconsistent with more; see
+  # `digits_least()`. Otherwise, the value is as good as missing, as below. An
+  # error is about a size that the test refuses, which leaves the case open:
+  digits_x_least <- digits_least(x, digits_x)
+  digits_sd_least <- digits_least(sd, digits_sd)
+  if (
+    (is.na(digits_x) && !is.na(digits_x_least)) ||
+      (is.na(digits_sd) && !is.na(digits_sd_least))
+  ) {
+    at_least <- tryCatch(
+      grimmer_scalar(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x_least,
+        digits_sd = digits_sd_least,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        show_reason = show_reason,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      error = function(cnd) NULL
+    )
+    if (isFALSE(at_least[[1L]])) {
+      return(at_least)
+    }
+  }
+
   # A verdict with a missing value is `NA` only if the value could decide the
   # question either way. A missing `n` or `items_averaged` always could: with
   # `n = 10^digits_x`, any mean passes GRIM, and some sum of squares fits. A

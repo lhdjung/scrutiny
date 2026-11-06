@@ -101,6 +101,26 @@ grim_explain <- function(
   )
   consistency <- rec[[1L]]
 
+  # Inconsistent although `digits_x` is missing: see `digits_least()`.
+  if (
+    identical(data_type, "integer") && isFALSE(consistency) && is.na(digits_x)
+  ) {
+    return(explain_digits_least(
+      grim_explain(
+        x = x,
+        n = n,
+        digits_x = digits_least(x, digits_x),
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      ),
+      "digits_x"
+    ))
+  }
+
   if (!identical(data_type, "integer")) {
     explain_integer <- function(fill = FALSE) {
       grim_explain(
@@ -638,6 +658,27 @@ format.scrutiny_explain <- function(x, ...) {
 print.scrutiny_explain <- function(x, ...) {
   cat(format(x), "\n", sep = "")
   invisible(x)
+}
+
+
+# The explanation of a value set that is inconsistent whatever its missing
+# decimal count: `explanation`, the one with the fewest decimal places that the
+# value can have, under a paragraph on why that settles it; see
+# `digits_least()`. `missing` names the `digits_*` arguments that are missing.
+explain_digits_least <- function(explanation, missing) {
+  explanation$paragraphs <- c(
+    paste0(
+      paste(missing, collapse = " and "),
+      if (length(missing) == 1L) " is" else " are",
+      " missing, so the test below takes the fewest decimal places that ",
+      "the reported value can have: those it shows. More decimal places ",
+      "would only narrow the range of numbers that are rounded to it, so a ",
+      "value set that is inconsistent here is inconsistent whatever the ",
+      "number of decimal places."
+    ),
+    explanation$paragraphs
+  )
+  explanation
 }
 
 

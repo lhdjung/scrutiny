@@ -317,10 +317,12 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   # It used to fail inside `check_newly_numeric()` with "missing value where
   # TRUE/FALSE needed" -- from within `purrr::pmap()` in a mapper, where one row
   # with an unknown decimal count took the whole call down.
-  5.19 |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                            |> expect_na()
-  1.03 |> grimmer(0.41, 40, digits_x = 2, digits_sd = NA, items_averaged = 1, data_type = "integer")    |> expect_na()
+  # These are consistent with the decimal places they show, so more of them
+  # could decide either way:
+  5.2  |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                            |> expect_na()
+  3    |> grimmer(1.58, 5, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer")     |> expect_na()
   0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2, data_type = "integer")                        |> expect_na()
-  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
+  5.2  |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
   5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
 
   out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA), items_averaged = 1, data_type = "integer")
@@ -332,6 +334,72 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   tibble::tibble(x = 5.19, n = 28L) |>
     grim_map_seq(digits_x = NA, items_averaged = 1, data_type = "integer") |>
     expect_error("single number")
+})
+
+test_that("a value set that is inconsistent with the decimal places it shows is so without `digits_*`", {
+  # More decimal places only narrow the range of numbers that are rounded to
+  # a value, so the answer is forced. These were `NA`:
+  5.19 |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                                |> expect_false()
+  51.9 |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer", x_meaning = "percentage")      |> expect_false()
+  2.5  |> grimmer(1.05, 10, digits_x = 1, digits_sd = NA, items_averaged = 1, data_type = "integer")        |> expect_false()
+  2.5  |> grimmer(1.05, 10, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer")       |> expect_false()
+  0.35 |> debit(0.11, 20, digits_x = 2, digits_sd = NA, data_type = "integer")                              |> expect_false()
+  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> nrow()                                      |> expect_equal(0L)
+  grimmer_scalar(2.5, 1.05, 10, 1, NA, 1, show_reason = TRUE, data_type = "integer")[[2L]]                  |> expect_equal("GRIMMER inconsistent (test 1)")
+
+  # Nothing else that is missing or undecidable is decided by it:
+  5.19 |> grim(NA, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_na()
+  5.19 |> grim(0, digits_x = NA, items_averaged = 1, data_type = "integer")  |> expect_na()
+  Inf  |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_na()
+  5.19 |> grim(28, digits_x = NA, items_averaged = 1, data_type = NA)        |> expect_na()
+
+  # The rule itself: `FALSE` with the fewest decimal places is `FALSE` with
+  # more, for every rounding method. Random values, so that some are on the
+  # edge:
+  set.seed(sweep_seed(318L))
+  roundings <- c("up_or_down", "up", "down", "even", "ceiling", "floor", "trunc", "anti_trunc", "ceiling_or_floor")
+  for (i in 1:300) {
+    rounding <- sample(roundings, 1)
+    n <- sample(2:60, 1)
+    x <- round(runif(1, 0, 9), 2)
+    sd <- round(runif(1, 0, 3), 2)
+    at_digits <- function(digits) {
+      grimmer(x, sd, n, digits_x = digits, digits_sd = digits, items_averaged = 1, data_type = "integer", rounding = rounding)
+    }
+    least <- max(decimal_places_scalar(x), decimal_places_scalar(sd))
+    if (isFALSE(at_digits(least))) {
+      (least + 1:3) |> vapply(at_digits, logical(1L)) |> any() |> expect_false()
+    }
+    at_digits(NA) |> expect_identical(if (isFALSE(grimmer(
+      x, sd, n,
+      digits_x = decimal_places_scalar(x), digits_sd = decimal_places_scalar(sd),
+      items_averaged = 1, data_type = "integer", rounding = rounding
+    ))) FALSE else NA)
+  }
+})
+
+test_that("an explanation says why a missing `digits_*` doesn't leave the case open", {
+  text <- function(explanation) format(explanation) |> paste(collapse = " ") |> gsub(pattern = "\\s+", replacement = " ")
+  grim_explain(x = 5.19, n = 28, digits_x = NA, items_averaged = 1, data_type = "integer") |>
+    text() |>
+    expect_match("digits_x is missing, so the test below takes the fewest decimal places.*with 2 decimal places.*Inconsistent")
+  grim_explain(x = 5.2, n = 28, digits_x = NA, items_averaged = 1, data_type = "integer") |>
+    text() |>
+    expect_match("can't be decided without it.*Undecidable")
+  grimmer_explain(x = 2.5, sd = 1.05, n = 10, digits_x = 1, digits_sd = NA, items_averaged = 1, data_type = "integer") |>
+    text() |>
+    expect_match("digits_sd is missing, so.*Inconsistent")
+  debit_explain(x = 0.35, sd = 0.11, n = 20, digits_x = 2, digits_sd = NA, data_type = "integer") |>
+    text() |>
+    expect_match("digits_sd is missing, so.*Inconsistent")
+
+  # A mapper's rows are explained the same way:
+  tibble::tibble(x = c(5.19, 5.19), n = 28L) |>
+    grim_map(digits_x = c(2, NA), items_averaged = 1, data_type = "integer") |>
+    explain_map() |>
+    dplyr::pull(explanation) |>
+    grepl(pattern = "digits_x is missing") |>
+    expect_equal(c(FALSE, TRUE))
 })
 
 test_that("a missing value that can't change the verdict doesn't make it `NA`", {

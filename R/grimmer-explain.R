@@ -92,6 +92,34 @@ grimmer_explain <- function(
   )
   consistency <- result[[1L]]
 
+  # Inconsistent although a decimal count is missing: see `digits_least()`.
+  digits_missing <- c(
+    if (is.na(digits_x) && !is.na(digits_least(x, digits_x))) "digits_x",
+    if (is.na(digits_sd) && !is.na(digits_least(sd, digits_sd))) "digits_sd"
+  )
+  if (
+    identical(data_type, "integer") &&
+      isFALSE(consistency) &&
+      length(digits_missing) > 0L
+  ) {
+    return(explain_digits_least(
+      grimmer_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_least(x, digits_x),
+        digits_sd = digits_least(sd, digits_sd),
+        items_averaged = items_averaged,
+        data_type = "integer",
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      digits_missing
+    ))
+  }
+
   if (!identical(data_type, "integer")) {
     explain_integer <- function(fill = FALSE) {
       grimmer_explain(

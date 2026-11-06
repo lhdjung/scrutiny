@@ -578,6 +578,37 @@ debit_scalar <- function(
     return(verdict)
   }
 
+  # A value with its decimal places missing has at least those it shows, and a
+  # value set that is inconsistent with these is inconsistent with more; see
+  # `digits_least()`. Otherwise, the value is as good as missing, as below. An
+  # error is about a size that the test refuses, which leaves the case open:
+  digits_x_least <- digits_least(x, digits_x)
+  digits_sd_least <- digits_least(sd, digits_sd)
+  if (
+    (is.na(digits_x) && !is.na(digits_x_least)) ||
+      (is.na(digits_sd) && !is.na(digits_sd_least))
+  ) {
+    at_least <- tryCatch(
+      debit_scalar(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x_least,
+        digits_sd = digits_sd_least,
+        data_type = "integer",
+        formula = formula,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      error = function(cnd) NA
+    )
+    if (isFALSE(at_least)) {
+      return(debit_result(FALSE, show_rec))
+    }
+  }
+
   # A verdict with a missing value is `NA` only if the value could decide the
   # question either way. A sample SD of `n` binary values divides by `n - 1`,
   # so `n` has to be a whole number greater than 1 for it to describe anything;
