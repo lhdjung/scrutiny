@@ -195,13 +195,13 @@ test_that("`explain_map()` keeps the data as it is", {
 })
 
 test_that("`explain_map()` uses the settings of the mapper call", {
-  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, x_meaning = \"percentage\"", fixed = TRUE)
+  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, items_averaged = 1, data_type = \"integer\", x_meaning = \"percentage\"", fixed = TRUE)
 })
 
 test_that("`explain_map()` catches rows changed after testing", {
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   data$n[1] <- 28
-  data |> explain_map() |> expect_error("row with x = 7.22, n = 28 doesn't match")
+  data |> explain_map() |> expect_error("row with x = 7.22, n = 28, items_averaged = 1, data_type = \"integer\" doesn't match", fixed = TRUE)
 })
 
 test_that("`explain_map()` needs columns and settings", {
@@ -214,7 +214,7 @@ test_that("`explain_map()` needs columns and settings", {
 
 test_that("`explain_print()` explains only the rows it prints", {
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
-  data |> explain_print(2)                    |> expect_output("^GRIM test: x = 4.74, n = 25\n")
+  data |> explain_print(2)                    |> expect_output("^GRIM test: x = 4.74, n = 25, items_averaged = 1, data_type = \"integer\"\n")
   data |> explain_print(1:2)                  |> expect_output("x = 4.74")
   data |> explain_print(-1)                   |> expect_output("x = 4.74")
   data |> dplyr::filter(!consistency) |> explain_print() |> expect_output("x = 4.74")
@@ -222,7 +222,7 @@ test_that("`explain_print()` explains only the rows it prints", {
   # Row 2 would fail the re-test, but it is not printed:
   data$n[2] <- 50
   data |> explain_print(1)                    |> expect_output("x = 7.22")
-  data |> explain_print(2)                    |> expect_error("row with x = 4.74, n = 50 doesn't match")
+  data |> explain_print(2)                    |> expect_error("row with x = 4.74, n = 50, items_averaged = 1, data_type = \"integer\" doesn't match", fixed = TRUE)
 
   capture.output(returned <- data |> explain_print(1))
   returned |> expect_identical(data)
@@ -306,8 +306,8 @@ test_that("a near-whole `n` is explained as the whole number, as the tests test 
 
 test_that("a negative zero is shown as zero", {
   # `formatC()` printed it as "-0.0":
-  -0 |> grim_explain(3, digits_x = 1, items_averaged = 1, data_type = "integer")    |> _$inputs |> expect_equal("x = 0.0, n = 3")
-  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1, data_type = "integer")     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3")
+  -0 |> grim_explain(3, digits_x = 1, items_averaged = 1, data_type = "integer")    |> _$inputs |> expect_equal("x = 0.0, n = 3, items_averaged = 1, data_type = \"integer\"")
+  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1, data_type = "integer")     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3, items_averaged = 1, data_type = \"integer\"")
   -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1, data_type = "integer")     |> format() |> paste(collapse = " ") |> expect_no_match("-0.0[^0-9]")
 })
 
@@ -366,4 +366,17 @@ test_that("`explain_map()` doesn't overwrite a column of the user's", {
   # Its own column from an earlier call is the same, so it is kept:
   explained <- pigs1 |> grim_map(2, items_averaged = 1, data_type = "integer") |> explain_map()
   explained |> explain_map() |> expect_identical(explained)
+})
+
+
+test_that("explanations say which rounding they assume, once", {
+  ROUNDING_METHODS |> purrr::map_chr(\(r) describe_rounding(r, 5, FALSE)) |> expect_length(length(ROUNDING_METHODS))
+  5.19 |> grim_explain(28, 2, 1, "integer", rounding = "up_from", threshold = 4, symmetric = TRUE) |> _$paragraphs |> expect_match("(assuming rounding up from 4, with negative values rounded like their absolute values)", fixed = TRUE, all = FALSE)
+  5.19 |> grim_explain(28, 2, 1, "integer", rounding = "ceiling", symmetric = TRUE)               |> _$paragraphs |> expect_match("(assuming always rounding up)", fixed = TRUE, all = FALSE)
+  5.23 |> grimmer_explain(2.55, 31, 2, 2, 1, "integer") |> format() |> gregexpr(pattern = "assuming") |> _[[1L]] |> expect_length(1L)
+})
+
+test_that("explanations of percentages say so", {
+  71 |> grim_explain(43, 0, 1, "continuous", x_meaning = "percentage") |> format() |> expect_match("can have any percentage")
+  71 |> grim_explain(43, 0, 1, "integer", x_meaning = "percentage")    |> format() |> expect_match("not to 71%.", fixed = TRUE)
 })

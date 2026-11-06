@@ -153,7 +153,8 @@ debit_explain <- function(
     inputs <- list(
       x = format_reported(x, digits_x),
       sd = format_reported(sd, digits_sd),
-      n = n
+      n = n,
+      data_type = "\"integer\""
     )
     new_explanation(
       "DEBIT",

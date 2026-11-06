@@ -3,9 +3,10 @@
     Code
       grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
     Output
-      GRIM test: x = 5.19, n = 28
+      GRIM test: x = 5.19, n = 28, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.185 to 5.195.
       
       The mean of 28 whole numbers is their sum divided by 28. So the sum must be
@@ -19,9 +20,10 @@
     Code
       grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
     Output
-      GRIM test: x = 5.19, n = 32
+      GRIM test: x = 5.19, n = 32, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.185 to 5.195.
       
       The mean of 32 whole numbers is their sum divided by 32. So the sum must be
@@ -35,27 +37,29 @@
       grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, data_type = "integer",
         x_meaning = "percentage")
     Output
-      GRIM test: x = 71, n = 43, x_meaning = "percentage"
+      GRIM test: x = 71, n = 43, items_averaged = 1, data_type = "integer", x_meaning = "percentage"
       
-      The percentage was reported as 71, with no decimal places. Before rounding, it
-      could have been anything from 70.5 to 71.5.
+      The percentage was reported as 71%, with no decimal places. Before rounding
+      (assuming either rounding up from 5 or down from 5, which is the most common),
+      it could have been anything from 70.5% to 71.5%.
       
       A percentage out of 43 is a count divided by 43, times 100. So the count must
       be from 70.5 / 100 * 43 = 30.315 to 71.5 / 100 * 43 = 30.745.
       
       A count is a whole number, but there is no whole number in this range. The
       nearest ones are 30 and 31. They give 30 / 43 * 100 = 69.7674 and
-      31 / 43 * 100 = 72.093, which round to 70 and 72, not to 71.
+      31 / 43 * 100 = 72.093, which round to 70% and 72%, not to 71%.
       
       ==> Inconsistent
     Code
       grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer",
         rounding = "up")
     Output
-      GRIM test: x = 2.84, n = 16, items_averaged = 2, rounding = "up"
+      GRIM test: x = 2.84, n = 16, items_averaged = 2, data_type = "integer", rounding = "up"
       
-      The mean was reported as 2.84, with 2 decimal places. Before rounding, it could
-      have been anything from 2.835 up to, but not including, 2.845.
+      The mean was reported as 2.84, with 2 decimal places. Before rounding (assuming
+      rounding up from 5), it could have been anything from 2.835 up to, but not
+      including, 2.845.
       
       Each of the 16 scores is the average of 2 whole-number items. Their mean is
       therefore the sum of all 32 item values divided by 32, so this sum must be from
@@ -68,7 +72,7 @@
     Code
       grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1, data_type = "integer")
     Output
-      GRIM test: x = 5.2, n = 20.5
+      GRIM test: x = 5.2, n = 20.5, items_averaged = 1, data_type = "integer"
       
       The test needs n to be a positive whole number, but it is 20.5.
       
@@ -77,9 +81,10 @@
       grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2,
         items_averaged = 1, data_type = "integer")
     Output
-      GRIMMER test: x = 5.23, sd = 2.55, n = 35
+      GRIMMER test: x = 5.23, sd = 2.55, n = 35, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 5.23, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.23, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.225 to 5.235.
       
       The mean of 35 whole numbers is their sum divided by 35. So the sum must be
@@ -107,9 +112,10 @@
       grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2,
         items_averaged = 1, data_type = "integer")
     Output
-      GRIMMER test: x = 5.19, sd = 2.55, n = 28
+      GRIMMER test: x = 5.19, sd = 2.55, n = 28, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.185 to 5.195.
       
       The mean of 28 whole numbers is their sum divided by 28. So the sum must be
@@ -125,9 +131,10 @@
       grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1,
         items_averaged = 1, data_type = "integer")
     Output
-      GRIMMER test: x = 3.1, sd = 1.3, n = 200
+      GRIMMER test: x = 3.1, sd = 1.3, n = 200, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 3.1, with 1 decimal place. Before rounding, it could
+      The mean was reported as 3.1, with 1 decimal place. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 3.05 to 3.15.
       
       The mean of 200 whole numbers is their sum divided by 200. So the sum must be
@@ -156,12 +163,13 @@
       debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2,
         data_type = "integer")
     Output
-      DEBIT test: x = 0.36, sd = 0.11, n = 20
+      DEBIT test: x = 0.36, sd = 0.11, n = 20, data_type = "integer"
       
       DEBIT is about binary data, where every value is 0 or 1. The mean is then the
       share of ones, and the SD follows from the number of ones and the sample size.
       
-      The mean was reported as 0.36, with 2 decimal places. Before rounding, it could
+      The mean was reported as 0.36, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 0.355 to 0.365.
       
       With 20 values, the mean is the number of ones divided by 20, so that number
@@ -174,12 +182,13 @@
       debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2,
         data_type = "integer")
     Output
-      DEBIT test: x = 0.35, sd = 0.49, n = 20
+      DEBIT test: x = 0.35, sd = 0.49, n = 20, data_type = "integer"
       
       DEBIT is about binary data, where every value is 0 or 1. The mean is then the
       share of ones, and the SD follows from the number of ones and the sample size.
       
-      The mean was reported as 0.35, with 2 decimal places. Before rounding, it could
+      The mean was reported as 0.35, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 0.345 to 0.355.
       
       With 20 values, the mean is the number of ones divided by 20, so that number
@@ -197,12 +206,13 @@
       debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2,
         data_type = "integer")
     Output
-      DEBIT test: x = 0.36, sd = 0.49, n = 1000
+      DEBIT test: x = 0.36, sd = 0.49, n = 1000, data_type = "integer"
       
       DEBIT is about binary data, where every value is 0 or 1. The mean is then the
       share of ones, and the SD follows from the number of ones and the sample size.
       
-      The mean was reported as 0.36, with 2 decimal places. Before rounding, it could
+      The mean was reported as 0.36, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 0.355 to 0.365.
       
       With 1000 values, the mean is the number of ones divided by 1000, so that
@@ -223,7 +233,7 @@
     Code
       grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "continuous")
     Output
-      GRIM test: x = 5.19, n = 28, data_type = "continuous"
+      GRIM test: x = 5.19, n = 28, items_averaged = 1, data_type = "continuous"
       
       The data are continuous, so they can have any mean. The test only applies to
       whole numbers, so the value set is consistent.
@@ -232,12 +242,13 @@
     Code
       grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = NA)
     Output
-      GRIM test: x = 5.19, n = 28, data_type = NA
+      GRIM test: x = 5.19, n = 28, items_averaged = 1, data_type = NA
       
       The data type is missing. If the data are whole numbers, the test goes as
       follows.
       
-      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.185 to 5.195.
       
       The mean of 28 whole numbers is their sum divided by 28. So the sum must be
@@ -254,9 +265,10 @@
     Code
       grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = NA)
     Output
-      GRIM test: x = 5.19, n = 32, data_type = NA
+      GRIM test: x = 5.19, n = 32, items_averaged = 1, data_type = NA
       
-      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 5.185 to 5.195.
       
       The mean of 32 whole numbers is their sum divided by 32. So the sum must be
@@ -273,7 +285,7 @@
       grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2,
         items_averaged = 1, data_type = "continuous")
     Output
-      GRIMMER test: x = 5.23, sd = 2.55, n = 35, data_type = "continuous"
+      GRIMMER test: x = 5.23, sd = 2.55, n = 35, items_averaged = 1, data_type = "continuous"
       
       The data are continuous, so they can have any mean and SD. The test only
       applies to whole numbers, so the value set is consistent.
@@ -286,9 +298,10 @@
       explain_print(explain_map(grim_map(pigs1, digits_x = 2, items_averaged = 1,
         data_type = "integer")), 1:2)
     Output
-      GRIM test: x = 7.22, n = 32
+      GRIM test: x = 7.22, n = 32, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 7.22, with 2 decimal places. Before rounding, it could
+      The mean was reported as 7.22, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 7.215 to 7.225.
       
       The mean of 32 whole numbers is their sum divided by 32. So the sum must be
@@ -299,9 +312,10 @@
       
       ==> Consistent
       
-      GRIM test: x = 4.74, n = 25
+      GRIM test: x = 4.74, n = 25, items_averaged = 1, data_type = "integer"
       
-      The mean was reported as 4.74, with 2 decimal places. Before rounding, it could
+      The mean was reported as 4.74, with 2 decimal places. Before rounding (assuming
+      either rounding up from 5 or down from 5, which is the most common), it could
       have been anything from 4.735 to 4.745.
       
       The mean of 25 whole numbers is their sum divided by 25. So the sum must be

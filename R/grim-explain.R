@@ -119,7 +119,7 @@ grim_explain <- function(
       data_type,
       consistency,
       explain_integer,
-      "mean",
+      x_meaning,
       names(verdict_continuous(n, items_averaged, x = x))
     ))
   }
@@ -128,9 +128,8 @@ grim_explain <- function(
     inputs <- list(
       x = format_reported(x, digits_x),
       n = n,
-      items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
-        items_averaged
-      },
+      items_averaged = items_averaged,
+      data_type = "\"integer\"",
       x_meaning = if (is_percentage) "\"percentage\""
     )
     new_explanation(
@@ -201,14 +200,18 @@ grim_explain <- function(
     digits_num
   )
 
+  # Reported percentages and their bounds have a percent sign, but not the
+  # numbers in calculations:
+  unit <- if (is_percentage) "%" else ""
   text_bounds <- describe_reported(
     if (is_percentage) "percentage" else "mean",
     x,
     digits_x,
-    x_lower,
-    x_upper,
+    paste0(x_lower, unit),
+    paste0(x_upper, unit),
     bounds$incl_lower,
-    bounds$incl_upper
+    bounds$incl_upper,
+    unit
   )
 
   # How the mean or percentage comes from a sum, and which sums it allows:
@@ -302,6 +305,7 @@ grim_explain <- function(
       roundwork::reround(digits_x, rounding, threshold, symmetric) |>
       format_reported(digits_x) |>
       unique() |>
+      paste0(unit) |>
       paste(collapse = " or ") |>
       paste0(if (is_tie) " (a tie)")
   }
@@ -379,6 +383,7 @@ grim_explain <- function(
       rounds_to(sum_lower),
       ", not to ",
       format_reported(x, digits_x),
+      unit,
       "."
     )
   }
@@ -464,10 +469,14 @@ explain_data_type <- function(
   }
 
   out$consistency <- consistency
-  out$inputs <- paste0(
+  out$inputs <- sub(
+    "data_type = \"integer\"",
+    paste0(
+      "data_type = ",
+      if (is.na(data_type)) "NA" else paste0("\"", data_type, "\"")
+    ),
     out$inputs,
-    ", data_type = ",
-    if (is.na(data_type)) "NA" else paste0("\"", data_type, "\"")
+    fixed = TRUE
   )
   out
 }
@@ -493,6 +502,23 @@ new_explanation <- function(
     )
   )
   inputs <- Filter(Negate(is.null), inputs)
+
+  # The first range of unrounded values says which rounding it assumes, unless
+  # paragraphs taken from another explanation, such as GRIM's, already do:
+  first <- grep("Before rounding, ", text, fixed = TRUE)[1L]
+  is_said <- any(grepl("Before rounding (assuming", text, fixed = TRUE))
+  if (!is.na(first) && !is_said) {
+    text[first] <- sub(
+      "Before rounding, ",
+      paste0(
+        "Before rounding (assuming ",
+        describe_rounding(rounding, threshold, symmetric),
+        "), "
+      ),
+      text[first],
+      fixed = TRUE
+    )
+  }
 
   structure(
     list(
@@ -728,7 +754,8 @@ round_apart <- function(x, places, bounds) {
 
 
 # The sentence on a reported value and the range it could have been rounded
-# from:
+# from. `unit` follows the value, as with a percent sign; `lower` and `upper`
+# have it already:
 describe_reported <- function(
   name,
   x,
@@ -736,7 +763,8 @@ describe_reported <- function(
   lower,
   upper,
   incl_lower,
-  incl_upper
+  incl_upper,
+  unit = ""
 ) {
   places <- if (digits == 0) {
     "no decimal places"
@@ -751,6 +779,7 @@ describe_reported <- function(
     name,
     " was reported as ",
     format_reported(x, digits),
+    unit,
     ", with ",
     places,
     # A single-point range, as under `"anti_trunc"` at zero, is no "anything":
@@ -762,6 +791,55 @@ describe_reported <- function(
     describe_range(lower, upper, incl_lower, incl_upper),
     "."
   )
+}
+
+
+# The rounding method in words, for "Before rounding (assuming ...)":
+describe_rounding <- function(rounding, threshold, symmetric) {
+  nearest <- "rounding to the nearest value, with ties rounded "
+  text <- switch(
+    rounding,
+    up_or_down = "either rounding up from 5 or down from 5, which is the most common",
+    up_from_or_down_from = paste0(
+      "either rounding up from ",
+      threshold,
+      " or down from ",
+      threshold
+    ),
+    ceiling_or_floor = "either always rounding up or always rounding down",
+    up = "rounding up from 5",
+    down = "rounding down from 5",
+    even = "rounding half to even, as R's round() does",
+    up_from = paste("rounding up from", threshold),
+    down_from = paste("rounding down from", threshold),
+    ceiling = "always rounding up",
+    floor = "always rounding down",
+    trunc = "truncation, which drops further decimal places",
+    anti_trunc = "always rounding away from zero",
+    ties_up = paste0(nearest, "up"),
+    ties_down = paste0(nearest, "down"),
+    ties_away = paste0(nearest, "away from zero"),
+    ties_zero = paste0(nearest, "toward zero"),
+    ties_even = paste0(nearest, "to even")
+  )
+  # The methods that `symmetric` changes; see `?roundwork::reround`:
+  is_symmetric <- symmetric &&
+    rounding %in%
+      c(
+        "up_or_down",
+        "up_from_or_down_from",
+        "up",
+        "down",
+        "up_from",
+        "down_from"
+      )
+  if (is_symmetric) {
+    text <- paste0(
+      text,
+      ", with negative values rounded like their absolute values"
+    )
+  }
+  text
 }
 
 

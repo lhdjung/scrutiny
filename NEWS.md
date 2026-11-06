@@ -88,7 +88,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 ## New features
 
-- `grim_explain()`, `grimmer_explain()`, and `debit_explain()` lay out the test of a single case in plain words. They are built from the numbers that decide the test, so they always agree with `grim()`, `grimmer()`, and `debit()`. `explain_map()` adds these explanations to mapper output as an `explanation` column, using the settings of the mapper call, and `explain_print()` prints them.
+- `grim_explain()`, `grimmer_explain()`, and `debit_explain()` lay out the test of a single case in plain words. They are built from the numbers that decide the test, so they always agree with `grim()`, `grimmer()`, and `debit()`. `explain_map()` adds these explanations to mapper output as an `explanation` column, using the settings of the mapper call, and `explain_print()` prints them. Each one names the rounding method it assumes, and its first line lists `items_averaged` and `data_type`.
 
 - `grimmer()`, `debit()`, and their mappers, explanations, and plots have a new `sd_meaning` argument: what a value reported as an SD really is. `"sd_sample"`, the default, is a sample SD, which divides by `n - 1`. `"sd_pop"` is a population SD, which divides by `n`, as with NumPy's `np.std()` or Excel's `STDEV.P`. `"sd_sample_or_pop"` accepts a value set that is consistent under either; `grimmer_map()`'s `reason` column names the one that passed. `"se"` is a standard error reported as an SD. This test is weak: from about `n = 20` on, nearly every value set whose mean passes GRIM is consistent under `"se"`. Thanks to Ian Hussey (#95).
 

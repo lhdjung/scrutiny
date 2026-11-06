@@ -154,9 +154,8 @@ grimmer_explain <- function(
       x = format_reported(x, digits_x),
       sd = format_reported(sd, digits_sd),
       n = n,
-      items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
-        items_averaged
-      }
+      items_averaged = items_averaged,
+      data_type = "\"integer\""
     )
     new_explanation(
       "GRIMMER",
