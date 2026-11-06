@@ -42,7 +42,7 @@ By default (`formula = "exact"`), DEBIT only considers means that `n` binary val
 
 ## Many cases: `debit_map()`
 
-`debit_map()` tests every row of a data frame. These are the example data from Table 1 of @heathers_debit_2019:
+`debit_map()` tests every row of a data frame. These example data are made up:
 
 ```{r}
 flying_pigs <- tibble::tibble(
