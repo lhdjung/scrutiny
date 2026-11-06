@@ -4,9 +4,8 @@
 # that check to work.
 
 test_that("explanations agree with the tests (sweep)", {
-  rlang::local_options(rlib_warning_verbosity = "quiet")
-  # Every data type takes its turn, each one on every fourth row:
-  data_types <- c("integer", "quasi-integer", "continuous", NA)
+  # Every data type takes its turn, each one on every third row:
+  data_types <- c("integer", "continuous", NA)
   grid <- tidyr::expand_grid(
     x = c(0.05, 0.36, 0.5, 1.7, 3, 5.19, 5.23),
     sd = c(0, 0.11, 0.21, 0.49, 1.3, 2.55),
@@ -24,7 +23,7 @@ test_that("explanations agree with the tests (sweep)", {
       rounding = row$rounding
     )
     args_sd <- c(args, list(sd = row$sd, digits_sd = row$digits))
-    data_type <- data_types[(i - 1L) %% 4L + 1L]
+    data_type <- data_types[(i - 1L) %% 3L + 1L]
     args_grim <- c(args, list(items_averaged = 1, data_type = data_type))
     args_grimmer <- c(args_sd, list(items_averaged = 1, data_type = data_type))
 
@@ -108,11 +107,6 @@ test_that("explanations say what the data type does", {
     grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = NA)
     grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "continuous")
   })
-  rlang::local_options(rlib_warning_verbosity = "quiet")
-  quasi <- grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "quasi-integer")
-  quasi$consistency |> expect_false()
-  quasi$paragraphs[[1L]] |> expect_match("quasi-integer")
-  quasi$inputs |> expect_match('data_type = "quasi-integer"', fixed = TRUE)
 })
 
 test_that("explanations of continuous data follow the verdict", {

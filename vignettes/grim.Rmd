@@ -44,7 +44,6 @@ grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1, data_type = "integer")
 `data_type` says what kind of data the mean summarizes. GRIM only applies to whole numbers:
 
 - `"integer"`: whole numbers, such as answers on a rating scale or counts.
-- `"quasi-integer"`: whole numbers that stand for something continuous, such as age in years. They are tested like integers, with a warning that the result only holds if the analysis used these whole numbers rather than more precise values.
 - `"continuous"`: anything else, such as reaction times or body mass index. Any mean is possible, so the result is `TRUE`.
 
 None of these arguments has a default, since the result depends on all of them.

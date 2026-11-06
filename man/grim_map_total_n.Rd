@@ -46,8 +46,8 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
-or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+Like \code{items_averaged}, give it as an argument or as a
 column of \code{data}; there is no default. It is returned as a column.}
 
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or

@@ -53,7 +53,7 @@ X_MEANINGS <- c("mean", "percentage")
 # The values of GRIM's and GRIMMER's `data_type`. Unlike the ones above, the
 # argument has no default and takes one value per row, like `items_averaged`,
 # so the functions don't spell these out; see `test_data_type()`.
-DATA_TYPES <- c("integer", "quasi-integer", "continuous")
+DATA_TYPES <- c("integer", "continuous")
 
 
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their

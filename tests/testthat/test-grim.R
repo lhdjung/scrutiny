@@ -305,9 +305,9 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
 
 # `map_value_sets()` raised a bare "Need to specify" for a missing `data_type`.
 test_that("a missing `data_type` is a bespoke error in the vectorized tests", {
-  5.19 |> grim(28, 2, items_averaged = 1)               |> expect_error("quasi-integer")
-  5.19 |> grimmer(1.2, 28, 2, 1, items_averaged = 1)    |> expect_error("quasi-integer")
-  0.35 |> debit(0.18, 20, 2, 2)                         |> expect_error("quasi-integer")
+  5.19 |> grim(28, 2, items_averaged = 1)               |> expect_error("\"continuous\": the values")
+  5.19 |> grimmer(1.2, 28, 2, 1, items_averaged = 1)    |> expect_error("\"continuous\": the values")
+  0.35 |> debit(0.18, 20, 2, 2)                         |> expect_error("\"continuous\": the values")
 })
 
 
@@ -480,10 +480,8 @@ test_that("a decimal `threshold` counts toward the digits that must stay exact",
 
 
 test_that("`data_type` decides whether GRIM applies", {
-  rlang::local_options(rlib_warning_verbosity = "quiet")
   # 5.19 fails at `n = 28` and passes at `n = 32` as whole numbers:
   c(5.19, 5.19) |> grim(c(28, 32), 2, 1, "integer")       |> expect_equal(c(FALSE, TRUE))
-  c(5.19, 5.19) |> grim(c(28, 32), 2, 1, "quasi-integer") |> expect_equal(c(FALSE, TRUE))
   c(5.19, 5.19) |> grim(c(28, 32), 2, 1, "continuous")    |> expect_equal(c(TRUE, TRUE))
   # A missing data type could be continuous, so only a pass is forced:
   c(5.19, 5.19) |> grim(c(28, 32), 2, 1, NA)              |> expect_equal(c(NA, TRUE))
@@ -508,11 +506,4 @@ test_that("`data_type` is a column of mapper output, and `exp_incon` follows it"
   out$exp_incon   |> expect_equal(c(0.72, 0, NA, 0))
   # The argument applies to every row:
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "continuous") |> _$consistency |> all() |> expect_true()
-})
-
-test_that("quasi-integer data are tested as whole numbers, with a warning", {
-  rlang::local_options(rlib_warning_verbosity = "verbose")
-  grim(5.19, 28, 2, 1, "quasi-integer") |> expect_warning("quasi-integer")
-  rlang::local_options(rlib_warning_verbosity = "quiet")
-  5.19 |> grim(28, 2, 1, "quasi-integer") |> expect_false()
 })

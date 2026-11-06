@@ -198,10 +198,6 @@ grim_scalar <- function(
 #' @param data_type String. The kind of data that `x` summarizes. No default.
 #'   - `"integer"`: whole numbers, such as answers on a rating scale, counts,
 #'   or yes/no answers for a percentage.
-#'   - `"quasi-integer"`: whole numbers that stand for something continuous,
-#'   such as age in years or reaction times in whole milliseconds. They are
-#'   tested like `"integer"` data, with a warning, once per session, that
-#'   the result only holds if the analysis used the recorded whole numbers.
 #'   - `"continuous"`: anything else, such as body mass index or a visual
 #'   analogue scale. The test does not apply, and the result is `TRUE`
 #'   unless the value set describes no data, as with `n = 0`, which is `NA`

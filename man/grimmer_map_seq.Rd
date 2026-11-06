@@ -44,8 +44,8 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
-or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+Like \code{items_averaged}, give it as an argument or as a
 column of \code{data}; there is no default. It is returned as a column.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to

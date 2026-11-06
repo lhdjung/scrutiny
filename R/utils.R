@@ -816,8 +816,6 @@ error_data_type_missing <- function() {
     "Need to specify `data_type`{msg_column}.",
     "*" = "{.val integer}: the values are whole numbers, such as answers on a \\
     rating scale or counts.",
-    "*" = "{.val quasi-integer}: whole numbers that stand for something \\
-    continuous, such as age in years.",
     "*" = "{.val continuous}: the values are not whole numbers, such as \\
     reaction times. The test does not apply, so the result is `TRUE` \\
     unless no data at all can have the value set."
@@ -829,8 +827,7 @@ error_data_type_missing <- function() {
 # `test_integer` is a function that runs the test as if they were,
 # `continuous` is the result for continuous data, from `verdict_continuous()`,
 # and `missing` the one for an undecidable case. A missing `data_type` might be
-# either, so it is `NA` unless both agree. Quasi-integer data are tested as
-# whole numbers, with a warning.
+# either, so it is `NA` unless both agree.
 test_data_type <- function(data_type, test_integer, continuous, missing) {
   check_length(data_type, 1L)
   if (is.na(data_type)) {
@@ -839,11 +836,7 @@ test_data_type <- function(data_type, test_integer, continuous, missing) {
     return(if (agree) out else missing)
   }
   data_type <- arg_match_in_export(data_type, DATA_TYPES)
-  if (data_type == "continuous") {
-    return(continuous)
-  }
-  warn_quasi_integer()
-  test_integer()
+  if (data_type == "continuous") continuous else test_integer()
 }
 
 
@@ -897,25 +890,6 @@ is_decidable_continuous <- function(n, items_averaged = 1, min_n = 1) {
   n[is.na(n)] <- min_n
   items_averaged[is.na(items_averaged)] <- 1
   is_decidable_n_items(n, items_averaged, min_n)
-}
-
-
-# Once per session, so that it doesn't repeat for every row. Not
-# `cli::cli_warn()`, which would format the message on every call before
-# rlang sees that it was already given.
-warn_quasi_integer <- function() {
-  rlang::warn(
-    c(
-      "Testing quasi-integer data as whole numbers.",
-      "i" = paste(
-        "The verdict assumes that the analysis used the recorded whole",
-        "numbers. If it used more precise values, such as exact ages, an",
-        "inconsistency is no evidence of an error."
-      )
-    ),
-    .frequency = "once",
-    .frequency_id = "scrutiny_quasi_integer"
-  )
 }
 
 

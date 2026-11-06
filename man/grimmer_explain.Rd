@@ -35,8 +35,8 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"},
-\code{"quasi-integer"}, or \code{"continuous"}, the last of which can have any mean
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"},
+the latter of which can have any mean
 and SD, though no negative SD, and a single value only an SD of 0. No
 default.}
 

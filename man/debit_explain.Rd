@@ -29,8 +29,8 @@ debit_explain(
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}).}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
-or \code{"continuous"}. No default. For DEBIT, \code{"integer"} means the binary
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+No default. For DEBIT, \code{"integer"} means the binary
 values 0 and 1 that the test assumes. Continuous data can have any mean
 and SD, so the result is \code{TRUE}, unless the SD is the population SD of a
 single value, which is 0.}

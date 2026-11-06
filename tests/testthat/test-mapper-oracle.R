@@ -92,8 +92,7 @@ test_that("every GRIM mapper tier agrees with `grim()` row by row", {
 })
 
 test_that("every GRIM mapper tier agrees with `grim()` on percentages and `items_averaged` and `data_type` columns", {
-  rlang::local_options(rlib_warning_verbosity = "quiet")
-  data_types <- c("integer", "quasi-integer", "continuous", NA)
+  data_types <- c("integer", "continuous", NA)
   grid <- tidyr::expand_grid(x = seq(0, 100, by = 2.5), n = c(3:20, 40L, 50L), items_averaged = 1:3, data_type = data_types)
   settings <- list(x_meaning = "percentage", rounding = "up_from", threshold = 3)
   grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1), settings)

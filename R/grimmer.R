@@ -667,8 +667,8 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
-#' @param data_type String. As in [`grim()`]: `"integer"`,
-#'   `"quasi-integer"`, or `"continuous"`, the last of which can have any mean
+#' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`,
+#'   the latter of which can have any mean
 #'   and SD, though no negative SD, and a single value only an SD of 0. No
 #'   default.
 #' @param sd_meaning String. What `sd` really is. `"sd_sample"` (the

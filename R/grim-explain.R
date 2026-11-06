@@ -463,14 +463,7 @@ explain_data_type <- function(
       }
     )
   } else {
-    c(
-      paste(
-        "The data are quasi-integer: integers that stand for something",
-        "continuous. The test assumes that the analysis used these",
-        "integers, not more precise values."
-      ),
-      out$paragraphs
-    )
+    out$paragraphs
   }
 
   out$consistency <- consistency

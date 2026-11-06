@@ -710,8 +710,8 @@ debit_scalar <- function(
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`).
-#' @param data_type String. As in [`grim()`]: `"integer"`, `"quasi-integer"`,
-#'   or `"continuous"`. No default. For DEBIT, `"integer"` means the binary
+#' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`.
+#'   No default. For DEBIT, `"integer"` means the binary
 #'   values 0 and 1 that the test assumes. Continuous data can have any mean
 #'   and SD, so the result is `TRUE`, unless the SD is the population SD of a
 #'   single value, which is 0.

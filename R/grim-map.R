@@ -20,8 +20,8 @@
 #'   averaged into each score, not the number of scale points. Give it as an
 #'   argument or as a column of `data`; there is no default. It is returned as
 #'   a column.
-#' @param data_type String. As in [`grim()`]: `"integer"`, `"quasi-integer"`,
-#'   or `"continuous"`. Like `items_averaged`, give it as an argument or as a
+#' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`.
+#'   Like `items_averaged`, give it as an argument or as a
 #'   column of `data`; there is no default. It is returned as a column.
 #' @param x_meaning String. What the `x` values are: `"mean"` (the default) or
 #'   `"percentage"`. Percentages are divided by 100 and tested with two more

@@ -36,10 +36,6 @@ No default.}
 \itemize{
 \item \code{"integer"}: whole numbers, such as answers on a rating scale, counts,
 or yes/no answers for a percentage.
-\item \code{"quasi-integer"}: whole numbers that stand for something continuous,
-such as age in years or reaction times in whole milliseconds. They are
-tested like \code{"integer"} data, with a warning, once per session, that
-the result only holds if the analysis used the recorded whole numbers.
 \item \code{"continuous"}: anything else, such as body mass index or a visual
 analogue scale. The test does not apply, and the result is \code{TRUE}
 unless the value set describes no data, as with \code{n = 0}, which is \code{NA}
