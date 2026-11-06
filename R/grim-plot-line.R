@@ -289,9 +289,9 @@ comb_values <- function(from, to, digits, name) {
 # dozens of values apart, and a window that reached the one on the other side
 # as well would shrink the squares and the strip to specks. Under `"medium"`,
 # it does reach the nearest attainable value other than `reported` on either
-# side, to show how far apart they are. It reaches no farther to either side than the full window is wide, and holds
-# no values outside of `limits`, the ones that can be reported at all, nor more
-# than `COMB_TEETH_MAX`.
+# side, to show how far apart they are. It reaches no farther to either side
+# than the full window is wide, and holds no values outside of `limits`, the
+# ones that can be reported at all, nor more than `COMB_TEETH_MAX`.
 comb_window <- function(
   reported,
   consistent,

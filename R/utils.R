@@ -819,7 +819,8 @@ error_data_type_missing <- function() {
     "*" = "{.val quasi-integer}: whole numbers that stand for something \\
     continuous, such as age in years.",
     "*" = "{.val continuous}: the values are not whole numbers, such as \\
-    reaction times. Any mean is possible, so the result is `TRUE`."
+    reaction times. The test does not apply, so the result is `TRUE` \\
+    unless no data at all can have the value set."
   )
 }
 

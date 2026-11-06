@@ -802,9 +802,15 @@ describe_reported <- function(
 # The rounding method in words, for "Before rounding (assuming ...)":
 describe_rounding <- function(rounding, threshold, symmetric) {
   nearest <- "rounding to the nearest value, with ties rounded "
+  # `"ties_even"` is `"even"`: `base::round()`, whose ties are decided on the
+  # binary double, so both bounds are taken to be possible; see `?unround`:
+  even <- paste(
+    "rounding half to even, as R's round() does, though a tie may go either",
+    "way because round() decides it on the binary number"
+  )
   text <- switch(
     rounding,
-    up_or_down = "either rounding up from 5 or down from 5, which is the most common",
+    up_or_down = "either rounding up from 5 or down from 5",
     up_from_or_down_from = paste0(
       "either rounding up from ",
       threshold,
@@ -814,7 +820,7 @@ describe_rounding <- function(rounding, threshold, symmetric) {
     ceiling_or_floor = "either always rounding up or always rounding down",
     up = "rounding up from 5",
     down = "rounding down from 5",
-    even = "rounding half to even, as R's round() does",
+    even = even,
     up_from = paste("rounding up from", threshold),
     down_from = paste("rounding down from", threshold),
     ceiling = "always rounding up",
@@ -825,7 +831,7 @@ describe_rounding <- function(rounding, threshold, symmetric) {
     ties_down = paste0(nearest, "down"),
     ties_away = paste0(nearest, "away from zero"),
     ties_zero = paste0(nearest, "toward zero"),
-    ties_even = paste0(nearest, "to even")
+    ties_even = even
   )
   # The methods that `symmetric` changes; see `?roundwork::reround`:
   is_symmetric <- symmetric &&

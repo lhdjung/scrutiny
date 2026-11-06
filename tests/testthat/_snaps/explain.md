@@ -6,8 +6,8 @@
       GRIM test: x = 5.19, n = 28, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.185 to 5.195.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.185 to 5.195.
       
       The mean of 28 integers is their sum divided by 28. So the sum must be from
       5.185 * 28 = 145.18 to 5.195 * 28 = 145.46.
@@ -23,8 +23,8 @@
       GRIM test: x = 5.19, n = 32, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.185 to 5.195.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.185 to 5.195.
       
       The mean of 32 integers is their sum divided by 32. So the sum must be from
       5.185 * 32 = 165.92 to 5.195 * 32 = 166.24.
@@ -40,8 +40,8 @@
       GRIM test: x = 71, n = 43, items_averaged = 1, data_type = "integer", x_meaning = "percentage"
       
       The percentage was reported as 71%, with no decimal places. Before rounding
-      (assuming either rounding up from 5 or down from 5, which is the most common),
-      it could have been anything from 70.5% to 71.5%.
+      (assuming either rounding up from 5 or down from 5), it could have been
+      anything from 70.5% to 71.5%.
       
       A percentage out of 43 is a count divided by 43, times 100. So 71% stands for
       the proportion 0.71, with two more decimal places than the percentage shows.
@@ -85,8 +85,8 @@
       GRIMMER test: x = 5.23, sd = 2.55, n = 35, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 5.23, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.225 to 5.235.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.225 to 5.235.
       
       The mean of 35 integers is their sum divided by 35. So the sum must be from
       5.225 * 35 = 182.875 to 5.235 * 35 = 183.225.
@@ -116,8 +116,8 @@
       GRIMMER test: x = 5.19, sd = 2.55, n = 28, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.185 to 5.195.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.185 to 5.195.
       
       The mean of 28 integers is their sum divided by 28. So the sum must be from
       5.185 * 28 = 145.18 to 5.195 * 28 = 145.46.
@@ -135,8 +135,8 @@
       GRIMMER test: x = 3.1, sd = 1.3, n = 200, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 3.1, with 1 decimal place. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 3.05 to 3.15.
+      either rounding up from 5 or down from 5), it could have been anything from
+      3.05 to 3.15.
       
       The mean of 200 integers is their sum divided by 200. So the sum must be from
       3.05 * 200 = 610 to 3.15 * 200 = 630.
@@ -170,8 +170,8 @@
       share of ones, and the SD follows from the number of ones and the sample size.
       
       The mean was reported as 0.36, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 0.355 to 0.365.
+      either rounding up from 5 or down from 5), it could have been anything from
+      0.355 to 0.365.
       
       With 20 values, the mean is the number of ones divided by 20, so that number
       must be from 0.355 * 20 = 7.1 to 0.365 * 20 = 7.3. But it has to be an integer,
@@ -189,8 +189,8 @@
       share of ones, and the SD follows from the number of ones and the sample size.
       
       The mean was reported as 0.35, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 0.345 to 0.355.
+      either rounding up from 5 or down from 5), it could have been anything from
+      0.345 to 0.355.
       
       With 20 values, the mean is the number of ones divided by 20, so that number
       must be from 0.345 * 20 = 6.9 to 0.355 * 20 = 7.1. It has to be an integer, so
@@ -213,8 +213,8 @@
       share of ones, and the SD follows from the number of ones and the sample size.
       
       The mean was reported as 0.36, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 0.355 to 0.365.
+      either rounding up from 5 or down from 5), it could have been anything from
+      0.355 to 0.365.
       
       With 1000 values, the mean is the number of ones divided by 1000, so that
       number must be from 0.355 * 1000 = 355 to 0.365 * 1000 = 365. It has to be an
@@ -248,8 +248,8 @@
       The data type is missing. If the data are integers, the test goes as follows.
       
       The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.185 to 5.195.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.185 to 5.195.
       
       The mean of 28 integers is their sum divided by 28. So the sum must be from
       5.185 * 28 = 145.18 to 5.195 * 28 = 145.46.
@@ -268,8 +268,8 @@
       GRIM test: x = 5.19, n = 32, items_averaged = 1, data_type = NA
       
       The mean was reported as 5.19, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 5.185 to 5.195.
+      either rounding up from 5 or down from 5), it could have been anything from
+      5.185 to 5.195.
       
       The mean of 32 integers is their sum divided by 32. So the sum must be from
       5.185 * 32 = 165.92 to 5.195 * 32 = 166.24.
@@ -301,8 +301,8 @@
       GRIM test: x = 7.22, n = 32, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 7.22, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 7.215 to 7.225.
+      either rounding up from 5 or down from 5), it could have been anything from
+      7.215 to 7.225.
       
       The mean of 32 integers is their sum divided by 32. So the sum must be from
       7.215 * 32 = 230.88 to 7.225 * 32 = 231.2.
@@ -315,8 +315,8 @@
       GRIM test: x = 4.74, n = 25, items_averaged = 1, data_type = "integer"
       
       The mean was reported as 4.74, with 2 decimal places. Before rounding (assuming
-      either rounding up from 5 or down from 5, which is the most common), it could
-      have been anything from 4.735 to 4.745.
+      either rounding up from 5 or down from 5), it could have been anything from
+      4.735 to 4.745.
       
       The mean of 25 integers is their sum divided by 25. So the sum must be from
       4.735 * 25 = 118.375 to 4.745 * 25 = 118.625.
