@@ -71,7 +71,7 @@ test_that("a non-breaking space next to a number is numeric-like", {
 
 test_that("a list is tested the same under any decimal mark", {
   # `unlist()` wrote 1.5 as "1,5" next to a string:
-  withr::local_options(OutDec = ",")
+  rlang::local_options(OutDec = ",")
   list(1.5, "2")       |> is_numeric_like() |> expect_true()
   list(1.5, "a")       |> is_numeric_like() |> expect_false()
   list(NA, "NA")       |> is_numeric_like() |> expect_na()
