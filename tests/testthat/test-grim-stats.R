@@ -224,3 +224,12 @@ test_that("`data_type` is required, and continuous data give 0", {
   5.19 |> grim_total(28, 2, NULL, "integer")      |> expect_error("must not be `NULL`")
   5.19 |> grim_total(28, 2, 1, factor("integer")) |> expect_error("must be a character vector")
 })
+
+
+test_that("a missing `x` or `n` gets the package's own error", {
+  # It was R's "argument "x" is missing", naming an internal `get()` call:
+  grim_total(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")      |> expect_error("Need to specify `x`")
+  grim_total(x = 1.5, digits_x = 2, items_averaged = 1, data_type = "integer")     |> expect_error("Need to specify `n`")
+  grim_exp_incon(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")  |> expect_error("Need to specify `x`")
+  grim_exp_incon(x = 1.5, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("Need to specify `n`")
+})

@@ -58,3 +58,8 @@ test_that("`add_up_to_map()` doesn't add up a factor's level codes", {
   f(a = factor(c(10, 20)),   b = factor(c(3, 4)),   total = c(13, 24)) |> expect_error("It is a factor")
   f(a = c(10L, 20L),         b = c(3, 4),           total = c(13, 24)) |> _$consistency |> expect_equal(c(TRUE, TRUE))
 })
+
+test_that("missing `summands` get the package's own error", {
+  add_up_to(total = 120) |> expect_error("Need to specify `summands`")
+  add_up_to(c(1, 2))     |> expect_error("Need to specify `total`")
+})

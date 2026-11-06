@@ -67,6 +67,10 @@ add_up_to_scalar <- function(summands, total) {
 #' # Several cases:
 #' add_up_to(list(c(40, 37, 43), c(10, 12)), total = c(120, 23))
 add_up_to <- function(summands, total) {
+  # `is.list()` below would force it, with R's own error:
+  if (missing(summands)) {
+    abort_in_export("Need to specify {.arg summands}.")
+  }
   # A plain vector is one case; `map_value_sets()` maps over list elements:
   if (!is.list(summands)) {
     summands <- list(summands)

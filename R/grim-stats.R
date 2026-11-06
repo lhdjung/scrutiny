@@ -123,6 +123,13 @@ grim_exp_incon <- function(
   if (lifecycle::is_present(percent)) {
     stop_percent("grim_exp_incon")
   }
+  # R's own error would name an internal call:
+  if (missing(x)) {
+    abort_in_export("Need to specify {.arg x}.")
+  }
+  if (missing(n)) {
+    abort_in_export("Need to specify {.arg n}.")
+  }
   if (missing(digits_x)) {
     error_digits_missing(x)
   }
@@ -165,6 +172,13 @@ grim_total <- function(
 ) {
   if (lifecycle::is_present(percent)) {
     stop_percent("grim_total")
+  }
+  # R's own error would name an internal call:
+  if (missing(x)) {
+    abort_in_export("Need to specify {.arg x}.")
+  }
+  if (missing(n)) {
+    abort_in_export("Need to specify {.arg n}.")
   }
   if (missing(digits_x)) {
     error_digits_missing(x)
