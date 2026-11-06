@@ -289,9 +289,12 @@ comb_values <- function(from, to, digits, name) {
       `\"medium\"` tests fewer."
     )
   }
-  from |>
+  # Plus zero, which turns a negative zero, as rounding leaves of a step just
+  # below zero, into the zero it would otherwise be labeled "-0.00" as:
+  values <- from |>
     seq(to, by = 10^-digits) |>
     round(digits)
+  values + 0
 }
 
 

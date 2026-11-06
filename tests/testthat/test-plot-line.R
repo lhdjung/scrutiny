@@ -318,3 +318,11 @@ test_that("ticks without a label per square are at values that can be reported",
   grimmer_plot_line(x = 5.19, sd = 0, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_ticks_reportable(2)
   grim_plot_line(x = 2150.5, n = 40, digits_x = 1, items_averaged = 1, zoom = "wide")                           |> expect_ticks_reportable(1)
 })
+
+test_that("zero is not labeled as negative", {
+  # A step just below zero rounded to a negative zero, labeled "-0.00":
+  labels <- function(plot) ggplot2::ggplot_build(plot)$layout$panel_params[[1L]]$x$get_labels()
+  grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1) |> labels() |> expect_no_match("-0.00")
+  grim_plot_line(x = 0.01, n = 31, digits_x = 2, items_averaged = 1)  |> labels() |> expect_no_match("-0.00")
+  grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1) |> labels() |> expect_contains("0.00")
+})
