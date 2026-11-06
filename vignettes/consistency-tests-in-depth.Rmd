@@ -133,7 +133,7 @@ grim_map <- function_map(
   .reported = c("x", "n"),
   .name_test = "GRIM",
   .args_by_row = "digits_x",
-  .cols_helper = "items_averaged",
+  .cols_helper = c("items_averaged", "data_type"),
   .col_names = c(
     "consistency",
     "rec_sum",
@@ -413,9 +413,11 @@ grimmer_map_total_n <- function_map_total_n(
   .fn = grimmer_map,
   .reported = c("x", "sd"), # not `n`
   .name_test = "GRIMMER",
-  .n_min = 2L
+  .n_min = function(args) sd_min_n(args$sd_meaning)
 )
 ```
+
+`.n_min` is the smallest group size. Like `.var_bounds` in `function_map_seq()`, it can be a function of the settings of the call: a group of 1 has no sample SD, but it does have a population SD.
 
 `.reported` names the group statistics, each of which appears as two columns in the input, such as `x1` and `x2`. `.dispersion`, `.n_min`, `.n_max`, and `.constant` are passed on to `disperse_total()`, which disperses the group sizes from half the total.
 
