@@ -227,3 +227,9 @@ test_that("a hexadecimal number with a fraction keeps its value", {
   # It was written out to the decimal places of its spelling, which has none:
   c("0x1p-2", "0x.4", "0x1A") |> restore_zeros(width = 2) |> expect_equal(c("0.25", "0.25", "26.00"))
 })
+
+
+test_that("`NaN` in any spelling is missing, not a non-number", {
+  c("nan", "1.5") |> restore_zeros(width = 2) |> expect_equal(c(NA, "1.50")) |> expect_no_warning()
+  c("NaN", "1.5") |> restore_zeros(width = 2) |> expect_equal(c(NA, "1.50")) |> expect_no_warning()
+})
