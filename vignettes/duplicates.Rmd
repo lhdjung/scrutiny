@@ -52,7 +52,7 @@ pigs4 |>
   duplicate_count_colpair()
 ```
 
-`count` is the number of values that appear in both columns `x` and `y`. `total_x` and `total_y` are the numbers of non-missing values in each column, `rate_x` is the proportion of `x` values that also appear in `y`, and `rate_y` the proportion of `y` values that also appear in `x`. Without missing values, `total_x` equals `total_y` and `rate_x` equals `rate_y`.
+`count` is the number of values of `x` that also appear in `y`. `total_x` and `total_y` are the numbers of non-missing values in each column, `rate_x` is the proportion of `x` values that also appear in `y`, and `rate_y` the proportion of `y` values that also appear in `x`. Without missing values, `total_x` equals `total_y`, and `rate_x` equals `rate_y` unless a value repeats within a column.
 
 Here, `snout` and `tail` overlap the most: 2 of their 5 values are the same, a rate of 0.4. Summarize with `audit()`:
 
