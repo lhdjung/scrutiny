@@ -438,7 +438,9 @@ audit_total_n <- function(data) {
       hit_rate,
       dplyr::across(
         .cols = c("n", starts_with("hits"), "scenarios_total"),
-        .fns = as.integer
+        # Not `as.integer()`, which turns a total past the integer range
+        # into `NA`:
+        .fns = as_integer_if_lossless
       )
     ) |>
     add_class("scrutiny_audit_total_n")

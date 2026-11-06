@@ -110,3 +110,14 @@ test_that("a direction whose rows were filtered out has unknown hits", {
   audited$hit_rate        |> expect_equal(c(NA_real_, NA_real_))
   out |> split(out$case) |> dplyr::bind_rows() |> audit_total_n() |> expect_equal(audit_total_n(out))
 })
+
+
+test_that("a total beyond the integer range stays as it is", {
+  # `as.integer()` made it `NA`, with a warning:
+  out <- tibble::tibble(x1 = 1.5, x2 = 2.5, n = 6e9) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
+    audit_total_n() |>
+    expect_no_warning()
+  out$n |> expect_equal(6e9)
+  out$hits_total |> expect_type("integer")
+})
