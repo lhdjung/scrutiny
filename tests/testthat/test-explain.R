@@ -374,3 +374,26 @@ test_that("explanations of percentages say so", {
   71 |> grim_explain(43, 0, 1, "continuous", x_meaning = "percentage") |> format() |> expect_match("can have any percentage")
   71 |> grim_explain(43, 0, 1, "integer", x_meaning = "percentage")    |> format() |> expect_match("not to 71%.", fixed = TRUE)
 })
+
+
+test_that("continuous data are explained by their own reason, not by a missing `n`", {
+  # A missing `n` or `items_averaged` can be anything for continuous data, but
+  # the text was the one for integers, where it leaves the case open: "n is
+  # missing, and the case can't be decided without it" over "Inconsistent".
+  text <- function(explanation) format(explanation) |> paste(collapse = " ")
+
+  grimmer_explain(x = 5, sd = -1, n = NA, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "continuous")  |> text() |> expect_match("no data set has a negative SD.*Inconsistent")
+  grimmer_explain(x = 5, sd = -1, n = 10, digits_x = 0, digits_sd = 0, items_averaged = NA, data_type = "continuous") |> text() |> expect_match("no data set has a negative SD.*Inconsistent")
+  grim_explain(x = Inf, n = NA, digits_x = 2, items_averaged = 1, data_type = "continuous")                           |> text() |> expect_match("x is infinite.*Undecidable")
+  grim_explain(x = 2, n = NA, digits_x = 0, items_averaged = 0, data_type = "continuous")                             |> text() |> expect_match("number of items.*Undecidable")
+
+  # The header still shows the values as given:
+  grimmer_explain(x = 5, sd = -1, n = NA, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "continuous") |> text() |> expect_match("n = NA")
+
+  # Through the mapper:
+  tibble::tibble(x = 5, sd = -1, n = NA_real_) |>
+    grimmer_map(digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "continuous") |>
+    explain_map() |>
+    dplyr::pull(explanation) |>
+    expect_match("no data set has a negative SD")
+})

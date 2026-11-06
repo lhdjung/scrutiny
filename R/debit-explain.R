@@ -95,11 +95,11 @@ debit_explain <- function(
   consistency <- rec[[1L]]
 
   if (!identical(data_type, "integer")) {
-    explain_integer <- function() {
+    explain_integer <- function(fill = FALSE) {
       debit_explain(
         x = x,
         sd = sd,
-        n = n,
+        n = if (fill && is.na(n)) sd_min_n(sd_meaning) else n,
         digits_x = digits_x,
         digits_sd = digits_sd,
         data_type = "integer",

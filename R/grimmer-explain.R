@@ -93,14 +93,18 @@ grimmer_explain <- function(
   consistency <- result[[1L]]
 
   if (!identical(data_type, "integer")) {
-    explain_integer <- function() {
+    explain_integer <- function(fill = FALSE) {
       grimmer_explain(
         x = x,
         sd = sd,
-        n = n,
+        n = if (fill && is.na(n)) sd_min_n(sd_meaning) else n,
         digits_x = digits_x,
         digits_sd = digits_sd,
-        items_averaged = items_averaged,
+        items_averaged = if (fill && is.na(items_averaged)) {
+          1
+        } else {
+          items_averaged
+        },
         data_type = "integer",
         rounding = rounding,
         threshold = threshold,

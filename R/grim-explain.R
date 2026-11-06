@@ -102,12 +102,16 @@ grim_explain <- function(
   consistency <- rec[[1L]]
 
   if (!identical(data_type, "integer")) {
-    explain_integer <- function() {
+    explain_integer <- function(fill = FALSE) {
       grim_explain(
         x = x,
-        n = n,
+        n = if (fill && is.na(n)) 1 else n,
         digits_x = digits_x,
-        items_averaged = items_averaged,
+        items_averaged = if (fill && is.na(items_averaged)) {
+          1
+        } else {
+          items_averaged
+        },
         data_type = "integer",
         x_meaning = x_meaning,
         rounding = rounding,
@@ -403,7 +407,9 @@ grim_explain <- function(
 # `test_data_type()`: the one for whole numbers, `explain_integer()`, with a
 # paragraph on the data type. `what` is what continuous data can have any of,
 # `reason` the name of `verdict_continuous()`'s result, and `sd` the SD as
-# reported, for a value set that is no single value's.
+# reported, for a value set that is no single value's. `explain_integer(fill =
+# TRUE)` takes a missing `n` or `items_averaged` for the least that the test
+# admits.
 explain_data_type <- function(
   data_type,
   consistency,
@@ -415,7 +421,15 @@ explain_data_type <- function(
   out <- explain_integer()
 
   # Why continuous data have this value set or not. Undecidable value sets and
-  # negative SDs are no data's, which the explanation for whole numbers says:
+  # negative SDs are no data's, which the explanation for whole numbers says --
+  # but a missing `n` or `items_averaged` can be anything for continuous data
+  # (`verdict_continuous()`), so it is not the reason there, as it would be for
+  # whole numbers. It is filled in to get at the reason that is:
+  is_other_reason <- !reason %in% c("Continuous data", "SD of a single value")
+  if (identical(data_type, "continuous") && is_other_reason) {
+    out$paragraphs <- explain_integer(fill = TRUE)$paragraphs
+  }
+
   text_continuous <- switch(
     reason,
     "Continuous data" = paste0("they can have any ", what),
