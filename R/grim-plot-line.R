@@ -1,4 +1,4 @@
-# The comb behind `grim_plot_values()` and `grimmer_plot_values()`: every value
+# The comb behind `grim_plot_line()` and `grimmer_plot_line()`: every value
 # a report could take within a window, drawn as a square where some sample can
 # produce it and left out where none can. The panel is a strip, so that the
 # squares are square in any device; the gaps between them make the point.
@@ -371,7 +371,7 @@ check_comb_value <- function(value, digits, name) {
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `grim_plot_values()` draws the GRIM test for a single value set as a
+#'   `grim_plot_line()` draws the GRIM test for a single value set as a
 #'   row of squares. Of all means (or percentages) that could have been
 #'   reported with `digits_x` decimal places, each square is one that a sample
 #'   of size `n` can have; the others are left out. The reported value is
@@ -414,7 +414,7 @@ check_comb_value <- function(value, digits, name) {
 #'
 #' @return A ggplot object.
 #'
-#' @seealso [`grimmer_plot_values()`] for the same figure over standard
+#' @seealso [`grimmer_plot_line()`] for the same figure over standard
 #'   deviations.
 #'
 #' @export
@@ -422,13 +422,13 @@ check_comb_value <- function(value, digits, name) {
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
 #' # no square stands where the marker points.
-#' grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # With `n = 26`, it is:
-#' grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+#' grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 #'
 #' # The same for a percentage:
-#' grim_plot_values(
+#' grim_plot_line(
 #'   x = 67.4,
 #'   n = 40,
 #'   digits_x = 1,
@@ -436,7 +436,7 @@ check_comb_value <- function(value, digits, name) {
 #'   x_meaning = "percentage"
 #' )
 
-grim_plot_values <- function(
+grim_plot_line <- function(
   x,
   n,
   digits_x,
@@ -451,7 +451,7 @@ grim_plot_values <- function(
   percent = deprecated()
 ) {
   if (lifecycle::is_present(percent)) {
-    stop_percent("grim_plot_values")
+    stop_percent("grim_plot_line")
   }
   if (missing(digits_x)) {
     error_digits_missing(x)

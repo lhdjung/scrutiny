@@ -82,21 +82,21 @@ pigs1 |>
 
 Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable and GRIM cannot detect anything. The number of achievable means can then become very large, which is why `grim_map()` does not return them.
 
-### A single value set: `grim_plot_values()`
+### A single value set: `grim_plot_line()`
 
-`grim_plot_values()` draws the test for one value set, which helps to explain a result. Of all means that could have been reported with `digits_x` decimal places, it draws a square for each one that a sample of size `n` can have and leaves the others out. The reported value is marked above the row, and the strip behind the squares is the range of unrounded means that would have been reported as `x`. The value set is consistent if a square stands within the strip:
+`grim_plot_line()` draws the test for one value set, which helps to explain a result. Of all means that could have been reported with `digits_x` decimal places, it draws a square for each one that a sample of size `n` can have and leaves the others out. The reported value is marked above the row, and the strip behind the squares is the range of unrounded means that would have been reported as `x`. The value set is consistent if a square stands within the strip:
 
 ```{r, fig.width=7, fig.height=2}
-grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 ```
 
 With `n = 26`, the same mean is consistent:
 
 ```{r, fig.width=7, fig.height=2}
-grim_plot_values(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 ```
 
-`grimmer_plot_values()` is the same figure over standard deviations; see `vignette("grimmer-in-depth")`.
+`grimmer_plot_line()` is the same figure over standard deviations; see `vignette("grimmer-in-depth")`.
 
 ### The grid behind `grim_plot_grid()`
 

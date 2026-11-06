@@ -2,8 +2,8 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `grimmer_plot_values()` draws the GRIMMER test for a single value set, as
-#'   [`grim_plot_values()`] does for GRIM. Of all SDs that could have been
+#'   `grimmer_plot_line()` draws the GRIMMER test for a single value set, as
+#'   [`grim_plot_line()`] does for GRIM. Of all SDs that could have been
 #'   reported with `digits_sd` decimal places, each square is one that a
 #'   sample of size `n` with mean `x` could have; the others are left out. The
 #'   reported SD is marked above the row and labeled as consistent or
@@ -15,10 +15,10 @@
 #' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning
 #'   The same as in [`grimmer()`], but `x`, `sd`, `n`, and `items_averaged`
 #'   must have length 1.
-#' @inheritParams grim_plot_values
+#' @inheritParams grim_plot_line
 #'
 #' @details By default, the row shows the SDs around `sd`, as in
-#'   [`grim_plot_values()`]. With `zoom = FALSE`, it runs from the whole number
+#'   [`grim_plot_line()`]. With `zoom = FALSE`, it runs from the whole number
 #'   at or below `sd` to the next one up. It never goes below zero.
 #'
 #'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the row has
@@ -31,7 +31,7 @@
 #' @examples
 #' # A mean of 5.23 with an SD of 2.55 is not consistent with a sample size of
 #' # 35, but it is with 31:
-#' grimmer_plot_values(
+#' grimmer_plot_line(
 #'   x = 5.23,
 #'   sd = 2.55,
 #'   n = 35,
@@ -39,7 +39,7 @@
 #'   digits_sd = 2,
 #'   items_averaged = 1
 #' )
-#' grimmer_plot_values(
+#' grimmer_plot_line(
 #'   x = 5.23,
 #'   sd = 2.55,
 #'   n = 31,
@@ -48,7 +48,7 @@
 #'   items_averaged = 1
 #' )
 
-grimmer_plot_values <- function(
+grimmer_plot_line <- function(
   x,
   sd,
   n,

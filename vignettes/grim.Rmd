@@ -150,7 +150,7 @@ flying_pigs1 |>
 
 `explain_map()` adds the explanations to the data frame as an `explanation` column instead, e.g., to save them with the results. Both test each row again with the settings of the `grim_map()` call, such as `rounding`, and throw an error if a result differs from the `consistency` column. For a single value set, use `grim_explain()`, which takes the same arguments as `grim()`.
 
-To see the test rather than read it, draw one value set with `grim_plot_values()`; see `vignette("grim-in-depth")`.
+To see the test rather than read it, draw one value set with `grim_plot_line()`; see `vignette("grim-in-depth")`.
 
 ## Summaries with `audit()`
 

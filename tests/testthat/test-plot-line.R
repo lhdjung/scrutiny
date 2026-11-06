@@ -52,10 +52,10 @@ boxes_overlap <- function(a, b) {
 
 test_that("the marker's labels keep clear of each other at any size", {
   plots <- list(
-    grim = grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1),
+    grim = grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1),
     # Wider labels, and a neighbor right next to the reported value:
-    percent = grim_plot_values(x = 67.4, n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage"),
-    grimmer = grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
+    percent = grim_plot_line(x = 67.4, n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage"),
+    grimmer = grimmer_plot_line(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   )
   sizes <- list(c(8, 3.5), c(4.5, 3.5), c(8, 2), c(3, 3))
 
@@ -85,8 +85,8 @@ test_that("the marker's labels keep clear of each other at any size", {
   }
 })
 
-test_that("`grim_plot_values()` draws a square per attainable value only", {
-  p <- grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = FALSE)
+test_that("`grim_plot_line()` draws a square per attainable value only", {
+  p <- grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = FALSE)
   p |> expect_s3_class("ggplot")
   # 28 attainable means per unit at `n = 28`, plus the whole number at the
   # far end of the window:
@@ -99,8 +99,8 @@ test_that("`grim_plot_values()` draws a square per attainable value only", {
 })
 
 test_that("the marker says and shows the verdict", {
-  incon <- 5.19 |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1) |> marker()
-  con   <- 5.19 |> grim_plot_values(n = 26, digits_x = 2, items_averaged = 1) |> marker()
+  incon <- 5.19 |> grim_plot_line(n = 28, digits_x = 2, items_averaged = 1) |> marker()
+  con   <- 5.19 |> grim_plot_line(n = 26, digits_x = 2, items_averaged = 1) |> marker()
   incon$label  |> expect_equal("5.19\ninconsistent")
   con$label    |> expect_equal("5.19\nconsistent")
   incon$colour |> expect_equal("#c1522e")
@@ -111,69 +111,69 @@ test_that("the marker says and shows the verdict", {
 
   # Attainable percentages at `n = 40` are 2.5 points apart, so the window
   # reaches 3 points beyond the unit on either side:
-  pct <- 67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> marker()
+  pct <- 67.4 |> grim_plot_line(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> marker()
   pct$label     |> expect_match("^67.4%\n")
   pct$neighbors |> expect_equal(c("65.0%", "67.5%"))
 
-  p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
+  p <- grimmer_plot_line(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   p |> marker() |> purrr::pluck("label") |> expect_equal("2.55\ninconsistent")
-  p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
+  p <- grimmer_plot_line(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
   p |> marker() |> purrr::pluck("label") |> expect_equal("2.55\nconsistent")
 })
 
-test_that("`grim_plot_values()` needs `digits_x` and a decidable `n`", {
-  5.19         |> grim_plot_values(n = 28, items_averaged = 1)                 |> expect_error("digits_x")
-  5.19         |> grim_plot_values(n = 28.5, digits_x = 2, items_averaged = 1) |> expect_error("whole")
-  5.19         |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1, x_meaning = NA) |> expect_error("`x_meaning`")
-  c(5.19, 5.2) |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1)   |> expect_error()
+test_that("`grim_plot_line()` needs `digits_x` and a decidable `n`", {
+  5.19         |> grim_plot_line(n = 28, items_averaged = 1)                 |> expect_error("digits_x")
+  5.19         |> grim_plot_line(n = 28.5, digits_x = 2, items_averaged = 1) |> expect_error("whole")
+  5.19         |> grim_plot_line(n = 28, digits_x = 2, items_averaged = 1, x_meaning = NA) |> expect_error("`x_meaning`")
+  c(5.19, 5.2) |> grim_plot_line(n = 28, digits_x = 2, items_averaged = 1)   |> expect_error()
   # The errors name the function the user called, not a helper:
-  err <- rlang::catch_cnd(grim_plot_values(x = 5.19, n = 28.5, digits_x = 2, items_averaged = 1))
-  err$call[[1L]] |> expect_equal(quote(grim_plot_values))
-  err <- rlang::catch_cnd(grim_plot_values(x = 5.19, n = 1:2, digits_x = 2, items_averaged = 1))
-  err$call[[1L]] |> expect_equal(quote(grim_plot_values))
+  err <- rlang::catch_cnd(grim_plot_line(x = 5.19, n = 28.5, digits_x = 2, items_averaged = 1))
+  err$call[[1L]] |> expect_equal(quote(grim_plot_line))
+  err <- rlang::catch_cnd(grim_plot_line(x = 5.19, n = 1:2, digits_x = 2, items_averaged = 1))
+  err$call[[1L]] |> expect_equal(quote(grim_plot_line))
 })
 
-test_that("`grimmer_plot_values()` draws a square per attainable value only", {
-  p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
+test_that("`grimmer_plot_line()` draws a square per attainable value only", {
+  p <- grimmer_plot_line(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
   p |> expect_s3_class("ggplot")
   p |> squares() |> length() |> call_on(\(len) len > 0L && len < 101L) |> expect_true()
   p |> squares() |> call_on(\(x) 2.55 %in% x) |> expect_true()
 })
 
-test_that("`grimmer_plot_values()` checks its own arguments", {
-  5.23 |> grimmer_plot_values(sd = 2.55, n = 31, items_averaged = 1) |> expect_error("digits")
+test_that("`grimmer_plot_line()` checks its own arguments", {
+  5.23 |> grimmer_plot_line(sd = 2.55, n = 31, items_averaged = 1) |> expect_error("digits")
   5.23 |>
-    grimmer_plot_values(sd = 2.55, n = 1, digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_plot_line(sd = 2.55, n = 1, digits_x = 2, digits_sd = 2, items_averaged = 1) |>
     expect_error("at least 2")
 })
 
 test_that("the comb plots raise no warnings", {
   # A deprecation warns once per session, so earlier tests could hide one:
   rlang::local_options(lifecycle_verbosity = "warning")
-  67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> expect_no_warning()
-  -2.51 |> grim_plot_values(n = 20, digits_x = 2, items_averaged = 1) |> expect_no_warning()
+  67.4 |> grim_plot_line(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> expect_no_warning()
+  -2.51 |> grim_plot_line(n = 20, digits_x = 2, items_averaged = 1) |> expect_no_warning()
   2.74 |>
-    grimmer_plot_values(sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items_averaged = 2) |>
+    grimmer_plot_line(sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items_averaged = 2) |>
     expect_no_warning()
 })
 
 
 test_that("non-finite or missing input is an error that names the argument", {
   # These used to fail inside `seq()` or an `if()` with base R errors:
-  NA_real_ |> grim_plot_values(20, 2, items_averaged = 1)  |> expect_error("`x` must be a finite")
-  Inf      |> grim_plot_values(20, 2, items_averaged = 1)  |> expect_error("`x` must be a finite")
-  5.19     |> grim_plot_values(20, NA, items_averaged = 1) |> expect_error("`digits_x` must be")
+  NA_real_ |> grim_plot_line(20, 2, items_averaged = 1)  |> expect_error("`x` must be a finite")
+  Inf      |> grim_plot_line(20, 2, items_averaged = 1)  |> expect_error("`x` must be a finite")
+  5.19     |> grim_plot_line(20, NA, items_averaged = 1) |> expect_error("`digits_x` must be")
   NA_real_ |>
-    grimmer_plot_values(1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = 1) |>
+    grimmer_plot_line(1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = 1) |>
     expect_error("`x` must be a finite")
   5.19 |>
-    grimmer_plot_values(-1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = 1) |>
+    grimmer_plot_line(-1.2, 20, digits_x = 2, digits_sd = 1, items_averaged = 1) |>
     expect_error("`sd` can't be negative")
 })
 
 test_that("large `n` is not labeled in scientific notation", {
   5.19 |>
-    grim_plot_values(100000, 2, items_averaged = 1) |>
+    grim_plot_line(100000, 2, items_averaged = 1) |>
     purrr::pluck("labels", "x") |>
     expect_equal("Reported mean (n = 100000)")
 })
@@ -181,8 +181,8 @@ test_that("large `n` is not labeled in scientific notation", {
 # `plot_comb()` would fail on an `NA` from `grimmer()`, in `rep()` or `if ()`.
 # Every input that makes `grimmer()` return `NA` is rejected up front, so valid
 # input must always be drawn. A new `NA` branch in `grimmer_scalar()` without a
-# matching check in `grimmer_plot_values()` fails here:
-test_that("`grimmer_plot_values()` draws every valid input", {
+# matching check in `grimmer_plot_line()` fails here:
+test_that("`grimmer_plot_line()` draws every valid input", {
   # The edges -- an SD of zero, the smallest `n` -- with
   # the rounding methods taking turns, since a full cross would take minutes:
   grid <- tidyr::expand_grid(
@@ -195,7 +195,7 @@ test_that("`grimmer_plot_values()` draws every valid input", {
   grid$rounding <- rep_len(roundings, nrow(grid))
   grid |>
     purrr::pmap(function(x, sd, n, items, rounding) {
-      grimmer_plot_values(
+      grimmer_plot_line(
         x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items_averaged = items,
         rounding = rounding
       )
@@ -207,50 +207,50 @@ test_that("`grimmer_plot_values()` draws every valid input", {
 
 
 test_that("the percentage comb stays within 0 and 100", {
-  grim_plot_values(100, 3, 0, 1, x_meaning = "percentage") |> squares() |> max() |> expect_equal(100)
-  grim_plot_values(0, 3, 0, 1, x_meaning = "percentage")   |> squares() |> min() |> expect_equal(0)
+  grim_plot_line(100, 3, 0, 1, x_meaning = "percentage") |> squares() |> max() |> expect_equal(100)
+  grim_plot_line(0, 3, 0, 1, x_meaning = "percentage")   |> squares() |> min() |> expect_equal(0)
 })
 
 
 test_that("near-whole arguments are drawn as the whole numbers they are", {
   # The minimum `n` was compared to the raw value, so these were errors:
-  1.5 |> grim_plot_values(1 - 1e-9, digits_x = 1 - 1e-9, items_averaged = 1)                     |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grim_plot_values(1.5, 1, digits_x = 1, items_averaged = 1)))
-  1.5 |> grimmer_plot_values(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1) |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grimmer_plot_values(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+  1.5 |> grim_plot_line(1 - 1e-9, digits_x = 1 - 1e-9, items_averaged = 1)                     |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grim_plot_line(1.5, 1, digits_x = 1, items_averaged = 1)))
+  1.5 |> grimmer_plot_line(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1) |> ggplot2::layer_data() |> expect_equal(ggplot2::layer_data(grimmer_plot_line(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
 })
 
 
 test_that("a comb with too many values is an error, not a hang", {
   # Each value is a test, and their number grows tenfold per decimal place:
-  5.1234567 |> grim_plot_values(28, 7, 1, zoom = FALSE)                 |> expect_error("10,000,001 values")
-  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1, zoom = FALSE) |> expect_error("1,000,001 values")
-  5.1234    |> grim_plot_values(28, 4, 1, zoom = FALSE)                 |> expect_s3_class("ggplot")
+  5.1234567 |> grim_plot_line(28, 7, 1, zoom = FALSE)                 |> expect_error("10,000,001 values")
+  5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1, zoom = FALSE) |> expect_error("1,000,001 values")
+  5.1234    |> grim_plot_line(28, 4, 1, zoom = FALSE)                 |> expect_s3_class("ggplot")
   # Zoomed in, the window stops widening at that limit:
-  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_s3_class("ggplot")
-  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_s3_class("ggplot")
+  5.1234567 |> grim_plot_line(28, 7, 1)                 |> expect_s3_class("ggplot")
+  5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1) |> expect_s3_class("ggplot")
 })
 
 
 test_that("the zoomed window shows the reported value and its nearest attainable ones", {
   # 10 values to either side, of which these are attainable at `n = 28`:
-  5.19 |> grim_plot_values(28, 2, 1) |> squares() |> expect_equal(c(5.11, 5.14, 5.18, 5.21, 5.25, 5.29))
+  5.19 |> grim_plot_line(28, 2, 1) |> squares() |> expect_equal(c(5.11, 5.14, 5.18, 5.21, 5.25, 5.29))
   # The window widens to the next attainable value, 5.29, and three beyond:
-  p <- 5.15 |> grim_plot_values(7, 2, 1)
+  p <- 5.15 |> grim_plot_line(7, 2, 1)
   p |> squares() |> range() |> expect_equal(c(5.00, 5.29))
   # The axis line spans the window and 3% of it to either side:
   axis <- p |> ggplot2::layer_data(2L)
   (axis$xend - axis$x) |> expect_equal(0.34 * 1.06)
   # Near a limit, it reaches as far as the window without zooming:
-  0.3 |> grim_plot_values(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(c(0, 50))
+  0.3 |> grim_plot_line(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(c(0, 50))
   # A consistent value keeps the 10 values to either side:
-  5.19 |> grim_plot_values(26, 2, 1) |> squares() |> range() |> expect_equal(c(5.12, 5.27))
+  5.19 |> grim_plot_line(26, 2, 1) |> squares() |> range() |> expect_equal(c(5.12, 5.27))
   # No more than the whole window with few decimal places:
-  5 |> grim_plot_values(28, 0, 1) |> squares() |> expect_equal(c(4, 5, 6))
-  5.23 |> grimmer_plot_values(2.55, 35, 2, 2, 1) |> squares() |> range() |> expect_equal(c(2.45, 2.65))
-  5.19 |> grim_plot_values(28, 2, 1, zoom = NA) |> expect_error("`zoom`")
+  5 |> grim_plot_line(28, 0, 1) |> squares() |> expect_equal(c(4, 5, 6))
+  5.23 |> grimmer_plot_line(2.55, 35, 2, 2, 1) |> squares() |> range() |> expect_equal(c(2.45, 2.65))
+  5.19 |> grim_plot_line(28, 2, 1, zoom = NA) |> expect_error("`zoom`")
 })
 
 
 test_that("a string `n` or `items_averaged` is a type error, not an undecidable case", {
-  5.19 |> grim_plot_values("28", 2, 1)              |> expect_error("`n` must be one of these types")
-  5.19 |> grimmer_plot_values(1.2, 28, 2, 1, "1") |> expect_error("`items_averaged` must be one of these types")
+  5.19 |> grim_plot_line("28", 2, 1)              |> expect_error("`n` must be one of these types")
+  5.19 |> grimmer_plot_line(1.2, 28, 2, 1, "1") |> expect_error("`items_averaged` must be one of these types")
 })

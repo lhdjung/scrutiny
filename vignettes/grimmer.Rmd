@@ -100,7 +100,7 @@ flying_pigs1 |>
   explain_print()
 ```
 
-`explain_map()` adds the explanations as an `explanation` column instead, and `grimmer_explain()` explains a single value set. To see the test rather than read it, draw one value set with `grimmer_plot_values()`; see `vignette("grimmer-in-depth")`.
+`explain_map()` adds the explanations as an `explanation` column instead, and `grimmer_explain()` explains a single value set. To see the test rather than read it, draw one value set with `grimmer_plot_line()`; see `vignette("grimmer-in-depth")`.
 
 ## Summaries with `audit()`
 
@@ -115,6 +115,6 @@ flying_pigs1 |>
 
 ## Going further
 
-`vignette("grimmer-in-depth")` covers SDs that are population SDs or standard errors, bounded scales, the means and SDs behind a test result with `grimmer_values()` and `grimmer_plot_values()`, plots of many value sets with `grim_plot_grid()`, values around the reported ones with `grimmer_map_seq()`, and unknown group sizes with `grimmer_map_total_n()`.
+`vignette("grimmer-in-depth")` covers SDs that are population SDs or standard errors, bounded scales, the means and SDs behind a test result with `grimmer_values()` and `grimmer_plot_line()`, plots of many value sets with `grim_plot_grid()`, values around the reported ones with `grimmer_map_seq()`, and unknown group sizes with `grimmer_map_total_n()`.
 
 # References

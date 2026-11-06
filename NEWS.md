@@ -48,7 +48,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - GRIM, GRIMMER, and DEBIT have a new `data_type` argument without a default, since the tests only apply to whole numbers (for DEBIT, the binary values 0 and 1). `"integer"` data are tested as before. `"quasi-integer"` data, whole numbers that stand for something continuous such as age in years, are tested the same way, with a warning once per session that the result assumes the analysis used these whole numbers. `"continuous"` data can have any mean and SD, so the result is `TRUE` unless no data can have the value set, as with a negative SD, the `reason` of `grimmer_map()` is `"Continuous data"`, and `exp_incon` is 0. A `data_type` of `NA` gives the result for whole numbers if continuous data would get the same, and `NA` otherwise. Like `items_averaged`, `data_type` is vectorized and may be a column of `data`, and the mappers return it as a column. Give it in `grim()`, `grimmer()`, `debit()`, their mappers, the `*_explain()` functions, `grim_exp_incon()`, and `grim_total()`, as in `grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")`. `grim_plot_grid()` and `debit_plot()` leave out continuous data with a warning.
 
-- GRIM's `percent` argument is now `x_meaning`, which takes `"mean"` (the default) or `"percentage"`, as in `grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")`. Like `sd_meaning` in GRIMMER and DEBIT, it says what the reported value is rather than switching a conversion on or off. This applies to `grim()`, its mappers, `grim_explain()`, `grim_values()`, `grim_closest()`, `grim_exp_incon()`, `grim_total()`, and `grim_plot_values()`. Giving `percent` is an error that points to `x_meaning`.
+- GRIM's `percent` argument is now `x_meaning`, which takes `"mean"` (the default) or `"percentage"`, as in `grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")`. Like `sd_meaning` in GRIMMER and DEBIT, it says what the reported value is rather than switching a conversion on or off. This applies to `grim()`, its mappers, `grim_explain()`, `grim_values()`, `grim_closest()`, `grim_exp_incon()`, `grim_total()`, and `grim_plot_line()`. Giving `percent` is an error that points to `x_meaning`.
 
 - In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, digits_x = c(2, 1), n = "total", items_averaged = 1)`.
 
@@ -94,7 +94,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a count out of a total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a total; `add_up_to_map()` selects any number of columns with tidyselect. `is_percentage_of_map()` and `add_up_to_map()` have `audit()` methods.
 
-- `grim_plot_values()` and `grimmer_plot_values()` visualize the test of a single value set. Of all means (or SDs) within a range that could be reported with the given number of decimal places, they draw a square for each one that a sample of the given size can have, leave the others out, and indicate the reported value. By default, they zoom in on the reported value and the nearest attainable ones; `zoom = FALSE` shows a whole unit. More than 20,000 such values are an error.
+- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Of all means (or SDs) within a range that could be reported with the given number of decimal places, they draw a square for each one that a sample of the given size can have, leave the others out, and indicate the reported value. By default, they zoom in on the reported value and the nearest attainable ones; `zoom = FALSE` shows a whole unit. More than 20,000 such values are an error.
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
@@ -118,7 +118,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 ### Consistency tests
 
-- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a result, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `is_percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_values()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
+- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a result, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `is_percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_line()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`. Under `formula = "mean_n"`, a bound of the mean's range that the rounding method excludes no longer counts as attained: `debit(0.03, 0.14, 10, 2, 2, "mean_n", rounding = "ceiling", sd_meaning = "sd_pop")` is `FALSE`, since every mean above 0.02 has an SD above 0.14.
 
@@ -194,7 +194,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see roundwork's NEWS for their changes. `vignette("rounding-options", package = "roundwork")` and `vignette("rounding-in-depth", package = "roundwork")` moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
 
-- `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_values()` and `grim_plot_rates()`.
+- `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_line()` and `grim_plot_rates()`.
 
 - `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
 
@@ -208,7 +208,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
 
-- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent value sets are teal and inconsistent ones rust, as in `grim_plot_values()` and `grimmer_plot_values()`, rather than blue and red. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`. `grim_plot_grid()`'s raster shows consistent cells in grey and inconsistent ones in white, the other way around than before.
+- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent value sets are teal and inconsistent ones rust, as in `grim_plot_line()` and `grimmer_plot_line()`, rather than blue and red. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`. `grim_plot_grid()`'s raster shows consistent cells in grey and inconsistent ones in white, the other way around than before.
 
 - `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A string `from` still sets the step size by its decimal places, trailing zeros included.
 

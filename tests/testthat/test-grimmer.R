@@ -1265,11 +1265,11 @@ test_that("explanations agree with the test under every SD type", {
   out$explanation |> expect_match("For a population SD,\\s+it is 5 \\* SD\\^2")
 })
 
-test_that("`grimmer_plot_values()` takes `sd_meaning`", {
-  4.4 |> grimmer_plot_values(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_values(0, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")        |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_values(0.5, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")      |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_values(0, 1, 1, 2, 1)                            |> expect_error("at least 2")
+test_that("`grimmer_plot_line()` takes `sd_meaning`", {
+  4.4 |> grimmer_plot_line(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")        |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0.5, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")      |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0, 1, 1, 2, 1)                            |> expect_error("at least 2")
 })
 
 
@@ -1314,7 +1314,7 @@ test_that("explanations and the comb plot agree with the test under an SE", {
   explanation |> expect_match("5 * (5 - 1) * SE^2", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
 
-  4.4 |> grimmer_plot_values(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
+  4.4 |> grimmer_plot_line(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
 })
 
 test_that("sums of squares beyond 2^53 are compared exactly", {
