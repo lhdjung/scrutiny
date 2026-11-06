@@ -221,3 +221,9 @@ test_that("a column named like an argument doesn't replace it", {
   df |> restore_zeros_df()          |> expect_equal(tibble::tibble(length = c("1.25", "3.00", "4.50"), width = c("2", "4", "1")))
   df |> restore_zeros_df(width = 3) |> _$width |> expect_equal(c("2.000", "4.000", "1.000"))
 })
+
+
+test_that("a hexadecimal number with a fraction keeps its value", {
+  # It was written out to the decimal places of its spelling, which has none:
+  c("0x1p-2", "0x.4", "0x1A") |> restore_zeros(width = 2) |> expect_equal(c("0.25", "0.25", "26.00"))
+})

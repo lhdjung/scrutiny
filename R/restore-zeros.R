@@ -121,8 +121,9 @@ restore_zeros <- function(
     ))
   }
   as_number <- rewrite & !as_text
-  x[as_number] <-
-    sprintf("%.*f", decimal_places(x[as_number]), x_num[as_number])
+  # Not to the decimal places of the spelling: `"0x1p-2"` has none, but it is
+  # 0.25.
+  x[as_number] <- number_to_string(x_num[as_number])
 
   # `NA` for a missing value and an infinity:
   width_mantissa <- decimal_places(x)
