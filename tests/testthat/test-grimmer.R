@@ -1409,3 +1409,12 @@ test_that("`sd_meaning` is checked for continuous data, too", {
     grimmer_map(digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "continuous", sd_meaning = "foo") |>
     expect_error("must be one of")
 })
+
+
+test_that("an SD below the floor of the mean fails quickly for a large `n`", {
+  # Every candidate sum was tried, which took 40 seconds for `n = 1e7`:
+  time <- system.time(verdict <- grimmer(3.2, 0.333, 1e7, digits_x = 1, digits_sd = 3, items_averaged = 1, data_type = "integer"))
+  verdict |> expect_false()
+  time[["elapsed"]] |> expect_lt(2)
+  grimmer_scalar(3.2, 0.333, 1e7, 1, 3, 1, "integer", show_reason = TRUE)[[2L]] |> expect_equal("GRIMMER inconsistent (test 1)")
+})

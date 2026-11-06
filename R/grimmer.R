@@ -534,6 +534,30 @@ grimmer_scalar <- function(
     return(NA)
   }
 
+  # An SD below the least that whole numbers with the mean can have fails test
+  # 1 for every candidate sum, so with many of them, it is not worth trying
+  # each; see `sd_below_floor()`:
+  if (
+    x_known &&
+      n_items >= 1e4 &&
+      sd_meaning != "se" &&
+      sd_below_floor(
+        x,
+        sd,
+        digits_x,
+        digits_sd,
+        items_averaged,
+        rounding,
+        threshold,
+        symmetric
+      )
+  ) {
+    if (show_reason) {
+      return(list(FALSE, "GRIMMER inconsistent (test 1)"))
+    }
+    return(FALSE)
+  }
+
   sd_bounds <- grimmer_sd_bounds(
     sd = sd,
     n = n,
