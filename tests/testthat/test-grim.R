@@ -288,7 +288,7 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
   5.19 |> grimmer(1.2, 28, 2, 1, data_type = "integer")              |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_values(28, 2)                  |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_closest(28, 2)                 |> expect_error("Need to specify `items_averaged`")
-  5.19 |> grim_exp_incon(28, 2)             |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_exp_incon(28, 2, data_type = "integer")             |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_explain(28, 2, data_type = "integer")                 |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_plot_values(28, 2)             |> expect_error("Need to specify `items_averaged`")
   df   |> grim_map(digits_x = 2, data_type = "integer")              |> expect_error("an `items_averaged` column")
@@ -334,7 +334,11 @@ test_that("`x_meaning` must be a single valid string", {
   1.4 |> grim(20, digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "proportion")                 |> expect_error("percentage")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x_meaning = c("percentage", "mean")) |> expect_error("must be length 1")
   # The old logical argument is gone:
-  1.4 |> grim(20, digits_x = 1, items_averaged = 1, data_type = "integer", percent = TRUE)  |> expect_error("unused argument")
+  1.4   |> grim(20, digits_x = 1, items_averaged = 1, data_type = "integer", percent = TRUE)          |> expect_error("x_meaning = \"percentage\"", fixed = TRUE)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", percent = TRUE)        |> expect_error("x_meaning = \"percentage\"", fixed = TRUE)
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", percent = TRUE)    |> expect_error("`grim_map_seq()`", fixed = TRUE)
+  1.4   |> grim_values(20, digits_x = 1, items_averaged = 1, percent = TRUE)                       |> expect_error("x_meaning", fixed = TRUE)
+  1.4   |> grim_exp_incon(20, digits_x = 1, items_averaged = 1, data_type = "integer", percent = TRUE) |> expect_error("x_meaning", fixed = TRUE)
 })
 
 test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
@@ -410,7 +414,7 @@ test_that("invalid rounding arguments are errors from the function called", {
   5.19 |> grim(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)                 |> caller_of() |> expect_equal("grim")
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, rounding = 2)          |> caller_of() |> expect_equal("grim_values")
   5.19 |> grim_explain(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)         |> caller_of() |> expect_equal("grim_explain")
-  5.19 |> grim_exp_incon(28, digits_x = 2, items_averaged = 1, rounding = 2)     |> caller_of() |> expect_equal("grim_exp_incon")
+  5.19 |> grim_exp_incon(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)     |> caller_of() |> expect_equal("grim_exp_incon")
   5.19 |> grim_plot_values(28, digits_x = 2, items_averaged = 1, rounding = 2)     |> caller_of() |> expect_equal("grim_plot_values")
   tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2) |> caller_of() |> expect_equal("grim_map")
   tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2) |> caller_of() |> expect_equal("grim_map_seq")
@@ -442,7 +446,7 @@ test_that("values whose rounding bounds a double cannot hold are refused, not te
   grim(5.19, 1e13, 2, 1, data_type = "integer")   |> expect_error("too large for an exact test")
   grim(5.19, 1e9, 2, 1e4, data_type = "integer")  |> expect_error("too large for an exact test")
   grim(5.19, 1e12, 2, 1, data_type = "integer")   |> expect_true()
-  debit(0.5, 0.5, 1e14, 2, 2) |> expect_error("too large for an exact test")
+  debit(0.5, 0.5, 1e14, 2, 2, data_type = "integer") |> expect_error("too large for an exact test")
   # The bounds lie up to 10 units beyond `x * 10^(digits_x + 1)`, so their
   # products with `n` pass 2^53 first. These were TRUE, and should be FALSE:
   30023997515803.3 |> grim(3, 1, 1, rounding = "down_from", threshold = 3, data_type = "integer")            |> expect_error("too large for an exact test")

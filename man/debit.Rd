@@ -10,6 +10,7 @@ debit(
   n,
   digits_x,
   digits_sd,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -28,13 +29,19 @@ debit(
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}).}
 
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. No default. For DEBIT, \code{"integer"} means the binary
+values 0 and 1 that the test assumes. Continuous data can have any mean
+and SD, so the result is \code{TRUE}.}
+
 \item{formula}{String. \code{"exact"} (the default) only considers means that
 \code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is
 the default because no other mean is possible.
 \code{"mean_n"} treats the mean as continuous, as in Heathers and Brown
 (2019), and accepts some SDs that no binary sample of size \code{n} can have:
-\code{debit(0.05, 0.21, 20, 2, 2)} is \code{TRUE} under \code{"mean_n"}, although a mean
-of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds to 0.22.}
+\code{debit(0.05, 0.21, 20, 2, 2, "integer")} is \code{TRUE} under \code{"mean_n"},
+although a mean of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds
+to 0.22.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}
 and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} for the others.}
@@ -67,16 +74,23 @@ The function is vectorized, but \code{\link[=debit_map]{debit_map()}} is more co
 testing many cases.
 }
 \details{
-\code{x}, \code{sd}, \code{n}, \code{digits_x}, and \code{digits_sd} are vectorized and
-recycled to a common length by the tidyverse rules. All other arguments
-must have length 1.
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{data_type} are
+vectorized and recycled to a common length by the tidyverse rules. All
+other arguments must have length 1.
 
 \code{x} and \code{sd} are limited to about 15 significant digits, as in
 \code{\link[=grim]{grim()}}. Beyond that, \code{debit()} decides value sets of any size
 exactly, but refuses an \code{n} of 2^52 or more.
 }
 \examples{
-debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+debit(
+  x = 0.36,
+  sd = 0.11,
+  n = 20,
+  digits_x = 2,
+  digits_sd = 2,
+  data_type = "integer"
+)
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A

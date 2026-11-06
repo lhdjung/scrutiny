@@ -13,7 +13,8 @@ grim_explain(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 )
 }
 \arguments{
@@ -69,6 +70,9 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
+
+\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
+use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the result as

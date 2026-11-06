@@ -23,9 +23,9 @@
 #' @param items_averaged Integer. As in [`grim()`]. Like `x`, `n`, and
 #'   `digits_x`, it is recycled under the tidyverse rules: all four must have
 #'   the same length, or length 1.
-#' @param data_type String. As in [`grim()`], and recycled like `x`. Default
-#'   is `"integer"`, since these functions describe the test on whole numbers.
-#'   For `"continuous"`, they return 0, which is how [`grim_map()`] uses them.
+#' @param data_type String. As in [`grim()`], and recycled like `x`. No
+#'   default. For `"continuous"` data, which GRIM can't find inconsistent,
+#'   the result is 0.
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
 #'   adds 2 to the decimal count, as in [`grim()`].
 #' @param rounding,threshold The rounding method and, for the `"*_from"`
@@ -36,6 +36,8 @@
 #'   as consistent, like `"up_or_down"`, although [`base::round()`] may round
 #'   it the other way; see [`roundwork::unround()`].
 #'   [`grim_map()`] passes its own `rounding` and `threshold` on.
+#'
+#' @inheritParams grim
 #'
 #' @seealso [`grim()`] and [`grim_map()`].
 #'
@@ -56,12 +58,36 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_exp_incon(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
-#' grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+#' grim_exp_incon(
+#'   x = 83.29,
+#'   n = 21,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
+#' grim_total(
+#'   x = 83.29,
+#'   n = 21,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
 #' # None are in this case...
-#' grim_exp_incon(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
-#' grim_total(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
+#' grim_exp_incon(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
+#' grim_total(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
 #' # ...but most would be if `x` were a percentage:
 #' grim_exp_incon(
@@ -69,6 +95,7 @@
 #'   n = 120,
 #'   digits_x = 2,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   x_meaning = "percentage"
 #' )
 #' grim_total(
@@ -76,6 +103,7 @@
 #'   n = 120,
 #'   digits_x = 2,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   x_meaning = "percentage"
 #' )
 
@@ -86,11 +114,15 @@ grim_exp_incon <- function(
   n,
   digits_x,
   items_averaged,
-  data_type = "integer",
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
-  threshold = 5
+  threshold = 5,
+  percent = deprecated()
 ) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_exp_incon")
+  }
   if (missing(digits_x)) {
     error_digits_missing(x)
   }
@@ -125,17 +157,25 @@ grim_total <- function(
   n,
   digits_x,
   items_averaged,
-  data_type = "integer",
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
-  threshold = 5
+  threshold = 5,
+  percent = deprecated()
 ) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_total")
+  }
   if (missing(digits_x)) {
     error_digits_missing(x)
   }
 
   if (missing(items_averaged)) {
     error_items_missing()
+  }
+
+  if (missing(data_type)) {
+    error_data_type_missing()
   }
 
   check_rounding_args(rounding, threshold)

@@ -100,21 +100,21 @@ out_grim_old1 <- df_grim1 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::select(x, n, consistency)
 out_debit_old1 <- df_debit1 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   dplyr::select(x, sd, n, consistency)
 
 out_grim_new1  <- df_grim1  |> grim_map_alt(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
-out_debit_new1 <- df_debit1 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
+out_debit_new1 <- df_debit1 |> debit_map_alt(digits_x = 2, digits_sd = 2, data_type = "integer") # fmt: skip
 
 out_grim_old2 <- df_grim2 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::select(x, n, consistency)
 out_debit_old2 <- df_debit2 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   dplyr::select(x, sd, n, consistency)
 
 out_grim_new2  <- df_grim2  |> grim_map_alt(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
-out_debit_new2 <- df_debit2 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
+out_debit_new2 <- df_debit2 |> debit_map_alt(digits_x = 2, digits_sd = 2, data_type = "integer") # fmt: skip
 
 
 out_grim_old_renamed <- out_grim_old1 |>
@@ -127,7 +127,7 @@ out_debit_old_renamed <- out_debit_old1 |>
   dplyr::rename(success = consistency)
 
 out_debit_new_renamed <- df_debit1 |>
-  debit_map_alt_renamed(digits_x = 2, digits_sd = 2)
+  debit_map_alt_renamed(digits_x = 2, digits_sd = 2, data_type = "integer")
 
 
 # Testing -----------------------------------------------------------------
@@ -206,7 +206,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
 
 
 test_that("`.col_names` unpacks the test function's values, keeping types", {
-  out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  out <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
 
   out$consistency |> expect_type("logical")
   out$sd_incl_lower |> expect_type("logical")
@@ -586,7 +586,7 @@ test_that("wrong argument names throw an error at factory time", {
 test_that("`.cols_derived` computes columns the test function never returns", {
   # `exp_incon` comes from `grim_exp_incon()`, not from `grim_scalar()`:
   out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
-  out$exp_incon |> expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 1))
+  out$exp_incon |> expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 1, data_type = "integer"))
   # It follows the key result column, ahead of the `.col_names` columns:
   out |>
     colnames() |>
@@ -603,15 +603,15 @@ test_that("`.cols_derived` computes columns the test function never returns", {
   pigs1 |>
     grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling") |>
     purrr::pluck("exp_incon") |>
-    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, rounding = "ceiling", items_averaged = 1))
+    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, rounding = "ceiling", items_averaged = 1, data_type = "integer"))
   pigs1 |>
     grim_map(digits_x = 2, items_averaged = 2, data_type = "integer") |>
     purrr::pluck("exp_incon") |>
-    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 2))
+    expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 2, data_type = "integer"))
   pigs2 |>
     grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |>
     purrr::pluck("exp_incon") |>
-    expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, x_meaning = "percentage", items_averaged = 1))
+    expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, x_meaning = "percentage", items_averaged = 1, data_type = "integer"))
 })
 
 
@@ -641,7 +641,7 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
   for (out in list(
     pigs1[0L, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer"),
     pigs5[0L, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer"),
-    pigs3[0L, ] |> debit_map(digits_x = 2, digits_sd = 2)
+    pigs3[0L, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
   )) {
     out |> nrow() |> expect_equal(0L)
     # The key result column is present and is a real column, not `NULL`. It
@@ -667,7 +667,7 @@ test_that("`data` must be a data frame, and that is checked first of all", {
   for (mapper in list(
     function(d) grim_map(d, digits_x = 2, items_averaged = 1, data_type = "integer"),
     function(d) grimmer_map(d, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer"),
-    function(d) debit_map(d, digits_x = 2, digits_sd = 2),
+    function(d) debit_map(d, digits_x = 2, digits_sd = 2, data_type = "integer"),
     function(d) grim_map_seq(d, digits_x = 2, items_averaged = 1, data_type = "integer"),
     function(d) grim_map_total_n(d, digits_x = 2, items_averaged = 1, data_type = "integer")
   )) {
@@ -690,7 +690,7 @@ test_that("`data` must be a data frame, and that is checked first of all", {
   utils::data |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
   utils::data |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("`data\\(\\)` function")
-  utils::data |> debit_map(digits_x = 2, digits_sd = 2) |>
+  utils::data |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_error("`data\\(\\)` function")
   utils::data |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
   utils::data |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
@@ -747,7 +747,7 @@ test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
   for (mapper in list(
     function(...) grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
-    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
+    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, data_type = "integer", ...),
     function(...) grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) grim_map_total_n(
       tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L), digits_x = 2, items_averaged = 1, data_type = "integer", ...
@@ -772,7 +772,7 @@ test_that("the other settings must be length 1 in every tier", {
   # pass a congruence check that allowed one setting longer than 1:
   for (mapper in list(
     function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
-    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
+    function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, data_type = "integer", ...),
     function(...) grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) grimmer_map_total_n(
       tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.2, sd2 = 1.3, n = 40L),

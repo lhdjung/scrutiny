@@ -153,7 +153,8 @@
       
       ==> Consistent
     Code
-      debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+      debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2,
+        data_type = "integer")
     Output
       DEBIT test: x = 0.36, sd = 0.11, n = 20
       
@@ -170,7 +171,8 @@
       
       ==> Inconsistent
     Code
-      debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
+      debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2,
+        data_type = "integer")
     Output
       DEBIT test: x = 0.35, sd = 0.49, n = 20
       
@@ -192,7 +194,8 @@
       
       ==> Consistent
     Code
-      debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
+      debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2,
+        data_type = "integer")
     Output
       DEBIT test: x = 0.36, sd = 0.49, n = 1000
       

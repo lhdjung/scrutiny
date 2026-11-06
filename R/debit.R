@@ -475,6 +475,7 @@ debit_scalar <- function(
   n,
   digits_x,
   digits_sd,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -501,11 +502,39 @@ debit_scalar <- function(
     error_digits_missing(sd)
   }
 
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+
   scale <- rounding_scale(rounding, threshold, symmetric)
   check_newly_numeric(x, digits_x, scale = scale)
   check_newly_numeric(sd, digits_sd, scale = scale)
 
   check_debit_inputs_all(x, sd)
+
+  if (!identical(data_type, "integer")) {
+    return(test_data_type(
+      data_type,
+      test_integer = function() {
+        debit_scalar(
+          x = x,
+          sd = sd,
+          n = n,
+          digits_x = digits_x,
+          digits_sd = digits_sd,
+          data_type = "integer",
+          formula = formula,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric,
+          sd_meaning = sd_meaning,
+          show_rec = show_rec
+        )
+      },
+      pass = debit_result(TRUE, show_rec),
+      missing = debit_undecidable(show_rec)
+    ))
+  }
 
   # As in `grimmer_sd_sample_or_pop()`, the verdict is the population SD's
   # unless the sample SD passes. The bounds and sums of `show_rec` don't depend
@@ -518,6 +547,7 @@ debit_scalar <- function(
         n = n,
         digits_x = digits_x,
         digits_sd = digits_sd,
+        data_type = "integer",
         formula = formula,
         rounding = rounding,
         threshold = threshold,
@@ -657,9 +687,9 @@ debit_scalar <- function(
 #'   The function is vectorized, but [`debit_map()`] is more convenient for
 #'   testing many cases.
 #'
-#' @details `x`, `sd`, `n`, `digits_x`, and `digits_sd` are vectorized and
-#'   recycled to a common length by the tidyverse rules. All other arguments
-#'   must have length 1.
+#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `data_type` are
+#'   vectorized and recycled to a common length by the tidyverse rules. All
+#'   other arguments must have length 1.
 #'
 #'   `x` and `sd` are limited to about 15 significant digits, as in
 #'   [`grim()`]. Beyond that, `debit()` decides value sets of any size
@@ -671,13 +701,18 @@ debit_scalar <- function(
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`).
+#' @param data_type String. As in [`grim()`]: `"integer"`, `"quasi-integer"`,
+#'   or `"continuous"`. No default. For DEBIT, `"integer"` means the binary
+#'   values 0 and 1 that the test assumes. Continuous data can have any mean
+#'   and SD, so the result is `TRUE`.
 #' @param formula String. `"exact"` (the default) only considers means that
 #'   `n` binary values can have, i.e., `k / n` for a whole number `k`. It is
 #'   the default because no other mean is possible.
 #'   `"mean_n"` treats the mean as continuous, as in Heathers and Brown
 #'   (2019), and accepts some SDs that no binary sample of size `n` can have:
-#'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, although a mean
-#'   of 0.05 with `n = 20` means one 1 in 20, whose SD rounds to 0.22.
+#'   `debit(0.05, 0.21, 20, 2, 2, "integer")` is `TRUE` under `"mean_n"`,
+#'   although a mean of 0.05 with `n = 20` means one 1 in 20, whose SD rounds
+#'   to 0.22.
 #' @param rounding String. The rounding method assumed to have produced `x`
 #'   and `sd`. Default is `"up_or_down"`. See [`grim()`] for the others.
 #' @param threshold,symmetric The same as in [`grim()`].
@@ -705,7 +740,14 @@ debit_scalar <- function(
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @examples
-#' debit(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+#' debit(
+#'   x = 0.36,
+#'   sd = 0.11,
+#'   n = 20,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   data_type = "integer"
+#' )
 
 # The signature mirrors `debit_scalar()`'s minus `show_rec`; see
 # `map_value_sets()`.
@@ -715,6 +757,7 @@ debit <- function(
   n,
   digits_x,
   digits_sd,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -723,6 +766,6 @@ debit <- function(
 ) {
   map_value_sets(
     fn = debit_scalar,
-    along = c("x", "sd", "n", "digits_x", "digits_sd")
+    along = c("x", "sd", "n", "digits_x", "digits_sd", "data_type")
   )
 }

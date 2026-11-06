@@ -81,7 +81,7 @@ df2_debit_exp <- tibble::tibble(
 test_that("`audit()` for `audit_total_n()` works correctly", {
   df1 |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> audit_total_n() |> audit() |> expect_equal(df1_grim_exp)
   df1 |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit_total_n() |> audit() |> expect_equal(df1_grimmer_exp)
-  df2 |> debit_map_total_n(digits_x = 2, digits_sd = 2)                       |> audit_total_n() |> audit() |> expect_equal(df2_debit_exp)
+  df2 |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> audit_total_n() |> audit() |> expect_equal(df2_debit_exp)
 })
 
 test_that("undecidable splits count as neither hits nor scenarios", {

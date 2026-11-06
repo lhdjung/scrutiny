@@ -1,5 +1,6 @@
 df1 <- pigs3
-df1_tested <- df1 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+df1_tested <- df1 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
 
 
 test_that("the output is a tibble", {
@@ -11,8 +12,8 @@ test_that("values are correctly tested for DEBIT-consistency", {
 })
 
 test_that("the reconstructed values are returned under `show_rec` only", {
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                  |> ncol() |> expect_equal(6)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE) |> ncol() |> expect_equal(14)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")                  |> ncol() |> expect_equal(7)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE) |> ncol() |> expect_equal(15)
 })
 
 
@@ -20,14 +21,14 @@ test_that("key columns can be identified by other names", {
   df1_renamed <- df1 |>
     dplyr::rename(mean_col = x, sd_col = sd, n_col = n)
   df1_renamed |>
-    debit_map(digits_x = 2, digits_sd = 2, x = mean_col, sd = sd_col, n = n_col, show_rec = TRUE) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", x = mean_col, sd = sd_col, n = n_col, show_rec = TRUE) |>
     expect_equal(df1_tested)
 })
 
 
 test_that("an error is thrown if `extra` is misspecified", {
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = blubb)   |> expect_error()
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, extra = "blubb") |> expect_error()
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", extra = blubb)   |> expect_error()
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", extra = "blubb") |> expect_error()
 })
 
 
@@ -35,6 +36,7 @@ df1_expected <- tibble::tibble(
   x = c(0.53, 0.44, 0.77, 0.19, 0.34, 0.93, 0.12),
   sd = c(0.50, 0.50, 0.42, 0.35, 0.47, 0.25, 0.33),
   n = rep(1683L, 7L),
+  data_type = rep("integer", 7L),
   digits_x = rep(2, 7L),
   digits_sd = rep(2, 7L),
   consistency = rep(c(TRUE, FALSE, TRUE), c(3L, 1L, 3L)),
@@ -106,25 +108,25 @@ test_that("`debit_map()` has correct output", {
 
 test_that("`debit_map_seq()` doesn't disperse beyond the binary range", {
   out_high <- tibble::tibble(x = 0.98, sd = 0.14, n = 100) |>
-    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
+    debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", var = "x", include_consistent = TRUE)
   out_high$x |> max() |> expect_equal(1)
 
   out_low <- tibble::tibble(x = 0.03, sd = 0.17, n = 100) |>
-    debit_map_seq(digits_x = 2, digits_sd = 2, var = "x", include_consistent = TRUE)
+    debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", var = "x", include_consistent = TRUE)
   out_low$x |> min() |> expect_equal(0)
 
   out_sd <- tibble::tibble(x = 0.5, sd = 0.99, n = 100) |>
-    debit_map_seq(digits_x = 2, digits_sd = 2, var = "sd", include_consistent = TRUE)
+    debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", var = "sd", include_consistent = TRUE)
   out_sd$sd |> max() |> expect_equal(1)
 })
 
 test_that("`show_rec` must be `TRUE` or `FALSE`", {
-  tibble::tibble(x = 0.5, sd = 0.5, n = 4) |> debit_map(digits_x = 1, digits_sd = 1, show_rec = NA) |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
+  tibble::tibble(x = 0.5, sd = 0.5, n = 4) |> debit_map(digits_x = 1, digits_sd = 1, data_type = "integer", show_rec = NA) |> expect_error("`show_rec` must be `TRUE` or `FALSE`")
 })
 
 test_that("an error in a sequence mapper names the row of `data`, not of the dispersed values", {
   # Dispersing `x = 0.02` below 0 is only possible without `out_min`:
   tibble::tibble(x = c(0.5, 0.5, 0.02), sd = c(0.5, 0.51, 0.13), n = c(30, 30, 50)) |>
-    debit_map_seq(digits_x = 2, digits_sd = 2, out_min = NULL, include_consistent = TRUE) |>
+    debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", out_min = NULL, include_consistent = TRUE) |>
     expect_error("In row 3 of `data`", fixed = TRUE)
 })

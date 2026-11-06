@@ -28,8 +28,8 @@ test_that("a missing `digits_*` argument names the function that was called", {
   4.11       |> grim(40, items_averaged = 1, data_type = "integer") |> msg_error() |> expect_match("`grim(", fixed = TRUE)
   df_grim    |> grim_map(data_type = "integer")                   |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
   df_grimmer |> grimmer_map(data_type = "integer")                |> msg_error() |> expect_match("`grimmer_map(", fixed = TRUE)
-  0.35       |> debit(0.18, 20)              |> msg_error() |> expect_match("`debit(", fixed = TRUE)
-  df_debit   |> debit_map()                  |> msg_error() |> expect_match("`debit_map(", fixed = TRUE)
+  0.35       |> debit(0.18, 20, data_type = "integer")              |> msg_error() |> expect_match("`debit(", fixed = TRUE)
+  df_debit   |> debit_map(data_type = "integer")                  |> msg_error() |> expect_match("`debit_map(", fixed = TRUE)
 
   # `Vectorize()`, purrr, and the function factories put frames of varying
   # depth between the test function and the check that throws:
@@ -38,7 +38,7 @@ test_that("a missing `digits_*` argument names the function that was called", {
     msg_error() |>
     expect_match("`grim_map_seq(", fixed = TRUE)
   df_debit |>
-    debit_map_seq(dispersion = 1:2) |>
+    debit_map_seq(dispersion = 1:2, data_type = "integer") |>
     msg_error() |>
     expect_match("`debit_map_seq(", fixed = TRUE)
   tibble::tibble(x1 = 4.52, x2 = 4.19, n = 40) |>
@@ -59,7 +59,7 @@ test_that("a missing `digits_*` argument gives the intended error", {
   # Not an internal error such as "cannot coerce type 'closure'":
   for (msg in list(
     df_grim |> grim_map_seq(dispersion = 1:2, items_averaged = 1, data_type = "integer") |> msg_error(),
-    df_debit |> debit_map_seq(dispersion = 1:2) |> msg_error()
+    df_debit |> debit_map_seq(dispersion = 1:2, data_type = "integer") |> msg_error()
   )) {
     msg |> expect_match("Need to specify `digits_", fixed = TRUE)
     msg |> expect_no_match("coerce", fixed = TRUE)

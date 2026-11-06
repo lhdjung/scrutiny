@@ -144,21 +144,21 @@ pigs3
 #> 7  0.12  0.33  1683
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2)
-#> # A tibble: 7 × 6
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
+#> # A tibble: 7 × 7
 #> # DEBIT: default settings
-#>       x    sd     n digits_x digits_sd consistency
-#>   <dbl> <dbl> <int>    <int>     <int> <lgl>      
-#> 1  0.53  0.5   1683        2         2 TRUE       
-#> 2  0.44  0.5   1683        2         2 TRUE       
-#> 3  0.77  0.42  1683        2         2 TRUE       
-#> 4  0.19  0.35  1683        2         2 FALSE      
-#> 5  0.34  0.47  1683        2         2 TRUE       
-#> 6  0.93  0.25  1683        2         2 TRUE       
-#> 7  0.12  0.33  1683        2         2 TRUE
+#>       x    sd     n data_type digits_x digits_sd consistency
+#>   <dbl> <dbl> <int> <chr>        <int>     <int> <lgl>      
+#> 1  0.53  0.5   1683 integer          2         2 TRUE       
+#> 2  0.44  0.5   1683 integer          2         2 TRUE       
+#> 3  0.77  0.42  1683 integer          2         2 TRUE       
+#> 4  0.19  0.35  1683 integer          2         2 FALSE      
+#> 5  0.34  0.47  1683 integer          2         2 TRUE       
+#> 6  0.93  0.25  1683 integer          2         2 TRUE       
+#> 7  0.12  0.33  1683 integer          2         2 TRUE
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot()
 ```
 

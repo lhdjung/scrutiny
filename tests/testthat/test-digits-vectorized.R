@@ -45,11 +45,11 @@ test_that("basic mappers take one `digits_*` value per row", {
     expect_equal(separate)
 
   separate <- c(
-    df_debit[1, ] |> debit_map(digits_x = 2, digits_sd = 2) |> purrr::pluck("consistency"),
-    df_debit[2, ] |> debit_map(digits_x = 2, digits_sd = 1) |> purrr::pluck("consistency")
+    df_debit[1, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |> purrr::pluck("consistency"),
+    df_debit[2, ] |> debit_map(digits_x = 2, digits_sd = 1, data_type = "integer") |> purrr::pluck("consistency")
   )
   df_debit |>
-    debit_map(digits_x = 2, digits_sd = c(2, 1)) |>
+    debit_map(digits_x = 2, digits_sd = c(2, 1), data_type = "integer") |>
     purrr::pluck("consistency") |>
     expect_equal(separate)
 })

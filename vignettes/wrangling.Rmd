@@ -154,7 +154,7 @@ digits
 
 flights2_split |>
   dplyr::mutate(x = as.numeric(x), sd = as.numeric(sd)) |>
-  debit_map(digits_x = digits, digits_sd = digits)
+  debit_map(digits_x = digits, digits_sd = digits, data_type = "integer")
 ```
 
 If your strings look like `"2.65 [0.27]"`, specify the `sep` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `sep = "braces"`. What about other separators, as in `"2.65 <0.27>"`? Specify `sep` as those two substrings, like `sep = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.

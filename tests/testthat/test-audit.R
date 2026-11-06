@@ -14,7 +14,8 @@ test_that("`audit()` summarizes GRIM tests accurately", {
 
 
 # `audit()` for DEBIT
-data_debit <- pigs3 |> debit_map(digits_x = 2, digits_sd = 2)
+data_debit <- pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 audit_debit <- data_debit |> audit()
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
@@ -28,7 +29,7 @@ test_that("`audit()` summarizes DEBIT tests accurately", {
 
 data_grim_seq    <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
 data_grimmer_seq <- pigs5 |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") # fmt: skip
-data_debit_seq   <- pigs3 |> debit_map_seq(digits_x = 2, digits_sd = 2) # fmt: skip
+data_debit_seq   <- pigs3 |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer") # fmt: skip
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
 # as an example for equality with tibbles that don't have that class:
@@ -214,7 +215,7 @@ test_that("undecidable cases don't dilute `ratio`", {
 
 test_that("`audit()` on DEBIT output ignores missing values in its means", {
   out <- tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)) |>
-    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
     audit()
 
   out$mean_x |> is.na() |> expect_false()
@@ -224,7 +225,7 @@ test_that("`audit()` on DEBIT output ignores missing values in its means", {
 
 test_that("`audit()` ignores a missing `n` in DEBIT's `distinct_n`", {
   tibble::tibble(x = c(0.5, 0.5), sd = c(0.51, 0.51), n = c(20, NA)) |>
-    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
     audit() |>
     dplyr::pull(distinct_n) |>
     expect_equal(1L)
@@ -238,7 +239,7 @@ test_that("`audit()` on GRIMMER output without rows has zero counts", {
 test_that("`audit()` names the columns it lacks", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `exp_incon`")
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
 })
 
 

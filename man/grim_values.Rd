@@ -13,7 +13,8 @@ grim_values(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 )
 
 grim_closest(
@@ -24,7 +25,8 @@ grim_closest(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 )
 }
 \arguments{
@@ -42,6 +44,9 @@ keep them (\code{1.40} is \code{1.4}).}
 \code{\link[=grim]{grim()}}.}
 
 \item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
+
+\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
+use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 \itemize{

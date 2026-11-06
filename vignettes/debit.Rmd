@@ -33,10 +33,10 @@ DEBIT is a narrow method: it applies only to binary data, such as yes/no answers
 ## Single cases: `debit()`
 
 ```{r}
-debit(x = 0.35, sd = 0.18, n = 20, digits_x = 2, digits_sd = 2)
+debit(x = 0.35, sd = 0.18, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
-As in `grim()`, the numbers of decimal places must be given, because numeric values lose trailing zeros. The SD is taken to be a sample SD; for a population SD, which divides by $n$ rather than $n - 1$, set `sd_meaning = "sd_pop"`, as in `vignette("grimmer-in-depth")`.
+As in `grim()`, the numbers of decimal places must be given, because numeric values lose trailing zeros. So must `data_type`, which is `"integer"` for the binary values 0 and 1; see `vignette("grim")`. The SD is taken to be a sample SD; for a population SD, which divides by $n$ rather than $n - 1$, set `sd_meaning = "sd_pop"`, as in `vignette("grimmer-in-depth")`.
 
 By default (`formula = "exact"`), DEBIT only considers means that `n` binary values can have, that is, `k / n` for a whole number `k`. The original formulation treats the mean as continuous, so it accepts some SDs that no binary sample of size `n` can have. `formula = "mean_n"` reproduces it.
 
@@ -52,7 +52,7 @@ flying_pigs <- tibble::tibble(
 )
 
 flying_pigs |>
-  debit_map(digits_x = 2, digits_sd = 2)
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
 With `show_rec = TRUE`, the output also has the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`. `pigs3` is an example dataset that comes with scrutiny:
@@ -61,14 +61,14 @@ With `show_rec = TRUE`, the output also has the reconstructed values: the roundi
 pigs3
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
 ```
 
 DEBIT applies to binary data only, so `x` and `sd` must lie between 0 and 1:
 
 ```{r, error=TRUE}
 pigs5 |>
-  debit_map(digits_x = 2, digits_sd = 2)
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
 Unlike `grim_map()`, `debit_map()` has no `x_meaning` or `items_averaged` argument, since neither applies to binary data. It takes the same rounding arguments; see `vignette("rounding-options", package = "roundwork")`.
@@ -79,7 +79,7 @@ Unlike `grim_map()`, `debit_map()` has no `x_meaning` or `items_averaged` argume
 
 ```{r}
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   dplyr::filter(!consistency) |>
   explain_print()
 ```
@@ -90,7 +90,7 @@ pigs3 |>
 
 ```{r}
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   audit()
 ```
 
@@ -108,7 +108,7 @@ ggplot2::theme_minimal(base_size = 12) |>
   ggplot2::theme_set()
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot()
 ```
 
@@ -119,7 +119,7 @@ The arc is the DEBIT line: the SD of binary data as a function of their mean, fo
 `debit_map_seq()` varies `x`, `sd`, and `n` around the reported values and tests each result:
 
 ```{r}
-out_seq1 <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2)
+out_seq1 <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_seq1
 
 audit_seq(out_seq1)
@@ -132,6 +132,7 @@ out_seq2 <- debit_map_seq(
   pigs3,
   digits_x = 2,
   digits_sd = 2,
+  data_type = "integer",
   dispersion = 1:7,
   include_consistent = TRUE
 )
@@ -151,7 +152,7 @@ flying_pigs2 <- tibble::tribble(
   0.41 , 0.39 , 0.09 , 0.15 , 65
 )
 
-out_total_n <- debit_map_total_n(flying_pigs2, digits_x = 2, digits_sd = 2)
+out_total_n <- debit_map_total_n(flying_pigs2, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_total_n
 
 audit_total_n(out_total_n)

@@ -31,7 +31,8 @@ test_that("explanations agree with the tests (sweep)", {
     args_grim    |> do.call(what = grim_explain)    |> getElement("consistency") |> expect_identical(do.call(grim, args_grim))
     args_grimmer |> do.call(what = grimmer_explain) |> getElement("consistency") |> expect_identical(do.call(grimmer, args_grimmer))
     if (row$x <= 1 && row$sd <= 1) {
-      args_sd    |> do.call(what = debit_explain)   |> getElement("consistency") |> expect_identical(do.call(debit, args_sd))
+      args_debit <- c(args_sd, list(data_type = data_type))
+      args_debit |> do.call(what = debit_explain) |> getElement("consistency") |> expect_identical(do.call(debit, args_debit))
     }
   }
 })
@@ -62,12 +63,12 @@ test_that("`binary_ones_shown()` finds what listing every `k` would", {
 })
 
 test_that("only DEBIT's exact formula is explained", {
-  0.5 |> debit_explain(sd = 0.5, n = 20, digits_x = 1, digits_sd = 1, formula = "mean_n") |> expect_error("only cover")
+  0.5 |> debit_explain(sd = 0.5, n = 20, digits_x = 1, digits_sd = 1, data_type = "integer", formula = "mean_n") |> expect_error("only cover")
 })
 
 test_that("DEBIT's example SD is not shown as a bound", {
-  0.5 |> debit_explain(sd = 0.5,   n = 2e5, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_no_match("= 0.4995, which is in", fixed = TRUE)
-  0   |> debit_explain(sd = 0.147, n = 320, digits_x = 1, digits_sd = 3, rounding = "down") |> format() |> expect_match("= 0.146504, which is in", fixed = TRUE)
+  0.5 |> debit_explain(sd = 0.5,   n = 2e5, digits_x = 1, digits_sd = 3, data_type = "integer", rounding = "down") |> format() |> expect_no_match("= 0.4995, which is in", fixed = TRUE)
+  0   |> debit_explain(sd = 0.147, n = 320, digits_x = 1, digits_sd = 3, data_type = "integer", rounding = "down") |> format() |> expect_match("= 0.146504, which is in", fixed = TRUE)
 })
 
 # With `n` above `10^digits_x`, 499 / 999 printed as 0.4995, the bound it falls
@@ -94,9 +95,9 @@ test_that("explanations print as expected", {
     grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
     grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
     grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer")
-    debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
-    debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
-    debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
+    debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
+    debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
+    debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2, data_type = "integer")
   })
 })
 
@@ -125,13 +126,13 @@ test_that("missing `items_averaged` is undecidable, not an error", {
 
 test_that("large numbers are written out in full", {
   5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1, data_type = "integer")       |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
-  0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1) |> format() |> expect_no_match("e+0", fixed = TRUE)
+  0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1, data_type = "integer") |> format() |> expect_no_match("e+0", fixed = TRUE)
 })
 
 test_that("bounds of values with many decimal places are shown in full", {
   5.1234 |> grim_explain(n = 28, digits_x = 4, items_averaged = 1, data_type = "integer")                                |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
   5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4, items_averaged = 1, data_type = "integer") |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
-  0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)                      |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
+  0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4, data_type = "integer")                      |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
 })
 
 test_that("`grim_explain()` shows its bounds exactly", {
@@ -157,7 +158,7 @@ test_that("`explain_map()` agrees with every mapper tier", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 2, data_type = "integer")                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
   pigs2 |> grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage")                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                        |> explain_map() |> getElement("explanation") |> expect_length(7L)
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")                                        |> explain_map() |> getElement("explanation") |> expect_length(7L)
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
 })
@@ -183,7 +184,7 @@ test_that("`explain_map()` catches rows changed after testing", {
 
 test_that("`explain_map()` needs columns and settings", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(-digits_x) |> explain_map() |> expect_error("Missing: `digits_x`")
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")             |> explain_map() |> expect_error("was tested with")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", formula = "mean_n")             |> explain_map() |> expect_error("was tested with")
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   attr(data, "scrutiny") <- NULL
   data |> explain_map() |> expect_error("lost the settings")
@@ -272,12 +273,12 @@ test_that("a single score averaged from items is not \"each of the 1 scores\"", 
 test_that("a near-whole `n` is explained as the whole number, as the tests test it", {
   1.5 |> grim_explain(2 - 1e-9, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling") |> format() |> expect_identical(format(grim_explain(1.5, 2, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling")))
   1.5 |> grimmer_explain(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer") |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")))
-  0.5 |> debit_explain(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
+  0.5 |> debit_explain(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2, data_type = "integer")                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2, data_type = "integer")))
 
   # The decimal count was written as 0.999999999:
   1.5 |> grim_explain(20, digits_x = 1 - 1e-9, items_averaged = 1, data_type = "integer")                         |> format() |> expect_identical(format(grim_explain(1.5, 20, digits_x = 1, items_averaged = 1, data_type = "integer")))
   1.5 |> grimmer_explain(0.71, 2, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1, data_type = "integer")   |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")))
-  0.5 |> debit_explain(0.58, 2, digits_x = 1 - 1e-9, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
+  0.5 |> debit_explain(0.58, 2, digits_x = 1 - 1e-9, digits_sd = 2, data_type = "integer")                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2, data_type = "integer")))
 })
 
 
@@ -290,7 +291,7 @@ test_that("a negative zero is shown as zero", {
 
 test_that("an explanation names the missing value that left the mean unknown", {
   grimmer_explain(5.2, 0.3, 4, NA, 1, 1, data_type = "integer") |> format() |> expect_match("digits_x is missing")
-  debit_explain(0.5, 0.9, 10, NA, 1)     |> format() |> expect_match("digits_x is missing")
+  debit_explain(0.5, 0.9, 10, NA, 1, data_type = "integer")     |> format() |> expect_match("digits_x is missing")
   grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop", data_type = "integer") |> format() |> expect_match("1 whole number with")
 })
 test_that("only the first `n` sums are tested, and the rest are counted", {
@@ -313,8 +314,8 @@ test_that("sums out of reach of the SD are said to be skipped, and counted", {
 
 test_that("numbers past 2^53 are shown exactly", {
   # Doubles printed 27000720006300016, and named k = 149999999 as the largest:
-  0.5 |> debit_explain(0.0009, 300003, 1, 4, sd_meaning = "se") |> format() |> expect_match("27000720006300018")
-  e <- 0 |> debit_explain(0.4, 3e8 + 1, 0, 1, sd_meaning = "se") |> format()
+  0.5 |> debit_explain(0.0009, 300003, 1, 4, sd_meaning = "se", data_type = "integer") |> format() |> expect_match("27000720006300018")
+  e <- 0 |> debit_explain(0.4, 3e8 + 1, 0, 1, sd_meaning = "se", data_type = "integer") |> format()
   e |> expect_match("27000000180000000300000000")
   e |> expect_match("largest of these SEs, for k = 150000000")
 })
@@ -322,19 +323,19 @@ test_that("numbers past 2^53 are shown exactly", {
 test_that("`debit_explain()` writes the bounds of the number of ones in full", {
   # The product was rounded to 15 digits, 450000000000000, next to a range of
   # whole numbers ending at 449999999999999:
-  0 |> debit_explain(0.3, 899999999999999, 0, 1) |> format() |> paste(collapse = " ") |> expect_match("0.5 * 899999999999999 = 449999999999999.5", fixed = TRUE)
+  0 |> debit_explain(0.3, 899999999999999, 0, 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("0.5 * 899999999999999 = 449999999999999.5", fixed = TRUE)
   # The bound itself was rounded to 0.0222:
-  0.03 |> debit_explain(0.17, 33, 2, 2, rounding = "up_from", threshold = 2.25) |> format() |> paste(collapse = " ") |> expect_match("0.02225 * 33 = 0.73425", fixed = TRUE)
+  0.03 |> debit_explain(0.17, 33, 2, 2, rounding = "up_from", threshold = 2.25, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("0.02225 * 33 = 0.73425", fixed = TRUE)
 })
 
 test_that("`debit_explain()` explains a mean that fails with `digits_sd` missing", {
   # The SD's bounds were formatted with `NA` decimal places and failed:
-  0.6 |> debit_explain(0.2, 2, 1, NA) |> format() |> paste(collapse = " ") |> expect_match("no number of ones fits")
-  tibble::tibble(x = c(0.6, 0.5), sd = c(0.2, 0.71), n = 2) |> debit_map(digits_x = 1, digits_sd = c(NA, 2)) |> explain_map() |> nrow() |> expect_identical(2L)
+  0.6 |> debit_explain(0.2, 2, 1, NA, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("no number of ones fits")
+  tibble::tibble(x = c(0.6, 0.5), sd = c(0.2, 0.71), n = 2) |> debit_map(digits_x = 1, digits_sd = c(NA, 2), data_type = "integer") |> explain_map() |> nrow() |> expect_identical(2L)
 })
 
 test_that("`debit_explain()` rejects a string `n`, as `debit()` does", {
-  0.5 |> debit_explain(0.5, "10", 1, 1) |> expect_error("must be one of these types")
+  0.5 |> debit_explain(0.5, "10", 1, 1, data_type = "integer") |> expect_error("must be one of these types")
 })
 
 test_that("`explain_map()` doesn't overwrite a column of the user's", {

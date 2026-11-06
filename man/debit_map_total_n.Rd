@@ -14,6 +14,7 @@ debit_map_total_n(
   sd2 = NULL,
   n = NULL,
   ...,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -44,6 +45,9 @@ contain these values, if they differ from the defaults.}
 
 \item{...}{These dots must be empty. Every argument after them must be
 named in full.}
+
+\item{data_type}{String. As in \code{\link[=debit]{debit()}}. Give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
 
 \item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=debit]{debit()}}, which explains the defaults.}
@@ -110,10 +114,10 @@ df <- tibble::tribble(
   0.41, 0.39, 0.09, 0.15, 65
 )
 
-debit_map_total_n(df, digits_x = 2, digits_sd = 2)
+debit_map_total_n(df, digits_x = 2, digits_sd = 2, data_type = "integer")
 
 df |>
-  debit_map_total_n(digits_x = 2, digits_sd = 2) |>
+  debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   audit_total_n()
 }
 \references{

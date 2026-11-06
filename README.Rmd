@@ -84,10 +84,10 @@ Use DEBIT to test means and standard deviations of binary data:
 pigs3
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2)
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot()
 ```
 

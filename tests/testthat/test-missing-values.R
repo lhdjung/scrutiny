@@ -29,9 +29,9 @@ test_that("the single-case functions return `NA` for a missing value", {
   NA |> grimmer(0.41, 40, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
   1.03 |> grimmer(NA, 40, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
   1.03 |> grimmer(0.41, NA, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
-  NA |> debit(0.50, 1683, digits_x = 2, digits_sd = 2) |> expect_na()
-  0.53 |> debit(NA, 1683, digits_x = 2, digits_sd = 2) |> expect_na()
-  0.53 |> debit(0.50, NA, digits_x = 2, digits_sd = 2) |> expect_na()
+  NA |> debit(0.50, 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
+  0.53 |> debit(NA, 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
+  0.53 |> debit(0.50, NA, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
 })
 
 
@@ -88,7 +88,7 @@ test_that("they are still vectorized over the other values", {
     grimmer(c(0.41, 0.41), c(40, 40), digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_equal(c(FALSE, NA))
   c(0.53, NA) |>
-    debit(c(0.50, 0.50), c(1683, 1683), digits_x = 2, digits_sd = 2) |>
+    debit(c(0.50, 0.50), c(1683, 1683), digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_equal(c(TRUE, NA))
 })
 
@@ -103,7 +103,7 @@ test_that("the mappers return `NA` instead of aborting", {
     purrr::pluck("consistency") |>
     expect_equal(c(FALSE, NA, NA))
   df_debit |>
-    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
     purrr::pluck("consistency") |>
     expect_equal(c(TRUE, NA, NA))
 })
@@ -139,7 +139,7 @@ test_that("the `show_*` columns keep their shape and their types", {
     ))
 
   # The bounds of a known value are returned next to a missing one:
-  out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  out_debit <- df_debit |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
   out_debit$sd_lower[2:3] |> expect_equal(c(0.495, NA_real_))
   out_debit$x_lower[2:3]  |> expect_equal(c(NA_real_, 0.525))
   out_debit$sd_lower |> expect_type("double")
@@ -200,8 +200,8 @@ test_that("a missing `digits_*` argument still errors, and so do bad values", {
 test_that("DEBIT tells a missing value from an out-of-range one", {
   # `dplyr::between()` returns `NA` for `NA`, which used to make the range check
   # report the missing value as not being between 0 and 1:
-  NA   |> debit(0.50, 1683, digits_x = 2, digits_sd = 2) |> expect_na()
-  1.53 |> debit(0.50, 1683, digits_x = 2, digits_sd = 2) |> expect_error()
+  NA   |> debit(0.50, 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
+  1.53 |> debit(0.50, 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error()
 })
 
 
@@ -231,14 +231,14 @@ test_that("the three tests agree on what input is undecidable", {
     expect_na()
   3 |> grimmer(sd = 1, n = 0, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
 
-  0.5 |> debit(sd = 0.5, n = 1, digits_x = 2, digits_sd = 2)    |> expect_na()
-  0.5 |> debit(sd = 0.5, n = 0, digits_x = 2, digits_sd = 2)    |> expect_na()
-  0.5 |> debit(sd = 0.5, n = -5, digits_x = 2, digits_sd = 2)   |> expect_na()
-  0.5 |> debit(sd = 0.5, n = 20.5, digits_x = 2, digits_sd = 2) |> expect_na()
+  0.5 |> debit(sd = 0.5, n = 1, digits_x = 2, digits_sd = 2, data_type = "integer")    |> expect_na()
+  0.5 |> debit(sd = 0.5, n = 0, digits_x = 2, digits_sd = 2, data_type = "integer")    |> expect_na()
+  0.5 |> debit(sd = 0.5, n = -5, digits_x = 2, digits_sd = 2, data_type = "integer")   |> expect_na()
+  0.5 |> debit(sd = 0.5, n = 20.5, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
   # A real `n` still gets a real verdict:
-  0.5 |> debit(sd = 0.5, n = 20, digits_x = 2, digits_sd = 2) |>
+  0.5 |> debit(sd = 0.5, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_false()
-  0.36 |> debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2) |>
+  0.36 |> debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_type("logical")
 })
 
@@ -260,7 +260,7 @@ test_that("undecidable input gives `NA` in the mappers, too", {
     out_rec[[col]] |> expect_na()
   }
 
-  out_debit <- tibble::tibble(x = 0.5, sd = 0.5, n = 1L) |> debit_map(digits_x = 2, digits_sd = 2)
+  out_debit <- tibble::tibble(x = 0.5, sd = 0.5, n = 1L) |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
   out_debit$consistency |> expect_na()
 
   out_grimmer <- tibble::tibble(x = 5, sd = 0, n = 1L) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
@@ -283,8 +283,8 @@ test_that("an infinite value is undecidable, not consistent", {
 
   # DEBIT has its own, more specific answer: a binary mean or SD outside of the
   # unit interval is an input error, and it says so rather than returning `NA`.
-  Inf  |> debit(0.5, 100, digits_x = 2, digits_sd = 2) |> expect_error()
-  0.53 |> debit(Inf, 100, digits_x = 2, digits_sd = 2) |> expect_error()
+  Inf  |> debit(0.5, 100, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error()
+  0.53 |> debit(Inf, 100, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error()
 })
 
 
@@ -319,7 +319,7 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   # with an unknown decimal count took the whole call down.
   5.19 |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                            |> expect_na()
   1.03 |> grimmer(0.41, 40, digits_x = 2, digits_sd = NA, items_averaged = 1, data_type = "integer")    |> expect_na()
-  0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2)                        |> expect_na()
+  0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2, data_type = "integer")                        |> expect_na()
   5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
   5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
 
@@ -353,19 +353,19 @@ test_that("a missing value that can't change the verdict doesn't make it `NA`", 
   grimmer_scalar(NA, 0.71, 2, 2, 2, 1, show_reason = TRUE, data_type = "integer")[[2L]]  |> expect_equal("Missing value")
   # DEBIT: no number of 20 ones has an SD of 0.9, and 0.33 * 20 is no whole
   # number:
-  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2) |> expect_false()
-  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2)  |> expect_false()
-  0.33 |> debit(0.5, 20, digits_x = 2, digits_sd = NA) |> expect_false()
-  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, formula = "mean_n") |> expect_false()
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_false()
+  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2, data_type = "integer")  |> expect_false()
+  0.33 |> debit(0.5, 20, digits_x = 2, digits_sd = NA, data_type = "integer") |> expect_false()
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, data_type = "integer", formula = "mean_n") |> expect_false()
   # Under `"mean_n"`, the mean is continuous, so it never fails on its own:
-  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2, formula = "mean_n")  |> expect_na()
-  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop") |> expect_false()
-  NA   |> debit(0.5, 2, digits_x = 2, digits_sd = 1, sd_meaning = "sd_sample_or_pop")  |> expect_na()
+  0.33 |> debit(NA, 20, digits_x = 2, digits_sd = 2, data_type = "integer", formula = "mean_n")  |> expect_na()
+  NA   |> debit(0.9, 20, digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_sample_or_pop") |> expect_false()
+  NA   |> debit(0.5, 2, digits_x = 2, digits_sd = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop")  |> expect_na()
   # With `n` missing, some `n` always works:
   5.19 |> grimmer(NA, NA, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
-  0.33 |> debit(NA, NA, digits_x = 2, digits_sd = 2) |> expect_na()
+  0.33 |> debit(NA, NA, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
   # `show_rec` returns the bounds of the known value:
-  out <- tibble::tibble(x = c(NA, 0.33), sd = c(0.9, NA), n = 20) |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  out <- tibble::tibble(x = c(NA, 0.33), sd = c(0.9, NA), n = 20) |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
   out$consistency |> expect_equal(c(FALSE, FALSE))
   out$sd_lower |> expect_equal(c(0.895, NA))
   out$sum_lower |> expect_equal(c(NA, 7))
@@ -377,12 +377,12 @@ test_that("the explanations agree with these verdicts", {
   grimmer_explain(NA, 0.3, 2, 2, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")$consistency |> expect_false()
   grimmer_explain(NA, 0.5, 2, 2, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")$consistency |> expect_na()
   grimmer_explain(NA, 0.71, 2, 2, 2, 1, data_type = "integer")$consistency  |> expect_na()
-  debit_explain(NA, 0.9, 20, 2, 2)$consistency  |> expect_false()
-  debit_explain(0.33, NA, 20, 2, 2)$consistency |> expect_false()
-  debit_explain(NA, 0.9, 20, 2, 2, sd_meaning = "sd_sample_or_pop")$consistency |> expect_false()
-  debit_explain(NA, 0.5, 2, 2, 1, sd_meaning = "sd_sample_or_pop")$consistency  |> expect_na()
-  debit_explain(0.53, NA, 1683, 2, 2)$consistency |> expect_na()
-  format(debit_explain(NA, 0.9, 20, 2, 2)) |> expect_match("none of these gives an SD")
+  debit_explain(NA, 0.9, 20, 2, 2, data_type = "integer")$consistency  |> expect_false()
+  debit_explain(0.33, NA, 20, 2, 2, data_type = "integer")$consistency |> expect_false()
+  debit_explain(NA, 0.9, 20, 2, 2, sd_meaning = "sd_sample_or_pop", data_type = "integer")$consistency |> expect_false()
+  debit_explain(NA, 0.5, 2, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")$consistency  |> expect_na()
+  debit_explain(0.53, NA, 1683, 2, 2, data_type = "integer")$consistency |> expect_na()
+  format(debit_explain(NA, 0.9, 20, 2, 2, data_type = "integer")) |> expect_match("none of these gives an SD")
   format(grimmer_explain(NA, 0.3, 2, 2, 2, 1, data_type = "integer")) |> expect_match("none passes")
 })
 
@@ -393,7 +393,7 @@ test_that("sequence mappers disperse the known values of such a case", {
   out$var[out$case == 2] |> unique() |> expect_equal(c("sd", "n"))
   out |> audit_seq() |> nrow() |> expect_equal(2L)
   df[1, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = "sd") |> expect_warning("`sd` is missing in every case")
-  tibble::tibble(x = 0.33, sd = NA, n = 10) |> debit_map_seq(digits_x = 2, digits_sd = 2) |> nrow() |> expect_gt(0)
+  tibble::tibble(x = 0.33, sd = NA, n = 10) |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer") |> nrow() |> expect_gt(0)
 })
 
 test_that("GRIMMER with `x` missing is fast for a tiny SD and a large `n`", {

@@ -45,6 +45,7 @@ debit_exp <- tibble::tibble(
   x = 0.19,
   sd = 0.35,
   n = 1683L,
+  data_type = "integer",
   consistency = FALSE,
   hits_total = 4L,
   hits_x = 2L,
@@ -68,5 +69,5 @@ debit_exp <- tibble::tibble(
 test_that("`audit()` for `audit_seq()` works correctly", {
   pigs1[1:3, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> audit_seq() |> expect_equal(grim_exp)
   pigs5[1:3, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit_seq() |> expect_equal(grimmer_exp)
-  pigs3[4, ]   |> debit_map_seq(digits_x = 2, digits_sd = 2)                       |> audit_seq() |> expect_equal(debit_exp)
+  pigs3[4, ]   |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> audit_seq() |> expect_equal(debit_exp)
 })

@@ -237,6 +237,11 @@ check_factory_dots <- function(fn, fn_name_scalar, ...) {
     return(NULL)
   }
 
+  # `x_meaning` replaced GRIM's `percent`:
+  if ("percent" %in% offenders && "x_meaning" %in% names(formals(fn))) {
+    stop_percent(name_last_export())
+  }
+
   fn_name_mapper <- name_last_export_code()
 
   # The dots come right after the key arguments, so an unnamed argument after

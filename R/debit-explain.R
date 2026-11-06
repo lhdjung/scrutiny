@@ -20,15 +20,30 @@
 #' @export
 #'
 #' @examples
-#' debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+#' debit_explain(
+#'   x = 0.36,
+#'   sd = 0.11,
+#'   n = 20,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   data_type = "integer"
+#' )
 #'
-#' debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
+#' debit_explain(
+#'   x = 0.35,
+#'   sd = 0.49,
+#'   n = 20,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   data_type = "integer"
+#' )
 debit_explain <- function(
   x,
   sd,
   n,
   digits_x,
   digits_sd,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -70,6 +85,7 @@ debit_explain <- function(
     n = n,
     digits_x = digits_x,
     digits_sd = digits_sd,
+    data_type = data_type,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
@@ -77,6 +93,29 @@ debit_explain <- function(
     show_rec = TRUE
   )
   consistency <- rec[[1L]]
+
+  if (!identical(data_type, "integer")) {
+    explain_integer <- function() {
+      debit_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        data_type = "integer",
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      )
+    }
+    return(explain_data_type(
+      data_type,
+      consistency,
+      explain_integer,
+      "mean and SD"
+    ))
+  }
   # As a double, as in `debit_scalar()`, which has checked the type:
   n <- as.numeric(n)
 
@@ -90,6 +129,7 @@ debit_explain <- function(
         n = n,
         digits_x = digits_x,
         digits_sd = digits_sd,
+        data_type = "integer",
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,

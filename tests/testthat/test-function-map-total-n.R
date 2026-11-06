@@ -139,7 +139,7 @@ test_that("the output carries a test-specific class", {
     grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_s3_class("scrutiny_grimmer_map_total_n")
   tibble::tibble(x1 = 0.30, x2 = 0.28, sd1 = 0.17, sd2 = 0.10, n = 70L) |>
-    debit_map_total_n(digits_x = 2, digits_sd = 2) |>
+    debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_s3_class("scrutiny_debit_map_total_n")
   # The generic class that `audit_total_n()` dispatches on is still there:
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
@@ -278,11 +278,11 @@ test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has
   df_grimmer <- tibble::tibble(x1 = 5.2, x2 = 4.25, sd1 = 1.3, sd2 = 1.4, n = 8)
   df_debit   <- tibble::tibble(x1 = 0.5, x2 = 0.25, sd1 = 0.58, sd2 = 0.5, n = 8)
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                          |> _$n |> min() |> expect_equal(2L)
-  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2)                                                |> _$n |> min() |> expect_equal(2L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                                                |> _$n |> min() |> expect_equal(2L)
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se")       |> _$n |> min() |> expect_equal(2L)
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop")   |> _$n |> min() |> expect_equal(1L)
-  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop")               |> _$n |> min() |> expect_equal(1L)
-  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop", n_min = 3)              |> _$n |> min() |> expect_equal(3L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_sample_or_pop")               |> _$n |> min() |> expect_equal(1L)
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_pop", n_min = 3)              |> _$n |> min() |> expect_equal(3L)
 
   # A `NULL` stands for the default with a constant one, too; it went through
   # to `disperse_total()`, which then dispersed down to a group of 0:
@@ -291,7 +291,7 @@ test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has
   # An invalid enum gets the mapper's error, not one from `n_min_fn()`:
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be")
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = NULL)              |> expect_error("`sd_meaning` must be")
-  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "nope")                                  |> expect_error("`sd_meaning` must be")
+  df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "nope")                                  |> expect_error("`sd_meaning` must be")
 
   # An enum given as its whole default set is its first value here, too:
   df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> unclass_scr())
@@ -339,8 +339,8 @@ test_that("a promoted setting reaches the test only if it was given", {
   out |> scrutiny_args() |> _$rounding |> expect_equal("up")
 
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
-  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, formula = "mean_n") |> scrutiny_args() |> _$formula |> expect_equal("mean_n")
-  total |> debit_map_total_n(digits_x = 2, digits_sd = 2)                     |> scrutiny_args() |> _$formula |> expect_equal("exact")
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", formula = "mean_n") |> scrutiny_args() |> _$formula |> expect_equal("mean_n")
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                     |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })
 
 

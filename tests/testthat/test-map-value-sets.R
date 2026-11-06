@@ -18,7 +18,7 @@ args_along <- list(
     "items_averaged",
     "data_type"
   ),
-  debit = c("x", "sd", "n", "digits_x", "digits_sd")
+  debit = c("x", "sd", "n", "digits_x", "digits_sd", "data_type")
 )
 
 # One call per test that is consistent, in a form the loops below can vary:
@@ -39,7 +39,14 @@ args_valid <- list(
     items_averaged = 1,
     data_type = "integer"
   ),
-  debit = list(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+  debit = list(
+    x = 0.36,
+    sd = 0.11,
+    n = 20,
+    digits_x = 2,
+    digits_sd = 2,
+    data_type = "integer"
+  )
 )
 
 
@@ -58,7 +65,7 @@ test_that("the internal-only arguments are gone from the exported functions", {
 
   5.19 |> grim(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE) |> expect_error()
   0.36 |>
-    debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, show_rec = TRUE) |>
+    debit(sd = 0.11, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE) |>
     expect_error()
   5.23 |>
     grimmer(sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", show_reason = TRUE) |>
@@ -131,7 +138,7 @@ test_that("a length that cannot be recycled is an error", {
     grimmer(sd = c(2.55, 2.55), n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("recycle")
   c(0.36, 0.36, 0.36) |>
-    debit(sd = c(0.11, 0.11), n = 20, digits_x = 2, digits_sd = 2) |>
+    debit(sd = c(0.11, 0.11), n = 20, digits_x = 2, digits_sd = 2, data_type = "integer") |>
     expect_error("recycle")
 
   # A multiple is no better than any other mismatch:
@@ -179,7 +186,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
   # Except an enum given as its whole default set, e.g. by a wrapper that
   # forwards its own default, which is its first value, as in the mappers:
   5.21 |> grimmer(1.21, 28, 2, 2, 1, sd_meaning = SD_MEANINGS, data_type = "integer") |> expect_equal(grimmer(5.21, 1.21, 28, 2, 2, 1, data_type = "integer"))
-  0.30 |> debit(0.46, 10, 2, 2, formula = DEBIT_FORMULAS)     |> expect_equal(debit(0.30, 0.46, 10, 2, 2))
+  0.30 |> debit(0.46, 10, 2, 2, formula = DEBIT_FORMULAS, data_type = "integer")     |> expect_equal(debit(0.30, 0.46, 10, 2, 2, data_type = "integer"))
   5.21 |> grimmer(1.21, 28, 2, 2, 1, sd_meaning = SD_MEANINGS[2:3], data_type = "integer") |> expect_error("must be length 1")
 
   # The error says which arguments *are* vectorized, and points at the mapper:
@@ -199,7 +206,7 @@ test_that("a missing `digits_*` argument still gets the bespoke error", {
     grimmer(sd = 2.55, n = 31, digits_x = 2, items_averaged = 1, data_type = "integer") |>
     suppressMessages() |>
     expect_error("digits_sd")
-  0.36 |> debit(sd = 0.11, n = 20) |> suppressMessages() |> expect_error("digits_x")
+  0.36 |> debit(sd = 0.11, n = 20, data_type = "integer") |> suppressMessages() |> expect_error("digits_x")
 
   # ...and it is raised once, not once per value set:
   c(5.19, 5.18, 5.17) |>
@@ -256,7 +263,7 @@ test_that("a value within tolerance of a whole number is tested as that number",
   1.5 |> grim(2 - 1e-9, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling")      |> expect_true()
   1.5 |> grim(2, digits_x = 1 - 1e-9, items_averaged = 1 + 1e-9, data_type = "integer", rounding = "ceiling") |> expect_true()
   1.5 |> grimmer(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")     |> expect_true()
-  0.5 |> debit(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                           |> expect_false()
+  0.5 |> debit(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2, data_type = "integer")                           |> expect_false()
 })
 
 
@@ -285,5 +292,5 @@ test_that("a missing required argument gets scrutiny's error", {
   # R's own error named the internal function:
   is_percentage_of(percentage = 33, n = 120, digits_percentage = 0) |> expect_error("Need to specify `absolute`")
   c(1, 2) |> add_up_to() |> expect_error("Need to specify `total`")
-  0.5 |> debit(0.5, digits_x = 1, digits_sd = 1) |> expect_error("Need to specify `n`")
+  0.5 |> debit(0.5, digits_x = 1, digits_sd = 1, data_type = "integer") |> expect_error("Need to specify `n`")
 })

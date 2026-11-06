@@ -42,7 +42,7 @@ test_that("the print header names the settings that differ from the defaults", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", threshold = 5L)  |> header() |> expect_equal("GRIM: default settings")
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop") |> header() |> expect_equal('GRIMMER: sd_meaning = "sd_sample_or_pop"')
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se")        |> header() |> expect_equal('GRIMMER: sd_meaning = "se"')
-  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE) |> header() |> expect_equal("DEBIT: show_rec = TRUE")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE) |> header() |> expect_equal("DEBIT: show_rec = TRUE")
   # Sequence output gets the basic mapper's line; a dropped attribute drops it:
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", symmetric = TRUE, dispersion = 1:3) |> header() |> expect_equal("GRIM: symmetric = TRUE, dispersion = 1:3")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> structure(scrutiny = NULL) |> header() |> expect_length(0L)

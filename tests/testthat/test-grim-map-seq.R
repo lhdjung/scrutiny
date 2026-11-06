@@ -493,7 +493,13 @@ pigs1_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  exp_incon = grim_exp_incon(x, n, 2, items_averaged = 1),
+  exp_incon = grim_exp_incon(
+    x,
+    n,
+    2,
+    items_averaged = 1,
+    data_type = "integer"
+  ),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 10L),
   var = rep(c("x", "n"), each = 80L),
@@ -832,7 +838,8 @@ pigs2_exp <- tibble::tibble(
     n,
     1,
     x_meaning = "percentage",
-    items_averaged = 1
+    items_averaged = 1,
+    data_type = "integer"
   ),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 10),
   case = rep(rep(c(1L, 2L, 4L, 5L, 6L), 2), each = 10L),
@@ -1399,7 +1406,13 @@ pigs1_include_reported_exp <- tibble::tibble(
     FALSE,
     TRUE
   ),
-  exp_incon = grim_exp_incon(x, n, 2, items_averaged = 1),
+  exp_incon = grim_exp_incon(
+    x,
+    n,
+    2,
+    items_averaged = 1,
+    data_type = "integer"
+  ),
   diff_var = rep(-5:5, 16),
   case = rep(rep(c(2L, 3L, 4L, 5L, 7L, 9L, 10L, 12L), 2), each = 11L),
   var = rep(c("x", "n"), each = 88L),
@@ -1678,7 +1691,7 @@ test_that("GRIMMER and DEBIT sequence mappers never disperse `n` below 2", {
   df_grimmer <- tibble::tibble(x = 5.21, sd = 1.21, n = 3)
   df_debit   <- tibble::tibble(x = 0.5, sd = 0.49, n = 3)
   out_grimmer <- grimmer_map_seq(df_grimmer, 2, 2, items_averaged = 1, data_type = "integer", var = "n")
-  out_debit   <- debit_map_seq(df_debit, 2, 2, var = "n")
+  out_debit   <- debit_map_seq(df_debit, 2, 2, var = "n", data_type = "integer")
   out_grimmer$n |> min() |> expect_equal(2L)
   out_debit$n   |> min() |> expect_equal(2L)
   out_grimmer$consistency |> anyNA() |> expect_false()

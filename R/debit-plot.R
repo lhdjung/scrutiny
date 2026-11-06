@@ -50,12 +50,12 @@
 #'
 #' @examplesIf rlang::is_installed("ggrepel")
 #' pigs3 |>
-#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   debit_plot()
 #'
 #' # Other colors, here the ones before scrutiny 1.0.0:
 #' pigs3 |>
-#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   debit_plot() +
 #'   ggplot2::scale_colour_manual(
 #'     values = c("TRUE" = "royalblue1", "FALSE" = "red"),
@@ -140,7 +140,7 @@ debit_plot <- function(
       debit_map,
       c(
         list(
-          data[c("x", "sd", "n")],
+          data[intersect(c("x", "sd", "n", "data_type"), colnames(data))],
           digits_x = data$digits_x,
           digits_sd = data$digits_sd
         ),
@@ -149,6 +149,9 @@ debit_plot <- function(
     )
     data[cols_rec] <- rec[cols_rec]
   }
+
+  # Continuous data pass, so they have no bounds to draw:
+  data <- drop_continuous(data, "DEBIT")
 
   # Name the missing columns rather than let subsetting fail with a vctrs error:
   check_cols_needed(data, cols_needed, "i" = "`debit_map()` output has them.")

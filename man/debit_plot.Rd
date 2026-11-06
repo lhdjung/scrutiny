@@ -62,12 +62,12 @@ Colors come from one scale for \code{colour} and \code{fill}, mapped to
 \examples{
 \dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot()
 
 # Other colors, here the ones before scrutiny 1.0.0:
 pigs3 |>
-  debit_map(digits_x = 2, digits_sd = 2) |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot() +
   ggplot2::scale_colour_manual(
     values = c("TRUE" = "royalblue1", "FALSE" = "red"),

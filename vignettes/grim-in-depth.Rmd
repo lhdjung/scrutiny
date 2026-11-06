@@ -200,15 +200,16 @@ where $D$ is the number of decimal places, $N$ the sample size, and $L$ the numb
 The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_exp_incon()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
 
 ```{r}
-grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1, data_type = "integer")
 
-grim_exp_incon(x = 5.93, n = 80, digits_x = 2, items_averaged = 3)
+grim_exp_incon(x = 5.93, n = 80, digits_x = 2, items_averaged = 3, data_type = "integer")
 
 grim_exp_incon(
   x = 84.27,
   n = 40,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   x_meaning = "percentage"
 )
 ```
@@ -216,7 +217,7 @@ grim_exp_incon(
 `grim_total()` returns a count instead of a proportion: the number of the $10^D$ possible fractional parts that are inconsistent:
 
 ```{r}
-grim_total(x = 1.40, n = 72, digits_x = 2, items_averaged = 1)
+grim_total(x = 1.40, n = 72, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 The formula is implicit in @brown_grim_2017, who note (p. 367) that with two decimal places and $N < 100$, a random mean is consistent in about $N$% of cases.

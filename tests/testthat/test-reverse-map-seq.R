@@ -2,7 +2,7 @@
 
 df_schlim <- tibble::tibble(y = 16:100, n = 3:87)
 df_grim <- pigs1 |> dplyr::mutate(items_averaged = 1, data_type = "integer")
-df_debit <- pigs3
+df_debit <- pigs3 |> dplyr::mutate(data_type = "integer")
 
 
 # Create a mock `*_seq()` function ----------------------------------------
@@ -43,7 +43,12 @@ df_grim_rec <- df_grim |>
   reverse_map_seq()
 
 df_debit_rec <- df_debit |>
-  debit_map_seq(digits_x = 2, digits_sd = 2, include_consistent = TRUE) |>
+  debit_map_seq(
+    digits_x = 2,
+    digits_sd = 2,
+    data_type = "integer",
+    include_consistent = TRUE
+  ) |>
   reverse_map_seq()
 
 

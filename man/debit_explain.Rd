@@ -10,6 +10,7 @@ debit_explain(
   n,
   digits_x,
   digits_sd,
+  data_type,
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
@@ -27,6 +28,11 @@ debit_explain(
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}).}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. No default. For DEBIT, \code{"integer"} means the binary
+values 0 and 1 that the test assumes. Continuous data can have any mean
+and SD, so the result is \code{TRUE}.}
 
 \item{formula}{String. Only \code{"exact"}, the default, can be explained.}
 
@@ -58,7 +64,21 @@ The text is built from the numbers that decide the test itself, so it
 always agrees with \code{\link[=debit]{debit()}} under its default \code{formula = "exact"}.
 }
 \examples{
-debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
+debit_explain(
+  x = 0.36,
+  sd = 0.11,
+  n = 20,
+  digits_x = 2,
+  digits_sd = 2,
+  data_type = "integer"
+)
 
-debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
+debit_explain(
+  x = 0.35,
+  sd = 0.49,
+  n = 20,
+  digits_x = 2,
+  digits_sd = 2,
+  data_type = "integer"
+)
 }

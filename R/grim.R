@@ -205,6 +205,8 @@ grim_scalar <- function(
 #' @param x_meaning String. What `x` is: `"mean"` (the default) or
 #'   `"percentage"`. A percentage is divided by 100 and tested with two more
 #'   decimal places, as the proportion it is. See *Defaults* in [`grim()`].
+#' @param percent `r lifecycle::badge("deprecated")` Replaced by `x_meaning`:
+#'   use `x_meaning = "percentage"` instead of `percent = TRUE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
 #'   Default is `"up_or_down"`, which accepts either direction; see
 #'   *Defaults* in [`grim()`]. The others are `"up_from_or_down_from"`,
@@ -298,8 +300,12 @@ grim <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 ) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim")
+  }
   map_value_sets(
     fn = grim_scalar,
     along = c("x", "n", "digits_x", "items_averaged", "data_type")

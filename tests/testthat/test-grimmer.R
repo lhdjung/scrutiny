@@ -1251,7 +1251,7 @@ test_that("explanations agree with the test under every SD type", {
   4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
   4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> _$paragraphs |> expect_no_match("sample", fixed = TRUE)
   # A missing value is not why the sample SD is undecidable at `n = 1`:
-  NA |> debit_explain(0.9, 1, 1, 1, sd_meaning = "sd_sample_or_pop") |> _$paragraphs |> _[[1L]] |> expect_match("at least 2", fixed = TRUE)
+  NA |> debit_explain(0.9, 1, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> _$paragraphs |> _[[1L]] |> expect_match("at least 2", fixed = TRUE)
   # A population paragraph that reads like one of the sample's was dropped:
   3 |> grimmer_explain(0.25, 6, 0, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> _$paragraphs |> grepl(pattern = "remaining 4 sums") |> sum() |> expect_equal(2L)
 

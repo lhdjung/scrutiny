@@ -86,7 +86,8 @@ explain_map.scrutiny_debit_map <- function(data) {
   add_explanation_col(
     data,
     debit_explain,
-    c("x", "sd", "n", "digits_x", "digits_sd")
+    c("x", "sd", "n", "digits_x", "digits_sd"),
+    "data_type"
   )
 }
 

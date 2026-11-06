@@ -109,5 +109,5 @@ test_that("every DEBIT mapper tier agrees with `debit()` row by row", {
   # `symmetric` is left out: DEBIT's values are never negative.
   grid <- tidyr::expand_grid(x = 0:100 / 100, sd = c(0.3, 0.46, 0.5), n = c(5L, 10L, 20L, 333L, 1000L))
   settings <- list(formula = "mean_n", rounding = "up_from", threshold = 3, sd_meaning = "sd_pop")
-  grid |> expect_tiers_agree(debit_map, debit_map_seq, debit_map_total_n, debit, list(digits_x = 2, digits_sd = 2), settings)
+  grid |> expect_tiers_agree(debit_map, debit_map_seq, debit_map_total_n, debit, list(digits_x = 2, digits_sd = 2, data_type = "integer"), settings)
 })

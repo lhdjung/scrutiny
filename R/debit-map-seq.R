@@ -59,7 +59,7 @@
 #'
 #' out <- pigs3 |>
 #'   dplyr::slice(3:4) |>
-#'   debit_map_seq(digits_x = 2, digits_sd = 2)
+#'   debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer")
 #' out
 #'
 #' # Case-wise summaries:

@@ -14,7 +14,8 @@ grim_plot_values(
   threshold = 5,
   symmetric = FALSE,
   color_con = "#2f7d74",
-  color_reported = "#c1522e"
+  color_reported = "#c1522e",
+  percent = deprecated()
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ length 1.}
 \item{color_reported}{String. Color of the marker for the reported value
 and of the strip behind the squares, if the value is inconsistent. A
 consistent value is marked in \code{color_con}.}
+
+\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
+use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 A ggplot object.

@@ -282,23 +282,12 @@ grim_plot_grid <- function(
   }
 
   # Continuous data pass whatever the raster says about them:
-  is_continuous <- data[["data_type"]] %in% "continuous"
-  if (show_data && any(is_continuous)) {
-    n_continuous <- sum(is_continuous)
-    if (n_continuous == nrow(data)) {
-      abort_in_export(
-        "All value sets in `data` are continuous data.",
-        "i" = "GRIM only applies to whole numbers, so there is nothing to \\
-        draw.",
-        "i" = "Set `show_data = FALSE` for the background raster on its own."
-      )
-    }
-    cli::cli_warn(c(
-      "!" = "Dropping {n_continuous} value set{?s} of continuous data from \\
-      the plot.",
-      "i" = "GRIM only applies to whole numbers."
-    ))
-    data <- data[!is_continuous, ]
+  if (show_data) {
+    data <- drop_continuous(
+      data,
+      "GRIM",
+      "i" = "Set `show_data = FALSE` for the background raster on its own."
+    )
   }
 
   if (is.null(digits)) {
@@ -627,6 +616,31 @@ grim_plot_grid <- function(
       y = paste("Fractional portion of", mean_percent_label)
     ) +
     ggplot2::theme(aspect.ratio = 1)
+}
+
+
+# Rows of continuous data, which pass any test, are left out of a plot with a
+# warning, or an error if none are left. The dots add bullets to the error.
+drop_continuous <- function(data, test, ...) {
+  is_continuous <- data[["data_type"]] %in% "continuous"
+  if (!any(is_continuous)) {
+    return(data)
+  }
+  n_continuous <- sum(is_continuous)
+  if (n_continuous == nrow(data)) {
+    abort_in_export(
+      "All value sets in `data` are continuous data.",
+      "i" = "{test} only applies to whole numbers, so there is nothing to \\
+      draw.",
+      ...
+    )
+  }
+  cli::cli_warn(c(
+    "!" = "Dropping {n_continuous} value set{?s} of continuous data from the \\
+    plot.",
+    "i" = "{test} only applies to whole numbers."
+  ))
+  data[!is_continuous, ]
 }
 
 

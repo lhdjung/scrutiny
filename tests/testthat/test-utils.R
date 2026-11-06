@@ -277,7 +277,7 @@ test_that("roundwork accepts every value in `ROUNDING_METHODS`", {
 })
 
 test_that("a mapper records an enum setting it was not given as its first value", {
-  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2)
+  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
   out |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
   out |> scrutiny_args() |> _$formula |> expect_equal("exact")
 })
@@ -302,7 +302,7 @@ test_that("an invalid `threshold` or `symmetric` is an error, even if the roundi
   # `rounding_scale()` failed on these with a base R error, and then they were
   # accepted, and recorded in the print header:
   5.19 |> grim(28, 2, 1, threshold = NA, data_type = "integer")                                      |> expect_error("must be a finite number")
-  0.5  |> debit(0.5, 10, 2, 2, threshold = "5")                               |> expect_error("must be a finite number")
+  0.5  |> debit(0.5, 10, 2, 2, threshold = "5", data_type = "integer")                               |> expect_error("must be a finite number")
   5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA, data_type = "integer")                |> expect_error("must be a finite number")
   pigs1 |> grim_map(2, items_averaged = 1, data_type = "integer", threshold = "5")                   |> expect_error("must be a finite number")
   5.19 |> grim(28, 2, 1, symmetric = "no", data_type = "integer")                                    |> expect_error("`TRUE` or `FALSE`")
@@ -326,7 +326,7 @@ test_that("`gcd()` is exact past a quotient of 2^52", {
   gcd(7, 10^20)      |> expect_no_warning() |> expect_equal(1)
   gcd(2500, 10^22)   |> expect_equal(2500)
   gcd(2^53 + 2, 6)   |> expect_equal(2)
-  0 |> debit(0, 10, 1, 15, rounding = "up_from", threshold = 0.07) |> expect_no_warning() |> expect_true()
+  0 |> debit(0, 10, 1, 15, rounding = "up_from", threshold = 0.07, data_type = "integer") |> expect_no_warning() |> expect_true()
 })
 
 test_that("an `integer64` vector is an error, not an `NA` result", {

@@ -863,6 +863,20 @@ warn_quasi_integer <- function() {
 }
 
 
+# GRIM's `percent` argument was replaced by `x_meaning` in scrutiny 1.0.0. The
+# functions without dots keep it as a `deprecated()` formal so that they can say
+# so; the mappers say it from `check_factory_dots()`.
+stop_percent <- function(fn_name) {
+  lifecycle::deprecate_stop(
+    "1.0.0",
+    paste0(fn_name, "(percent)"),
+    paste0(fn_name, "(x_meaning)"),
+    details = "For `percent = TRUE`, use `x_meaning = \"percentage\"`.",
+    env = asNamespace("scrutiny")
+  )
+}
+
+
 #' Error if `items_averaged` is missing
 #'
 #' Like `digits_x`, `items_averaged` has no default, so that every call states

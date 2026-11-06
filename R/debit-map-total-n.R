@@ -73,10 +73,10 @@
 #'   0.41, 0.39, 0.09, 0.15, 65
 #' )
 #'
-#' debit_map_total_n(df, digits_x = 2, digits_sd = 2)
+#' debit_map_total_n(df, digits_x = 2, digits_sd = 2, data_type = "integer")
 #'
 #' df |>
-#'   debit_map_total_n(digits_x = 2, digits_sd = 2) |>
+#'   debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   audit_total_n()
 
 debit_map_total_n <- function_map_total_n(

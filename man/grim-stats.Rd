@@ -11,10 +11,11 @@ grim_exp_incon(
   n,
   digits_x,
   items_averaged,
-  data_type = "integer",
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
-  threshold = 5
+  threshold = 5,
+  percent = deprecated()
 )
 
 grim_total(
@@ -22,10 +23,11 @@ grim_total(
   n,
   digits_x,
   items_averaged,
-  data_type = "integer",
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
-  threshold = 5
+  threshold = 5,
+  percent = deprecated()
 )
 }
 \arguments{
@@ -43,9 +45,9 @@ keep them (\code{1.40} is \code{1.4}).}
 \code{digits_x}, it is recycled under the tidyverse rules: all four must have
 the same length, or length 1.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}, and recycled like \code{x}. Default
-is \code{"integer"}, since these functions describe the test on whole numbers.
-For \code{"continuous"}, they return 0, which is how \code{\link[=grim_map]{grim_map()}} uses them.}
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}, and recycled like \code{x}. No
+default. For \code{"continuous"} data, which GRIM can't find inconsistent,
+the result is 0.}
 
 \item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, which
 adds 2 to the decimal count, as in \code{\link[=grim]{grim()}}.}
@@ -58,6 +60,9 @@ wide. \code{"even"} and its synonym \code{"ties_even"} count a tie on either bou
 as consistent, like \code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round
 it the other way; see \code{\link[roundwork:unround]{roundwork::unround()}}.
 \code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
+
+\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
+use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 Double. \code{grim_exp_incon()} and \code{grim_total()} return \code{NA} where
@@ -83,12 +88,36 @@ See \code{vignette("grim-in-depth")}, section \emph{GRIM statistics}.
 }
 \examples{
 # Many value sets are inconsistent here:
-grim_exp_incon(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
-grim_total(x = 83.29, n = 21, digits_x = 2, items_averaged = 1)
+grim_exp_incon(
+  x = 83.29,
+  n = 21,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+grim_total(
+  x = 83.29,
+  n = 21,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
 # None are in this case...
-grim_exp_incon(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
-grim_total(x = 5.14, n = 120, digits_x = 2, items_averaged = 1)
+grim_exp_incon(
+  x = 5.14,
+  n = 120,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+grim_total(
+  x = 5.14,
+  n = 120,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
 # ...but most would be if `x` were a percentage:
 grim_exp_incon(
@@ -96,6 +125,7 @@ grim_exp_incon(
   n = 120,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   x_meaning = "percentage"
 )
 grim_total(
@@ -103,6 +133,7 @@ grim_total(
   n = 120,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   x_meaning = "percentage"
 )
 }

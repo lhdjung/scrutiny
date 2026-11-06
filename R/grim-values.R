@@ -237,6 +237,7 @@ grim_closest_scalar <- function(
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, as in
 #'   [`grim()`].
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
+#' @inheritParams grim
 #'
 #' @return
 #' - For `grim_values()`, a tibble with one row per achievable mean. `case` is
@@ -302,8 +303,12 @@ grim_values <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 ) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_values")
+  }
   map_value_sets(
     fn = grim_values_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),
@@ -323,8 +328,12 @@ grim_closest <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  percent = deprecated()
 ) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_closest")
+  }
   map_value_sets(
     fn = grim_closest_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),

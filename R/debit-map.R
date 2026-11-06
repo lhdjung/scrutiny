@@ -14,6 +14,8 @@
 #'   whole column or one number per row of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
+#' @param data_type String. As in [`debit()`]. Give it as an argument or as a
+#'   column of `data`; there is no default. It is returned as a column.
 #' @param show_rec Logical. If `TRUE`, the reconstructed values are returned
 #'   as further columns; see *Value*. Default is `FALSE`.
 #' @param formula,rounding,threshold,symmetric,sd_meaning Passed on to
@@ -27,6 +29,7 @@
 #'
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
+#' - `data_type`: the kind of data, as given.
 #' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`. `NA` for a case
 #'   that cannot be decided, such as one with a missing value.
@@ -67,16 +70,16 @@
 #' # The `consistency` column shows whether the
 #' # values to its left are DEBIT-consistent:
 #' pigs3 |>
-#'   debit_map(digits_x = 2, digits_sd = 2)
+#'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 #'
 #' # Get test summaries with `audit()`:
 #' pigs3 |>
-#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   audit()
 #'
 #' # Explain the results in plain words:
 #' pigs3 |>
-#'   debit_map(digits_x = 2, digits_sd = 2) |>
+#'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   explain_print(1:2)
 
 debit_map <- function_map(
@@ -84,6 +87,7 @@ debit_map <- function_map(
   .reported = c("x", "sd", "n"),
   .name_test = "DEBIT",
   .args_by_row = c("digits_x", "digits_sd"),
+  .cols_helper = "data_type",
   .col_names = c(
     "consistency",
     "sd_lower",
