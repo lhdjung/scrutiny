@@ -13,7 +13,7 @@ grim_plot_line(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  zoom = c("close", "wide"),
+  zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
   color_attainable = "grey75",
@@ -27,7 +27,8 @@ length 1.}
 
 \item{zoom}{String. How much of the row to show: \code{"close"} (the default)
 shows the values around \code{x}, so that the marker and the strip behind it
-stand out, and \code{"wide"} shows a whole unit. See \emph{Details}.}
+stand out, \code{"medium"} widens this to the nearest attainable value on
+either side, and \code{"wide"} shows a whole unit. See \emph{Details}.}
 
 \item{color_con, color_incon}{Strings. Color of the marker, the strip behind
 the squares, and the square at the reported value if it is consistent.
@@ -62,6 +63,10 @@ but no farther than the row with \code{zoom = "wide"} is wide. It does not
 widen further for the nearest one on the other side: attainable
 percentages in particular can be dozens of values apart, so the squares
 and the strip would shrink to specks.
+
+With \code{zoom = "medium"}, the row widens until the nearest attainable value
+other than \code{x} is in view on either side, whether \code{x} is consistent or
+not, which shows how far apart the attainable values are.
 
 Each attainable value is labeled below its square unless the squares are
 too close together for that, as they mostly are with \code{zoom = "wide"}. Then

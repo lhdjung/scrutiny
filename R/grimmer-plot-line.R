@@ -60,7 +60,7 @@ grimmer_plot_line <- function(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  zoom = c("close", "wide"),
+  zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
   color_attainable = "grey75"

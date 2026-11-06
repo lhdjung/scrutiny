@@ -83,7 +83,7 @@ COMB_TEETH_MAX <- 2e4
 COMB_ZOOM_STEPS <- 10L
 
 # The values of `zoom` in `grim_plot_line()` and `grimmer_plot_line()`:
-COMB_ZOOMS <- c("close", "wide")
+COMB_ZOOMS <- c("close", "medium", "wide")
 
 # The most digits in the integer or decimal part that `restore_zeros()` writes
 # out a number with an exponent to, such as `"1e-400"`, and the largest `width`

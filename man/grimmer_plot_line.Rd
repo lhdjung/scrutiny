@@ -15,7 +15,7 @@ grimmer_plot_line(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  zoom = c("close", "wide"),
+  zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
   color_attainable = "grey75"
@@ -27,7 +27,8 @@ must have length 1.}
 
 \item{zoom}{String. How much of the row to show: \code{"close"} (the default)
 shows the values around \code{x}, so that the marker and the strip behind it
-stand out, and \code{"wide"} shows a whole unit. See \emph{Details}.}
+stand out, \code{"medium"} widens this to the nearest attainable value on
+either side, and \code{"wide"} shows a whole unit. See \emph{Details}.}
 
 \item{color_con, color_incon}{Strings. Color of the marker, the strip behind
 the squares, and the square at the reported value if it is consistent.

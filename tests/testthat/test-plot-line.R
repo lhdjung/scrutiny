@@ -253,6 +253,12 @@ test_that("the zoomed window shows the reported value and its nearest attainable
   axis <- p |> ggplot2::layer_data(2L)
   (axis$xend - axis$x) |> expect_equal(40.3 * 1.06)
   0.3 |> grim_plot_line(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(0)
+  # `"medium"` reaches the nearest attainable value on either side, even for a
+  # consistent value, and three values beyond the farther one:
+  67.4 |> grim_plot_line(40, 1, 1, x_meaning = "percentage", zoom = "medium") |> squares() |> expect_equal(c(65.0, 67.5, 70.0))
+  67.5 |> grim_plot_line(40, 1, 1, x_meaning = "percentage", zoom = "medium") |> squares() |> expect_equal(c(65.0, 67.5, 70.0))
+  20   |> grim_plot_line(2, 1, 1, x_meaning = "percentage", zoom = "medium")   |> squares() |> expect_equal(c(0, 50))
+  5.23 |> grimmer_plot_line(2.55, 35, 2, 2, 1, zoom = "medium") |> squares() |> range() |> expect_equal(c(2.45, 2.65))
   # A consistent value keeps the 10 values to either side:
   5.19 |> grim_plot_line(26, 2, 1) |> squares() |> range() |> expect_equal(c(5.12, 5.27))
   # No more than the whole window with few decimal places:

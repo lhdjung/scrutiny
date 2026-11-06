@@ -270,14 +270,15 @@ comb_values <- function(from, to, digits, name) {
 
 
 # The values to draw, and which of them `test` admits: every value from `lower`
-# to `upper` under `zoom = "wide"` or, under `"close"`, the ones around
-# `reported`, so that it and the strip behind it stand out. The close window
-# reaches `COMB_ZOOM_STEPS` values to either side. If `reported` is
-# inconsistent, it doubles until the nearest attainable value is in view, and
-# then keeps three values beyond it. Only the nearest one: attainable
-# percentages can be dozens of values apart, and a window that reached the one
-# on the other side as well would shrink the squares and the strip to specks.
-# It reaches no farther to either side than the full window is wide, and holds
+# to `upper` under `zoom = "wide"` or, otherwise, the ones around `reported`,
+# so that it and the strip behind it stand out. These reach `COMB_ZOOM_STEPS`
+# values to either side. Under `"close"`, if `reported` is inconsistent, the
+# window doubles until the nearest attainable value is in view, and then keeps
+# three values beyond it. Only the nearest one: attainable percentages can be
+# dozens of values apart, and a window that reached the one on the other side
+# as well would shrink the squares and the strip to specks. Under `"medium"`,
+# it does reach the nearest attainable value other than `reported` on either
+# side, to show how far apart they are. It reaches no farther to either side than the full window is wide, and holds
 # no values outside of `limits`, the ones that can be reported at all, nor more
 # than `COMB_TEETH_MAX`.
 comb_window <- function(
@@ -302,6 +303,7 @@ comb_window <- function(
     (COMB_TEETH_MAX - 1) %/% 2
   )
   steps <- min(COMB_ZOOM_STEPS, steps_max)
+  is_medium <- zoom == "medium"
 
   repeat {
     values <- comb_values(
@@ -313,18 +315,37 @@ comb_window <- function(
     possible <- test(values)
     index_reported <- which.min(abs(values - reported))
     index_possible <- which(possible)
-    # With both ends at a limit, there is nothing more to show:
-    is_full <- values[1L] - step < limits[1L] &&
+    others <- index_possible[index_possible != index_reported]
+    left <- others[others < index_reported]
+    right <- others[others > index_reported]
+    # A side that ends at a limit has nothing more to show:
+    seen_left <- length(left) > 0L || values[1L] - step < limits[1L]
+    seen_right <- length(right) > 0L ||
       values[length(values)] + step > limits[2L]
-    is_found <- length(index_possible) > 0L
-    if (consistent || is_found || is_full || steps >= steps_max) {
+    is_done <- if (is_medium) {
+      seen_left && seen_right
+    } else {
+      consistent || length(others) > 0L || (seen_left && seen_right)
+    }
+    if (is_done || steps >= steps_max) {
       break
     }
     steps <- min(2 * steps, steps_max)
   }
 
-  if (!consistent) {
-    reach <- if (is_found) min(abs(index_possible - index_reported)) else 0L
+  if (is_medium || !consistent) {
+    reaches <- c(
+      index_reported - left[length(left)],
+      right[1L] - index_reported
+    )
+    reaches <- reaches[!is.na(reaches)]
+    reach <- if (length(reaches) == 0L) {
+      0L
+    } else if (is_medium) {
+      max(reaches)
+    } else {
+      min(reaches)
+    }
     steps <- min(steps, max(min(COMB_ZOOM_STEPS, steps_max), reach + 3L))
   }
   keep <- abs(seq_along(values) - index_reported) <= steps
@@ -398,7 +419,8 @@ check_comb_value <- function(value, digits, name) {
 #'   length 1.
 #' @param zoom String. How much of the row to show: `"close"` (the default)
 #'   shows the values around `x`, so that the marker and the strip behind it
-#'   stand out, and `"wide"` shows a whole unit. See *Details*.
+#'   stand out, `"medium"` widens this to the nearest attainable value on
+#'   either side, and `"wide"` shows a whole unit. See *Details*.
 #' @param color_con,color_incon Strings. Color of the marker, the strip behind
 #'   the squares, and the square at the reported value if it is consistent.
 #'   `color_con` applies if the value is consistent, `color_incon` if not.
@@ -412,6 +434,10 @@ check_comb_value <- function(value, digits, name) {
 #'   widen further for the nearest one on the other side: attainable
 #'   percentages in particular can be dozens of values apart, so the squares
 #'   and the strip would shrink to specks.
+#'
+#'   With `zoom = "medium"`, the row widens until the nearest attainable value
+#'   other than `x` is in view on either side, whether `x` is consistent or
+#'   not, which shows how far apart the attainable values are.
 #'
 #'   Each attainable value is labeled below its square unless the squares are
 #'   too close together for that, as they mostly are with `zoom = "wide"`. Then
@@ -466,7 +492,7 @@ grim_plot_line <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  zoom = c("close", "wide"),
+  zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
   color_attainable = "grey75",
