@@ -227,3 +227,13 @@ test_that("the flags must be `TRUE` or `FALSE`", {
   data |> debit_plot(show_full_scale = "yes") |> expect_error("`show_full_scale` must be `TRUE` or `FALSE`")
   data |> debit_plot(show_theme_other = NA)   |> expect_error("`show_theme_other` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("a dropped `data_type` column is named as such", {
+  # The re-test asked for a `data_type` argument, which `debit_plot()` lacks:
+  pigs3 |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+    dplyr::select(-data_type) |>
+    debit_plot() |>
+    expect_error("lacks columns that `debit_plot\\(\\)` needs")
+})

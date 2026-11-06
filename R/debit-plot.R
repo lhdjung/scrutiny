@@ -133,7 +133,10 @@ debit_plot <- function(
   # reconstructed here under the settings it recorded:
   cols_rec <- setdiff(cols_needed, c("x", "sd", "n", "consistency"))
   if (!all(cols_rec %in% colnames(data))) {
-    check_cols_needed(data, c("x", "sd", "n", "digits_x", "digits_sd"))
+    check_cols_needed(
+      data,
+      c("x", "sd", "n", "digits_x", "digits_sd", "data_type")
+    )
     args <- scrutiny_args(data)
     args$show_rec <- TRUE
     rec <- do.call(
