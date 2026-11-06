@@ -244,3 +244,14 @@ test_that("`from` with more decimal places than a double scales to is an error",
   # Its step underflowed to 0, and a base R error followed:
   "1e-400" |> seq_disperse() |> expect_error("too many decimal places")
 })
+
+
+test_that("floating-point noise in `from` or a limit doesn't drop a value", {
+  # `from` was compared and returned as given, so `0.1 + 0.2` was above an
+  # `out_max` of 0.3:
+  seq_disperse(0.1 + 0.2, out_max = 0.3)   |> expect_equal(c(0.1, 0.2, 0.3))
+  seq_disperse(3 * 1.1, out_max = 3.3)     |> expect_equal(seq_disperse("3.3", out_max = 3.3))
+  seq_disperse(100 * 0.57, out_min = 57)   |> expect_equal(57:62)
+  seq_disperse(0.1 + 0.2)[3]               |> expect_identical(0.3)
+  seq_disperse(0.5, out_min = 0.1 + 0.2, dispersion = 1:3) |> expect_equal(c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8))
+})

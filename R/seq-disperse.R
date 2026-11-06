@@ -178,7 +178,9 @@ seq_disperse <- function(
         "x" = msg_is
       )
     }
-    limit_num
+    # Without the noise of a computed limit, which would rule out the value it
+    # was meant to be: `0.1 + 0.2` is above 0.3.
+    signif(limit_num, 15L)
   }
 
   if (identical(out_min, "auto")) {
@@ -192,10 +194,10 @@ seq_disperse <- function(
   }
 
   # The offset moves the point the sequence is built around, so it has to be
-  # applied before the values are compared to the limits:
-  if (offset_from != 0L) {
-    from <- round(from + (by * offset_from), digits_out)
-  }
+  # applied before the values are compared to the limits. Rounded even without
+  # an offset: `0.1 + 0.2` is accepted as 0.3, so it is compared and returned
+  # as 0.3, like the values around it.
+  from <- round(from + (by * offset_from), digits_out)
 
   # From 2^52 units of the last decimal place on, a double's spacing passes a
   # unit, so steps would collapse into one, and values would leave the decimal
