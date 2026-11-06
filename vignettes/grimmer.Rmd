@@ -38,6 +38,8 @@ grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged 
 
 `digits_x` and `digits_sd` are the numbers of decimal places of the reported mean and SD. As in `grim()`, they must be given because numeric values lose trailing zeros.
 
+The SD is taken to be a sample SD, which divides by $n - 1$ (`sd_meaning = "sd_sample"`). That is what nearly all software reports by default: R, SPSS, Stata, SAS, Excel, and pandas. NumPy's `np.std()` is the main exception and reports the population SD, which divides by $n$. If the data may have been analyzed with it, set `sd_meaning = "sd_pop"`; see `vignette("grimmer-in-depth")`.
+
 ### Many cases: `grimmer_map()`
 
 Enter the reported values into a data frame and call `grimmer_map()` on it:

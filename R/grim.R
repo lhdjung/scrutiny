@@ -163,8 +163,9 @@ grim_scalar <- function(
 #' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
 #'   100 and the decimal count is increased by 2. Default is `FALSE`.
 #' @param rounding String. The rounding method assumed to have produced `x`.
-#'   Default is `"up_or_down"`, which accepts either direction. The others are
-#'   `"up_from_or_down_from"`, `"ceiling_or_floor"`, `"up"`, `"down"`, `"even"`,
+#'   Default is `"up_or_down"`, which accepts either direction; see
+#'   *Defaults* in [`grim()`]. The others are `"up_from_or_down_from"`,
+#'   `"ceiling_or_floor"`, `"up"`, `"down"`, `"even"`,
 #'   `"up_from"`, `"down_from"`, `"ceiling"`, `"floor"`, `"trunc"`,
 #'   `"anti_trunc"`, `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`,
 #'   and `"ties_even"`. See
@@ -178,6 +179,17 @@ grim_scalar <- function(
 #'   `"*_from"` methods. Default is `FALSE`. Must not be given with a
 #'   `"ties_*"` rounding method, which already fixes the direction; see
 #'   [`roundwork::reround()`].
+#'
+#' @section Defaults: The defaults are meant to flag a value set only if it is
+#'   inconsistent under every usual convention:
+#'
+#'   - `rounding = "up_or_down"`: Reports rarely say how they rounded, and the
+#'   common methods only disagree on ties. SPSS and Excel round a 5 away from
+#'   zero, while R's `round()` and Python's `round()` round it to an even
+#'   digit. The default accepts a tie rounded either way, so a value set that
+#'   fails is inconsistent under all of them. Choose another method only if
+#'   you know which one was used. `threshold` and `symmetric` do not affect
+#'   it.
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is

@@ -29,7 +29,8 @@ debit(
 value does not keep them (\code{1.40} is \code{1.4}).}
 
 \item{formula}{String. \code{"exact"} (the default) only considers means that
-\code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}.
+\code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is
+the default because no other mean is possible.
 \code{"mean_n"} treats the mean as continuous, as in Heathers and Brown
 (2019), and accepts some SDs that no binary sample of size \code{n} can have:
 \code{debit(0.05, 0.21, 20, 2, 2)} is \code{TRUE} under \code{"mean_n"}, although a mean
@@ -43,7 +44,8 @@ and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} f
 \item{sd_meaning}{String. What \code{sd} really is: the sample SD,
 \code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
 \code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
-\code{\link[=grimmer]{grimmer()}}, where the section \emph{SD meaning} has details.}
+\code{\link[=grimmer]{grimmer()}}, whose sections \emph{Defaults} and \emph{SD meaning} say why the
+sample SD is the default and when to choose another.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if

@@ -27,8 +27,9 @@ is said to be, e.g., \code{33.3}.}
 numeric value does not keep them (\code{1.40} is \code{1.4}).}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
-Default is \code{"up_or_down"}, which accepts either direction. The others are
-\code{"up_from_or_down_from"}, \code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
+Default is \code{"up_or_down"}, which accepts either direction; see
+\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
+\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
 \code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
 \code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
 and \code{"ties_even"}. See

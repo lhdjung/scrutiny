@@ -36,7 +36,7 @@ these values, if they differ from the defaults.}
 named in full.}
 
 \item{formula, rounding, threshold, symmetric, sd_meaning}{Passed on to
-\code{\link[=debit]{debit()}}.}
+\code{\link[=debit]{debit()}}, which explains the defaults.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
 as further columns; see \emph{Value}. Default is \code{FALSE}.}

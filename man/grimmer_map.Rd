@@ -37,7 +37,7 @@ named in full.}
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
-\code{\link[=grimmer]{grimmer()}}.}
+\code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
 }
 \value{
 A tibble with these columns:

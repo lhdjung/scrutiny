@@ -622,14 +622,25 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
 #' @param sd_meaning String. What `sd` really is. `"sd_sample"` (the
-#'   default) is the sample SD, which divides by `n - 1`, as in R, SPSS, Stata,
-#'   or Excel's `STDEV.S`. `"sd_pop"` is the population SD, which divides by
-#'   `n`, as in NumPy's `np.std()` or Excel's `STDEV.P`. `"sd_sample_or_pop"`
+#'   default; see *Defaults* in [`grimmer()`]) is the sample SD, which
+#'   divides by `n - 1`, as in R, SPSS, Stata, or Excel's `STDEV.S`.
+#'   `"sd_pop"` is the population SD, which divides by `n`, as in NumPy's
+#'   `np.std()` or Excel's `STDEV.P`. `"sd_sample_or_pop"`
 #'   accepts a value set that is consistent as one or the other. `"se"` is the
 #'   standard error of the mean, the sample SD divided by `sqrt(n)`, reported as
 #'   if it were an SD. See *SD meaning*.
 #'
 #' @inheritParams grim
+#'
+#' @section Defaults: `sd_meaning = "sd_sample"` because the sample SD is what
+#'   nearly all software reports by default: R's `sd()`, SPSS, Stata, SAS,
+#'   Excel's `STDEV()` and `STDEV.S()`, and pandas' `.std()`. The main
+#'   exception is NumPy, whose `np.std()` returns the population SD unless
+#'   `ddof = 1` is given; so does Python's `statistics.pstdev()`. If the data
+#'   may have been analyzed that way, or a value set fails only at a small
+#'   `n`, test it under `"sd_pop"` as well. See *SD meaning*.
+#'
+#'   The rounding defaults are explained in [`grim()`].
 #'
 #' @section SD meaning: The sample and population SDs differ by a factor of
 #'   `sqrt(n / (n - 1))`, which matters most at small `n`, where GRIMMER is

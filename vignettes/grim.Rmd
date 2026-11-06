@@ -41,6 +41,8 @@ grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
 
 `items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below. Neither argument has a default, since the result depends on both.
 
+By default, `grim()` accepts a mean whether a tie was rounded up or down (`rounding = "up_or_down"`). Reports rarely say how they rounded, and the common methods only disagree on ties: SPSS and Excel round a 5 away from zero, R and Python round it to an even digit. A mean that fails under the default is inconsistent under all of them. See *Defaults* in `?grim`.
+
 `grim()` is vectorized, but for more than a few cases, `grim_map()` is more convenient.
 
 ### Many cases: `grim_map()`

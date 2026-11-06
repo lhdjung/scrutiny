@@ -17,7 +17,7 @@
 #' @param show_rec Logical. If `TRUE`, the reconstructed values are returned
 #'   as further columns; see *Value*. Default is `FALSE`.
 #' @param formula,rounding,threshold,symmetric,sd_meaning Passed on to
-#'   [`debit()`].
+#'   [`debit()`], which explains the defaults.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #'

@@ -38,7 +38,8 @@ and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} f
 \item{sd_meaning}{String. What \code{sd} really is: the sample SD,
 \code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
 \code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
-\code{\link[=grimmer]{grimmer()}}, where the section \emph{SD meaning} has details.}
+\code{\link[=grimmer]{grimmer()}}, whose sections \emph{Defaults} and \emph{SD meaning} say why the
+sample SD is the default and when to choose another.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the result as

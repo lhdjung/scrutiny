@@ -34,8 +34,9 @@ No default.}
 100 and the decimal count is increased by 2. Default is \code{FALSE}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
-Default is \code{"up_or_down"}, which accepts either direction. The others are
-\code{"up_from_or_down_from"}, \code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
+Default is \code{"up_or_down"}, which accepts either direction; see
+\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
+\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
 \code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
 \code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
 and \code{"ties_even"}. See
@@ -87,6 +88,20 @@ guess. \code{x} with its \code{digits_x} may have about 15 significant digits:
 \code{(x * 10^(digits_x + 1) + 10) * n * items_averaged} below 2^53, about
 9e15. A \code{threshold} with decimal places raises the power of ten.
 }
+\section{Defaults}{
+ The defaults are meant to flag a value set only if it is
+inconsistent under every usual convention:
+\itemize{
+\item \code{rounding = "up_or_down"}: Reports rarely say how they rounded, and the
+common methods only disagree on ties. SPSS and Excel round a 5 away from
+zero, while R's \code{round()} and Python's \code{round()} round it to an even
+digit. The default accepts a tie rounded either way, so a value set that
+fails is inconsistent under all of them. Choose another method only if
+you know which one was used. \code{threshold} and \code{symmetric} do not affect
+it.
+}
+}
+
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
 grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)

@@ -672,7 +672,8 @@ debit_scalar <- function(
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`).
 #' @param formula String. `"exact"` (the default) only considers means that
-#'   `n` binary values can have, i.e., `k / n` for a whole number `k`.
+#'   `n` binary values can have, i.e., `k / n` for a whole number `k`. It is
+#'   the default because no other mean is possible.
 #'   `"mean_n"` treats the mean as continuous, as in Heathers and Brown
 #'   (2019), and accepts some SDs that no binary sample of size `n` can have:
 #'   `debit(0.05, 0.21, 20, 2, 2)` is `TRUE` under `"mean_n"`, although a mean
@@ -683,7 +684,8 @@ debit_scalar <- function(
 #' @param sd_meaning String. What `sd` really is: the sample SD,
 #'   `"sd_sample"` (the default); the population SD, `"sd_pop"`; either one,
 #'   `"sd_sample_or_pop"`; or the standard error of the mean, `"se"`. As in
-#'   [`grimmer()`], where the section *SD meaning* has details.
+#'   [`grimmer()`], whose sections *Defaults* and *SD meaning* say why the
+#'   sample SD is the default and when to choose another.
 #'
 #' @export
 #'

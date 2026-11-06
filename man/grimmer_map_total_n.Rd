@@ -49,7 +49,7 @@ averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
-\code{\link[=grimmer]{grimmer()}}.}
+\code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

@@ -36,8 +36,9 @@ keep them (\code{1.40} is \code{1.4}).}
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
-Default is \code{"up_or_down"}, which accepts either direction. The others are
-\code{"up_from_or_down_from"}, \code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
+Default is \code{"up_or_down"}, which accepts either direction; see
+\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
+\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
 \code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
 \code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
 and \code{"ties_even"}. See
@@ -55,9 +56,10 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 
 \item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
-default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
-or Excel's \code{STDEV.S}. \code{"sd_pop"} is the population SD, which divides by
-\code{n}, as in NumPy's \code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+default; see \emph{Defaults} in \code{\link[=grimmer]{grimmer()}}) is the sample SD, which
+divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S}.
+\code{"sd_pop"} is the population SD, which divides by \code{n}, as in NumPy's
+\code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
 accepts a value set that is consistent as one or the other. \code{"se"} is the
 standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
 if it were an SD. See \emph{SD meaning}.}
@@ -111,6 +113,18 @@ occur in practice: an SD of about 3e5 or more for \code{n} from 2 to 4
 that leaves more than a million candidate sums to test, which takes an
 \code{n} of more than a million.
 }
+\section{Defaults}{
+ \code{sd_meaning = "sd_sample"} because the sample SD is what
+nearly all software reports by default: R's \code{sd()}, SPSS, Stata, SAS,
+Excel's \code{STDEV()} and \code{STDEV.S()}, and pandas' \code{.std()}. The main
+exception is NumPy, whose \code{np.std()} returns the population SD unless
+\code{ddof = 1} is given; so does Python's \code{statistics.pstdev()}. If the data
+may have been analyzed that way, or a value set fails only at a small
+\code{n}, test it under \code{"sd_pop"} as well. See \emph{SD meaning}.
+
+The rounding defaults are explained in \code{\link[=grim]{grim()}}.
+}
+
 \section{SD meaning}{
  The sample and population SDs differ by a factor of
 \code{sqrt(n / (n - 1))}, which matters most at small \code{n}, where GRIMMER is

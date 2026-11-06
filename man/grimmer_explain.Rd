@@ -35,8 +35,9 @@ keep them (\code{1.40} is \code{1.4}).}
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
-Default is \code{"up_or_down"}, which accepts either direction. The others are
-\code{"up_from_or_down_from"}, \code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
+Default is \code{"up_or_down"}, which accepts either direction; see
+\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
+\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
 \code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
 \code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
 and \code{"ties_even"}. See
@@ -54,9 +55,10 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 
 \item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
-default) is the sample SD, which divides by \code{n - 1}, as in R, SPSS, Stata,
-or Excel's \code{STDEV.S}. \code{"sd_pop"} is the population SD, which divides by
-\code{n}, as in NumPy's \code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+default; see \emph{Defaults} in \code{\link[=grimmer]{grimmer()}}) is the sample SD, which
+divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S}.
+\code{"sd_pop"} is the population SD, which divides by \code{n}, as in NumPy's
+\code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
 accepts a value set that is consistent as one or the other. \code{"se"} is the
 standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
 if it were an SD. See \emph{SD meaning}.}

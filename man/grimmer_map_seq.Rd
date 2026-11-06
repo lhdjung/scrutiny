@@ -44,7 +44,7 @@ averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
-\code{\link[=grimmer]{grimmer()}}.}
+\code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
 
 \item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}
