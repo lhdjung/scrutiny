@@ -127,3 +127,35 @@ test_that("the missing-`digits_sd` example is a working call", {
     expect_error("digits_sd = 2, digits_x = 2", fixed = TRUE) |>
     suppressMessages()
 })
+
+
+# The example lacked `data_type`, which has no default, so following it led
+# straight to the next error.
+test_that("the example call in the error runs as it is", {
+  example_call <- function(expr) {
+    msg <- expr |> msg_error() |> gsub(pattern = "\\s+", replacement = " ")
+    msg |>
+      regmatches(regexpr("`[a-z_]+\\(.*?\\)`(?= )", msg, perl = TRUE)) |>
+      gsub(pattern = "`", replacement = "")
+  }
+  runs <- function(code) {
+    parse(text = code) |> eval() |> expect_no_error()
+  }
+
+  4.11       |> grim(40)                              |> example_call() |> runs()
+  5.23       |> grimmer(2.55, 35, digits_sd = 2)      |> example_call() |> runs()
+  5.23       |> grimmer(2.55, 35, digits_x = 2)       |> example_call() |> runs()
+  0.35       |> debit(0.18, 20)                       |> example_call() |> runs()
+  1.5        |> grim_total(28)                        |> example_call() |> runs()
+  1.5        |> grim_exp_incon(28)                    |> example_call() |> runs()
+  df_grim    |> grim_map()                            |> example_call() |> runs()
+  df_grimmer |> grimmer_map()                         |> example_call() |> runs()
+  df_debit   |> debit_map()                           |> example_call() |> runs()
+  df_grim    |> grim_map_seq()                        |> example_call() |> runs()
+  df_grimmer |> grimmer_map_seq()                     |> example_call() |> runs()
+  df_debit   |> debit_map_seq()                       |> example_call() |> runs()
+
+  # Functions without `data_type` don't get it:
+  5.19 |> grim_values(28, items_averaged = 1) |> example_call() |> expect_no_match("data_type")
+  5.19 |> grim_values(28, items_averaged = 1) |> example_call() |> runs()
+})

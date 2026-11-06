@@ -760,6 +760,13 @@ error_digits_missing <- function(x) {
   # GRIM and GRIMMER functions need `items_averaged` as well:
   part_items <- if (grepl("grim", name_fn)) ", items_averaged = 1"
 
+  # ...and every function that takes `data_type` needs that, so that the
+  # example runs as it is:
+  fn_called <- get0(name_fn, mode = "function")
+  part_data_type <- if (any(names(formals(fn_called)) == "data_type")) {
+    ", data_type = \"integer\""
+  }
+
   # In case the key argument is still a string, tell the user this changed
   msg_key_arg <- if (is.character(x)) {
     paste0(", so please specify `", name_x, "` as a number, not a string")
@@ -790,7 +797,7 @@ error_digits_missing <- function(x) {
       decimal places in `{name_x}`.",
     "i" = "For example, with {example_x[1]} (two decimal places): \
       `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
-      {name_digits_arg} = 2{part_digits_sd}{part_items})`",
+      {name_digits_arg} = 2{part_digits_sd}{part_items}{part_data_type})`",
     msg_history,
     "i" = "For more information, visit \\
       {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
