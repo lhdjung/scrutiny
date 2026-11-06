@@ -253,8 +253,10 @@ test_that("the value sets' colors come from a scale that another one replaces", 
   p_new |> tiles() |> call_on(\(t) t$fill)   |> expect_equal(c("orange", "darkgreen"))
   p_new |> tiles() |> call_on(\(t) t$colour) |> expect_equal(c("orange", "darkgreen"))
 
-  # The raster's fill is set, not mapped, so the scale leaves it alone:
-  p_new |> ggplot2::ggplot_build() |> purrr::pluck("data", 1L, "fill") |> unique() |> expect_equal("grey75")
+  # The raster's fill is set, not mapped, so the scale leaves it alone. Its
+  # tiles are the inconsistent cells, in white on the grey of the consistent:
+  p_new |> ggplot2::ggplot_build() |> purrr::pluck("data", 1L, "fill") |> unique() |> expect_equal("white")
+  p_new$theme$panel.background$fill |> expect_equal("grey75")
 })
 
 test_that("`grim_plot_grid()` names the columns it lacks", {

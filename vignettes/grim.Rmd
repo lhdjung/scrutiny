@@ -181,7 +181,7 @@ many_means |>
   grim_plot_grid()
 ```
 
-Each value set is plotted at its sample size (x-axis) and the fractional part of its mean (y-axis), in teal if consistent and rust if not. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (light) or not (dark). It depends on the number of decimal places, which `grim_plot_grid()` reads from the `digits_x` column, and on the rounding method, which the mapper recorded in its output:
+Each value set is plotted at its sample size (x-axis) and the fractional part of its mean (y-axis), in teal if consistent and rust if not. The background raster shows, for every combination of sample size and fractional part, whether it is GRIM-consistent (grey) or not (white). It depends on the number of decimal places, which `grim_plot_grid()` reads from the `digits_x` column, and on the rounding method, which the mapper recorded in its output:
 
 ```{r, fig.width=6, fig.height=5.5}
 many_means |>
@@ -189,7 +189,7 @@ many_means |>
   grim_plot_grid()
 ```
 
-In the first plot, the light vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. With three or more decimal places, a gradient is shown instead of a raster.
+In the first plot, the grey vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. With three or more decimal places, a gradient is shown instead of a raster.
 
 `grim_plot_grid()` takes the output of any GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 

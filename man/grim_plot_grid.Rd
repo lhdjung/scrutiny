@@ -49,8 +49,9 @@ same as in \code{\link[=grim]{grim()}} otherwise. Defaults are \code{"up_or_down
 \item{tile_size}{Numeric. Size of the tiles for value sets. Default is
 \code{1.5}.}
 
-\item{raster_color}{String. Color of the raster, and of the gradient that
-replaces it with three or more decimal places. Default is \code{"grey75"}.}
+\item{raster_color}{String. Color of the consistent cells of the raster, and
+of the consistent end of the gradient that replaces it with three or more
+decimal places. Default is \code{"grey75"}.}
 }
 \value{
 A ggplot object. With \code{split_by_digits = TRUE}, a named list of
@@ -67,11 +68,12 @@ all.
 }
 \section{Background raster}{
  For one or two decimal places, the raster
-marks every combination of sample size and fractional part that is
-inconsistent with a dark tile. It depends on the number of decimal places,
-which is read from the \code{digits_x} column of \code{data}, and on the rounding
-method, which is read from the \code{grim_map()} call. The tiles are the cells
-of \code{\link[=grim_grid]{grim_grid()}} whose \code{consistency} is \code{FALSE}. With three or more
+shows every combination of sample size and fractional part that is
+GRIM-consistent in grey and every inconsistent one in white. It depends
+on the number of decimal places, which is read from the \code{digits_x} column
+of \code{data}, and on the rounding method, which is read from the
+\code{grim_map()} call. The white tiles are the cells of \code{\link[=grim_grid]{grim_grid()}} whose
+\code{consistency} is \code{FALSE}. With three or more
 decimal places, they would be too small, so a gradient shows the
 probability of inconsistency instead.
 

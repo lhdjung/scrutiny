@@ -7,11 +7,12 @@
 #'   all.
 #'
 #' @section Background raster: For one or two decimal places, the raster
-#'   marks every combination of sample size and fractional part that is
-#'   inconsistent with a dark tile. It depends on the number of decimal places,
-#'   which is read from the `digits_x` column of `data`, and on the rounding
-#'   method, which is read from the `grim_map()` call. The tiles are the cells
-#'   of [`grim_grid()`] whose `consistency` is `FALSE`. With three or more
+#'   shows every combination of sample size and fractional part that is
+#'   GRIM-consistent in grey and every inconsistent one in white. It depends
+#'   on the number of decimal places, which is read from the `digits_x` column
+#'   of `data`, and on the rounding method, which is read from the
+#'   `grim_map()` call. The white tiles are the cells of [`grim_grid()`] whose
+#'   `consistency` is `FALSE`. With three or more
 #'   decimal places, they would be too small, so a gradient shows the
 #'   probability of inconsistency instead.
 #'
@@ -60,8 +61,9 @@
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
-#' @param raster_color String. Color of the raster, and of the gradient that
-#'   replaces it with three or more decimal places. Default is `"grey75"`.
+#' @param raster_color String. Color of the consistent cells of the raster, and
+#'   of the consistent end of the gradient that replaces it with three or more
+#'   decimal places. Default is `"grey75"`.
 #'
 #' @include utils.R
 #'
@@ -482,17 +484,21 @@ grim_plot_grid <- function(
           x = .data$n,
           y = .data$frac
         ),
-        fill = raster_color
+        fill = "white"
       ) +
+      # The panel is the consistent cells, so only inconsistent ones are drawn:
       ggplot2::theme(
         panel.border = ggplot2::element_rect(fill = NA, colour = "grey50"),
-        panel.background = ggplot2::element_rect(fill = "white", colour = NA),
+        panel.background = ggplot2::element_rect(
+          fill = raster_color,
+          colour = NA
+        ),
         panel.grid = ggplot2::element_blank()
       )
     if (digits > 2L) {
       if (show_gradient) {
         gradient <-
-          grDevices::colorRampPalette(c(raster_color, "white"))(10000)
+          grDevices::colorRampPalette(c("white", raster_color))(10000)
         grob_gradient <- gradient |>
           t() |>
           grid::rasterGrob(
