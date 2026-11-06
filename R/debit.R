@@ -580,8 +580,9 @@ debit_scalar <- function(
 
   # A value with its decimal places missing has at least those it shows, and a
   # value set that is inconsistent with these is inconsistent with more; see
-  # `digits_least()`. Otherwise, the value is as good as missing, as below. An
-  # error is about a size that the test refuses, which leaves the case open:
+  # `digits_least()`. Otherwise, the value is as good as missing, as below,
+  # unless the value set passes even with the most. An error is about a size
+  # that the test refuses, which leaves the case open:
   digits_x_least <- digits_least(x, digits_x)
   digits_sd_least <- digits_least(sd, digits_sd)
   if (
@@ -606,6 +607,42 @@ debit_scalar <- function(
     )
     if (isFALSE(at_least)) {
       return(debit_result(FALSE, show_rec))
+    }
+    # ...and a value set that is consistent with so many that only the values
+    # shown pass is consistent with any; see `digits_exact_mean()`. Not under
+    # `"mean_n"`, which has no data behind the SD to be exact about:
+    if (
+      isTRUE(at_least) &&
+        formula == "exact" &&
+        is_decidable_n_items(n, min_n = sd_min_n(sd_meaning))
+    ) {
+      at_most <- tryCatch(
+        debit_scalar(
+          x = x,
+          sd = sd,
+          n = n,
+          digits_x = if (is.na(digits_x) && !is.na(digits_x_least)) {
+            digits_exact_mean(digits_x_least, as.numeric(n))
+          } else {
+            digits_x
+          },
+          digits_sd = if (is.na(digits_sd) && !is.na(digits_sd_least)) {
+            digits_exact_sd(sd, digits_sd_least, as.numeric(n), 1, sd_meaning)
+          } else {
+            digits_sd
+          },
+          data_type = "integer",
+          formula = formula,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric,
+          sd_meaning = sd_meaning
+        ),
+        error = function(cnd) NA
+      )
+      if (isTRUE(at_most)) {
+        return(debit_result(TRUE, show_rec))
+      }
     }
   }
 

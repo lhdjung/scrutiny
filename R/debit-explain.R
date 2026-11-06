@@ -122,6 +122,45 @@ debit_explain <- function(
     ))
   }
 
+  # Consistent although a decimal count is missing: see `digits_exact_mean()`.
+  if (
+    identical(data_type, "integer") &&
+      isTRUE(consistency) &&
+      formula == "exact" &&
+      length(digits_missing) > 0L
+  ) {
+    return(explain_digits_most(
+      debit_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = if ("digits_x" %in% digits_missing) {
+          digits_exact_mean(digits_least(x, digits_x), as.numeric(n))
+        } else {
+          digits_x
+        },
+        digits_sd = if ("digits_sd" %in% digits_missing) {
+          digits_exact_sd(
+            sd,
+            digits_least(sd, digits_sd),
+            as.numeric(n),
+            1,
+            sd_meaning
+          )
+        } else {
+          digits_sd
+        },
+        data_type = "integer",
+        formula = formula,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      digits_missing
+    ))
+  }
+
   if (!identical(data_type, "integer")) {
     explain_integer <- function(fill = FALSE) {
       debit_explain(

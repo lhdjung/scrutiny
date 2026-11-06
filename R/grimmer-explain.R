@@ -120,6 +120,47 @@ grimmer_explain <- function(
     ))
   }
 
+  # Consistent although a decimal count is missing: see `digits_exact_mean()`.
+  if (
+    identical(data_type, "integer") &&
+      isTRUE(consistency) &&
+      length(digits_missing) > 0L
+  ) {
+    return(explain_digits_most(
+      grimmer_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = if ("digits_x" %in% digits_missing) {
+          digits_exact_mean(
+            digits_least(x, digits_x),
+            as.numeric(n) * items_averaged
+          )
+        } else {
+          digits_x
+        },
+        digits_sd = if ("digits_sd" %in% digits_missing) {
+          digits_exact_sd(
+            sd,
+            digits_least(sd, digits_sd),
+            as.numeric(n),
+            items_averaged,
+            sd_meaning
+          )
+        } else {
+          digits_sd
+        },
+        items_averaged = items_averaged,
+        data_type = "integer",
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      digits_missing
+    ))
+  }
+
   if (!identical(data_type, "integer")) {
     explain_integer <- function(fill = FALSE) {
       grimmer_explain(

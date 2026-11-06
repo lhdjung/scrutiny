@@ -121,6 +121,32 @@ grim_explain <- function(
     ))
   }
 
+  # Consistent although `digits_x` is missing: see `digits_exact_mean()`.
+  if (
+    identical(data_type, "integer") &&
+      isTRUE(consistency) &&
+      is.na(digits_x) &&
+      !is.na(digits_least(x, digits_x))
+  ) {
+    return(explain_digits_most(
+      grim_explain(
+        x = x,
+        n = n,
+        digits_x = digits_exact_mean(
+          digits_least(x, digits_x),
+          as.numeric(n) * items_averaged
+        ),
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      ),
+      "digits_x"
+    ))
+  }
+
   if (!identical(data_type, "integer")) {
     explain_integer <- function(fill = FALSE) {
       grim_explain(
@@ -675,6 +701,25 @@ explain_digits_least <- function(explanation, missing) {
       "would only narrow the range of numbers that are rounded to it, so a ",
       "value set that is inconsistent here is inconsistent whatever the ",
       "number of decimal places."
+    ),
+    explanation$paragraphs
+  )
+  explanation
+}
+
+
+# The same for a value set that is consistent whatever its missing decimal
+# count: `explanation` is the one with so many decimal places that only the
+# value shown passes; see `digits_exact_mean()`.
+explain_digits_most <- function(explanation, missing) {
+  explanation$paragraphs <- c(
+    paste0(
+      paste(missing, collapse = " and "),
+      if (length(missing) == 1L) " is" else " are",
+      " missing, so the test below takes so many decimal places that only ",
+      "the value shown itself passes. Fewer decimal places would only widen ",
+      "the range of numbers that are rounded to it, so a value set that is ",
+      "consistent here is consistent whatever the number of decimal places."
     ),
     explanation$paragraphs
   )

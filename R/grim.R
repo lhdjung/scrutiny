@@ -78,8 +78,9 @@ grim_scalar <- function(
       !is.finite(x) ||
       is.na(digits_x)
   ) {
-    # Unless only `digits_x` is missing and `x` is inconsistent even with the
-    # fewest decimal places it can have; see `digits_least()`. An error there
+    # Unless only `digits_x` is missing and the number of decimal places
+    # doesn't matter: `x` is inconsistent even with the fewest it can have
+    # (see `digits_least()`), or consistent even with the most. An error there
     # is about a size that the test refuses, which leaves the case open:
     consistency <- NA
     digits_x_least <- digits_least(x, digits_x)
@@ -104,6 +105,30 @@ grim_scalar <- function(
       )
       if (isFALSE(at_least)) {
         consistency <- FALSE
+      }
+      # ...or consistent even with so many that only `x` itself passes; see
+      # `digits_exact_mean()`:
+      if (isTRUE(at_least)) {
+        at_most <- tryCatch(
+          grim_scalar(
+            x = x,
+            n = n,
+            digits_x = digits_exact_mean(
+              digits_x_least,
+              as.numeric(n) * items_averaged
+            ),
+            items_averaged = items_averaged,
+            data_type = "integer",
+            x_meaning = x_meaning,
+            rounding = rounding,
+            threshold = threshold,
+            symmetric = symmetric
+          ),
+          error = function(cnd) NA
+        )
+        if (isTRUE(at_most)) {
+          consistency <- TRUE
+        }
       }
     }
     if (!show_rec) {
@@ -274,7 +299,10 @@ grim_scalar <- function(
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
 #'   missing or infinite, or if `n` or `items_averaged` is not a positive whole
-#'   number.
+#'   number. A missing `digits_x` leaves the case open only if it could decide
+#'   it either way: a value has at least the decimal places it shows, so `x`
+#'   is `FALSE` if it fails with these, and `TRUE` if it passes with so many
+#'   that only `x` itself is left, as `grim(5.2, 5, NA, 1, "integer")` does.
 #'
 #' @seealso [`grim_explain()`] to explain a result in plain words,
 #'   [`grim_map()`] for data frames, [`grim_values()`] for the means that `n`

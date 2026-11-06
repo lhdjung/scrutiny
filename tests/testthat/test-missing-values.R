@@ -323,7 +323,7 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   3    |> grimmer(1.58, 5, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer")     |> expect_na()
   0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2, data_type = "integer")                        |> expect_na()
   5.2  |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
-  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
+  5.2  |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
 
   out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA), items_averaged = 1, data_type = "integer")
   out$consistency |> expect_equal(c(FALSE, NA))
@@ -345,6 +345,7 @@ test_that("a value set that is inconsistent with the decimal places it shows is 
   2.5  |> grimmer(1.05, 10, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer")       |> expect_false()
   0.35 |> debit(0.11, 20, digits_x = 2, digits_sd = NA, data_type = "integer")                              |> expect_false()
   5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> nrow()                                      |> expect_equal(0L)
+  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                                              |> expect_equal(145 / 28)
   grimmer_scalar(2.5, 1.05, 10, 1, NA, 1, show_reason = TRUE, data_type = "integer")[[2L]]                  |> expect_equal("GRIMMER inconsistent (test 1)")
 
   # Continuous data: a single value has a population SD of 0, which 0.5 is
@@ -376,12 +377,67 @@ test_that("a value set that is inconsistent with the decimal places it shows is 
     if (isFALSE(at_digits(least))) {
       (least + 1:3) |> vapply(at_digits, logical(1L)) |> any() |> expect_false()
     }
-    at_digits(NA) |> expect_identical(if (isFALSE(grimmer(
-      x, sd, n,
-      digits_x = decimal_places_scalar(x), digits_sd = decimal_places_scalar(sd),
-      items_averaged = 1, data_type = "integer", rounding = rounding
-    ))) FALSE else NA)
+    shown <- function(k) {
+      grimmer(
+        x, sd, n,
+        digits_x = decimal_places_scalar(x) + k, digits_sd = decimal_places_scalar(sd) + k,
+        items_averaged = 1, data_type = "integer", rounding = rounding
+      )
+    }
+    verdict <- at_digits(NA)
+    if (isFALSE(shown(0))) {
+      verdict |> expect_false()
+    } else if (isTRUE(verdict)) {
+      (0:4) |> vapply(shown, logical(1L)) |> all() |> expect_true()
+    } else {
+      verdict |> expect_na()
+    }
   }
+})
+
+test_that("a value set that is consistent with any number of decimal places is so without `digits_*`", {
+  # With so many decimal places that only the value shown passes, it passes
+  # with any. These were `NA`:
+  5.2  |> grim(5, digits_x = NA, items_averaged = 1, data_type = "integer")                                       |> expect_true()
+  52   |> grim(25, digits_x = NA, items_averaged = 1, data_type = "integer", x_meaning = "percentage")            |> expect_true()
+  3    |> grimmer(0, 5, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer")                 |> expect_true()
+  3    |> grimmer(1, 3, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer")                  |> expect_true()
+  0.5  |> debit(0.5, 4, digits_x = NA, digits_sd = NA, data_type = "integer", sd_meaning = "sd_pop")              |> expect_true()
+  5.2  |> grim_closest(5, digits_x = NA, items_averaged = 1)                                                      |> expect_equal(5.2)
+  5.2  |> grim_values(5, digits_x = NA, items_averaged = 1) |> expect_undecidable()
+  # Not under `"mean_n"`, where no data stand behind the SD:
+  0.5  |> debit(0.5, 4, digits_x = NA, digits_sd = NA, data_type = "integer", sd_meaning = "sd_pop", formula = "mean_n") |> expect_na()
+  # Consistent with the decimal places shown, but not with all of them:
+  5.2  |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                                      |> expect_na()
+
+  # The rule for GRIM: `x * n * items_averaged` is a whole number.
+  set.seed(sweep_seed(1104L))
+  for (i in 1:300) {
+    digits <- sample(0:3, 1)
+    x <- round(runif(1, 0, 9), digits)
+    n <- sample(1:60, 1)
+    items <- sample(1:3, 1)
+    shown <- decimal_places_scalar(x)
+    exact <- (round(x * 10^shown) * n * items) %% 10^shown == 0
+    least <- grim(x, n, digits_x = shown, items_averaged = items, data_type = "integer")
+    expected <- if (!least) FALSE else if (exact) TRUE else NA
+    x |> grim(n, digits_x = NA, items_averaged = items, data_type = "integer") |> expect_identical(expected)
+  }
+
+  # The explanations agree:
+  text <- function(explanation) format(explanation) |> paste(collapse = " ") |> gsub(pattern = "\\s+", replacement = " ")
+  grim_explain(x = 5.2, n = 5, digits_x = NA, items_averaged = 1, data_type = "integer") |>
+    text() |>
+    expect_match("digits_x is missing, so the test below takes so many decimal places.*Consistent")
+  grimmer_explain(x = 3, sd = 0, n = 5, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer") |>
+    text() |>
+    expect_match("digits_x and digits_sd are missing, so.*Consistent")
+  tibble::tibble(x = 0.5, sd = 0.5, n = 4) |>
+    debit_map(digits_x = NA, digits_sd = 1, data_type = "integer", sd_meaning = "sd_pop") |>
+    explain_map() |>
+    dplyr::pull(explanation) |>
+    grepl(pattern = "digits_x is missing") |>
+    expect_true()
 })
 
 test_that("a negative SD is inconsistent whatever else is missing", {

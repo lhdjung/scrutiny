@@ -56,7 +56,9 @@ are recycled to a common length, so it also counts through \code{n} if \code{x} 
 a single value. \code{x} is the achievable value, \code{n} the reported sample size,
 and \code{sum} the whole number behind \code{x}. An inconsistent value set has no
 rows, and one that cannot be decided has one row of \code{NA} but for \code{n}, as
-in \code{\link[=grim]{grim()}}.
+in \code{\link[=grim]{grim()}}. So does one with a missing \code{digits_x} that is consistent
+whatever it is: how many values would be reported as \code{x} still depends on
+it.
 \item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
 where a value set cannot be decided.
 }

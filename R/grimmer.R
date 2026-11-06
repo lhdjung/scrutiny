@@ -337,8 +337,9 @@ grimmer_scalar <- function(
 
   # A value with its decimal places missing has at least those it shows, and a
   # value set that is inconsistent with these is inconsistent with more; see
-  # `digits_least()`. Otherwise, the value is as good as missing, as below. An
-  # error is about a size that the test refuses, which leaves the case open:
+  # `digits_least()`. Otherwise, the value is as good as missing, as below,
+  # unless the value set passes even with the most. An error is about a size
+  # that the test refuses, which leaves the case open:
   digits_x_least <- digits_least(x, digits_x)
   digits_sd_least <- digits_least(sd, digits_sd)
   if (
@@ -364,6 +365,47 @@ grimmer_scalar <- function(
     )
     if (isFALSE(at_least[[1L]])) {
       return(at_least)
+    }
+    # ...and a value set that is consistent with so many that only the values
+    # shown pass is consistent with any; see `digits_exact_mean()`:
+    if (
+      isTRUE(at_least[[1L]]) &&
+        is_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
+    ) {
+      at_most <- tryCatch(
+        grimmer_scalar(
+          x = x,
+          sd = sd,
+          n = n,
+          digits_x = if (is.na(digits_x) && !is.na(digits_x_least)) {
+            digits_exact_mean(digits_x_least, as.numeric(n) * items_averaged)
+          } else {
+            digits_x
+          },
+          digits_sd = if (is.na(digits_sd) && !is.na(digits_sd_least)) {
+            digits_exact_sd(
+              sd,
+              digits_sd_least,
+              as.numeric(n),
+              items_averaged,
+              sd_meaning
+            )
+          } else {
+            digits_sd
+          },
+          items_averaged = items_averaged,
+          data_type = "integer",
+          show_reason = show_reason,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric,
+          sd_meaning = sd_meaning
+        ),
+        error = function(cnd) NULL
+      )
+      if (isTRUE(at_most[[1L]])) {
+        return(at_most)
+      }
     }
   }
 

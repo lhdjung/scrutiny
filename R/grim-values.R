@@ -175,7 +175,40 @@ grim_closest_scalar <- function(
   sums <- parts$sums
 
   if (anyNA(sums)) {
-    return(NA_real_)
+    # With only `digits_x` missing, the answer may not depend on it: an
+    # inconsistent `x` has the same neighbors with the fewest decimal places it
+    # can have, and one that is consistent with any is achievable itself; see
+    # `digits_least()` and `digits_exact_mean()`.
+    consistency <- if (is.na(digits_x)) {
+      grim_scalar(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      )
+    }
+    if (is.null(consistency) || is.na(consistency)) {
+      return(NA_real_)
+    }
+    digits_x <- digits_least(x, digits_x)
+    if (consistency) {
+      digits_x <- digits_exact_mean(digits_x, parts$n_items)
+    }
+    return(grim_closest_scalar(
+      x = x,
+      n = n,
+      digits_x = digits_x,
+      items_averaged = items_averaged,
+      x_meaning = x_meaning,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    ))
   }
 
   sum1 <- sums[1L]
@@ -260,7 +293,9 @@ grim_closest_scalar <- function(
 #'   a single value. `x` is the achievable value, `n` the reported sample size,
 #'   and `sum` the whole number behind `x`. An inconsistent value set has no
 #'   rows, and one that cannot be decided has one row of `NA` but for `n`, as
-#'   in [`grim()`].
+#'   in [`grim()`]. So does one with a missing `digits_x` that is consistent
+#'   whatever it is: how many values would be reported as `x` still depends on
+#'   it.
 #' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
 #'   where a value set cannot be decided.
 #'

@@ -76,7 +76,10 @@ use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items_averaged} are consistent,
 \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
 missing or infinite, or if \code{n} or \code{items_averaged} is not a positive whole
-number.
+number. A missing \code{digits_x} leaves the case open only if it could decide
+it either way: a value has at least the decimal places it shows, so \code{x}
+is \code{FALSE} if it fails with these, and \code{TRUE} if it passes with so many
+that only \code{x} itself is left, as \code{grim(5.2, 5, NA, 1, "integer")} does.
 }
 \description{
 \code{grim()} checks whether a reported mean of integer data is

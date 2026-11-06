@@ -853,6 +853,35 @@ digits_least <- function(x, digits) {
 }
 
 
+# The other direction: so many decimal places that only data with exactly the
+# value shown pass. A value set that passes with these passes with any number,
+# as fewer only widen the ranges, so that answer is forced too.
+#
+# The range rounded to a value with `d` decimal places reaches at most `10^-d`
+# from it. A mean of `n_items` whole numbers that is not exactly `x`, which has
+# `digits` decimal places, is at least `1 / (n_items * 10^digits)` away from
+# it; past that, only `x` itself is left. The same holds on the percentage
+# scale, which adds 2 decimal places on both sides:
+digits_exact_mean <- function(digits, n_items) {
+  digits + ceiling(log10(n_items)) + 1
+}
+
+# Likewise for an SD of `n` means of `items_averaged` whole numbers each. Its
+# square is a whole number over `n * items_averaged^2 * denominator`, and the
+# square of `sd` is a whole number over `10^(2 * digits)`. Two such squares
+# that differ do so by at least the inverse of their product, and the SDs by
+# that over their sum, which is at most `2 * sd + 1` for an SD within 1 of
+# `sd` -- one farther away is out of reach anyway. `"sd_sample_or_pop"` takes
+# the larger denominator of the two, which is that of `"sd_pop"`:
+digits_exact_sd <- function(sd, digits, n, items_averaged, sd_meaning) {
+  if (sd_meaning == "sd_sample_or_pop") {
+    sd_meaning <- "sd_pop"
+  }
+  denominator <- sd_denominator(n, sd_meaning) * n * items_averaged^2
+  2 * digits + ceiling(log10(denominator * (2 * sd + 1))) + 1
+}
+
+
 # What the tests return for data that are not plainly whole numbers.
 # `test_integer` is a function that runs the test as if they were,
 # `continuous` is the result for continuous data, from `verdict_continuous()`,
