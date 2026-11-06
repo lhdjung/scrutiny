@@ -17,8 +17,9 @@
 #'   must have length 1.
 #' @inheritParams grim_plot_values
 #'
-#' @details The row runs from the whole number at or below `sd` to the next
-#'   one up, but not below zero.
+#' @details By default, the row shows the SDs around `sd`, as in
+#'   [`grim_plot_values()`]. With `zoom = FALSE`, it runs from the whole number
+#'   at or below `sd` to the next one up. It never goes below zero.
 #'
 #'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the row has
 #'   no squares.
@@ -58,6 +59,7 @@ grimmer_plot_values <- function(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  zoom = TRUE,
   color_con = "#2f7d74",
   color_reported = "#c1522e"
 ) {
@@ -98,9 +100,8 @@ grimmer_plot_values <- function(
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  check_flag(zoom)
   check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
-
-  values <- comb_values(max(0, floor(sd)), floor(sd) + 1, digits_sd, "sd")
 
   test <- function(sd) {
     grimmer(
@@ -118,8 +119,18 @@ grimmer_plot_values <- function(
     )
   }
 
-  possible <- test(values)
   consistent <- test(sd)
+  window <- comb_window(
+    reported = sd,
+    consistent = consistent,
+    digits = digits_sd,
+    lower = max(0, floor(sd)),
+    upper = floor(sd) + 1,
+    limits = c(0, Inf),
+    zoom = zoom,
+    test = test,
+    name = "sd"
+  )
 
   claim <- roundwork::unround(
     x = sd,
@@ -134,8 +145,8 @@ grimmer_plot_values <- function(
   claim$lower <- max(claim$lower, 0)
 
   plot_comb(
-    values = values,
-    possible = possible,
+    values = window$values,
+    possible = window$possible,
     reported = sd,
     consistent = consistent,
     label_value = function(v) formatC(v, format = "f", digits = digits_sd),

@@ -13,6 +13,7 @@ grim_plot_values(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  zoom = TRUE,
   color_con = "#2f7d74",
   color_reported = "#c1522e",
   percent = deprecated()
@@ -22,6 +23,10 @@ grim_plot_values(
 \item{x, n, digits_x, items_averaged, x_meaning, rounding, threshold, symmetric}{The
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
+
+\item{zoom}{Logical. If \code{TRUE} (the default), the row shows the values
+around \code{x}, so that the marker and the strip behind it stand out; see
+\emph{Details}. If \code{FALSE}, it shows a whole unit.}
 
 \item{color_con}{String. Color of the squares for attainable values.}
 
@@ -49,8 +54,12 @@ values on either side are labeled.
 one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
 }
 \details{
-The row runs from the whole number at or below \code{x} to the next one
-up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
+By default, the row shows 10 values on either side of \code{x}. If \code{x}
+is inconsistent, it widens until the nearest attainable value on each side
+is in view, but no farther than the row with \code{zoom = FALSE} is wide.
+
+With \code{zoom = FALSE}, the row runs from the whole number at or below \code{x} to
+the next one up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
 included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
 all if \code{n} exceeds \code{10 ^ digits_x}. With
 \code{x_meaning = "percentage"}, a unit is one percentage point, and the row widens by

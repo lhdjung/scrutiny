@@ -15,6 +15,7 @@ grimmer_plot_values(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  zoom = TRUE,
   color_con = "#2f7d74",
   color_reported = "#c1522e"
 )
@@ -22,6 +23,10 @@ grimmer_plot_values(
 \arguments{
 \item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
 must have length 1.}
+
+\item{zoom}{Logical. If \code{TRUE} (the default), the row shows the values
+around \code{x}, so that the marker and the strip behind it stand out; see
+\emph{Details}. If \code{FALSE}, it shows a whole unit.}
 
 \item{color_con}{String. Color of the squares for attainable values.}
 
@@ -46,8 +51,9 @@ For many value sets, \code{\link[=grim_plot_grid]{grim_plot_grid()}} accepts \co
 and shows the GRIM part of the test.
 }
 \details{
-The row runs from the whole number at or below \code{sd} to the next
-one up, but not below zero.
+By default, the row shows the SDs around \code{sd}, as in
+\code{\link[=grim_plot_values]{grim_plot_values()}}. With \code{zoom = FALSE}, it runs from the whole number
+at or below \code{sd} to the next one up. It never goes below zero.
 
 If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the row has
 no squares.

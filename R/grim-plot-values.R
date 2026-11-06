@@ -252,6 +252,74 @@ comb_values <- function(from, to, digits, name) {
 }
 
 
+# The values to draw, and which of them `test` admits: every value from `lower`
+# to `upper` or, with `zoom`, the ones around `reported`, so that it and the
+# strip behind it stand out. The zoomed window reaches `COMB_ZOOM_STEPS` values
+# to either side. If `reported` is inconsistent, it doubles until the nearest
+# attainable value on each side is in view, and then keeps three values beyond
+# the farther one. It reaches no farther to either side than the full window is
+# wide, so that a value near a limit can still reach a neighbor on the other
+# side, and holds no values outside of `limits`, the ones that can be reported
+# at all, nor more than `COMB_TEETH_MAX`.
+comb_window <- function(
+  reported,
+  consistent,
+  digits,
+  lower,
+  upper,
+  limits,
+  zoom,
+  test,
+  name
+) {
+  if (!zoom) {
+    values <- comb_values(lower, upper, digits, name)
+    return(list(values = values, possible = test(values)))
+  }
+
+  step <- 10^-digits
+  steps_max <- min(
+    max(ceiling((upper - lower) / step), 1),
+    (COMB_TEETH_MAX - 1) %/% 2
+  )
+  steps <- min(COMB_ZOOM_STEPS, steps_max)
+
+  repeat {
+    values <- comb_values(
+      max(reported - steps * step, limits[1L]),
+      min(reported + steps * step, limits[2L]),
+      digits,
+      name
+    )
+    possible <- test(values)
+    index_reported <- which.min(abs(values - reported))
+    index_possible <- which(possible)
+    left <- index_possible[index_possible < index_reported]
+    right <- index_possible[index_possible > index_reported]
+    # A side that ends at a limit has nothing more to show:
+    seen_left <- length(left) > 0L || values[1L] - step < limits[1L]
+    seen_right <- length(right) > 0L ||
+      values[length(values)] + step > limits[2L]
+    if (consistent || (seen_left && seen_right) || steps >= steps_max) {
+      break
+    }
+    steps <- min(2 * steps, steps_max)
+  }
+
+  if (!consistent) {
+    reach <- max(
+      index_reported - left[length(left)],
+      right[1L] - index_reported,
+      0L,
+      na.rm = TRUE
+    )
+    steps <- min(steps, max(min(COMB_ZOOM_STEPS, steps_max), reach + 3L))
+  }
+  keep <- abs(seq_along(values) - index_reported) <= steps
+  list(values = values[keep], possible = possible[keep])
+}
+
+
 # `n` and `items_averaged` are needed for the window before the test itself gets
 # to reject them, and an undecidable case has nothing to draw.
 check_decidable_n_items <- function(n, items_averaged, min_n) {
@@ -317,13 +385,20 @@ check_comb_value <- function(value, digits, name) {
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
+#' @param zoom Logical. If `TRUE` (the default), the row shows the values
+#'   around `x`, so that the marker and the strip behind it stand out; see
+#'   *Details*. If `FALSE`, it shows a whole unit.
 #' @param color_con String. Color of the squares for attainable values.
 #' @param color_reported String. Color of the marker for the reported value
 #'   and of the strip behind the squares, if the value is inconsistent. A
 #'   consistent value is marked in `color_con`.
 #'
-#' @details The row runs from the whole number at or below `x` to the next one
-#'   up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
+#' @details By default, the row shows 10 values on either side of `x`. If `x`
+#'   is inconsistent, it widens until the nearest attainable value on each side
+#'   is in view, but no farther than the row with `zoom = FALSE` is wide.
+#'
+#'   With `zoom = FALSE`, the row runs from the whole number at or below `x` to
+#'   the next one up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
 #'   included. With `items_averaged = 1`, about `n` of them are attainable, or
 #'   all if `n` exceeds `10 ^ digits_x`. With
 #'   `x_meaning = "percentage"`, a unit is one percentage point, and the row widens by
@@ -370,6 +445,7 @@ grim_plot_values <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  zoom = TRUE,
   color_con = "#2f7d74",
   color_reported = "#c1522e",
   percent = deprecated()
@@ -395,6 +471,7 @@ grim_plot_values <- function(
   }
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
   is_percentage <- x_meaning == "percentage"
+  check_flag(zoom)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)
@@ -420,8 +497,6 @@ grim_plot_values <- function(
     lower <- max(lower, min(0, floor(x)))
     upper <- min(upper, max(100, ceiling(x)))
   }
-  values <- comb_values(lower, upper, digits_x, "x")
-
   test <- function(x) {
     grim(
       x = x,
@@ -436,8 +511,22 @@ grim_plot_values <- function(
     )
   }
 
-  possible <- test(values)
   consistent <- test(x)
+  window <- comb_window(
+    reported = x,
+    consistent = consistent,
+    digits = digits_x,
+    lower = lower,
+    upper = upper,
+    limits = if (is_percentage) {
+      c(min(0, floor(x)), max(100, ceiling(x)))
+    } else {
+      c(-Inf, Inf)
+    },
+    zoom = zoom,
+    test = test,
+    name = "x"
+  )
 
   claim <- roundwork::unround(
     x = x,
@@ -448,8 +537,8 @@ grim_plot_values <- function(
   )
 
   plot_comb(
-    values = values,
-    possible = possible,
+    values = window$values,
+    possible = window$possible,
     reported = x,
     consistent = consistent,
     label_value = function(value) {

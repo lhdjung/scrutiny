@@ -78,6 +78,10 @@ VALUES_MAX <- 1e6
 # one test each; see `comb_values()`:
 COMB_TEETH_MAX <- 2e4
 
+# The values on either side of the reported one that the zoomed plots show at
+# least; see `comb_window()`:
+COMB_ZOOM_STEPS <- 10L
+
 # The most digits in the integer or decimal part that `restore_zeros()` writes
 # out a number with an exponent to, such as `"1e-400"`, and the largest `width`
 # it pads to; see `write_out_decimal()`:

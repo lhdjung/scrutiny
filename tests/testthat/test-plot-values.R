@@ -86,7 +86,7 @@ test_that("the marker's labels keep clear of each other at any size", {
 })
 
 test_that("`grim_plot_values()` draws a square per attainable value only", {
-  p <- grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+  p <- grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = FALSE)
   p |> expect_s3_class("ggplot")
   # 28 attainable means per unit at `n = 28`, plus the whole number at the
   # far end of the window:
@@ -221,9 +221,32 @@ test_that("near-whole arguments are drawn as the whole numbers they are", {
 
 test_that("a comb with too many values is an error, not a hang", {
   # Each value is a test, and their number grows tenfold per decimal place:
-  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_error("10,000,001 values")
-  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_error("1,000,001 values")
-  5.1234    |> grim_plot_values(28, 4, 1)                 |> expect_s3_class("ggplot")
+  5.1234567 |> grim_plot_values(28, 7, 1, zoom = FALSE)                 |> expect_error("10,000,001 values")
+  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1, zoom = FALSE) |> expect_error("1,000,001 values")
+  5.1234    |> grim_plot_values(28, 4, 1, zoom = FALSE)                 |> expect_s3_class("ggplot")
+  # Zoomed in, the window stops widening at that limit:
+  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_s3_class("ggplot")
+  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_s3_class("ggplot")
+})
+
+
+test_that("the zoomed window shows the reported value and its nearest attainable ones", {
+  # 10 values to either side, of which these are attainable at `n = 28`:
+  5.19 |> grim_plot_values(28, 2, 1) |> squares() |> expect_equal(c(5.11, 5.14, 5.18, 5.21, 5.25, 5.29))
+  # The window widens to the next attainable value, 5.29, and three beyond:
+  p <- 5.15 |> grim_plot_values(7, 2, 1)
+  p |> squares() |> range() |> expect_equal(c(5.00, 5.29))
+  # The axis line spans the window and 3% of it to either side:
+  axis <- p |> ggplot2::layer_data(2L)
+  (axis$xend - axis$x) |> expect_equal(0.34 * 1.06)
+  # Near a limit, it reaches as far as the window without zooming:
+  0.3 |> grim_plot_values(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(c(0, 50))
+  # A consistent value keeps the 10 values to either side:
+  5.19 |> grim_plot_values(26, 2, 1) |> squares() |> range() |> expect_equal(c(5.12, 5.27))
+  # No more than the whole window with few decimal places:
+  5 |> grim_plot_values(28, 0, 1) |> squares() |> expect_equal(c(4, 5, 6))
+  5.23 |> grimmer_plot_values(2.55, 35, 2, 2, 1) |> squares() |> range() |> expect_equal(c(2.45, 2.65))
+  5.19 |> grim_plot_values(28, 2, 1, zoom = NA) |> expect_error("`zoom`")
 })
 
 
