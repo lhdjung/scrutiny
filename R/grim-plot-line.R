@@ -34,10 +34,14 @@ plot_comb <- function(
   # values, but at most 8%, as with no decimal places. The panel's height is a
   # share of its width as well, so the squares stay square on any device; it
   # holds them with some room to spare, but not less than 3% of the width, to
-  # remain a strip for the marker to point at.
+  # remain a strip for the marker to point at. Squares too thin to be seen, as
+  # with a percentage from 0% to 100%, are drawn as ticks instead: 40% of the
+  # strip high, like the largest squares, and no wider than the values they
+  # stand for, but with an outline of about one pixel so that they are drawn.
   step <- min(diff(values))
   side <- min(0.8 * step / diff(xlim), 0.08)
   aspect <- max(2.5 * side, 0.03)
+  is_thin <- side < 0.003
   attainable <- values[possible]
   is_reported <- abs(attainable - reported) < step / 2
   squares <- tibble::tibble(x = attainable, reported = is_reported)
@@ -202,8 +206,14 @@ plot_comb <- function(
       data = squares,
       mapping = ggplot2::aes(x = .data$x, y = 0.5),
       width = side * diff(xlim),
-      height = side * diff(ylim) / aspect,
-      fill = ifelse(squares$reported, color_verdict, color_attainable)
+      height = if (is_thin) 0.4 * diff(ylim) else side * diff(ylim) / aspect,
+      fill = ifelse(squares$reported, color_verdict, color_attainable),
+      colour = if (is_thin) {
+        ifelse(squares$reported, color_verdict, color_attainable)
+      } else {
+        NA
+      },
+      linewidth = 0.2
     ) +
     # The reported value points down at the strip from above rather than being
     # drawn across it. A marker in the strip would stand exactly where the
@@ -215,7 +225,7 @@ plot_comb <- function(
     # and the side margins leave room for a value at either end of the window.
     ggplot2::scale_x_continuous(
       breaks = if (show_labels) attainable else ggplot2::waiver(),
-      labels = if (show_labels) label_value(attainable) else ggplot2::waiver(),
+      labels = if (show_labels) label_value(attainable) else label_value,
       # A narrow device may still not fit them all:
       guide = ggplot2::guide_axis(check.overlap = TRUE)
     ) +
@@ -248,9 +258,9 @@ plot_comb <- function(
 # the sequence is built rather than trusting `seq()`: a step of 0.01 added a
 # hundred times over lands a little beside the two-decimal number it should be,
 # and these values go into a consistency test that checks them against `digits`.
-# The values from `from` to `to` at `digits` decimal places, one for each
-# possible square. Each is tested, so their number is checked first; it grows tenfold
-# with each decimal place. `name` is `"x"` or `"sd"`, for the message:
+# Each is tested, so their number is checked first; it grows tenfold with each
+# decimal place. Only the whole window of `zoom = "wide"` can reach the limit.
+# `name` is `"x"` or `"sd"`, for the message:
 comb_values <- function(from, to, digits, name) {
   size <- (to - from) * 10^digits + 1
   if (size > COMB_TEETH_MAX) {
@@ -260,7 +270,8 @@ comb_values <- function(from, to, digits, name) {
       "x" = "With `digits_{name} = {digits}`, the plot would test \\
       {format(size, big.mark = ',', scientific = FALSE)} values, more than \\
       {limit}.",
-      "i" = "Each decimal place multiplies them by 10."
+      "i" = "Each decimal place multiplies them by 10. `zoom = \"close\"` or \\
+      `\"medium\"` tests fewer."
     )
   }
   from |>
@@ -445,13 +456,12 @@ check_comb_value <- function(value, digits, name) {
 #'   attainable values are labeled above the row.
 #'
 #'   With `zoom = "wide"`, the row runs from the whole number at or below `x` to
-#'   the next one up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
-#'   included. With `items_averaged = 1`, about `n` of them are attainable, or
-#'   all if `n` exceeds `10 ^ digits_x`. With
-#'   `x_meaning = "percentage"`, a unit is one percentage point, and the row widens by
-#'   `100 / (n * items_averaged)` points, rounded up, on either side so that
-#'   the nearest attainable values remain visible, but not beyond 0 or 100.
-#'   With more than two decimal places, the squares crowd together.
+#'   the next one up. With `items_averaged = 1`, about `n` of the values in
+#'   this unit are attainable, or all if `n` exceeds `10 ^ digits_x`. With
+#'   `x_meaning = "percentage"`, the unit is that of the proportion GRIM
+#'   tests, so the row runs from 0% to 100%, and `n + 1` values are
+#'   attainable. Squares too narrow to be seen as such are drawn as ticks of
+#'   the same height.
 #'
 #'   The strip behind the squares is the range of unrounded means that would
 #'   have been reported as `x`, from [`roundwork::unround()`]. The value is
@@ -531,20 +541,16 @@ grim_plot_line <- function(
   check_comb_value(x, digits_x, "x")
   check_decidable_n_items(n, items_averaged, min_n = 1)
 
-  # One unit around `x`, which holds about `n` attainable means. Attainable
-  # percentages are `100 / n` points apart, so the window widens by that much
-  # on either side (within 0 to 100), to keep the nearest ones in view:
-  reach <- if (is_percentage) {
-    ceiling(100 / (as.numeric(n) * items_averaged))
+  # The whole window is a unit of the tested value, which holds about `n`
+  # attainable ones: one around a mean, and 0 to 100 for a percentage, which is
+  # tested as a proportion. These are also the values a percentage can take:
+  limits <- if (is_percentage) {
+    c(min(0, floor(x)), max(100, ceiling(x)))
   } else {
-    0
+    c(-Inf, Inf)
   }
-  lower <- floor(x) - reach
-  upper <- floor(x) + 1 + reach
-  if (is_percentage) {
-    lower <- max(lower, min(0, floor(x)))
-    upper <- min(upper, max(100, ceiling(x)))
-  }
+  lower <- if (is_percentage) limits[1L] else floor(x)
+  upper <- if (is_percentage) limits[2L] else floor(x) + 1
   test <- function(x) {
     grim(
       x = x,
@@ -566,11 +572,7 @@ grim_plot_line <- function(
     digits = digits_x,
     lower = lower,
     upper = upper,
-    limits = if (is_percentage) {
-      c(min(0, floor(x)), max(100, ceiling(x)))
-    } else {
-      c(-Inf, Inf)
-    },
+    limits = limits,
     zoom = zoom,
     test = test,
     name = "x"

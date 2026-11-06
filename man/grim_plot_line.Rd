@@ -74,13 +74,12 @@ the axis has the usual breaks, and if \code{x} is inconsistent, the nearest
 attainable values are labeled above the row.
 
 With \code{zoom = "wide"}, the row runs from the whole number at or below \code{x} to
-the next one up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
-included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
-all if \code{n} exceeds \code{10 ^ digits_x}. With
-\code{x_meaning = "percentage"}, a unit is one percentage point, and the row widens by
-\code{100 / (n * items_averaged)} points, rounded up, on either side so that
-the nearest attainable values remain visible, but not beyond 0 or 100.
-With more than two decimal places, the squares crowd together.
+the next one up. With \code{items_averaged = 1}, about \code{n} of the values in
+this unit are attainable, or all if \code{n} exceeds \code{10 ^ digits_x}. With
+\code{x_meaning = "percentage"}, the unit is that of the proportion GRIM
+tests, so the row runs from 0\% to 100\%, and \code{n + 1} values are
+attainable. Squares too narrow to be seen as such are drawn as ticks of
+the same height.
 
 The strip behind the squares is the range of unrounded means that would
 have been reported as \code{x}, from \code{\link[roundwork:unround]{roundwork::unround()}}. The value is
