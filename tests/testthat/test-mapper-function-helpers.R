@@ -28,3 +28,13 @@ test_that("`manage_helper_col()` adds a column to a plain data frame with no row
   mapper <- function(data, items = 1) manage_helper_col(data, items, 1)
   data.frame(x = numeric(0)) |> mapper(items = 2) |> colnames() |> expect_equal(c("x", "items"))
 })
+
+
+test_that("a helper column and an identical argument agree where both are missing", {
+  # `near()` is `NA` for two missing values, which counted as a conflict:
+  df <- tibble::tibble(x = c(5.19, 5.18), n = 28, items_averaged = c(1, NA))
+  out <- df |> grim_map(digits_x = 2, items_averaged = c(1, NA), data_type = "integer")
+  out$consistency |> expect_equal(c(FALSE, NA))
+  df |> grim_map(digits_x = 2, items_averaged = c(NA, 1), data_type = "integer") |> expect_error("conflicts with")
+  df |> grim_map(digits_x = 2, items_averaged = c(1, 2), data_type = "integer")  |> expect_error("conflicts with")
+})

@@ -1615,7 +1615,8 @@ wrap_in_quotes_or_backticks <- function(x) {
 #' @noRd
 about_equal <- function(x, y) {
   if (is.numeric(x) && is.numeric(y)) {
-    all(dplyr::near(x, y))
+    # Missing values in the same places agree, like any other values:
+    all(is.na(x) == is.na(y)) && all(dplyr::near(x, y), na.rm = TRUE)
   } else {
     identical(x, y)
   }
