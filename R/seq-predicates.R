@@ -17,10 +17,10 @@ is_seq_descending_basic <- function(x) {
 # of the largest value; a step of one unit in the 15th significant digit is at
 # least 4.5 of these, so any wider floor merges such steps. `NA` for an
 # infinity, as `near(Inf, Inf)` is:
-near_seq <- function(x, y, tolerance, values) {
+near_seq <- function(x, y, tolerance, values, ulps = 2) {
   magnitude <- max(abs(values[is.finite(values)]), 0)
   ulp <- if (magnitude > 0) 2^(floor(log2(magnitude)) - 52) else 0
-  abs(x - y) <= max(tolerance, 2 * ulp)
+  abs(x - y) <= max(tolerance, ulps * ulp)
 }
 
 
@@ -208,9 +208,19 @@ is_seq_basic <- function(
           known_orig <- which(!is.na(x_orig))
           if (test_linear && length(known_orig) >= 2L) {
             step <- steps[1L]
-            center <- x_orig[known_orig[1L]] +
-              step * ((length(x_orig) + 1L) / 2L - known_orig[1L])
-            pass_pairs && near_seq(center, from, tolerance, c(x, from))
+            steps_to_center <- (length(x_orig) + 1L) / 2L - known_orig[1L]
+            center <- x_orig[known_orig[1L]] + step * steps_to_center
+            # The rounding error of the step is multiplied along the way, so
+            # the floor of the tolerance is wider by as much. Otherwise, a
+            # `tolerance` of 0 would rule out a dispersed sequence:
+            pass_pairs &&
+              near_seq(
+                center,
+                from,
+                tolerance,
+                c(x, from),
+                ulps = 2 * (abs(steps_to_center) + 1)
+              )
           } else {
             pass_pairs
           }

@@ -394,3 +394,19 @@ test_that("a number next to a non-breaking space is a number", {
   c(4, 5, 6)             |> is_seq_dispersed(from = "5 ")  |> expect_true() |> expect_no_warning()
   c("4", " 5", "6") |> is_seq_dispersed(from = NA)         |> expect_na()
 })
+
+test_that("a `tolerance` of 0 doesn't rule out a dispersed sequence with gaps", {
+  # The central value was extrapolated from the step, whose rounding error
+  # the number of steps multiplied past the floor of the tolerance:
+  x <- c(NA, NA, NA, NA, NA, NA, NA, 13.95, 13.96)
+  x |> is_seq_dispersed(from = 13.92, tolerance = 0) |> expect_na()
+  x |> is_seq_dispersed(from = 13.93, tolerance = 0) |> expect_false()
+
+  set.seed(sweep_seed(49L))
+  for (i in 1:200) {
+    from <- round(runif(1, 0, 100), 2)
+    out <- seq_disperse(from, dispersion = 1:sample(2:8, 1))
+    out[sample(length(out), sample(length(out) - 2L, 1))] <- NA
+    out |> is_seq_dispersed(from = from, tolerance = 0) |> isFALSE() |> expect_false()
+  }
+})
