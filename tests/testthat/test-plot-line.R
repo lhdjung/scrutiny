@@ -297,3 +297,24 @@ test_that("a string `n` or `items_averaged` is a type error, not an undecidable 
   5.19 |> grim_plot_line("28", 2, 1)              |> expect_error("`n` must be one of these types")
   5.19 |> grimmer_plot_line(1.2, 28, 2, 1, "1") |> expect_error("`items_averaged` must be one of these types")
 })
+
+
+test_that("ticks without a label per square are at values that can be reported", {
+  # ggplot2's own breaks lay between them, such as 0.25 with one decimal
+  # place, and were labeled as rounded, some of them twice:
+  axis <- function(plot) {
+    params <- ggplot2::ggplot_build(plot)$layout$panel_params[[1L]]$x
+    list(breaks = params$get_breaks(), labels = params$get_labels())
+  }
+  expect_ticks_reportable <- function(plot, digits) {
+    ticks <- axis(plot)
+    ticks$breaks |> expect_equal(round(ticks$breaks, digits))
+    ticks$labels |> anyDuplicated() |> expect_equal(0L)
+    ticks$labels |> sub(pattern = "%", replacement = "") |> as.numeric() |> expect_equal(ticks$breaks)
+  }
+
+  grimmer_plot_line(x = 5.19, sd = 1, n = 28, digits_x = 2, digits_sd = 0, items_averaged = 1)                  |> expect_ticks_reportable(0)
+  grimmer_plot_line(x = 5.19, sd = 0.4, n = 28, digits_x = 2, digits_sd = 1, items_averaged = 1, zoom = "wide") |> expect_ticks_reportable(1)
+  grimmer_plot_line(x = 5.19, sd = 0, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_ticks_reportable(2)
+  grim_plot_line(x = 2150.5, n = 40, digits_x = 1, items_averaged = 1, zoom = "wide")                           |> expect_ticks_reportable(1)
+})

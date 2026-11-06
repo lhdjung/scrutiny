@@ -53,6 +53,21 @@ plot_comb <- function(
   show_labels <- length(attainable) > 0L &&
     min(diff(attainable), Inf) / diff(xlim) >= label_width
 
+  # Without a label per square, the ticks are still at values that can be
+  # reported. ggplot2's own breaks may lie between them, as 0.25 does with one
+  # decimal place, where the label would be a rounded 0.2:
+  breaks_reportable <- function(limits) {
+    # In whole steps; rounded, as the division leaves floating-point noise:
+    units <- pretty(round(range(values) / step))
+    units <- units[units == round(units)]
+    index <- vapply(
+      units * step,
+      function(value) which.min(abs(values - value)),
+      integer(1L)
+    )
+    values[unique(index)]
+  }
+
   # The marker and, if the value is inconsistent and the squares are not
   # labeled, labels for the nearest attainable values, each connected to its
   # square by an elbow.
@@ -224,7 +239,7 @@ plot_comb <- function(
     # by the top of the panel; the top margin is the marker's stack of lines,
     # and the side margins leave room for a value at either end of the window.
     ggplot2::scale_x_continuous(
-      breaks = if (show_labels) attainable else ggplot2::waiver(),
+      breaks = if (show_labels) attainable else breaks_reportable,
       labels = if (show_labels) label_value(attainable) else label_value,
       # A narrow device may still not fit them all:
       guide = ggplot2::guide_axis(check.overlap = TRUE)
