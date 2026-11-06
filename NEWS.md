@@ -66,7 +66,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim()`, `grimmer()`, and `debit()` lost `show_rec` and `show_reason`, which were only meant for the mappers. They are vectorized over `x`, `sd`, `n`, the `digits_*` arguments, and `items_averaged`; all other arguments must have length 1. Recycling follows the tidyverse rules, so `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2, items_averaged = 1)` is an error.
 
-- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`: `n` is the sample size as given, and `items_averaged` is a column of its own. `grim_plot_grid()` places tiles at `n * items_averaged`.
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`: `n` is the sample size as reported, and `items_averaged` is a column of its own. `grim_plot_grid()` places tiles at `n * items_averaged`.
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, and `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`, so the columns cannot contradict the result. With `x_meaning = "percentage"`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
@@ -84,6 +84,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1 (undo it with `ggplot2::theme(aspect.ratio = NULL)`) and a new `split_by_digits` argument that returns one plot per number of decimal places. `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
 
+- The background raster in `grim_plot_grid()` shows consistent cells in grey and inconsistent cells in white, the inverse of `grim_plot()`'s former default. I acknowledge that this might confuse long-time users at first, and that it departs from the color scheme of [Brown and Heathers (2017, Fig. 1)](https://doi.org/10.1177/1948550616673876) that was the key inspiration for `grim_plot_grid()`. However, it matches the broader emerging ecosystem of forensic meta-science software that ties in with GRIM. In this related work, relatively few dark points signify possible value sets against a white background. See, e.g., [Hussey (2026) on combining granularity and bounds methods](https://trustworthyresear.ch/chapters/combined_granularity_and_bounds_methods.html).
+
 - `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
 
 ## New features
@@ -94,13 +96,13 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a count out of a total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a total; `add_up_to_map()` selects any number of columns with tidyselect. `is_percentage_of_map()` and `add_up_to_map()` have `audit()` methods.
 
-- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Of all means (or SDs) within a range that could be reported with the given number of decimal places, they draw a square for each one that a sample of the given size can have, leave the others out, and indicate the reported value. Squares are labeled with their values if there is room. By default, `zoom = "close"` shows the reported value and the nearest attainable one; `zoom = "medium"` widens to the nearest attainable one on either side, and `zoom = "wide"` shows a whole unit, which is 0% to 100% for a percentage. More than 20,000 such values are an error.
+- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Among all means or SDs within a range that could be reported with the given number of decimal places, they draw a square for each value that is consistent with the reported sample size, leave the others out, and indicate the reported mean or SD value. Squares are labeled with their values if there is space. By default, `zoom = "close"` shows the reported value and the nearest attainable one; `zoom = "medium"` widens to the nearest attainable one on either side, and `zoom = "wide"` shows a whole unit, which is 0% to 100% for a percentage.
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM, for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument for data without a recorded one.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument for data without a recorded one.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. This is related to #59 but doesn't conclude the questions raised there.
 
@@ -194,11 +196,15 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see roundwork's NEWS for their changes. `vignette("rounding-options", package = "roundwork")` and `vignette("rounding-in-depth", package = "roundwork")` moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
 
+### Deprecated
+
 - `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_line()` and `grim_plot_rates()`.
 
 - `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
 
 - `grim_probability()` is deprecated in favor of `grim_exp_incon()`.
+
+### Removed
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
 
@@ -208,7 +214,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
 
-- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent value sets are a stronger blue and red than before, as in `grim_plot_line()` and `grimmer_plot_line()`, and values that are consistent but were not reported are grey, like the consistent cells of `grim_plot_grid()`'s raster. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`. `grim_plot_grid()`'s raster shows consistent cells in grey and inconsistent ones in white, the other way around than before.
+- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent and inconsistent value sets are a stronger blue and red than before, as in the new `grim_plot_line()` and `grimmer_plot_line()`. Values that are consistent but were not reported are grey, like the consistent cells of `grim_plot_grid()`'s raster. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`.
 
 - `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A string `from` still sets the step size by its decimal places, trailing zeros included.
 
@@ -216,7 +222,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Removed after their deprecation in 0.3.1: `seq_disperse()`'s `track_var_change` and `seq_disperse_df()`'s `.track_var_change`. `restore_zeros_df()` and `split_by_parens()` lost `...`, which only caught argument names from before 0.2.4.
 
-- `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` lost `tolerance`: both tests compare whole numbers exactly. GRIMMER's test 2 no longer rounds reconstructed SDs, since every sum of squares that passes test 1 passes it, so `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
+- `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` lost `tolerance` as both tests now compare whole numbers exactly. GRIMMER's test 2 no longer rounds reconstructed SDs, since every sum of squares that passes test 1 passes it, so `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
 
 - `function_map()` lost `.col_control` and `.col_filler`, which never worked.
 
