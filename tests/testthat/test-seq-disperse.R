@@ -255,3 +255,18 @@ test_that("floating-point noise in `from` or a limit doesn't drop a value", {
   seq_disperse(0.1 + 0.2)[3]               |> expect_identical(0.3)
   seq_disperse(0.5, out_min = 0.1 + 0.2, dispersion = 1:3) |> expect_equal(c(0.3, 0.4, 0.5, 0.6, 0.7, 0.8))
 })
+
+
+test_that("limits and `from` are read as the numbers they show", {
+  # A factor limit was read by its level code, and `TRUE` as 1:
+  seq_disperse(5, out_max = factor("10")) |> expect_equal(1:10)
+  seq_disperse(5, out_min = factor("4"))  |> expect_equal(4:10)
+  seq_disperse(5, out_max = TRUE)         |> expect_error("must be a single number")
+  # A non-breaking space was an error here, though not elsewhere:
+  seq_disperse("5.30 ")              |> expect_equal(seq_disperse("5.30"))
+  seq_disperse(5, out_max = "7 ")    |> expect_equal(1:7)
+  # A hexadecimal `from` was dispersed on the level of its own digits:
+  seq_disperse("0x1p-2")                  |> expect_error("must be a decimal number")
+  # A `by` with too many decimal places was blamed on `from`:
+  seq_disperse(5, by = 1 / 3)             |> expect_error("`by` has too many decimal places")
+})

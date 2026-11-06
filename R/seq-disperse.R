@@ -96,12 +96,24 @@ seq_disperse <- function(
   )
 
   # A missing, infinite, or non-numeric `from` has no decimal level to disperse
-  # on:
+  # on. A non-breaking space next to the number is read past, as in
+  # `decimal_places()`:
+  if (is.character(from)) {
+    from <- trimws(from, whitespace = "[\\h\\v]")
+  }
   from_num <- suppressWarnings(as.numeric(from))
   if (!is.finite(from_num)) {
     abort_in_export(
       "`from` must be a finite number, or a string coercible to one.",
       "x" = "It is {wrap_in_quotes_or_backticks(from)}."
+    )
+  }
+  # Nor does a hexadecimal number, whose digits are not decimal places:
+  if (is.character(from) && grepl("^[+-]?0[xX]", from)) {
+    abort_in_export(
+      "`from` must be a decimal number.",
+      "x" = "It is {wrap_in_quotes_or_backticks(from)}, a hexadecimal one.",
+      "i" = "Its decimal places would be counted off the hexadecimal digits."
     )
   }
 
@@ -149,7 +161,8 @@ seq_disperse <- function(
   # `digits_out` before it is compared to the limits or returned. It is counted
   # before `from` becomes a number, which would drop the trailing zero of a
   # string like `"1.50"`:
-  digits_out <- max(digits, decimal_places_scalar(from))
+  digits_from <- decimal_places_scalar(from)
+  digits_out <- max(digits, digits_from)
   # A string like `"1e-400"` has more decimal places than a double can scale
   # to, and its step underflows to 0:
   if (!is.finite(10^digits_out)) {
@@ -165,8 +178,16 @@ seq_disperse <- function(
   # A string limit would be compared as a string, so `out_max = "10"` would
   # rule out `9`:
   check_limit <- function(limit, name, auto = FALSE) {
-    limit_num <- suppressWarnings(as.numeric(limit))
-    if (length(limit) != 1L || is.na(limit_num)) {
+    # A factor by its label, as `from`, not its code; `TRUE` is no number:
+    if (is.factor(limit)) {
+      limit <- as.character(limit)
+    }
+    limit_num <- if (is.numeric(limit) || is.character(limit)) {
+      as_numeric_seq(limit)
+    } else {
+      NA
+    }
+    if (length(limit) != 1L || anyNA(limit_num)) {
       msg_auto <- if (auto) ", \"auto\"," else ""
       msg_is <- if (length(limit) != 1L) {
         "It has length {length(limit)}."
@@ -204,11 +225,21 @@ seq_disperse <- function(
   # places. No study reports numbers that long:
   units_max <- (abs(from) + max(dispersion, 0) * by) * 10^digits_out
   if (units_max >= 2^52) {
+    # The decimal places may be those of `by`, such as the 15 of `1 / 3`:
+    msg_by <- if (digits_out > digits_from) {
+      c("i" = "The decimal places are those of `by`, which has {digits}.")
+    }
+    msg_headline <- if (is.null(msg_by)) {
+      "`from` is too large to disperse exactly."
+    } else {
+      "`by` has too many decimal places to disperse exactly."
+    }
     abort_in_export(
-      "`from` is too large to disperse exactly.",
+      msg_headline,
       "x" = "At {digits_out} decimal place{?s}, the values reach about \\
       {format(units_max, digits = 3L)} units of the last one, beyond 2^52, \\
       about 4.5e15.",
+      msg_by,
       "i" = "Beyond that, a double skips values."
     )
   }
