@@ -25,7 +25,7 @@
 #'   the same length, or length 1.
 #' @param data_type String. As in [`grim()`], and recycled like `x`. No
 #'   default. For `"continuous"` data, which GRIM can't find inconsistent,
-#'   the result is 0.
+#'   the result is 0, or `NA` where [`grim()`] is `NA`.
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
 #'   adds 2 to the decimal count, as in [`grim()`].
 #' @param rounding,threshold The rounding method and, for the `"*_from"`
@@ -178,6 +178,13 @@ grim_total <- function(
     error_data_type_missing()
   }
 
+  # As in `grim()`; an empty argument would empty the result:
+  for (name in c("x", "n", "digits_x", "items_averaged", "data_type")) {
+    if (is.null(get(name))) {
+      abort_in_export("{.arg {name}} must not be `NULL`.")
+    }
+  }
+
   check_rounding_args(rounding, threshold)
 
   # Tested as the whole numbers they are accepted as; see `round_whole()`:
@@ -187,7 +194,9 @@ grim_total <- function(
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
-  data_type_bad <- data_type[!is.na(data_type) & !data_type %in% DATA_TYPES]
+  data_type_bad <- data_type[
+    !is.na(data_type) & !(is.character(data_type) & data_type %in% DATA_TYPES)
+  ]
   if (length(data_type_bad) > 0L) {
     data_type <- data_type_bad[[1L]]
     arg_match_in_export(data_type, DATA_TYPES)
@@ -372,9 +381,14 @@ grim_total <- function(
 
   n_incon[!decidable] <- NA_real_
 
-  # Continuous data can have any mean, and a missing `data_type` might be
-  # continuous, as in `test_data_type()`:
-  n_incon[data_type %in% "continuous"] <- 0
+  # Continuous data can have any mean, unless they are no data at all, and a
+  # missing `data_type` might be continuous; see `test_data_type()`:
+  is_continuous <- data_type %in% "continuous"
+  n_incon[is_continuous] <- 0
+  n_incon[
+    is_continuous &
+      (!is_decidable_continuous(n, items_averaged) | is.infinite(x))
+  ] <- NA_real_
   n_incon[is.na(data_type) & !n_incon %in% 0] <- NA_real_
   n_incon
 }

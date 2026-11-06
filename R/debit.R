@@ -513,6 +513,15 @@ debit_scalar <- function(
   check_debit_inputs_all(x, sd)
 
   if (!identical(data_type, "integer")) {
+    verdict <- verdict_continuous(
+      n,
+      min_n = sd_min_n(sd_meaning),
+      sd = sd,
+      digits_sd = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
     return(test_data_type(
       data_type,
       test_integer = function() {
@@ -531,7 +540,7 @@ debit_scalar <- function(
           show_rec = show_rec
         )
       },
-      pass = debit_result(TRUE, show_rec),
+      continuous = debit_result(unname(verdict), show_rec),
       missing = debit_undecidable(show_rec)
     ))
   }
@@ -704,7 +713,8 @@ debit_scalar <- function(
 #' @param data_type String. As in [`grim()`]: `"integer"`, `"quasi-integer"`,
 #'   or `"continuous"`. No default. For DEBIT, `"integer"` means the binary
 #'   values 0 and 1 that the test assumes. Continuous data can have any mean
-#'   and SD, so the result is `TRUE`.
+#'   and SD, so the result is `TRUE`, unless the SD is the population SD of a
+#'   single value, which is 0.
 #' @param formula String. `"exact"` (the default) only considers means that
 #'   `n` binary values can have, i.e., `k / n` for a whole number `k`. It is
 #'   the default because no other mean is possible.

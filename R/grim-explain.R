@@ -115,7 +115,13 @@ grim_explain <- function(
         symmetric = symmetric
       )
     }
-    return(explain_data_type(data_type, consistency, explain_integer, "mean"))
+    return(explain_data_type(
+      data_type,
+      consistency,
+      explain_integer,
+      "mean",
+      names(verdict_continuous(n, items_averaged, x = x))
+    ))
   }
 
   explain <- function(text) {
@@ -385,39 +391,66 @@ grim_explain <- function(
 
 # The explanation for data that are not plainly whole numbers, as decided by
 # `test_data_type()`: the one for whole numbers, `explain_integer()`, with a
-# paragraph on the data type. `what` is what continuous data can have any of.
-explain_data_type <- function(data_type, consistency, explain_integer, what) {
+# paragraph on the data type. `what` is what continuous data can have any of,
+# `reason` the name of `verdict_continuous()`'s result, and `sd` the SD as
+# reported, for a value set that is no single value's.
+explain_data_type <- function(
+  data_type,
+  consistency,
+  explain_integer,
+  what,
+  reason,
+  sd = NULL
+) {
   out <- explain_integer()
-  any_value <- paste0("they can have any ", what)
 
-  out$paragraphs <- if (is.na(data_type)) {
-    if (isTRUE(consistency)) {
-      c(
-        out$paragraphs,
-        paste0(
-          "The data type is missing, but this doesn't matter here. If the ",
-          "data are continuous, ",
-          any_value,
-          ", so the value set is consistent either way."
-        )
-      )
-    } else {
+  # Why continuous data have this value set or not. Undecidable value sets and
+  # negative SDs are no data's, which the explanation for whole numbers says:
+  text_continuous <- switch(
+    reason,
+    "Continuous data" = paste0("they can have any ", what),
+    "SD of a single value" = paste0(
+      "they can have any mean, but a single value has an SD of 0, which ",
+      "would not have been reported as ",
+      sd
+    )
+  )
+
+  out$paragraphs <- if (is.null(text_continuous)) {
+    out$paragraphs
+  } else if (is.na(data_type)) {
+    if (identical(consistency, NA)) {
       c(
         "The data type is missing. If the data are whole numbers, the test goes as follows.",
         out$paragraphs,
         paste0(
           "If the data are continuous, ",
-          any_value,
+          text_continuous,
           ". So whether the value set is consistent depends on the data type."
+        )
+      )
+    } else {
+      c(
+        out$paragraphs,
+        paste0(
+          "The data type is missing, but this doesn't matter here. If the ",
+          "data are continuous, ",
+          text_continuous,
+          ", so the value set is ",
+          if (consistency) "consistent" else "inconsistent",
+          " either way."
         )
       )
     }
   } else if (data_type == "continuous") {
     paste0(
       "The data are continuous, so ",
-      any_value,
-      ". The test only applies to whole numbers, so the value set is ",
-      "consistent."
+      text_continuous,
+      if (consistency) {
+        ". The test only applies to whole numbers, so the value set is consistent."
+      } else {
+        "."
+      }
     )
   } else {
     c(

@@ -46,8 +46,9 @@ is_percentage_of_scalar <- function(
   }
 
   # The counts out of `n` whose share would be reported as `percentage`, in
-  # exact integer arithmetic -- the same range that GRIM, with `percent = TRUE`,
-  # checks for containing any count at all. Here, it must contain `absolute`:
+  # exact integer arithmetic -- the same range that GRIM, with `x_meaning =
+  # "percentage"`, checks for containing any count at all. Here, it must contain
+  # `absolute`:
   check_sum_range_exact(
     percentage / 100,
     n,
@@ -83,7 +84,7 @@ is_percentage_of_scalar <- function(
 #'   `absolute` out of `n` would have been reported as, given the number of
 #'   decimal places and the rounding method.
 #'
-#'   This is stricter than [`grim()`] with `percent = TRUE`, which only asks
+#'   This is stricter than [`grim()`] with `x_meaning = "percentage"`, which only asks
 #'   whether some count out of `n` produces the percentage. Here, the count is
 #'   reported too.
 #'
@@ -118,7 +119,7 @@ is_percentage_of_scalar <- function(
 #'   answers to a question that allows several, whose percentages can sum to
 #'   more than 100.
 #'
-#' @seealso [`grim()`] with `percent = TRUE`, for a percentage without a count.
+#' @seealso [`grim()`] with `x_meaning = "percentage"`, for a percentage without a count.
 #'
 #' @include utils.R
 #'

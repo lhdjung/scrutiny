@@ -115,6 +115,28 @@ test_that("explanations say what the data type does", {
   quasi$inputs |> expect_match('data_type = "quasi-integer"', fixed = TRUE)
 })
 
+test_that("explanations of continuous data follow the verdict", {
+  single <- grimmer_explain(5, 1, 1, 0, 0, 1, "continuous", sd_meaning = "sd_pop")
+  single$consistency |> expect_false()
+  single$paragraphs  |> expect_match("a single value has an SD of 0")
+  single <- grimmer_explain(5, 1, 1, 0, 0, 1, NA, sd_meaning = "sd_pop")
+  single$consistency |> expect_false()
+  single$paragraphs  |> utils::tail(1L) |> expect_match("inconsistent either way")
+  negative <- grimmer_explain(5, -1, 20, 0, 0, 1, "continuous")
+  negative$consistency |> expect_false()
+  negative$paragraphs  |> expect_match("no data set has a negative SD")
+  1 |> debit_explain(0.5, 1, 1, 1, "continuous", sd_meaning = "sd_pop") |> _$consistency |> expect_false()
+  # The same for both data types, so the type doesn't come up:
+  undecidable <- grim_explain(5.2, 0, 1, 1, NA)
+  undecidable$consistency |> expect_equal(NA)
+  undecidable$paragraphs  |> expect_equal("The test needs n to be a positive whole number, but it is 0.")
+})
+
+test_that("`data_type` must be a single value", {
+  5.2 |> grim_explain(20, 1, 1, c("integer", "integer")) |> expect_error("must have length 1")
+  5.2 |> grim_explain(20, 1, 1, NULL)                    |> expect_error("must have length 1")
+})
+
 test_that("a missing `digits_x` gets the usual error", {
   5.19 |> grim_explain(n = 28, items_averaged = 1, data_type = "integer") |> expect_error("digits_x")
 })

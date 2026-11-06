@@ -113,7 +113,17 @@ debit_explain <- function(
       data_type,
       consistency,
       explain_integer,
-      "mean and SD"
+      "mean and SD",
+      names(verdict_continuous(
+        n,
+        min_n = sd_min_n(sd_meaning),
+        sd = sd,
+        digits_sd = digits_sd,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      )),
+      format_reported(sd, digits_sd)
     ))
   }
   # As a double, as in `debit_scalar()`, which has checked the type:

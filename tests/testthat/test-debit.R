@@ -623,3 +623,11 @@ test_that("`data_type` decides whether DEBIT applies", {
   out$consistency |> expect_equal(c(FALSE, TRUE, NA))
   out[1:2, ] |> debit_plot() |> expect_warning("Dropping 1 value set of continuous data")
 })
+
+test_that("continuous data pass only value sets that some data can have", {
+  types <- c("integer", "continuous", NA)
+  # A single value has a population SD of 0, and no sample SD:
+  1 |> debit(c(0.5, 0), 1, 1, 1, "continuous", sd_meaning = "sd_pop") |> expect_equal(c(FALSE, TRUE))
+  1 |> debit(0.5, 1, 1, 1, types, sd_meaning = "sd_pop")               |> expect_equal(c(FALSE, FALSE, FALSE))
+  0.5 |> debit(0.5, c(1, 0), 1, 1, "continuous")                       |> expect_equal(c(NA, NA))
+})

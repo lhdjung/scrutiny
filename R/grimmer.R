@@ -262,7 +262,22 @@ grimmer_scalar <- function(
   check_newly_numeric(x, digits_x, scale = scale)
   check_newly_numeric(sd, digits_sd, scale = scale)
 
+  # `arg_match_in_export()` returns at once for a valid string or the default,
+  # which matters here: this runs once per row. `SD_MEANINGS` is the default:
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+
   if (!identical(data_type, "integer")) {
+    verdict <- verdict_continuous(
+      n,
+      items_averaged,
+      min_n = sd_min_n(sd_meaning),
+      x = x,
+      sd = sd,
+      digits_sd = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
     return(test_data_type(
       data_type,
       test_integer = function() {
@@ -281,14 +296,14 @@ grimmer_scalar <- function(
           sd_meaning = sd_meaning
         )
       },
-      pass = if (show_reason) list(TRUE, "Continuous data") else TRUE,
+      continuous = if (show_reason) {
+        list(unname(verdict), names(verdict))
+      } else {
+        unname(verdict)
+      },
       missing = if (show_reason) list(NA, "Missing value") else NA
     ))
   }
-
-  # `arg_match_in_export()` returns at once for a valid string or the default,
-  # which matters here: this runs once per row. `SD_MEANINGS` is the default:
-  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
 
   if (sd_meaning == "sd_sample_or_pop") {
     test_type <- function(sd_meaning) {
@@ -654,7 +669,8 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
 #' @param data_type String. As in [`grim()`]: `"integer"`,
 #'   `"quasi-integer"`, or `"continuous"`, the last of which can have any mean
-#'   and SD. No default.
+#'   and SD, though no negative SD, and a single value only an SD of 0. No
+#'   default.
 #' @param sd_meaning String. What `sd` really is. `"sd_sample"` (the
 #'   default; see *Defaults* in [`grimmer()`]) is the sample SD, which
 #'   divides by `n - 1`, as in R, SPSS, Stata, or Excel's `STDEV.S`.

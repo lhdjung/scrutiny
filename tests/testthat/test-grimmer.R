@@ -1385,3 +1385,27 @@ test_that("`data_type` decides whether GRIMMER applies", {
   out$consistency |> expect_equal(c(FALSE, TRUE, NA))
   out$reason      |> expect_equal(c("GRIMMER inconsistent (test 3)", "Continuous data", "Missing value"))
 })
+
+test_that("continuous data pass only value sets that some data can have", {
+  types <- c("integer", "continuous", NA)
+  # No data have a negative SD, and a single value has a population SD of 0:
+  5 |> grimmer(-1, 20, 0, 0, 1, types)                       |> expect_equal(c(FALSE, FALSE, FALSE))
+  5 |> grimmer(1, 1, 0, 0, 1, types, sd_meaning = "sd_pop") |> expect_equal(c(FALSE, FALSE, FALSE))
+  5.3 |> grimmer(0, 1, 1, 0, 1, types, sd_meaning = "sd_pop") |> expect_equal(c(FALSE, TRUE, NA))
+  5 |> grimmer(1, 1, 0, 0, 1, types, sd_meaning = "sd_sample_or_pop") |> expect_equal(c(FALSE, FALSE, FALSE))
+  # No data have these sample sizes, and no sample SD exists for one value:
+  5 |> grimmer(1, c(0, 20.5, 1), 0, 0, 1, "continuous") |> expect_equal(c(NA, NA, NA))
+  5 |> grimmer(1, 20, 0, 0, 0, "continuous")            |> expect_equal(NA)
+  # A missing value can be anything:
+  NA |> grimmer(1, NA, 0, 0, 1, "continuous") |> expect_true()
+  out <- tibble::tibble(x = 5, sd = c(-1, 1, 1), n = c(20, 1, 0)) |>
+    grimmer_map(digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "continuous", sd_meaning = "sd_pop")
+  out$reason |> expect_equal(c("Negative SD", "SD of a single value", "No testable value set"))
+})
+
+test_that("`sd_meaning` is checked for continuous data, too", {
+  5.2 |> grimmer(1.1, 20, 1, 1, 1, "continuous", sd_meaning = "foo") |> expect_error("must be one of")
+  tibble::tibble(x = 5.2, sd = 1.1, n = 20) |>
+    grimmer_map(digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "continuous", sd_meaning = "foo") |>
+    expect_error("must be one of")
+})

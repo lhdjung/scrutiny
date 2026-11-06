@@ -484,6 +484,11 @@ test_that("`data_type` decides whether GRIM applies", {
   5.19 |> grim(28, 2, 1)         |> expect_error("Need to specify `data_type`")
   5.19 |> grim(28, 2, 1, "int")  |> expect_error("Did you mean", fixed = TRUE)
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("or give `data` a `data_type` column")
+  # Continuous data are undecidable where whole numbers are because they are
+  # no data at all, but a missing value can be anything:
+  c(5.2, Inf, 5.2, 5.2) |> grim(c(0, 10, 20.5, NA), 1, 1, "continuous") |> expect_equal(c(NA, NA, NA, TRUE))
+  5.2 |> grim(20, 1, 0, "continuous") |> expect_equal(NA)
+  5.2 |> grim(20, 1, 1, NULL) |> expect_error("must not be `NULL`")
 })
 
 test_that("`data_type` is a column of mapper output, and `exp_incon` follows it", {

@@ -809,38 +809,93 @@ error_digits_missing <- function(x) {
 error_data_type_missing <- function() {
   name_fn <- name_last_export()
   msg_column <- if (grepl("_map", name_fn)) {
-    ", or give `data` a `data_type` column"
+    " or give `data` a `data_type` column"
   }
 
   abort_in_export(
     "Need to specify `data_type`{msg_column}.",
-    "i" = "`\"integer\"`: the values are whole numbers, such as answers on a \\
+    "*" = "{.val integer}: the values are whole numbers, such as answers on a \\
     rating scale or counts.",
-    "i" = "`\"quasi-integer\"`: whole numbers that stand for something \\
+    "*" = "{.val quasi-integer}: whole numbers that stand for something \\
     continuous, such as age in years.",
-    "i" = "`\"continuous\"`: the values are not whole numbers, such as \\
+    "*" = "{.val continuous}: the values are not whole numbers, such as \\
     reaction times. Any mean is possible, so the result is `TRUE`."
   )
 }
 
 
 # What the tests return for data that are not plainly whole numbers.
-# `test_integer` is a function that runs the test as if they were, `pass` is
-# what the test returns for a consistent case, and `missing` for an
-# undecidable one. Continuous data can have any mean or SD, so they pass. A
-# missing `data_type` might be continuous, so it is `NA` unless the test passes
-# anyway. Quasi-integer data are tested as whole numbers, with a warning.
-test_data_type <- function(data_type, test_integer, pass, missing) {
+# `test_integer` is a function that runs the test as if they were,
+# `continuous` is the result for continuous data, from `verdict_continuous()`,
+# and `missing` the one for an undecidable case. A missing `data_type` might be
+# either, so it is `NA` unless both agree. Quasi-integer data are tested as
+# whole numbers, with a warning.
+test_data_type <- function(data_type, test_integer, continuous, missing) {
+  check_length(data_type, 1L)
   if (is.na(data_type)) {
     out <- test_integer()
-    return(if (isTRUE(out[[1L]])) out else missing)
+    agree <- identical(out[[1L]], continuous[[1L]])
+    return(if (agree) out else missing)
   }
   data_type <- arg_match_in_export(data_type, DATA_TYPES)
   if (data_type == "continuous") {
-    return(pass)
+    return(continuous)
   }
   warn_quasi_integer()
   test_integer()
+}
+
+
+# The verdict on continuous data, named by its reason. Such data can have any
+# mean and SD, so a missing value can be anything and passes. Only a value set
+# that no data can have does not: it is undecidable, as for whole numbers, if
+# `n` or `items_averaged` is given but is no whole number of at least `min_n`
+# (see `is_decidable_continuous()`) or a value is infinite. It is inconsistent
+# if the SD is negative, or if it is the population SD of a single value,
+# which is 0, and 0 would not have been reported as `sd`.
+verdict_continuous <- function(
+  n,
+  items_averaged = 1,
+  min_n = 1,
+  x = NA,
+  sd = NA,
+  digits_sd = NA,
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  if (!is_decidable_continuous(n, items_averaged, min_n)) {
+    return(c("No testable value set" = NA))
+  }
+  if (is.infinite(x) || is.infinite(sd)) {
+    return(c("Infinite value" = NA))
+  }
+  if (!is.na(sd) && sd < 0) {
+    return(c("Negative SD" = FALSE))
+  }
+  if (isTRUE(n == 1) && !is.na(sd) && !is.na(digits_sd)) {
+    bounds <- roundwork::bound_numerators(
+      sd,
+      digits_sd,
+      rounding,
+      threshold,
+      symmetric
+    )
+    if (bounds$lower > 0 || (bounds$lower == 0 && !bounds$incl_lower)) {
+      return(c("SD of a single value" = FALSE))
+    }
+  }
+  c("Continuous data" = TRUE)
+}
+
+
+# `is_decidable_n_items()` for continuous data, where a missing `n` or
+# `items_averaged` can be anything, so only one that is given can make the
+# value set undecidable. Vectorized, for `grim_total()`.
+is_decidable_continuous <- function(n, items_averaged = 1, min_n = 1) {
+  n[is.na(n)] <- min_n
+  items_averaged[is.na(items_averaged)] <- 1
+  is_decidable_n_items(n, items_averaged, min_n)
 }
 
 

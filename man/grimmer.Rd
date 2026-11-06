@@ -38,7 +38,8 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"},
 \code{"quasi-integer"}, or \code{"continuous"}, the last of which can have any mean
-and SD. No default.}
+and SD, though no negative SD, and a single value only an SD of 0. No
+default.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see

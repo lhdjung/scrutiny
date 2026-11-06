@@ -62,7 +62,7 @@ more than 100.
 \code{absolute} out of \code{n} would have been reported as, given the number of
 decimal places and the rounding method.
 
-This is stricter than \code{\link[=grim]{grim()}} with \code{percent = TRUE}, which only asks
+This is stricter than \code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, which only asks
 whether some count out of \code{n} produces the percentage. Here, the count is
 reported too.
 
@@ -91,5 +91,5 @@ is_percentage_of(40, 33.3, 120, digits_percentage = 1)
 is_percentage_of(40, 34, 120, digits_percentage = 0)
 }
 \seealso{
-\code{\link[=grim]{grim()}} with \code{percent = TRUE}, for a percentage without a count.
+\code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, for a percentage without a count.
 }

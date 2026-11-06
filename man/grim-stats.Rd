@@ -47,7 +47,7 @@ the same length, or length 1.}
 
 \item{data_type}{String. As in \code{\link[=grim]{grim()}}, and recycled like \code{x}. No
 default. For \code{"continuous"} data, which GRIM can't find inconsistent,
-the result is 0.}
+the result is 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}.}
 
 \item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, which
 adds 2 to the decimal count, as in \code{\link[=grim]{grim()}}.}

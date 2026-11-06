@@ -39,6 +39,7 @@ grim_scalar <- function(
   check_newly_numeric(x, digits_x, scale = scale)
 
   if (!identical(data_type, "integer")) {
+    verdict <- unname(verdict_continuous(n, items_averaged, x = x))
     return(test_data_type(
       data_type,
       test_integer = function() {
@@ -55,7 +56,11 @@ grim_scalar <- function(
           symmetric = symmetric
         )
       },
-      pass = if (show_rec) c(list(TRUE), rep(list(NA_real_), 5L)) else TRUE,
+      continuous = if (show_rec) {
+        c(list(verdict), rep(list(NA_real_), 5L))
+      } else {
+        verdict
+      },
       missing = if (show_rec) c(list(NA), rep(list(NA_real_), 5L)) else NA
     ))
   }
@@ -198,10 +203,12 @@ grim_scalar <- function(
 #'   tested like `"integer"` data, with a warning, once per session, that
 #'   the result only holds if the analysis used the recorded whole numbers.
 #'   - `"continuous"`: anything else, such as body mass index or a visual
-#'   analogue scale. The test does not apply, and the result is `TRUE`.
+#'   analogue scale. The test does not apply, and the result is `TRUE`
+#'   unless the value set describes no data, as with `n = 0`, which is `NA`
+#'   as it is for whole numbers.
 #'
-#'   If it is missing, the result is `TRUE` if the value set is consistent as
-#'   whole numbers, and `NA` otherwise.
+#'   If it is `NA`, the result is the one for whole numbers if it is the same
+#'   for continuous data, and `NA` otherwise.
 #' @param x_meaning String. What `x` is: `"mean"` (the default) or
 #'   `"percentage"`. A percentage is divided by 100 and tested with two more
 #'   decimal places, as the proportion it is. See *Defaults* in [`grim()`].

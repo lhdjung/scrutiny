@@ -41,11 +41,13 @@ such as age in years or reaction times in whole milliseconds. They are
 tested like \code{"integer"} data, with a warning, once per session, that
 the result only holds if the analysis used the recorded whole numbers.
 \item \code{"continuous"}: anything else, such as body mass index or a visual
-analogue scale. The test does not apply, and the result is \code{TRUE}.
+analogue scale. The test does not apply, and the result is \code{TRUE}
+unless the value set describes no data, as with \code{n = 0}, which is \code{NA}
+as it is for whole numbers.
 }
 
-If it is missing, the result is \code{TRUE} if the value set is consistent as
-whole numbers, and \code{NA} otherwise.}
+If it is \code{NA}, the result is the one for whole numbers if it is the same
+for continuous data, and \code{NA} otherwise.}
 
 \item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
 \code{"percentage"}. A percentage is divided by 100 and tested with two more

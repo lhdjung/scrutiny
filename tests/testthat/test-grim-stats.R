@@ -218,4 +218,9 @@ test_that("`data_type` is required, and continuous data give 0", {
   5.19 |> grim_total(28, 2, 1)     |> expect_error("Need to specify `data_type`")
   5.19 |> grim_total(28, 2, 1, c("integer", "continuous", NA))  |> expect_equal(c(72, 0, NA))
   5.19 |> grim_total(500, 2, 1, c("integer", "continuous", NA)) |> expect_equal(c(0, 0, 0))
+  # `NA` where `grim()` is, as for no data at all:
+  c(5.2, 5.2, Inf) |> grim_total(c(0, NA, 10), 1, 1, "continuous") |> expect_equal(c(NA, 0, NA))
+  5.19 |> grim_total(28, 2, 1, NULL)              |> expect_error("must not be `NULL`")
+  5.19 |> grim_total(28, 2, NULL, "integer")      |> expect_error("must not be `NULL`")
+  5.19 |> grim_total(28, 2, 1, factor("integer")) |> expect_error("must be a character vector")
 })
