@@ -222,3 +222,15 @@ test_that("`disperse2()` disperses from numbers that are not consecutive as they
   c(25, 25) |> sizes(0:1)                         |> expect_identical(c(25L, 25L, 24L, 26L))
   c(25, 27) |> sizes(0:3, n_min = 23, n_max = 29) |> expect_identical(c(25L, 27L, 24L, 28L, 23L, 29L))
 })
+
+
+test_that("`disperse2()` keeps the pairs within the limits for a descending `n`", {
+  # The limits were applied as if the pairs moved outward, which they only do
+  # for an ascending `n`:
+  out <- suppressWarnings(disperse2(c(30, 20), dispersion = 0:5, n_min = 18))
+  out$n |> expect_equal(c(30, 20, 29, 21, 28, 22, 27, 23, 26, 24, 25, 25))
+  out <- suppressWarnings(disperse2(c(26, 25), dispersion = 0:2, n_min = 25))
+  out$n |> expect_equal(c(26, 25, 25, 26))
+  out <- suppressWarnings(disperse2(c(30, 20), dispersion = 0:5, n_max = 28))
+  out$n |> expect_equal(c(28, 22, 27, 23, 26, 24, 25, 25))
+})

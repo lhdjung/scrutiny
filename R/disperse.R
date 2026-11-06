@@ -226,14 +226,11 @@ disperse2 <- function(
 
   # Main part ---
 
-  # Disperse from the mean of the two `n` values. The limits apply to the group
-  # sizes, which are half the gap between them further out than the values
-  # dispersed from the midpoint: half a unit for consecutive numbers. Other
-  # numbers get a warning above, but are still dispersed from as they are;
-  # shifting them by half a unit regardless gave fractional group sizes.
+  # Disperse from the mean of the two `n` values, shifted by half the gap
+  # between them: half a unit for consecutive numbers. Other numbers get a
+  # warning above, but are still dispersed from as they are; shifting them by
+  # half a unit regardless gave fractional group sizes.
   half_gap <- (n[2L] - n[1L]) / 2
-  # Near-whole limits are rounded here: shifted, they would be
-  # too far from whole for `disperse()` to round them:
   check_limit_n(n_min, "n_min")
   check_limit_n(n_max, "n_max")
   n_min <- round_whole(n_min)
@@ -242,13 +239,25 @@ disperse2 <- function(
     n = mean(n),
     constant = constant,
     dispersion = dispersion,
-    n_min = if (!is.null(n_min)) n_min + abs(half_gap),
-    n_max = if (!is.null(n_max)) n_max - abs(half_gap)
+    n_min = NULL,
+    n_max = NULL
   )
 
   # Odd rows go down from the first `n` value, even rows up from the second.
-  # `rep_len()` also covers the case where the limits left no pairs at all:
+  # `rep_len()` also covers the case where there are no pairs at all:
   out$n <- out$n + rep_len(c(-half_gap, half_gap), nrow(out))
+
+  # The limits apply to the group sizes themselves. With `n` descending, a
+  # pair moves inward before it moves out, so either one can be the smaller:
+  in_limits <- rep(TRUE, nrow(out))
+  if (!is.null(n_min)) {
+    in_limits <- in_limits & out$n >= n_min
+  }
+  if (!is.null(n_max)) {
+    in_limits <- in_limits & out$n <= n_max
+  }
+  pair <- (seq_len(nrow(out)) + 1L) %/% 2L
+  out <- out[in_limits[pair * 2L - 1L] & in_limits[pair * 2L], ]
 
   # Every value is a whole number again:
   out$n <- as_integer_if_lossless(out$n)
