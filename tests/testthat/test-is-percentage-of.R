@@ -36,7 +36,7 @@ test_that("a percentage is GRIM-consistent iff some count produces it", {
 test_that("`is_percentage_of()` is `NA` for undecidable cases", {
   c(NA, 1.5, -1, 1) |> is_percentage_of(50, c(2, 2, 2, 0), 0) |> expect_equal(rep(NA, 4))
   1 |> is_percentage_of(NA, 2, 0) |> expect_equal(NA)
-  1 |> is_percentage_of(50, 2, NA) |> expect_equal(NA)
+  1 |> is_percentage_of(33, 3, NA) |> expect_equal(NA)
 })
 
 test_that("a missing `absolute` is `FALSE` if no count has the percentage", {
@@ -102,4 +102,33 @@ test_that("a count above its total is tested as any other", {
   130         |> is_percentage_of(108.3, 120, 1)           |> expect_true()
   120         |> is_percentage_of(100, 120, 1)             |> expect_true()
   tibble::tibble(absolute = 118, percentage = 97, n = 120) |> is_percentage_of_map_seq(digits_percentage = 0) |> audit_seq() |> _$hits_total |> expect_equal(4L)
+})
+
+
+test_that("a missing `digits_percentage` or `n` that can't change the verdict doesn't make it `NA`", {
+  # As in `grim()`: inconsistent with the decimal places shown, or consistent
+  # with any. These were `NA`:
+  c(5, 30) |> is_percentage_of(71.3, 43, NA) |> expect_equal(c(FALSE, FALSE))
+  NA       |> is_percentage_of(71.3, 43, NA) |> expect_false()
+  1        |> is_percentage_of(50, 2, NA)    |> expect_true()
+  # No `n` makes 5 a share of 71.3%, and 0 is a share of 0% out of any `n`:
+  5        |> is_percentage_of(71.3, NA, 1)  |> expect_false()
+  0        |> is_percentage_of(0, NA, 1)     |> expect_true()
+  0        |> is_percentage_of(1, NA, 1)     |> expect_false()
+  0        |> is_percentage_of(0, NA, NA)    |> expect_true()
+  # Some `n` passes, others fail:
+  40       |> is_percentage_of(33.3, NA, 1)  |> expect_equal(NA)
+  NA       |> is_percentage_of(33.3, NA, 1)  |> expect_equal(NA)
+
+  # Every `n` that the verdict rules out fails:
+  set.seed(sweep_seed(1107L))
+  for (i in 1:200) {
+    absolute <- sample(0:30, 1)
+    digits <- sample(0:2, 1)
+    percentage <- round(runif(1, 0, 100), digits)
+    verdict <- is_percentage_of(absolute, percentage, NA, digits)
+    if (!is.na(verdict)) {
+      absolute |> is_percentage_of(percentage, 1:3000, digits) |> expect_equal(rep(verdict, 3000))
+    }
+  }
 })

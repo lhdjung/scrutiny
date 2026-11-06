@@ -33,16 +33,64 @@ is_percentage_of_scalar <- function(
   # several, whose percentages can sum to more than 100. A missing count is
   # checked below:
   absolute_missing <- is.na(absolute)
+  n_missing <- is.na(n)
   if (
-    !is_decidable_n_items(n) ||
+    (!n_missing && !is_decidable_n_items(n)) ||
       (!absolute_missing &&
         (!is.finite(absolute) ||
           absolute < 0 ||
           abs(absolute - round(absolute)) >= WHOLE_NUMBER_TOLERANCE)) ||
-      !is.finite(percentage) ||
-      is.na(digits_percentage)
+      !is.finite(percentage)
   ) {
     return(NA)
+  }
+
+  # A missing decimal count decides nothing if the case is inconsistent even
+  # with the fewest decimal places that `percentage` can have, or consistent
+  # even with so many that only `percentage` itself is left; see
+  # `digits_least()` and `digits_exact_mean()`. Without `n`, that is a
+  # percentage of 0, which a count of 0 has out of any `n`. An error is about a
+  # size that the test refuses, which leaves the case open:
+  if (is.na(digits_percentage)) {
+    test_digits <- function(digits) {
+      tryCatch(
+        is_percentage_of_scalar(
+          absolute = absolute,
+          percentage = percentage,
+          n = n,
+          digits_percentage = digits,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric
+        ),
+        error = function(cnd) NA
+      )
+    }
+    digits_shown <- digits_least(percentage, digits_percentage)
+    at_least <- test_digits(digits_shown)
+    if (!isTRUE(at_least)) {
+      return(if (isFALSE(at_least)) FALSE else NA)
+    }
+    digits_most <- if (!n_missing) {
+      digits_exact_mean(digits_shown, as.numeric(n))
+    } else if (percentage == 0) {
+      digits_shown
+    }
+    if (!is.null(digits_most) && isTRUE(test_digits(digits_most))) {
+      return(TRUE)
+    }
+    return(NA)
+  }
+
+  if (n_missing) {
+    return(percentage_of_any_n(
+      absolute,
+      percentage,
+      digits_percentage,
+      rounding,
+      threshold,
+      symmetric
+    ))
   }
 
   # The counts out of `n` whose share would be reported as `percentage`, in
@@ -73,6 +121,67 @@ is_percentage_of_scalar <- function(
   }
 
   counts[1L] <= absolute && absolute <= counts[2L]
+}
+
+
+# `is_percentage_of_scalar()` with `n` missing. A count of 0 has a share of 0
+# out of any `n`, so it is consistent with every `n` or with none. Any other
+# count is a share of `absolute / n`, which is within the rounding bounds
+# `lower / denom` to `upper / denom` exactly for an `n` from
+# `absolute * denom / upper` to `absolute * denom / lower`. If no whole number
+# is in that range, no `n` passes; if one is, larger and smaller ones fail,
+# so the case is open. Products past 2^53 are not exact, which leaves it open
+# as well:
+percentage_of_any_n <- function(
+  absolute,
+  percentage,
+  digits,
+  rounding,
+  threshold,
+  symmetric
+) {
+  if (is.na(absolute)) {
+    return(NA)
+  }
+  bounds <- roundwork::bound_numerators(
+    percentage / 100,
+    digits + 2L,
+    rounding,
+    threshold,
+    symmetric
+  )
+  lower <- bounds$lower
+  upper <- bounds$upper
+
+  if (absolute == 0) {
+    above_lower <- lower < 0 || (lower == 0 && bounds$incl_lower)
+    below_upper <- upper > 0 || (upper == 0 && bounds$incl_upper)
+    return(above_lower && below_upper)
+  }
+  if (upper <= 0) {
+    return(FALSE)
+  }
+
+  target <- absolute * bounds$denom
+  if (target >= 2^53 || target * max(abs(lower), upper) >= 2^53) {
+    return(NA)
+  }
+  # The least `n` whose share is below the upper bound, or at it if that is
+  # inclusive:
+  n_least <- max(1, ceiling(target / upper))
+  if (n_least * upper < target) {
+    n_least <- n_least + 1
+  }
+  if (n_least * upper == target && !bounds$incl_upper) {
+    n_least <- n_least + 1
+  }
+  # Larger ones only lower the share, so it passes if this one does:
+  passes <- if (bounds$incl_lower) {
+    n_least * lower <= target
+  } else {
+    n_least * lower < target
+  }
+  if (passes) NA else FALSE
 }
 
 
@@ -112,10 +221,12 @@ is_percentage_of_scalar <- function(
 #' @inheritParams grim
 #'
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
-#'   and `NA` if the case cannot be decided: if a value is missing or infinite,
-#'   if `absolute` is not a non-negative whole number, or if `n` is not a
-#'   positive whole number. A missing `absolute` is `FALSE` if no count gives
-#'   `percentage`. An `absolute` above `n` is tested like any other, as for
+#'   and `NA` if the case cannot be decided: if a value is infinite, if
+#'   `absolute` is not a non-negative whole number, if `n` is not a positive
+#'   whole number, or if a missing value could decide the case either way. A
+#'   missing `absolute` is `FALSE` if no count gives `percentage`, and a
+#'   missing `n` if `absolute` is no such share of any `n`. A missing
+#'   `digits_percentage` is treated as in [`grim()`]. An `absolute` above `n` is tested like any other, as for
 #'   answers to a question that allows several, whose percentages can sum to
 #'   more than 100.
 #'

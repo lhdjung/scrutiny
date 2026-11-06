@@ -48,10 +48,12 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 }
 \value{
 Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
-and \code{NA} if the case cannot be decided: if a value is missing or infinite,
-if \code{absolute} is not a non-negative whole number, or if \code{n} is not a
-positive whole number. A missing \code{absolute} is \code{FALSE} if no count gives
-\code{percentage}. An \code{absolute} above \code{n} is tested like any other, as for
+and \code{NA} if the case cannot be decided: if a value is infinite, if
+\code{absolute} is not a non-negative whole number, if \code{n} is not a positive
+whole number, or if a missing value could decide the case either way. A
+missing \code{absolute} is \code{FALSE} if no count gives \code{percentage}, and a
+missing \code{n} if \code{absolute} is no such share of any \code{n}. A missing
+\code{digits_percentage} is treated as in \code{\link[=grim]{grim()}}. An \code{absolute} above \code{n} is tested like any other, as for
 answers to a question that allows several, whose percentages can sum to
 more than 100.
 }
