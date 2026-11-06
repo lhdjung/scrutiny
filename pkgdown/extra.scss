@@ -35,3 +35,15 @@
 .hasCopyButton:hover button.btn-copy-ex {
   opacity: 1;
 }
+
+// pkgdown caps dropdowns at 280px, so the Articles menu scrolled. Let it grow
+// to the height of the window instead.
+.navbar .dropdown-menu {
+  max-height: calc(100vh - 5rem);
+}
+
+// pkgdown puts a divider above the first group of articles, where it divides
+// nothing.
+.dropdown-menu > li:first-child > .dropdown-divider {
+  display: none;
+}
