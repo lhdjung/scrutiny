@@ -429,6 +429,16 @@ function_map_total_n <- function(
       if (is.null(n_min)) {
         n_min <- defaults_total_n$n_min
       }
+      # A group of no members has no mean to test, and one of fewer makes no
+      # sense; `disperse_total()` itself would split into them:
+      check_limit_n(n_min, "n_min")
+      if (n_min < 1) {
+        abort_in_export(
+          "`n_min` must be at least 1.",
+          "x" = "It is {n_min}.",
+          "i" = "Each total splits into two groups of at least one member."
+        )
+      }
 
       # One value applies to both groups and every row. A vector would be
       # recycled across the alternating group rows, pairing values with the

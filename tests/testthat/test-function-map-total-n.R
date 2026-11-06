@@ -372,3 +372,12 @@ test_that("a `.dir` column of `data` does not replace the direction", {
   out$.dir |> unique() |> expect_equal("zz")
   out |> audit_total_n() |> expect_no_error()
 })
+
+
+test_that("`n_min` below 1 is an error", {
+  # It split totals into groups of 0 or fewer members, whose hits were `NA`:
+  df <- tibble::tibble(x1 = 5.2, x2 = 4, n = 4)
+  df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = -3) |> expect_error("must be at least 1")
+  df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = 0)  |> expect_error("must be at least 1")
+  df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = 1)  |> nrow() |> expect_gt(0)
+})
