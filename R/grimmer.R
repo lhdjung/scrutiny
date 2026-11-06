@@ -372,6 +372,20 @@ grimmer_scalar <- function(
   # `n = 10^digits_x`, any mean passes GRIM, and some sum of squares fits. A
   # missing decimal count is a missing value like any other: no rounding bounds
   # follow from it.
+  # ...but not next to a negative SD, which no data set of any size has. An
+  # `n` or `items_averaged` that is given but describes no data set still
+  # leaves the case undecidable, as further down:
+  if (
+    !is.na(sd) &&
+      sd < 0 &&
+      is_decidable_continuous(n, items_averaged, sd_min_n(sd_meaning))
+  ) {
+    if (show_reason) {
+      return(list(FALSE, "Negative SD"))
+    }
+    return(FALSE)
+  }
+
   if (is.na(n) || is.na(items_averaged)) {
     if (show_reason) {
       return(list(NA, "Missing value"))

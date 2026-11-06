@@ -384,6 +384,22 @@ test_that("a value set that is inconsistent with the decimal places it shows is 
   }
 })
 
+test_that("a negative SD is inconsistent whatever else is missing", {
+  # No data set of any size has one, but a missing `n` or `items_averaged`
+  # was checked first:
+  5 |> grimmer(-1, NA, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer")  |> expect_false()
+  5 |> grimmer(-1, 10, digits_x = 0, digits_sd = 0, items_averaged = NA, data_type = "integer") |> expect_false()
+  5 |> grimmer(-1, NA, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer") |> expect_false()
+  5 |> grimmer(-1, NA, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = NA)         |> expect_false()
+  grimmer_scalar(5, -1, NA, 0, 0, 1, show_reason = TRUE, data_type = "integer")[[2L]]           |> expect_equal("Negative SD")
+  # An `n` that describes no data set is still undecidable:
+  5 |> grimmer(-1, 0, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer")   |> expect_na()
+  grimmer_explain(x = 5, sd = -1, n = NA, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer") |>
+    format() |>
+    paste(collapse = " ") |>
+    expect_match("no data set has a negative SD")
+})
+
 test_that("an explanation says why a missing `digits_*` doesn't leave the case open", {
   text <- function(explanation) format(explanation) |> paste(collapse = " ") |> gsub(pattern = "\\s+", replacement = " ")
   grim_explain(x = 5.19, n = 28, digits_x = NA, items_averaged = 1, data_type = "integer") |>
