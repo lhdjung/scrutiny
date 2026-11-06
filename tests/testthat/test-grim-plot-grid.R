@@ -345,3 +345,38 @@ test_that("an inconsistent value set without a mean or its decimal places is dro
 
   out[2L, ] |> grim_plot_grid() |> expect_error("No value set in `data` has a mean") |> suppressMessages()
 })
+
+
+test_that("negative means get the raster of the mirrored rounding method", {
+  # The raster was the one for positive means, so under `"ceiling"` or
+  # `"floor"`, nearly half the tiles sat on a cell of the other color:
+  disagreements <- function(x, n, ...) {
+    out <- tibble::tibble(x = x, n = n) |>
+      grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", ...)
+    raster <- ggplot2::ggplot_build(grim_plot_grid(out))$data[[1L]]
+    on_white <- paste(out$n, round(abs(out$x) %% 1 * 100)) %in% paste(raster$x, round(raster$y * 100))
+    sum(on_white == out$consistency)
+  }
+  set.seed(sweep_seed(11L))
+  x <- -round(runif(200, 0.01, 9), 2)
+  x <- x[round(abs(x) %% 1, 2) != 0]
+  n <- sample(2:99, length(x), replace = TRUE)
+
+  for (rounding in c("ceiling", "floor", "up", "down", "ties_up", "ties_down", "ties_away", "trunc", "up_or_down")) {
+    disagreements(x, n, rounding = rounding) |> expect_equal(0L)
+  }
+  disagreements(x, n, rounding = "up", symmetric = TRUE)                    |> expect_equal(0L)
+  disagreements(x, n, rounding = "up_from", threshold = 3)                  |> expect_equal(0L)
+  disagreements(x, n, rounding = "up_from_or_down_from", threshold = 3)     |> expect_equal(0L)
+  disagreements(-x, n, rounding = "ceiling")                                |> expect_equal(0L)
+
+  # With both signs, one raster can't serve all tiles:
+  tibble::tibble(x = c(-2.57, 2.57), n = 7) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling") |>
+    grim_plot_grid() |>
+    expect_warning("The raster is the one for positive means")
+  tibble::tibble(x = c(-2.57, 2.57), n = 7) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    grim_plot_grid() |>
+    expect_no_warning()
+})

@@ -36,10 +36,13 @@
 #' @section Negative means: The y-axis is the fractional part of the absolute
 #'   value of `x`, so a mean of `-2.51` is drawn at `0.51`. GRIM's granularity
 #'   is symmetric around zero, so this is the value set's place on the grid.
-#'   For a one-directional rounding method such as `"up"`, the raster behind a
-#'   negative value is the one for the mirrored method, since a tie in a
-#'   negative number goes the other way (unless `symmetric = TRUE`). The tile's
-#'   color comes from the `consistency` column and is unaffected.
+#'   A one-directional rounding method treats the absolute value of a negative
+#'   number the other way: `"ceiling"` like `"floor"`, and `"up"` like `"down"`
+#'   (unless `symmetric = TRUE`). If all means are negative, the raster is the
+#'   one for this mirrored method, so that it agrees with the tiles. With
+#'   positive and negative means under such a method, no single raster does;
+#'   it is then the one for positive means, with a warning. The tile's color
+#'   comes from the `consistency` column and is unaffected.
 #'
 #' @param data Data frame returned by [`grim_map()`] or [`grimmer_map()`],
 #'   or by their `*_seq()` and `*_total_n()` variants.
@@ -491,15 +494,37 @@ grim_plot_grid <- function(
 
   if (show_raster) {
     if (digits <= 2L) {
-      # Data built by hand has no recorded rounding method or threshold. The
-      # axis is non-negative, so `grim_grid_inconsistent()` ignores
-      # `symmetric`; see the "Negative means" section of the docs.
+      # Data built by hand has no recorded rounding method or threshold:
       args <- scrutiny_args(data)
       if (!is.null(args$rounding)) {
         rounding <- args$rounding
       }
       if (!is.null(args$threshold)) {
         threshold <- args$threshold
+      }
+
+      # The axis is the fractional part of the absolute value, where a
+      # negative mean is rounded the other way: `"ceiling"` takes -2.575 up to
+      # -2.57, which takes 2.575 down to 2.57, as `"floor"` does. So negative
+      # means get the raster of the mirrored method. With both signs in the
+      # data, one raster can't be right for all of them:
+      mirrored <- mirror_rounding(rounding, threshold, isTRUE(args$symmetric))
+      is_negative <- show_data & data$x < 0
+      is_mirrored <- mirrored$rounding != rounding ||
+        mirrored$threshold != threshold
+      if (any(is_negative) && is_mirrored) {
+        if (all(is_negative | data$x == 0)) {
+          rounding <- mirrored$rounding
+          threshold <- mirrored$threshold
+        } else {
+          cli::cli_warn(c(
+            "!" = "The raster is the one for positive means.",
+            "x" = "`data` has {sum(is_negative)} negative mean{?s}, which \\
+            `rounding = \"{rounding}\"` rounds the other way, so the \\
+            raster behind {?it/them} can disagree with the tile.",
+            "i" = "Plot negative and positive means separately."
+          ))
+        }
       }
 
       df_plot <- grim_grid_inconsistent(digits, rounding, threshold)
@@ -685,4 +710,38 @@ drop_continuous <- function(data, test, ...) {
 grim_plot <- function(...) {
   lifecycle::deprecate_soft("1.0.0", "grim_plot()", "grim_plot_grid()")
   grim_plot_grid(...)
+}
+
+
+# The rounding method that treats the absolute value of a negative number as
+# `rounding` treats the number itself, with its threshold. A method that
+# rounds a tie either way, or to an even digit, or by the absolute value in
+# the first place is its own mirror image; `symmetric = TRUE` makes `"up"`,
+# `"down"`, and the `"*_from"` methods such methods. The `"ties_*"` strings
+# are resolved first, as `roundwork::bound_numerators()` resolves them.
+mirror_rounding <- function(rounding, threshold, symmetric) {
+  resolved <- roundwork::resolve_ties_rounding(
+    rounding,
+    # A `"ties_*"` string brings its own:
+    if (startsWith(rounding, "ties_")) FALSE else symmetric
+  )
+  basic <- resolved$rounding
+  out <- list(rounding = rounding, threshold = threshold)
+  if (basic %in% c("ceiling", "floor")) {
+    out$rounding <- if (basic == "ceiling") "floor" else "ceiling"
+  } else if (!resolved$symmetric && basic %in% c("up", "down")) {
+    out$rounding <- if (basic == "up") "down" else "up"
+  } else if (
+    !resolved$symmetric &&
+      basic %in% c("up_from", "down_from", "up_from_or_down_from")
+  ) {
+    out$rounding <- switch(
+      basic,
+      up_from = "down_from",
+      down_from = "up_from",
+      basic
+    )
+    out$threshold <- 10 - threshold
+  }
+  out
 }

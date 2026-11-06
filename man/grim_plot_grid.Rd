@@ -99,10 +99,13 @@ in both directions.
  The y-axis is the fractional part of the absolute
 value of \code{x}, so a mean of \code{-2.51} is drawn at \code{0.51}. GRIM's granularity
 is symmetric around zero, so this is the value set's place on the grid.
-For a one-directional rounding method such as \code{"up"}, the raster behind a
-negative value is the one for the mirrored method, since a tie in a
-negative number goes the other way (unless \code{symmetric = TRUE}). The tile's
-color comes from the \code{consistency} column and is unaffected.
+A one-directional rounding method treats the absolute value of a negative
+number the other way: \code{"ceiling"} like \code{"floor"}, and \code{"up"} like \code{"down"}
+(unless \code{symmetric = TRUE}). If all means are negative, the raster is the
+one for this mirrored method, so that it agrees with the tiles. With
+positive and negative means under such a method, no single raster does;
+it is then the one for positive means, with a warning. The tile's color
+comes from the \code{consistency} column and is unaffected.
 }
 
 \examples{
