@@ -227,8 +227,12 @@ disperse2 <- function(
   # Main part ---
 
   # Disperse from the mean of the two `n` values. The limits apply to the group
-  # sizes, which are half a unit further out than the values dispersed from the
-  # midpoint. Near-whole limits are rounded here: shifted by 0.5, they would be
+  # sizes, which are half the gap between them further out than the values
+  # dispersed from the midpoint: half a unit for consecutive numbers. Other
+  # numbers get a warning above, but are still dispersed from as they are;
+  # shifting them by half a unit regardless gave fractional group sizes.
+  half_gap <- (n[2L] - n[1L]) / 2
+  # Near-whole limits are rounded here: shifted, they would be
   # too far from whole for `disperse()` to round them:
   check_limit_n(n_min, "n_min")
   check_limit_n(n_max, "n_max")
@@ -238,13 +242,13 @@ disperse2 <- function(
     n = mean(n),
     constant = constant,
     dispersion = dispersion,
-    n_min = if (!is.null(n_min)) n_min + 0.5,
-    n_max = if (!is.null(n_max)) n_max - 0.5
+    n_min = if (!is.null(n_min)) n_min + abs(half_gap),
+    n_max = if (!is.null(n_max)) n_max - abs(half_gap)
   )
 
   # Odd rows go down from the first `n` value, even rows up from the second.
   # `rep_len()` also covers the case where the limits left no pairs at all:
-  out$n <- out$n + rep_len(c(-0.5, 0.5), nrow(out))
+  out$n <- out$n + rep_len(c(-half_gap, half_gap), nrow(out))
 
   # Every value is a whole number again:
   out$n <- as_integer_if_lossless(out$n)

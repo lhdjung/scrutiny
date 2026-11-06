@@ -211,3 +211,14 @@ test_that("an integer `n` near the integer limit is an error, not an `NA` row", 
   -2147483647L |> disperse(dispersion = 0:1) |> expect_error("too large to disperse as an integer")
   2147483647   |> disperse(dispersion = 0:1) |> _$n |> anyNA() |> expect_false()
 })
+
+
+test_that("`disperse2()` disperses from numbers that are not consecutive as they are", {
+  # After the warning, they were shifted by half a unit from their mean, which
+  # gave fractional group sizes:
+  c(25, 27) |> disperse2(0:1) |> expect_warning("two consecutive numbers")
+  sizes <- function(...) suppressWarnings(disperse2(...))$n
+  c(25, 27) |> sizes(0:1)                         |> expect_identical(c(25L, 27L, 24L, 28L))
+  c(25, 25) |> sizes(0:1)                         |> expect_identical(c(25L, 25L, 24L, 26L))
+  c(25, 27) |> sizes(0:3, n_min = 23, n_max = 29) |> expect_identical(c(25L, 27L, 24L, 28L, 23L, 29L))
+})
