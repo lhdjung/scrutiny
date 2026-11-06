@@ -24,6 +24,17 @@ near_seq <- function(x, y, tolerance, values) {
 }
 
 
+# A string as a number, as `is_numeric_like()` reads it: `as.numeric()` only
+# trims ASCII whitespace, so a number next to a non-breaking space would be
+# accepted as one there and then be missing here.
+as_numeric_seq <- function(x) {
+  if (is.character(x)) {
+    x <- trimws(x, whitespace = "[\\h\\v]")
+  }
+  suppressWarnings(as.numeric(x))
+}
+
+
 # The sequence predicates take numbers, or strings or factors that may show
 # them, such as `"1.10"` with its trailing zero. Anything else is a mistake in
 # the call, not a sequence that fails the test: a data frame or a list would
@@ -85,7 +96,7 @@ is_seq_basic <- function(
     if (is.factor(from)) {
       from <- as.character(from)
     }
-    from <- as.numeric(from)
+    from <- as_numeric_seq(from)
 
     # No values are centered on an infinity, so none could make `x` dispersed:
     if (is.infinite(from)) {
@@ -123,7 +134,7 @@ is_seq_basic <- function(
   if (is.factor(x)) {
     x <- as.character(x)
   }
-  x <- suppressWarnings(as.numeric(x))
+  x <- as_numeric_seq(x)
 
   if (length(x) == 1L) {
     return(TRUE)
@@ -367,7 +378,7 @@ is_seq_dispersed <- function(
   # `"NA"` and `"NaN"` are missing, as in `is_numeric_like()`:
   if (is.na(from) || is.na(is_numeric_like(from))) {
     x_num <- if (is.factor(x)) as.character(x) else x
-    x_num <- suppressWarnings(as.numeric(x_num))
+    x_num <- as_numeric_seq(x_num)
     centers <- (x_num + rev(x_num)) / 2
     candidate <- centers[!is.na(centers)][1L]
     out <- if (is.na(candidate)) {

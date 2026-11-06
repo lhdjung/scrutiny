@@ -386,3 +386,11 @@ test_that("integers whose differences pass the integer range are tested as doubl
   c(-2000000000L, 0L, 2000000000L) |> is_seq_linear()               |> expect_true()
   c(-2000000000L, 0L, 2000000000L) |> is_seq_dispersed(from = 0L)   |> expect_true()
 })
+
+
+test_that("a number next to a non-breaking space is a number", {
+  # `is_numeric_like()` accepted it, and `as.numeric()` then made it missing:
+  c("1", "2 ", "3") |> is_seq_linear()                     |> expect_true()
+  c(4, 5, 6)             |> is_seq_dispersed(from = "5 ")  |> expect_true() |> expect_no_warning()
+  c("4", " 5", "6") |> is_seq_dispersed(from = NA)         |> expect_na()
+})
