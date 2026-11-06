@@ -115,6 +115,206 @@ debit_undecidable <- function(show_rec) {
 }
 
 
+# `debit_scalar()` with `n` missing. Binary data that are all 0 or all 1 have
+# an SD of 0 whatever their number, so a mean rounded from 0 or 1 with an SD
+# rounded from 0 is consistent. A share of ones `p` has a population SD of
+# `sqrt(p * (1 - p))` and a sample SD larger than that, so an SD below it for
+# every `p` rounded to `x` is inconsistent, as in `sd_below_floor()`. Above it,
+# the population SD is inconsistent, too. The sample SD is up to `sqrt(2)`
+# times as large, and the SE as large, but both shrink towards their limits as
+# `n` grows, so beyond some `n`, they are too small; every `n` below is tested.
+# An SE has no lower bound, as it shrinks to 0.
+debit_n_missing <- function(
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  formula,
+  rounding,
+  threshold,
+  symmetric,
+  sd_meaning
+) {
+  constant <- (rounds_from(x, 0, digits_x, rounding, threshold, symmetric) ||
+    rounds_from(x, 1, digits_x, rounding, threshold, symmetric)) &&
+    rounds_from(sd, 0, digits_sd, rounding, threshold, symmetric)
+  if (constant) {
+    return(TRUE)
+  }
+  below_floor <- sd_meaning != "se" &&
+    sd_below_floor(
+      x,
+      sd,
+      digits_x,
+      digits_sd,
+      1,
+      rounding,
+      threshold,
+      symmetric
+    )
+  above_ceiling <- function(factor) {
+    sd_above_ceiling_binary(
+      x,
+      sd,
+      digits_x,
+      digits_sd,
+      factor,
+      rounding,
+      threshold,
+      symmetric
+    )
+  }
+  if (below_floor || above_ceiling(if (sd_meaning == "sd_sample") 2 else 1)) {
+    return(FALSE)
+  }
+  if (sd_meaning == "sd_pop") {
+    return(NA)
+  }
+
+  # With the SD above the population SD's ceiling, the sample SD reaches it
+  # only for `n / (n - 1)` large enough, and the SE never beyond
+  # `p * (1 - p) / (n - 1)`. Each `n` up to that is tested, with a margin:
+  n_max <- debit_n_max(
+    x,
+    sd,
+    digits_x,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric,
+    sd_meaning
+  )
+  if (is.na(n_max) || n_max > 1000) {
+    return(NA)
+  }
+  verdicts <- vapply(
+    seq(2, max(n_max, 2)),
+    function(n) {
+      tryCatch(
+        debit_scalar(
+          x = x,
+          sd = sd,
+          n = n,
+          digits_x = digits_x,
+          digits_sd = digits_sd,
+          data_type = "integer",
+          formula = formula,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric,
+          sd_meaning = sd_meaning
+        ),
+        error = function(cnd) NA
+      )
+    },
+    logical(1L)
+  )
+  if (any(is.na(verdicts) | verdicts)) NA else FALSE
+}
+
+# The largest `n` whose sample SD or SE can reach the lower bound of `sd`, or
+# `NA` if every `n` can. In floating point, but with a margin of 2, as each `n`
+# up to it is tested exactly.
+debit_n_max <- function(
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  rounding,
+  threshold,
+  symmetric,
+  sd_meaning
+) {
+  digits_x <- digits_least(x, digits_x)
+  digits_sd <- digits_least(sd, digits_sd)
+  if (anyNA(c(x, sd, digits_x, digits_sd))) {
+    return(NA)
+  }
+  bounds_x <- roundwork::bound_numerators(
+    x,
+    digits_x,
+    rounding,
+    threshold,
+    symmetric
+  )
+  bounds_sd <- roundwork::bound_numerators(
+    sd,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
+  )
+  if (is.null(bounds_x) || is.null(bounds_sd) || bounds_sd$lower <= 0) {
+    return(NA)
+  }
+  p <- min(
+    max(0.5, bounds_x$lower / bounds_x$denom, 0),
+    bounds_x$upper / bounds_x$denom,
+    1
+  )
+  spread <- p * (1 - p)
+  variance <- (bounds_sd$lower / bounds_sd$denom)^2
+  n_max <- if (sd_meaning == "se") {
+    1 + spread / variance
+  } else if (variance > spread) {
+    variance / (variance - spread)
+  } else {
+    NA
+  }
+  floor(n_max) + 2
+}
+
+# Is every SD rounded to `sd` larger than any that binary data can have with a
+# share of ones rounded to `x`? The largest is the square root of `factor`
+# times `p * (1 - p)` for the `p` closest to 1/2. Missing decimal counts are
+# replaced by the fewest that the values show, as in `sd_below_floor()`.
+sd_above_ceiling_binary <- function(
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  factor,
+  rounding,
+  threshold,
+  symmetric
+) {
+  digits_x <- digits_least(x, digits_x)
+  digits_sd <- digits_least(sd, digits_sd)
+  if (anyNA(c(x, sd, digits_x, digits_sd))) {
+    return(FALSE)
+  }
+  bounds_x <- roundwork::bound_numerators(
+    x,
+    digits_x,
+    rounding,
+    threshold,
+    symmetric
+  )
+  bounds_sd <- roundwork::bound_numerators(
+    sd,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
+  )
+  if (is.null(bounds_x) || is.null(bounds_sd) || bounds_sd$lower <= 0) {
+    return(FALSE)
+  }
+  denom <- bounds_x$denom
+  # The share closest to 1/2 within the range, confined to 0 to 1:
+  closest <- min(max(denom / 2, bounds_x$lower, 0), bounds_x$upper, denom)
+  if (closest < 0) {
+    return(FALSE)
+  }
+  # `sd_lower^2 / denom_sd^2 > factor * closest * (denom - closest) / denom^2`:
+  compare_factors(
+    list(bounds_sd$lower, bounds_sd$lower, denom, denom),
+    list(factor, closest, denom - closest, bounds_sd$denom, bounds_sd$denom)
+  ) >
+    0
+}
+
+
 # Does a binary sample of size `n` with between `sum_lower` and `sum_upper` ones
 # have an SD within `bounds_sd`? This is the `"exact"` DEBIT test.
 #
@@ -649,9 +849,26 @@ debit_scalar <- function(
   # A verdict with a missing value is `NA` only if the value could decide the
   # question either way. A sample SD of `n` binary values divides by `n - 1`,
   # so `n` has to be a whole number greater than 1 for it to describe anything;
-  # a population SD needs a positive one. Anything else, a missing `n`
-  # included, is undecidable, as in `grim_scalar()` and `grimmer_scalar()` --
-  # not a `FALSE` reached through an `Inf` or a zero:
+  # a population SD needs a positive one. Anything else is undecidable, as in
+  # `grim_scalar()` and `grimmer_scalar()` -- not a `FALSE` reached through an
+  # `Inf` or a zero. A missing `n` may still decide nothing; see
+  # `debit_n_missing()`:
+  if (is.na(n)) {
+    return(debit_result(
+      debit_n_missing(
+        x,
+        sd,
+        digits_x,
+        digits_sd,
+        formula,
+        rounding,
+        threshold,
+        symmetric,
+        sd_meaning
+      ),
+      show_rec
+    ))
+  }
   if (!is_decidable_n_items(n, min_n = sd_min_n(sd_meaning))) {
     return(debit_undecidable(show_rec))
   }
@@ -804,12 +1021,14 @@ debit_scalar <- function(
 #' @export
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
-#'   not, and `NA` if the case cannot be decided: if `n` is missing or not a
-#'   positive whole number, or if a missing `x` or `sd` (or its decimal count)
-#'   could decide the case either way. It is `FALSE` with a missing `sd` if no
-#'   number of ones has a mean that would be reported as `x`, and with a
-#'   missing `x` if no number of ones has an SD that would be reported as
-#'   `sd`. A sample SD divides by `n - 1`, so under `sd_meaning =
+#'   not, and `NA` if the case cannot be decided: if `n` is not a positive
+#'   whole number, or if a missing value could decide the case either way. It
+#'   is `FALSE` with a missing `sd` if no number of ones has a mean that would
+#'   be reported as `x`, and with a missing `x` if no number of ones has an SD
+#'   that would be reported as `sd`. A missing decimal count is treated as in
+#'   [`grim()`]. With `n` missing, the value set is `TRUE` if data that are
+#'   all 0 or all 1 fit, and `FALSE` if `sd` is outside the SDs that binary
+#'   data with a mean reported as `x` can have, whatever their number. A sample SD divides by `n - 1`, so under `sd_meaning =
 #'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
 #'
 #' @seealso [`debit_explain()`] to explain a result in plain words, and

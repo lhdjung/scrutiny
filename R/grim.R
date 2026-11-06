@@ -131,6 +131,51 @@ grim_scalar <- function(
         }
       }
     }
+
+    # A missing `n` or `items_averaged` never rules a mean out, as large
+    # enough samples have every mean. But a mean that `items_averaged` values
+    # can have, or `n` values, so can any multiple of them, so `x` is
+    # consistent whatever is missing if it is with 1 in its place:
+    if (anyNA(c(n, items_averaged))) {
+      n_one <- if (is.na(n)) 1 else n
+      items_one <- if (is.na(items_averaged)) 1 else items_averaged
+      if (is_decidable_n_items(n_one, items_one)) {
+        at_one <- tryCatch(
+          grim_scalar(
+            x = x,
+            n = n_one,
+            digits_x = digits_x,
+            items_averaged = items_one,
+            data_type = "integer",
+            x_meaning = x_meaning,
+            rounding = rounding,
+            threshold = threshold,
+            symmetric = symmetric
+          ),
+          error = function(cnd) NA
+        )
+        if (isTRUE(at_one)) {
+          consistency <- TRUE
+        }
+      }
+    }
+
+    # A missing `x` is consistent if every mean is:
+    if (
+      is.na(x) &&
+        !is.na(digits_x) &&
+        is_decidable_n_items(n, items_averaged) &&
+        isTRUE(grim_all_means_pass(
+          as.numeric(n) * items_averaged,
+          digits_x + if (is_percentage) 2L else 0L,
+          rounding,
+          threshold,
+          symmetric
+        ))
+    ) {
+      consistency <- TRUE
+    }
+
     if (!show_rec) {
       return(consistency)
     }
@@ -204,6 +249,48 @@ grim_scalar <- function(
     rec_x_upper,
     rec_x_lower
   )
+}
+
+
+# Does every mean that could be reported with `digits` decimal places pass
+# GRIM with `n_items` values? Each value rounded to such a mean is at most one
+# unit of the last decimal place away from it, so a mean of `n_items` whole
+# numbers covers at most two of these means, and fewer than half as many means
+# as there are of them per unit leave some out; as many or more cover all of
+# them. In between, it depends on the rounding method, so the means from -1 to
+# 1 are tested, which covers all: the pattern repeats with every whole number.
+# `NA` if that would take more than a few thousand tests.
+grim_all_means_pass <- function(
+  n_items,
+  digits,
+  rounding,
+  threshold,
+  symmetric
+) {
+  units <- 10^digits
+  if (n_items >= units) {
+    return(TRUE)
+  }
+  if (2 * n_items < units) {
+    return(FALSE)
+  }
+  if (units > 1000) {
+    return(NA)
+  }
+  for (x_num in seq(-units, units) / units) {
+    sums <- roundwork::sum_range(
+      x_num = x_num,
+      n_items = n_items,
+      digits = digits,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+    if (sums[1L] > sums[2L]) {
+      return(FALSE)
+    }
+  }
+  TRUE
 }
 
 
@@ -298,11 +385,16 @@ grim_scalar <- function(
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
-#'   missing or infinite, or if `n` or `items_averaged` is not a positive whole
-#'   number. A missing `digits_x` leaves the case open only if it could decide
-#'   it either way: a value has at least the decimal places it shows, so `x`
-#'   is `FALSE` if it fails with these, and `TRUE` if it passes with so many
-#'   that only `x` itself is left, as `grim(5.2, 5, NA, 1, "integer")` does.
+#'   infinite, if `n` or `items_averaged` is not a positive whole number, or
+#'   if a missing value could decide the case either way.
+#'
+#'   A missing `digits_x` does not if `x` fails with the decimal places it
+#'   shows, which it has at least (`FALSE`), or passes with so many that only
+#'   `x` itself is left (`TRUE`, as `grim(5.2, 5, NA, 1, "integer")`). A
+#'   missing `n` or `items_averaged` does not if `x` passes with 1 in its
+#'   place, since copies of the values have the same mean (`TRUE`), and a
+#'   missing `x` does not if every mean with `digits_x` decimal places passes,
+#'   as from `n * items_averaged = 10^digits_x` on (`TRUE`).
 #'
 #' @seealso [`grim_explain()`] to explain a result in plain words,
 #'   [`grim_map()`] for data frames, [`grim_values()`] for the means that `n`

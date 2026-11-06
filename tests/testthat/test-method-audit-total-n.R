@@ -85,8 +85,10 @@ test_that("`audit()` for `audit_total_n()` works correctly", {
 })
 
 test_that("undecidable splits count as neither hits nor scenarios", {
-  out <- tibble::tibble(x1 = c(NA, 5.2), x2 = 4.1, n = 30L) |>
-    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
+  # With one decimal place, a missing mean of 10 values or more would pass
+  # whatever it is, so two decimal places it is:
+  out <- tibble::tibble(x1 = c(NA, 5.2), x2 = 4, n = 30L) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
     audit_total_n()
   out$scenarios_total |> expect_equal(c(0L, 3L))
   out$hit_rate[1L]    |> expect_na()

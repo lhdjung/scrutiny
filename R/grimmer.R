@@ -410,10 +410,12 @@ grimmer_scalar <- function(
   }
 
   # A verdict with a missing value is `NA` only if the value could decide the
-  # question either way. A missing `n` or `items_averaged` always could: with
-  # `n = 10^digits_x`, any mean passes GRIM, and some sum of squares fits. A
-  # missing decimal count is a missing value like any other: no rounding bounds
-  # follow from it.
+  # question either way. A missing `n` or `items_averaged` usually could: with
+  # `n = 10^digits_x`, any mean passes GRIM, and most SDs fit some sum of
+  # squares. Not if the data can all be the same, with an SD of 0, whatever
+  # their number, nor if the SD is below the least that data with such a mean
+  # can have (see `grimmer_n_missing()`). A missing decimal count is a missing
+  # value like any other: no rounding bounds follow from it.
   # ...but not next to a negative SD, which no data set of any size has. An
   # `n` or `items_averaged` that is given but describes no data set still
   # leaves the case undecidable, as further down:
@@ -429,10 +431,22 @@ grimmer_scalar <- function(
   }
 
   if (is.na(n) || is.na(items_averaged)) {
+    verdict <- grimmer_n_missing(
+      x,
+      sd,
+      n,
+      digits_x,
+      digits_sd,
+      items_averaged,
+      rounding,
+      threshold,
+      symmetric,
+      sd_meaning
+    )
     if (show_reason) {
-      return(list(NA, "Missing value"))
+      return(list(unname(verdict), names(verdict)))
     }
-    return(NA)
+    return(unname(verdict))
   }
 
   # GRIMMER inherits GRIM's requirement that `n` and `items_averaged` be
@@ -708,6 +722,67 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 }
 
 
+# `grimmer_scalar()` with `n` or `items_averaged` missing, as a named verdict
+# whose name is the reason. If the mean is one that a single value can have, as
+# GRIM says, and 0 is rounded to the SD, data that are all that value pass
+# with any number of them. If every SD rounded to `sd` is below the least that
+# data with such a mean can have, none pass; only a known `items_averaged`
+# sets that floor, and an SE has none, as it shrinks with `n`.
+grimmer_n_missing <- function(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  items_averaged,
+  rounding,
+  threshold,
+  symmetric,
+  sd_meaning
+) {
+  n_one <- if (is.na(n)) 1 else n
+  items_one <- if (is.na(items_averaged)) 1 else items_averaged
+  # A given `n` or `items_averaged` that describes no data set leaves the
+  # case open, as it does without missing values:
+  if (!is_decidable_n_items(n_one, items_one)) {
+    return(c("Missing value" = NA))
+  }
+  constant <- isTRUE(tryCatch(
+    grim_scalar(
+      x = x,
+      n = n_one,
+      digits_x = digits_x,
+      items_averaged = items_one,
+      data_type = "integer",
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    ),
+    error = function(cnd) NA
+  )) &&
+    rounds_from(sd, 0, digits_sd, rounding, threshold, symmetric)
+  if (constant) {
+    return(c("Passed all" = TRUE))
+  }
+  below_floor <- !is.na(items_averaged) &&
+    sd_meaning != "se" &&
+    sd_below_floor(
+      x,
+      sd,
+      digits_x,
+      digits_sd,
+      items_averaged,
+      rounding,
+      threshold,
+      symmetric
+    )
+  if (below_floor) {
+    return(c("GRIMMER inconsistent (test 1)" = FALSE))
+  }
+  c("Missing value" = NA)
+}
+
+
 #' The GRIMMER test (granularity-related inconsistency of means mapped to error
 #' repeats)
 #'
@@ -813,11 +888,15 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
-#'   value is infinite, if `n` or `items_averaged` is missing or not a
-#'   positive whole number, or if a missing `x` or `sd` (or its decimal count)
-#'   could decide the case either way. It is `FALSE` with a missing `sd` if
-#'   `x` fails GRIM, and with a missing `x` if no sum of whole numbers admits
-#'   `sd`. A sample SD divides by `n - 1`, so under `sd_meaning =
+#'   value is infinite, if `n` or `items_averaged` is not a positive whole
+#'   number, or if a missing value could decide the case either way. It is
+#'   `FALSE` with a missing `sd` if `x` fails GRIM, and with a missing `x` if
+#'   no sum of whole numbers admits `sd`. A missing decimal count is treated as
+#'   in [`grim()`]. With `n` or `items_averaged` missing, the value set is
+#'   `TRUE` if data that are all the same value fit, and with `n` missing,
+#'   `FALSE` if `sd` is below the least SD that whole numbers with the mean
+#'   can have, whatever their number (not for an SE, which has none). A
+#'   negative `sd` is `FALSE` whatever is missing. A sample SD divides by `n - 1`, so under `sd_meaning =
 #'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the

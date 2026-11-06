@@ -127,7 +127,8 @@ debit_explain <- function(
     identical(data_type, "integer") &&
       isTRUE(consistency) &&
       formula == "exact" &&
-      length(digits_missing) > 0L
+      length(digits_missing) > 0L &&
+      !is.na(n)
   ) {
     return(explain_digits_most(
       debit_explain(
@@ -233,6 +234,21 @@ debit_explain <- function(
       text,
       sd_meaning
     )
+  }
+
+  # Decided although `n` is missing: see `debit_n_missing()`.
+  if (!is.na(consistency) && is.na(n)) {
+    return(explain(explain_debit_n_missing(
+      consistency,
+      x,
+      sd,
+      digits_x,
+      digits_sd,
+      rounding,
+      threshold,
+      symmetric,
+      sd_meaning
+    )))
   }
 
   if (is.na(consistency)) {
@@ -559,4 +575,121 @@ binary_ones_shown <- function(sum_lower, sum_upper, n, spread_range) {
   ones <- outer(roots, -1:2, `+`)
   ones <- c(sum_lower, sum_upper, ones, n - ones)
   sort(unique(pmin(pmax(ones, sum_lower), sum_upper)))
+}
+
+
+# Why `debit_n_missing()` decided the case, in the order it checks.
+explain_debit_n_missing <- function(
+  consistency,
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  rounding,
+  threshold,
+  symmetric,
+  sd_meaning
+) {
+  x_text <- format_reported(x, digits_x)
+  sd_text <- format_reported(sd, digits_sd)
+  name_sd <- switch(
+    sd_meaning,
+    sd_pop = "population SD",
+    se = "SE",
+    "sample SD"
+  )
+  if (consistency) {
+    return(paste(
+      "n is missing. But data that are all 0 or all 1 have an SD of 0,",
+      "however many there are, and a mean of 0 or 1, which would be",
+      "reported as",
+      paste0(x_text, "."),
+      "0 would be reported as the SD",
+      paste0(sd_text, ","),
+      "so the value set is consistent whatever n is."
+    ))
+  }
+  intro <- paste(
+    "n is missing. But binary data whose share of ones p would be reported",
+    "as",
+    x_text,
+    "have a population SD of sqrt(p * (1 - p))"
+  )
+  digits_shown <- digits_least(sd, digits_sd)
+  if (
+    sd_meaning != "se" &&
+      sd_below_floor(
+        x,
+        sd,
+        digits_x,
+        digits_sd,
+        1,
+        rounding,
+        threshold,
+        symmetric
+      )
+  ) {
+    return(paste(
+      paste0(intro, ","),
+      "which is at least about",
+      format_number(
+        sd_floor_value(x, digits_x, 1, rounding, threshold, symmetric),
+        digits_shown
+      ),
+      "however many values there are. A sample SD is larger still. Any SD",
+      "that would be reported as",
+      sd_text,
+      "is smaller than that, so no data set fits."
+    ))
+  }
+  if (sd_meaning == "sd_pop") {
+    bounds_x <- roundwork::bound_numerators(
+      x,
+      digits_least(x, digits_x),
+      rounding,
+      threshold,
+      symmetric
+    )
+    p <- min(
+      max(0.5, bounds_x$lower / bounds_x$denom, 0),
+      bounds_x$upper / bounds_x$denom,
+      1
+    )
+    return(paste(
+      paste0(intro, ","),
+      "which is at most about",
+      paste0(format_number(sqrt(p * (1 - p)), digits_shown), "."),
+      "Any SD that would be reported as",
+      sd_text,
+      "is larger than that, so no data set fits."
+    ))
+  }
+  n_max <- debit_n_max(
+    x,
+    sd,
+    digits_x,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric,
+    sd_meaning
+  )
+  paste(
+    paste0(intro, "."),
+    "The",
+    name_sd,
+    "is",
+    if (sd_meaning == "se") {
+      "that divided by sqrt(n - 1),"
+    } else {
+      "that times sqrt(n / (n - 1)),"
+    },
+    "which shrinks as n grows, so from n =",
+    n_max,
+    "on, it is smaller than any SD that would be reported as",
+    paste0(sd_text, "."),
+    "No n from 2 to",
+    n_max - 1,
+    "passes either, so no data set fits."
+  )
 }

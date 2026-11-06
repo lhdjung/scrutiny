@@ -271,13 +271,14 @@ test_that("a missing `data_type` gives a result only where both data types agree
     expect_na_rule(function(type) debit(grid_debit$x, grid_debit$sd, grid_debit$n, 2, 2, type, sd_meaning = sd_meaning))
   }
 
-  # A number of inconsistencies where `grim()` has a verdict, and only there.
-  # The numbers follow the rule above themselves: 3.40 at `n = 25` passes as
-  # either type, but has `NA` for a missing one, since integers could fail
-  # and continuous data could not.
+  # No number of inconsistencies where `grim()` has no verdict. The reverse
+  # need not hold: a mean that passes with any `n` has a verdict, but the
+  # number depends on `n`. The numbers follow the rule above themselves: 3.40
+  # at `n = 25` passes as either type, but has `NA` for a missing one, since
+  # integers could fail and continuous data could not.
   total <- function(type) grim_total(grid_grim$x, grid_grim$n, 2, grid_grim$items_averaged, type)
   for (type in c("integer", "continuous")) {
-    type |> total() |> is.na() |> expect_identical(is.na(grim_grid(type)))
+    type |> total() |> is.na() |> _[is.na(grim_grid(type))] |> all() |> expect_true()
   }
   expect_na_rule(total)
 })

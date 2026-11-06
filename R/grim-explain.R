@@ -126,7 +126,8 @@ grim_explain <- function(
     identical(data_type, "integer") &&
       isTRUE(consistency) &&
       is.na(digits_x) &&
-      !is.na(digits_least(x, digits_x))
+      !is.na(digits_least(x, digits_x)) &&
+      !anyNA(c(n, items_averaged))
   ) {
     return(explain_digits_most(
       grim_explain(
@@ -191,6 +192,84 @@ grim_explain <- function(
       consistency,
       text
     )
+  }
+
+  # Consistent although `n` or `items_averaged` is missing: see `grim_scalar()`.
+  if (isTRUE(consistency) && anyNA(c(n, items_averaged))) {
+    missing <- c(if (is.na(n)) "n", if (is.na(items_averaged)) "items_averaged")
+    explanation <- grim_explain(
+      x = x,
+      n = if (is.na(n)) 1 else n,
+      digits_x = digits_x,
+      items_averaged = if (is.na(items_averaged)) 1 else items_averaged,
+      data_type = "integer",
+      x_meaning = x_meaning,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+    # The inputs as given, not as tested:
+    for (name in missing) {
+      explanation$inputs <- sub(
+        paste0("(^|, )", name, " = 1(,|$)"),
+        paste0("\\1", name, " = NA\\2"),
+        explanation$inputs
+      )
+    }
+    explanation$paragraphs <- c(
+      paste0(
+        paste(missing, collapse = " and "),
+        if (length(missing) == 1L) " is" else " are",
+        " missing, so the test below takes 1 in its place. A mean that some ",
+        "integers have, any number of copies of them have, too, so a mean ",
+        "that is consistent here is consistent whatever ",
+        paste(missing, collapse = " and "),
+        if (length(missing) == 1L) " is." else " are."
+      ),
+      explanation$paragraphs
+    )
+    return(explanation)
+  }
+
+  # Consistent although `x` is missing: see `grim_all_means_pass()`.
+  if (isTRUE(consistency) && is.na(x)) {
+    n_items <- as.numeric(n) * items_averaged
+    digits_num <- if (is_percentage) digits_x + 2L else digits_x
+    text <- paste0(
+      "x is missing. But the means of ",
+      n_items,
+      " integers are 1 / ",
+      n_items,
+      " apart, ",
+      if (n_items >= 10^digits_num) {
+        paste0(
+          "which is no more than the ",
+          format_number(10^-digits_num, digits_num),
+          " between ",
+          if (is_percentage) "shares" else "means",
+          " with ",
+          digits_num,
+          " decimal places, so some mean would be reported as any ",
+          if (is_percentage) "percentage" else "value",
+          " with ",
+          digits_x,
+          if (digits_x == 1) " decimal place." else " decimal places."
+        )
+      } else {
+        paste0(
+          "and with the rounding method, some mean would still be reported ",
+          "as any ",
+          if (is_percentage) "percentage" else "value",
+          " with ",
+          digits_x,
+          if (digits_x == 1) " decimal place" else " decimal places",
+          ": every one from -1 to 1 was tested, and the pattern repeats with ",
+          "every whole number."
+        )
+      },
+      " So x is consistent whatever it is."
+    )
+    return(explain(text))
   }
 
   if (is.na(consistency)) {

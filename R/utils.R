@@ -945,6 +945,134 @@ verdict_continuous <- function(
 }
 
 
+# Is `target` among the numbers rounded to `value`? With `digits` missing,
+# `value` itself must be `target`, since more decimal places narrow the range
+# down to it. Data that are all the same have an SD of 0, whatever their
+# number, so this asks whether such data fit.
+rounds_from <- function(value, target, digits, rounding, threshold, symmetric) {
+  if (!is.finite(value)) {
+    return(FALSE)
+  }
+  if (is.na(digits)) {
+    return(value == target)
+  }
+  bounds <- roundwork::bound_numerators(
+    value,
+    digits,
+    rounding,
+    threshold,
+    symmetric
+  )
+  target <- target * bounds$denom
+  above_lower <- bounds$lower < target ||
+    (bounds$lower == target && bounds$incl_lower)
+  below_upper <- bounds$upper > target ||
+    (bounds$upper == target && bounds$incl_upper)
+  above_lower && below_upper
+}
+
+# Is every SD rounded to `sd` smaller than any that data of whole numbers, each
+# divided by `items_averaged`, can have with a mean rounded to `x`, whatever
+# their number? Such data have a mean of `m / items_averaged` for a whole `m`
+# when they are all the same, and otherwise a population SD of at least
+# `sqrt(f * (1 - f)) / items_averaged`, where `f` is the fractional part of
+# `items_averaged` times their mean: the variance is smallest with the values
+# on the two neighbors of the mean. A sample SD is larger. `f * (1 - f)` is
+# smallest at the ends of the range, so they are compared in exact arithmetic.
+# A missing decimal count is replaced by the fewest that the value shows, which
+# only widens its range (see `digits_least()`). `FALSE` if the case is open.
+sd_below_floor <- function(
+  x,
+  sd,
+  digits_x,
+  digits_sd,
+  items_averaged,
+  rounding,
+  threshold,
+  symmetric
+) {
+  digits_x <- digits_least(x, digits_x)
+  digits_sd <- digits_least(sd, digits_sd)
+  if (anyNA(c(x, sd, digits_x, digits_sd, items_averaged))) {
+    return(FALSE)
+  }
+  bounds_x <- roundwork::bound_numerators(
+    x,
+    digits_x,
+    rounding,
+    threshold,
+    symmetric
+  )
+  bounds_sd <- roundwork::bound_numerators(
+    sd,
+    digits_sd,
+    rounding,
+    threshold,
+    symmetric
+  )
+  if (is.null(bounds_x) || is.null(bounds_sd) || bounds_sd$upper < 0) {
+    return(FALSE)
+  }
+  denom <- bounds_x$denom
+  lower <- bounds_x$lower * items_averaged
+  upper <- bounds_x$upper * items_averaged
+  if (max(abs(c(lower, upper, denom))) >= 2^52) {
+    return(FALSE)
+  }
+  # The whole number at or below the lower end; a whole number in the range,
+  # even at an exclusive end, leaves the case open:
+  whole <- floor(lower / denom)
+  whole <- whole - (whole * denom > lower) + ((whole + 1) * denom <= lower)
+  if (whole * denom == lower || (whole + 1) * denom <= upper) {
+    return(FALSE)
+  }
+  ends <- c(lower, upper) - whole * denom
+  # `sd_upper^2 / denom_sd^2 < end * (denom - end) / (denom * items)^2`:
+  below <- vapply(
+    ends,
+    function(end) {
+      compare_factors(
+        list(
+          bounds_sd$upper,
+          bounds_sd$upper,
+          denom,
+          denom,
+          items_averaged,
+          items_averaged
+        ),
+        list(end, denom - end, bounds_sd$denom, bounds_sd$denom)
+      ) <
+        0
+    },
+    logical(1L)
+  )
+  all(below)
+}
+
+
+# The least SD that `sd_below_floor()` compares with, as a double, for the
+# explanations:
+sd_floor_value <- function(
+  x,
+  digits_x,
+  items_averaged,
+  rounding,
+  threshold,
+  symmetric
+) {
+  bounds <- roundwork::bound_numerators(
+    x,
+    digits_least(x, digits_x),
+    rounding,
+    threshold,
+    symmetric
+  )
+  ends <- c(bounds$lower, bounds$upper) * items_averaged / bounds$denom
+  fractions <- ends - floor(min(ends))
+  sqrt(min(fractions * (1 - fractions))) / items_averaged
+}
+
+
 # `is_decidable_n_items()` for continuous data, where a missing `n` or
 # `items_averaged` can be anything, so only one that is given can make the
 # value set undecidable. Vectorized, for `grim_total()`.

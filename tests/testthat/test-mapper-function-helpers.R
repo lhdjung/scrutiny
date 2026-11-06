@@ -32,7 +32,7 @@ test_that("`manage_helper_col()` adds a column to a plain data frame with no row
 
 test_that("a helper column and an identical argument agree where both are missing", {
   # `near()` is `NA` for two missing values, which counted as a conflict:
-  df <- tibble::tibble(x = c(5.19, 5.18), n = 28, items_averaged = c(1, NA))
+  df <- tibble::tibble(x = c(5.19, 5.17), n = 28, items_averaged = c(1, NA))
   out <- df |> grim_map(digits_x = 2, items_averaged = c(1, NA), data_type = "integer")
   out$consistency |> expect_equal(c(FALSE, NA))
   df |> grim_map(digits_x = 2, items_averaged = c(NA, 1), data_type = "integer") |> expect_error("conflicts with")

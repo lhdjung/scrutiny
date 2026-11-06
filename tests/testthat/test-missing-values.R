@@ -551,3 +551,51 @@ test_that("GRIMMER with `x` missing is fast for a tiny SD and a large `n`", {
   NA |> grimmer(0.0003, 1e7, digits_x = 2, digits_sd = 4, items_averaged = 1, data_type = "integer") |> expect_na()
   NA |> grimmer(0.0001, 1e9, digits_x = 2, digits_sd = 4, items_averaged = 1, data_type = "integer") |> expect_na()
 })
+
+
+test_that("a missing `n`, `items_averaged`, or `x` that can't change the verdict doesn't make it `NA`", {
+  f_grim <- function(x, n, digits_x, items_averaged, ...) grim(x, n, digits_x, items_averaged, "integer", ...)
+  # Copies of the values have the same mean, so a mean that 1 value has, any
+  # number of them have:
+  5    |> f_grim(NA, 0, 1)  |> expect_true()
+  5.2  |> f_grim(NA, 1, 5)  |> expect_true()
+  5.18 |> f_grim(28, 2, NA) |> expect_true()
+  5.25 |> f_grim(NA, 2, 1)  |> expect_na()
+  5.25 |> f_grim(NA, 2, 0)  |> expect_na()
+  # From 10^digits_x values on, every mean passes:
+  NA   |> f_grim(100, 2, 1) |> expect_true()
+  NA   |> f_grim(99, 2, 1)  |> expect_na()
+  NA   |> f_grim(10, 1, NA) |> expect_true()
+  NA   |> f_grim(NA, 0, 1)  |> expect_true()
+  NA   |> f_grim(80, 2, 1, rounding = "ties_even") |> expect_true()
+
+  # Data that are all the same have an SD of 0, and whole numbers with a mean
+  # of about 3.2 one of at least 0.36:
+  f_grimmer <- function(x, sd, n, ...) grimmer(x, sd, n, 1, 1, 1, "integer", ...)
+  3   |> grimmer(0, NA, 0, 0, 1, "integer")                   |> expect_true()
+  3.2 |> f_grimmer(0.2, NA)                                   |> expect_false()
+  3.2 |> f_grimmer(0.2, NA, sd_meaning = "sd_sample_or_pop")  |> expect_false()
+  3.2 |> f_grimmer(0.4, NA)                                   |> expect_na()
+  3.2 |> f_grimmer(0.2, NA, sd_meaning = "se")                |> expect_na()
+  3.2 |> grimmer(0.2, NA, 1, 1, NA, "integer")                |> expect_na()
+  grimmer_scalar(3.2, 0.2, NA, 1, 1, 1, "integer", show_reason = TRUE) |> expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
+  (2:300) |> vapply(\(n) f_grimmer(3.2, 0.2, n), logical(1L)) |> any() |> expect_false()
+
+  # Binary data have an SD of about sqrt(p * (1 - p)), but an SE shrinks
+  # with `n`:
+  f_debit <- function(x, sd, ...) debit(x, sd, NA, 1, 1, "integer", ...)
+  0   |> f_debit(0)                        |> expect_true()
+  0.2 |> f_debit(0.2)                      |> expect_false()
+  0.5 |> f_debit(0.9)                      |> expect_false()
+  0.7 |> f_debit(0.4, sd_meaning = "se")   |> expect_false()
+  0.5 |> f_debit(0.5)                      |> expect_na()
+  0.5 |> f_debit(0.1, sd_meaning = "se")   |> expect_na()
+  (2:500) |> vapply(\(n) debit(0.7, 0.4, n, 1, 1, "integer", sd_meaning = "se"), logical(1L)) |> any() |> expect_false()
+
+  # The explanations say why:
+  text <- function(explanation) format(explanation) |> paste(collapse = " ") |> gsub(pattern = "\\s+", replacement = " ")
+  grim_explain(5, NA, 0, 1, "integer")                  |> text() |> expect_match("n = NA.*takes 1 in its place.*Consistent")
+  grim_explain(NA, 100, 2, 1, "integer")                |> text() |> expect_match("x is missing.*Consistent")
+  grimmer_explain(3.2, 0.2, NA, 1, 1, 1, "integer")     |> text() |> expect_match("at least about 0.3571.*Inconsistent")
+  debit_explain(0.7, 0.4, NA, 1, 1, "integer", sd_meaning = "se") |> text() |> expect_match("shrinks as n grows.*Inconsistent")
+})

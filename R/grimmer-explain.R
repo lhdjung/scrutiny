@@ -124,7 +124,8 @@ grimmer_explain <- function(
   if (
     identical(data_type, "integer") &&
       isTRUE(consistency) &&
-      length(digits_missing) > 0L
+      length(digits_missing) > 0L &&
+      !anyNA(c(n, items_averaged))
   ) {
     return(explain_digits_most(
       grimmer_explain(
@@ -240,6 +241,68 @@ grimmer_explain <- function(
       text,
       sd_meaning
     )
+  }
+
+  # Decided although `n` or `items_averaged` is missing: see
+  # `grimmer_n_missing()`.
+  if (
+    !is.na(consistency) &&
+      anyNA(c(n, items_averaged)) &&
+      result[[2L]] != "Negative SD"
+  ) {
+    missing <- c(if (is.na(n)) "n", if (is.na(items_averaged)) "items_averaged")
+    text_missing <- paste0(
+      paste(missing, collapse = " and "),
+      if (length(missing) == 1L) " is" else " are",
+      " missing."
+    )
+    text <- if (consistency) {
+      paste(
+        text_missing,
+        "But data that all have the same value have an SD of 0, however",
+        "many there are, and their mean is that value. A single value can",
+        "have a mean that would be reported as",
+        paste0(format_reported(x, digits_x), ","),
+        "as GRIM finds with n = 1, and 0 would be reported as the SD",
+        paste0(format_reported(sd, digits_sd), "."),
+        "So the value set is consistent whatever",
+        paste(missing, collapse = " and "),
+        if (length(missing) == 1L) "is." else "are."
+      )
+    } else {
+      paste(
+        text_missing,
+        "But",
+        if (items_averaged == 1) {
+          "integers"
+        } else {
+          paste("means of", items_averaged, "integers each")
+        },
+        "with a mean that would be reported as",
+        format_reported(x, digits_x),
+        "have a population SD of at least about",
+        paste0(
+          format_number(
+            sd_floor_value(
+              x,
+              digits_x,
+              items_averaged,
+              rounding,
+              threshold,
+              symmetric
+            ),
+            digits_least(sd, digits_sd)
+          ),
+          ","
+        ),
+        "however many there are: the SD is smallest with every value on one",
+        "of the two possible values next to the mean. A sample SD is larger",
+        "still. Any SD that would be reported as",
+        format_reported(sd, digits_sd),
+        "is smaller than that, so no data set fits."
+      )
+    }
+    return(explain(text))
   }
 
   text <- switch(
