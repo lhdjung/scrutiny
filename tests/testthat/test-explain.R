@@ -420,3 +420,12 @@ test_that("a large sum of squares with a fraction is not shown as an integer", {
   format_number(5.185)              |> expect_equal("5.185")
   format_number(145.18)             |> expect_equal("145.18")
 })
+
+
+test_that("explanations write a point as the decimal mark under any `OutDec`", {
+  # `format()` wrote a comma next to the point that `paste()` writes:
+  rlang::local_options(OutDec = ",")
+  grim_explain(5.19, 28, 2, 1, "integer")                     |> format() |> paste(collapse = " ") |> expect_no_match("[0-9],[0-9]")
+  grimmer_explain(5.19, 1.32, 28, 2, 2, 1, "integer")         |> format() |> paste(collapse = " ") |> expect_no_match("[0-9],[0-9]")
+  debit_explain(0.35, 0.48, 20, 2, 2, "integer")              |> format() |> paste(collapse = " ") |> expect_no_match("[0-9],[0-9]")
+})

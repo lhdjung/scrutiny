@@ -62,8 +62,9 @@ grimmer_explain <- function(
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
 
-  # `paste()` would write a number like 100000 as 1e+05:
-  rlang::local_options(scipen = 100L)
+  # `paste()` would write a number like 100000 as 1e+05, and `format()` would
+  # write a decimal mark other than the point that `paste()` writes:
+  rlang::local_options(scipen = 100L, OutDec = ".")
 
   if (!missing(digits_x)) {
     check_length(digits_x, 1L)

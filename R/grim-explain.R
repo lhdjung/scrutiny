@@ -74,8 +74,9 @@ grim_explain <- function(
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
   is_percentage <- x_meaning == "percentage"
 
-  # `paste()` would write a number like 100000 as 1e+05:
-  rlang::local_options(scipen = 100L)
+  # `paste()` would write a number like 100000 as 1e+05, and `format()` would
+  # write a decimal mark other than the point that `paste()` writes:
+  rlang::local_options(scipen = 100L, OutDec = ".")
 
   # A missing `digits_x` reaches `grim_scalar()`, which says how to fix it:
   if (!missing(digits_x)) {
