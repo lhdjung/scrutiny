@@ -105,9 +105,10 @@ vec_cast_scrutiny <- function(
 }
 
 
-# `dplyr::rows_delete()` and `rows_update()` cast their `y` to the mapper
-# output to match its rows, but add none, like `filter()` and `mutate()`, so
-# they pass. `call` is the frame of the casting function:
+# `dplyr::rows_delete()`, `rows_update()`, and `rows_patch()` cast their `y`
+# to the mapper output to match its rows, but add none, like `filter()` and
+# `mutate()`, so they pass. `rows_patch()` also casts in `vctrs::vec_assign()`,
+# which replaces values in rows that are there, like `rows_update()`. `call` is the frame of the casting function:
 cast_adds_no_rows <- function(call) {
   if (!is.environment(call)) {
     return(FALSE)
@@ -115,7 +116,12 @@ cast_adds_no_rows <- function(call) {
   fn <- rlang::frame_call(call)[[1L]]
   is.symbol(fn) &&
     as.character(fn) %in%
-      c("rows_delete.data.frame", "rows_update.data.frame")
+      c(
+        "rows_delete.data.frame",
+        "rows_update.data.frame",
+        "rows_patch.data.frame",
+        "vec_assign"
+      )
 }
 
 
