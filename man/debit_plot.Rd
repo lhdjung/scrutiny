@@ -29,7 +29,7 @@ A ggplot object.
 \description{
 \code{debit_plot()} plots the output of \code{\link[=debit_map]{debit_map()}}. Each value
 set is a rectangle spanning the rounding bounds of its mean and SD, in
-teal if consistent and rust if not, against the DEBIT line: the SD of
+blue if consistent and red if not, against the DEBIT line: the SD of
 binary data as a function of their mean, for the given sample size.
 }
 \details{
@@ -65,12 +65,12 @@ pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot()
 
-# Other colors, here the ones before scrutiny 1.0.0:
+# Other colors:
 pigs3 |>
   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
   debit_plot() +
   ggplot2::scale_colour_manual(
-    values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+    values = c("TRUE" = "#2f7d74", "FALSE" = "#c1522e"),
     aesthetics = c("colour", "fill"),
     guide = "none"
   )

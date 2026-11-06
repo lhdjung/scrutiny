@@ -62,7 +62,7 @@ plot is printed.
 \description{
 \code{grim_plot_grid()} plots the output of \code{\link[=grim_map]{grim_map()}} or
 \code{\link[=grimmer_map]{grimmer_map()}}. Each value set is placed by its sample size and the
-fractional part of its mean, in teal if consistent and rust if not, on a
+fractional part of its mean, in blue if consistent and red if not, on a
 background raster that shows which combinations are GRIM-consistent at
 all.
 }
@@ -132,12 +132,12 @@ pigs2 |>
   ) |>
   grim_plot_grid()
 
-# Other colors for the value sets, here the ones before scrutiny 1.0.0:
+# Other colors for the value sets:
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   grim_plot_grid() +
   ggplot2::scale_colour_manual(
-    values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+    values = c("TRUE" = "#2f7d74", "FALSE" = "#c1522e"),
     aesthetics = c("colour", "fill"),
     guide = "none"
   )

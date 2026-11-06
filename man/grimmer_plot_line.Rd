@@ -15,24 +15,27 @@ grimmer_plot_line(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  zoom = TRUE,
-  color_con = "#2f7d74",
-  color_reported = "#c1522e"
+  zoom = c("close", "wide"),
+  color_con = "#0047ff",
+  color_incon = "#ff2a00",
+  color_attainable = "grey75"
 )
 }
 \arguments{
 \item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
 must have length 1.}
 
-\item{zoom}{Logical. If \code{TRUE} (the default), the row shows the values
-around \code{x}, so that the marker and the strip behind it stand out; see
-\emph{Details}. If \code{FALSE}, it shows a whole unit.}
+\item{zoom}{String. How much of the row to show: \code{"close"} (the default)
+shows the values around \code{x}, so that the marker and the strip behind it
+stand out, and \code{"wide"} shows a whole unit. See \emph{Details}.}
 
-\item{color_con}{String. Color of the squares for attainable values.}
+\item{color_con, color_incon}{Strings. Color of the marker, the strip behind
+the squares, and the square at the reported value if it is consistent.
+\code{color_con} applies if the value is consistent, \code{color_incon} if not.}
 
-\item{color_reported}{String. Color of the marker for the reported value
-and of the strip behind the squares, if the value is inconsistent. A
-consistent value is marked in \code{color_con}.}
+\item{color_attainable}{String. Color of the squares for attainable values
+that were not reported, as of the consistent cells of \code{\link[=grim_plot_grid]{grim_plot_grid()}}'s
+raster.}
 }
 \value{
 A ggplot object.
@@ -52,8 +55,9 @@ and shows the GRIM part of the test.
 }
 \details{
 By default, the row shows the SDs around \code{sd}, as in
-\code{\link[=grim_plot_line]{grim_plot_line()}}. With \code{zoom = FALSE}, it runs from the whole number
-at or below \code{sd} to the next one up. It never goes below zero.
+\code{\link[=grim_plot_line]{grim_plot_line()}}, where squares are labeled the same way. With
+\code{zoom = "wide"}, it runs from the whole number at or below \code{sd} to the
+next one up. It never goes below zero.
 
 If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the row has
 no squares.

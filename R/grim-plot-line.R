@@ -3,11 +3,13 @@
 # produce it and left out where none can. The panel is a strip, so that the
 # squares are square in any device; the gaps between them make the point.
 #
-# The callers resolve `color_reported` by the verdict, so a consistent value is
-# marked in its square's own color. An inconsistent value gets the nearest
-# square on either side labeled, since "not this one" begs the question of
-# which ones instead. `label_value` formats a value the way the caller reports
-# it.
+# `color_verdict` is the color of the verdict: the marker, the strip, and the
+# square at the reported value, if any. The other squares are attainable values
+# that were not reported, in `color_attainable`. Each square is labeled on the
+# axis unless they are too close together for that; then an inconsistent value
+# gets the nearest square on either side labeled above the strip, since "not
+# this one" begs the question of which ones instead. `label_value` formats a
+# value the way the caller reports it.
 
 plot_comb <- function(
   values,
@@ -17,8 +19,8 @@ plot_comb <- function(
   label_value,
   claim,
   x_label,
-  color_con,
-  color_reported
+  color_verdict,
+  color_attainable
 ) {
   span <- diff(range(values))
 
@@ -36,18 +38,27 @@ plot_comb <- function(
   step <- min(diff(values))
   side <- min(0.8 * step / diff(xlim), 0.08)
   aspect <- max(2.5 * side, 0.03)
-  squares <- tibble::tibble(x = values[possible])
+  attainable <- values[possible]
+  is_reported <- abs(attainable - reported) < step / 2
+  squares <- tibble::tibble(x = attainable, reported = is_reported)
 
-  # The marker and, if the value is inconsistent, labels for the nearest
-  # attainable values, each connected to its square by an elbow.
+  # Each square gets its value as an axis label if all labels fit side by
+  # side: about 0.07 inches per character at the axis text size, plus some air,
+  # on a panel some 6 inches wide.
+  label_width <- (max(nchar(label_value(attainable)), 1L) * 0.07 + 0.15) / 6
+  show_labels <- length(attainable) > 0L &&
+    min(diff(attainable), Inf) / diff(xlim) >= label_width
+
+  # The marker and, if the value is inconsistent and the squares are not
+  # labeled, labels for the nearest attainable values, each connected to its
+  # square by an elbow.
   #
   # Text and the arrowhead have a physical size, so no fixed data positions keep
   # them apart at every plot size. The marker is therefore one grob in grid
   # units: npc for where a value is, `strwidth`, `char`, and `lines` for spacing.
   # Heights are counted in `lines` up from the top of the panel, and the top
   # margin is sized from the same count.
-  attainable <- values[possible]
-  neighbors <- if (consistent) {
+  neighbors <- if (consistent || show_labels) {
     numeric(0)
   } else {
     c(
@@ -94,8 +105,8 @@ plot_comb <- function(
         type = "closed"
       ),
       gp = grid::gpar(
-        col = color_reported,
-        fill = color_reported,
+        col = color_verdict,
+        fill = color_verdict,
         lwd = 0.7 * ggplot2::.pt,
         linejoin = "mitre"
       ),
@@ -106,7 +117,7 @@ plot_comb <- function(
       x = reported_x,
       y = above(verdict_base),
       vjust = 0,
-      gp = grid::gpar(col = color_reported),
+      gp = grid::gpar(col = color_verdict),
       name = "verdict"
     )
   )
@@ -157,7 +168,7 @@ plot_comb <- function(
   marker_grob <- grid::gTree(
     children = marker_children,
     gp = grid::gpar(
-      col = color_con,
+      col = "grey20",
       fontsize = fontsize,
       lineheight = lineheight
     )
@@ -175,7 +186,7 @@ plot_comb <- function(
       xmax = min(claim[2L], xlim[2L]),
       ymin = 0,
       ymax = 1,
-      fill = color_reported,
+      fill = color_verdict,
       alpha = 0.18
     ) +
     ggplot2::annotate(
@@ -192,7 +203,7 @@ plot_comb <- function(
       mapping = ggplot2::aes(x = .data$x, y = 0.5),
       width = side * diff(xlim),
       height = side * diff(ylim) / aspect,
-      fill = color_con
+      fill = ifelse(squares$reported, color_verdict, color_attainable)
     ) +
     # The reported value points down at the strip from above rather than being
     # drawn across it. A marker in the strip would stand exactly where the
@@ -202,6 +213,12 @@ plot_comb <- function(
     # `clip = "off"` so the marker can sit above the strip rather than being cut
     # by the top of the panel; the top margin is the marker's stack of lines,
     # and the side margins leave room for a value at either end of the window.
+    ggplot2::scale_x_continuous(
+      breaks = if (show_labels) attainable else ggplot2::waiver(),
+      labels = if (show_labels) label_value(attainable) else ggplot2::waiver(),
+      # A narrow device may still not fit them all:
+      guide = ggplot2::guide_axis(check.overlap = TRUE)
+    ) +
     ggplot2::coord_cartesian(
       xlim = xlim,
       ylim = ylim,
@@ -253,8 +270,9 @@ comb_values <- function(from, to, digits, name) {
 
 
 # The values to draw, and which of them `test` admits: every value from `lower`
-# to `upper` or, with `zoom`, the ones around `reported`, so that it and the
-# strip behind it stand out. The zoomed window reaches `COMB_ZOOM_STEPS` values
+# to `upper` under `zoom = "wide"` or, under `"close"`, the ones around
+# `reported`, so that it and the strip behind it stand out. The close window
+# reaches `COMB_ZOOM_STEPS` values
 # to either side. If `reported` is inconsistent, it doubles until the nearest
 # attainable value on each side is in view, and then keeps three values beyond
 # the farther one. It reaches no farther to either side than the full window is
@@ -272,7 +290,7 @@ comb_window <- function(
   test,
   name
 ) {
-  if (!zoom) {
+  if (zoom == "wide") {
     values <- comb_values(lower, upper, digits, name)
     return(list(values = values, possible = test(values)))
   }
@@ -385,19 +403,26 @@ check_comb_value <- function(value, digits, name) {
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
-#' @param zoom Logical. If `TRUE` (the default), the row shows the values
-#'   around `x`, so that the marker and the strip behind it stand out; see
-#'   *Details*. If `FALSE`, it shows a whole unit.
-#' @param color_con String. Color of the squares for attainable values.
-#' @param color_reported String. Color of the marker for the reported value
-#'   and of the strip behind the squares, if the value is inconsistent. A
-#'   consistent value is marked in `color_con`.
+#' @param zoom String. How much of the row to show: `"close"` (the default)
+#'   shows the values around `x`, so that the marker and the strip behind it
+#'   stand out, and `"wide"` shows a whole unit. See *Details*.
+#' @param color_con,color_incon Strings. Color of the marker, the strip behind
+#'   the squares, and the square at the reported value if it is consistent.
+#'   `color_con` applies if the value is consistent, `color_incon` if not.
+#' @param color_attainable String. Color of the squares for attainable values
+#'   that were not reported, as of the consistent cells of [`grim_plot_grid()`]'s
+#'   raster.
 #'
 #' @details By default, the row shows 10 values on either side of `x`. If `x`
 #'   is inconsistent, it widens until the nearest attainable value on each side
-#'   is in view, but no farther than the row with `zoom = FALSE` is wide.
+#'   is in view, but no farther than the row with `zoom = "wide"` is wide.
 #'
-#'   With `zoom = FALSE`, the row runs from the whole number at or below `x` to
+#'   Each attainable value is labeled below its square unless the squares are
+#'   too close together for that, as they mostly are with `zoom = "wide"`. Then
+#'   the axis has the usual breaks, and if `x` is inconsistent, the nearest
+#'   attainable values are labeled above the row.
+#'
+#'   With `zoom = "wide"`, the row runs from the whole number at or below `x` to
 #'   the next one up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
 #'   included. With `items_averaged = 1`, about `n` of them are attainable, or
 #'   all if `n` exceeds `10 ^ digits_x`. With
@@ -445,9 +470,10 @@ grim_plot_line <- function(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  zoom = TRUE,
-  color_con = "#2f7d74",
-  color_reported = "#c1522e",
+  zoom = c("close", "wide"),
+  color_con = "#0047ff",
+  color_incon = "#ff2a00",
+  color_attainable = "grey75",
   percent = deprecated()
 ) {
   if (lifecycle::is_present(percent)) {
@@ -471,7 +497,7 @@ grim_plot_line <- function(
   }
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
   is_percentage <- x_meaning == "percentage"
-  check_flag(zoom)
+  zoom <- arg_match_in_export(zoom, COMB_ZOOMS)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)
@@ -549,14 +575,14 @@ grim_plot_line <- function(
     claim = c(claim$lower[1L], claim$upper[1L]),
     # fmt: skip
     x_label = paste0(
-      if (is_percentage) "Reported percentage" else "Reported mean",
+      if (is_percentage) "Percentage" else "Mean",
       " (n = ", format(n, scientific = FALSE),
       if (items_averaged != 1) {
         paste(", items_averaged =", format(items_averaged, scientific = FALSE))
       },
       ")"
     ),
-    color_con = color_con,
-    color_reported = if (consistent) color_con else color_reported
+    color_verdict = if (consistent) color_con else color_incon,
+    color_attainable = color_attainable
   )
 }

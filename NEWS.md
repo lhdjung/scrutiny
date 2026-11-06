@@ -94,7 +94,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `is_percentage_of()`, `is_percentage_of_map()`, and `is_percentage_of_map_seq()` check whether a reported percentage matches a count out of a total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a total; `add_up_to_map()` selects any number of columns with tidyselect. `is_percentage_of_map()` and `add_up_to_map()` have `audit()` methods.
 
-- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Of all means (or SDs) within a range that could be reported with the given number of decimal places, they draw a square for each one that a sample of the given size can have, leave the others out, and indicate the reported value. By default, they zoom in on the reported value and the nearest attainable ones; `zoom = FALSE` shows a whole unit. More than 20,000 such values are an error.
+- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Of all means (or SDs) within a range that could be reported with the given number of decimal places, they draw a square for each one that a sample of the given size can have, leave the others out, and indicate the reported value. Squares are labeled with their values if there is room. By default, `zoom = "close"` shows the reported value and the nearest attainable ones; `zoom = "wide"` shows a whole unit. More than 20,000 such values are an error.
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
@@ -208,7 +208,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
 
-- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent value sets are teal and inconsistent ones rust, as in `grim_plot_line()` and `grimmer_plot_line()`, rather than blue and red. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`. `grim_plot_grid()`'s raster shows consistent cells in grey and inconsistent ones in white, the other way around than before.
+- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent value sets are a stronger blue and red than before, as in `grim_plot_line()` and `grimmer_plot_line()`, and values that are consistent but were not reported are grey, like the consistent cells of `grim_plot_grid()`'s raster. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`. `grim_plot_grid()`'s raster shows consistent cells in grey and inconsistent ones in white, the other way around than before.
 
 - `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A string `from` still sets the step size by its decimal places, trailing zeros included.
 

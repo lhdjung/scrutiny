@@ -163,7 +163,7 @@ grim_plot_rates <- function(data, study) {
     ggplot2::scale_y_continuous(labels = as_percent) +
     ggplot2::scale_size_area(name = "Testable\nvalue sets") +
     ggplot2::scale_colour_gradientn(
-      colours = c("#2166ac", "#92c5de", "#f4a582", "#b2182b", "#40004b"),
+      colours = c("#0047ff", "#99b5ff", "#ffaa99", "#ff2a00", "#40004b"),
       values = c(0, 1 / 3, 2 / 3, 1, upper) / upper,
       limits = c(0, upper),
       name = "Observed /\nexpected"

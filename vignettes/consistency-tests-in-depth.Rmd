@@ -339,7 +339,7 @@ How best to plot test results depends on the test: compare `grim_plot_grid()` an
 1.  Plots are based on ggplot2, following its advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html).
 2.  The name is that of the test in lowercase, followed by `_plot`, and optionally a description, as in `grim_plot_grid()`. This doesn't apply to methods for generics like `ggplot2::autoplot()`.
 3.  A function that plots mapper output takes it as its first argument, `data`, and checks that `data` has the mapper's class, such as `"scrutiny_debit_map"`.
-4.  Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its values are `"#2f7d74"` (teal) for consistent value sets and `"#c1522e"` (rust) for inconsistent ones, as in scrutiny's own plots. Users change the colors by adding a scale of their own, not through arguments.
+4.  Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its values are `"#0047ff"` (blue) for consistent value sets and `"#ff2a00"` (red) for inconsistent ones, as in scrutiny's own plots. Users change the colors by adding a scale of their own, not through arguments.
 5.  Optional layers are controlled by logical arguments that start on `show_`, such as `show_data` in `grim_plot_grid()` or `show_labels` in `debit_plot()`. Only arguments of this kind start on `show_`, and they have defaults.
 
 # 6. Sequence mapper

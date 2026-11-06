@@ -2,7 +2,7 @@
 #'
 #' @description `debit_plot()` plots the output of [`debit_map()`]. Each value
 #'   set is a rectangle spanning the rounding bounds of its mean and SD, in
-#'   teal if consistent and rust if not, against the DEBIT line: the SD of
+#'   blue if consistent and red if not, against the DEBIT line: the SD of
 #'   binary data as a function of their mean, for the given sample size.
 #'
 #' @details The line is that of the sample SD unless [`debit_map()`] was called
@@ -53,12 +53,12 @@
 #'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   debit_plot()
 #'
-#' # Other colors, here the ones before scrutiny 1.0.0:
+#' # Other colors:
 #' pigs3 |>
 #'   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
 #'   debit_plot() +
 #'   ggplot2::scale_colour_manual(
-#'     values = c("TRUE" = "royalblue1", "FALSE" = "red"),
+#'     values = c("TRUE" = "#2f7d74", "FALSE" = "#c1522e"),
 #'     aesthetics = c("colour", "fill"),
 #'     guide = "none"
 #'   )
@@ -253,8 +253,8 @@ debit_plot <- function(
             ymin = .data$ymin,
             ymax = .data$ymax
           ),
-          fill = "black",
-          alpha = 0.25,
+          fill = COLOR_ATTAINABLE,
+          alpha = 0.5,
           na.rm = TRUE,
           inherit.aes = FALSE
         )
@@ -265,6 +265,7 @@ debit_plot <- function(
       lapply(function(n_line) {
         ggplot2::geom_function(
           fun = debit_line(n_line, type),
+          colour = COLOR_ATTAINABLE,
           linewidth = 0.5,
           na.rm = TRUE,
           inherit.aes = FALSE
@@ -381,7 +382,8 @@ debit_plot <- function(
               )
             ),
             ggplot2::aes(x = .data$x, y = .data$y),
-            size = 1,
+            colour = COLOR_ATTAINABLE,
+            size = 1.5,
             inherit.aes = FALSE
           )
       }

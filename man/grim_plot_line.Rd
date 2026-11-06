@@ -13,9 +13,10 @@ grim_plot_line(
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  zoom = TRUE,
-  color_con = "#2f7d74",
-  color_reported = "#c1522e",
+  zoom = c("close", "wide"),
+  color_con = "#0047ff",
+  color_incon = "#ff2a00",
+  color_attainable = "grey75",
   percent = deprecated()
 )
 }
@@ -24,15 +25,17 @@ grim_plot_line(
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
 
-\item{zoom}{Logical. If \code{TRUE} (the default), the row shows the values
-around \code{x}, so that the marker and the strip behind it stand out; see
-\emph{Details}. If \code{FALSE}, it shows a whole unit.}
+\item{zoom}{String. How much of the row to show: \code{"close"} (the default)
+shows the values around \code{x}, so that the marker and the strip behind it
+stand out, and \code{"wide"} shows a whole unit. See \emph{Details}.}
 
-\item{color_con}{String. Color of the squares for attainable values.}
+\item{color_con, color_incon}{Strings. Color of the marker, the strip behind
+the squares, and the square at the reported value if it is consistent.
+\code{color_con} applies if the value is consistent, \code{color_incon} if not.}
 
-\item{color_reported}{String. Color of the marker for the reported value
-and of the strip behind the squares, if the value is inconsistent. A
-consistent value is marked in \code{color_con}.}
+\item{color_attainable}{String. Color of the squares for attainable values
+that were not reported, as of the consistent cells of \code{\link[=grim_plot_grid]{grim_plot_grid()}}'s
+raster.}
 
 \item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
 use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
@@ -56,9 +59,14 @@ one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as 
 \details{
 By default, the row shows 10 values on either side of \code{x}. If \code{x}
 is inconsistent, it widens until the nearest attainable value on each side
-is in view, but no farther than the row with \code{zoom = FALSE} is wide.
+is in view, but no farther than the row with \code{zoom = "wide"} is wide.
 
-With \code{zoom = FALSE}, the row runs from the whole number at or below \code{x} to
+Each attainable value is labeled below its square unless the squares are
+too close together for that, as they mostly are with \code{zoom = "wide"}. Then
+the axis has the usual breaks, and if \code{x} is inconsistent, the nearest
+attainable values are labeled above the row.
+
+With \code{zoom = "wide"}, the row runs from the whole number at or below \code{x} to
 the next one up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
 included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
 all if \code{n} exceeds \code{10 ^ digits_x}. With

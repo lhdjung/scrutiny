@@ -18,8 +18,9 @@
 #' @inheritParams grim_plot_line
 #'
 #' @details By default, the row shows the SDs around `sd`, as in
-#'   [`grim_plot_line()`]. With `zoom = FALSE`, it runs from the whole number
-#'   at or below `sd` to the next one up. It never goes below zero.
+#'   [`grim_plot_line()`], where squares are labeled the same way. With
+#'   `zoom = "wide"`, it runs from the whole number at or below `sd` to the
+#'   next one up. It never goes below zero.
 #'
 #'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the row has
 #'   no squares.
@@ -59,9 +60,10 @@ grimmer_plot_line <- function(
   threshold = 5,
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
-  zoom = TRUE,
-  color_con = "#2f7d74",
-  color_reported = "#c1522e"
+  zoom = c("close", "wide"),
+  color_con = "#0047ff",
+  color_incon = "#ff2a00",
+  color_attainable = "grey75"
 ) {
   if (missing(digits_x)) {
     error_digits_missing(x)
@@ -100,7 +102,7 @@ grimmer_plot_line <- function(
   check_comb_value(x, digits_x, "x")
   check_comb_value(sd, digits_sd, "sd")
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
-  check_flag(zoom)
+  zoom <- arg_match_in_export(zoom, COMB_ZOOMS)
   check_decidable_n_items(n, items_averaged, min_n = sd_min_n(sd_meaning))
 
   test <- function(sd) {
@@ -152,7 +154,7 @@ grimmer_plot_line <- function(
     label_value = function(v) formatC(v, format = "f", digits = digits_sd),
     claim = c(claim$lower[1L], claim$upper[1L]),
     x_label = paste0(
-      "Reported SD (mean = ",
+      "SD (mean = ",
       formatC(x, format = "f", digits = digits_x),
       ", n = ",
       format(n, scientific = FALSE),
@@ -167,7 +169,7 @@ grimmer_plot_line <- function(
       },
       ")"
     ),
-    color_con = color_con,
-    color_reported = if (consistent) color_con else color_reported
+    color_verdict = if (consistent) color_con else color_incon,
+    color_attainable = color_attainable
   )
 }

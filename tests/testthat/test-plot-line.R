@@ -2,6 +2,11 @@
 # draw the strip and the baseline, one per attainable value.
 squares <- function(p) p$layers[[3L]]$data$x
 
+# Their fill, and their labels on the axis, which are a waiver if there are
+# none:
+fills <- function(p) ggplot2::layer_data(p, 3L)$fill
+axis_labels <- function(p) p$scales$get_scales("x")$labels
+
 # The marker is one grob in the last layer: the verdict label, whose color is
 # the marker's, and the labels of the nearest attainable values.
 marker <- function(p) {
@@ -52,9 +57,9 @@ boxes_overlap <- function(a, b) {
 
 test_that("the marker's labels keep clear of each other at any size", {
   plots <- list(
-    grim = grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1),
+    grim = grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = "wide"),
     # Wider labels, and a neighbor right next to the reported value:
-    percent = grim_plot_line(x = 67.4, n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage"),
+    percent = grim_plot_line(x = 67.4, n = 400, digits_x = 2, items_averaged = 1, x_meaning = "percentage", zoom = "wide"),
     grimmer = grimmer_plot_line(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   )
   sizes <- list(c(8, 3.5), c(4.5, 3.5), c(8, 2), c(3, 3))
@@ -86,7 +91,7 @@ test_that("the marker's labels keep clear of each other at any size", {
 })
 
 test_that("`grim_plot_line()` draws a square per attainable value only", {
-  p <- grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = FALSE)
+  p <- grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, zoom = "wide")
   p |> expect_s3_class("ggplot")
   # 28 attainable means per unit at `n = 28`, plus the whole number at the
   # far end of the window:
@@ -103,17 +108,18 @@ test_that("the marker says and shows the verdict", {
   con   <- 5.19 |> grim_plot_line(n = 26, digits_x = 2, items_averaged = 1) |> marker()
   incon$label  |> expect_equal("5.19\ninconsistent")
   con$label    |> expect_equal("5.19\nconsistent")
-  incon$colour |> expect_equal("#c1522e")
-  con$colour   |> expect_equal("#2f7d74")
-  # 145 / 28 and 146 / 28:
-  incon$neighbors |> expect_equal(c("5.18", "5.21"))
+  incon$colour |> expect_equal("#ff2a00")
+  con$colour   |> expect_equal("#0047ff")
+  # The squares are labeled, so the nearest ones need no labels of their own:
+  incon$neighbors |> expect_length(0L)
   con$neighbors   |> expect_length(0L)
+  # Without room for labels on the axis, 145 / 28 and 146 / 28 get them:
+  wide <- 5.19 |> grim_plot_line(n = 28, digits_x = 2, items_averaged = 1, zoom = "wide") |> marker()
+  wide$neighbors |> expect_equal(c("5.18", "5.21"))
 
-  # Attainable percentages at `n = 40` are 2.5 points apart, so the window
-  # reaches 3 points beyond the unit on either side:
-  pct <- 67.4 |> grim_plot_line(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> marker()
-  pct$label     |> expect_match("^67.4%\n")
-  pct$neighbors |> expect_equal(c("65.0%", "67.5%"))
+  pct <- 67.4 |> grim_plot_line(n = 400, digits_x = 2, items_averaged = 1, x_meaning = "percentage", zoom = "wide") |> marker()
+  pct$label     |> expect_match("^67.40%\n")
+  pct$neighbors |> expect_equal(c("67.25%", "67.50%"))
 
   p <- grimmer_plot_line(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   p |> marker() |> purrr::pluck("label") |> expect_equal("2.55\ninconsistent")
@@ -175,7 +181,7 @@ test_that("large `n` is not labeled in scientific notation", {
   5.19 |>
     grim_plot_line(100000, 2, items_averaged = 1) |>
     purrr::pluck("labels", "x") |>
-    expect_equal("Reported mean (n = 100000)")
+    expect_equal("Mean (n = 100000)")
 })
 
 # `plot_comb()` would fail on an `NA` from `grimmer()`, in `rep()` or `if ()`.
@@ -221,9 +227,9 @@ test_that("near-whole arguments are drawn as the whole numbers they are", {
 
 test_that("a comb with too many values is an error, not a hang", {
   # Each value is a test, and their number grows tenfold per decimal place:
-  5.1234567 |> grim_plot_line(28, 7, 1, zoom = FALSE)                 |> expect_error("10,000,001 values")
-  5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1, zoom = FALSE) |> expect_error("1,000,001 values")
-  5.1234    |> grim_plot_line(28, 4, 1, zoom = FALSE)                 |> expect_s3_class("ggplot")
+  5.1234567 |> grim_plot_line(28, 7, 1, zoom = "wide")                 |> expect_error("10,000,001 values")
+  5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1, zoom = "wide") |> expect_error("1,000,001 values")
+  5.1234    |> grim_plot_line(28, 4, 1, zoom = "wide")                 |> expect_s3_class("ggplot")
   # Zoomed in, the window stops widening at that limit:
   5.1234567 |> grim_plot_line(28, 7, 1)                 |> expect_s3_class("ggplot")
   5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1) |> expect_s3_class("ggplot")
@@ -246,7 +252,26 @@ test_that("the zoomed window shows the reported value and its nearest attainable
   # No more than the whole window with few decimal places:
   5 |> grim_plot_line(28, 0, 1) |> squares() |> expect_equal(c(4, 5, 6))
   5.23 |> grimmer_plot_line(2.55, 35, 2, 2, 1) |> squares() |> range() |> expect_equal(c(2.45, 2.65))
-  5.19 |> grim_plot_line(28, 2, 1, zoom = NA) |> expect_error("`zoom`")
+  5.19 |> grim_plot_line(28, 2, 1, zoom = NA)   |> expect_error("`zoom`")
+  5.19 |> grim_plot_line(28, 2, 1, zoom = TRUE) |> expect_error("`zoom`")
+})
+
+
+test_that("squares are labeled if there is room, and grey unless reported", {
+  incon <- 5.19 |> grim_plot_line(28, 2, 1)
+  con   <- 5.19 |> grim_plot_line(26, 2, 1)
+  incon |> axis_labels() |> expect_equal(c("5.11", "5.14", "5.18", "5.21", "5.25", "5.29"))
+  incon |> fills() |> unique() |> expect_equal("grey75")
+  con   |> fills() |> call_on(\(f) f[squares(con) == 5.19]) |> expect_equal("#0047ff")
+  con   |> fills() |> call_on(\(f) f[squares(con) != 5.19]) |> unique() |> expect_equal("grey75")
+  # Every value is attainable at `n = 300`, so the squares are too close:
+  5.19 |> grim_plot_line(300, 2, 1)                          |> axis_labels() |> expect_s3_class("waiver")
+  5.19 |> grim_plot_line(28, 2, 1, zoom = "wide")            |> axis_labels() |> expect_s3_class("waiver")
+  67.4 |> grim_plot_line(40, 1, 1, x_meaning = "percentage") |> axis_labels() |> expect_equal(c("65.0%", "67.5%", "70.0%"))
+
+  p <- 5.23 |> grimmer_plot_line(2.55, 31, 2, 2, 1, color_con = "orange", color_attainable = "black")
+  p |> fills() |> unique() |> sort() |> expect_equal(c("black", "orange"))
+  p |> purrr::pluck("labels", "x") |> expect_equal("SD (mean = 5.23, n = 31)")
 })
 
 

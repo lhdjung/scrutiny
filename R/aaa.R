@@ -82,6 +82,9 @@ COMB_TEETH_MAX <- 2e4
 # least; see `comb_window()`:
 COMB_ZOOM_STEPS <- 10L
 
+# The values of `zoom` in `grim_plot_line()` and `grimmer_plot_line()`:
+COMB_ZOOMS <- c("close", "wide")
+
 # The most digits in the integer or decimal part that `restore_zeros()` writes
 # out a number with an exponent to, such as `"1e-400"`, and the largest `width`
 # it pads to; see `write_out_decimal()`:
@@ -178,6 +181,8 @@ ROUNDING_METHODS <- c(
 )
 
 # The colors of consistent and inconsistent value sets in `grim_plot_grid()`
-# and `debit_plot()`. The comb plots spell the same two out as defaults of
-# `color_con` and `color_reported`, so that they show in their usage.
-COLORS_CONSISTENCY <- c("TRUE" = "#2f7d74", "FALSE" = "#c1522e")
+# and `debit_plot()`, and of values that are attainable but not reported, like
+# the consistent cells of `grim_plot_grid()`'s raster. The functions with color
+# arguments spell these out as defaults, so that they show in their usage.
+COLORS_CONSISTENCY <- c("TRUE" = "#0047ff", "FALSE" = "#ff2a00")
+COLOR_ATTAINABLE <- "grey75"
