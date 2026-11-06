@@ -136,7 +136,9 @@ new_settings <- function(values, defaults, added_by) {
     names_values,
     function(name) {
       rlang::has_name(defaults, name) &&
-        isTRUE(all.equal(values[[name]], defaults[[name]]))
+        # Exactly, as `dplyr::bind_rows()` compares them; `all.equal()` took
+        # a tolerance of `1e-9` for a default of 0:
+        same_value(values[[name]], defaults[[name]])
     },
     logical(1L),
     USE.NAMES = FALSE

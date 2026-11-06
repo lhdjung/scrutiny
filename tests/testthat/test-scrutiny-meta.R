@@ -58,3 +58,15 @@ test_that("`scrutiny_args()` returns no tier settings if the basic mapper record
   out |> scrutiny_args() |> expect_length(0L)
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> scrutiny_args() |> rlang::has_name("dispersion") |> expect_false()
 })
+
+
+test_that("a setting close to its default is not recorded as the default", {
+  # `all.equal()` has a tolerance, which is absolute near zero:
+  sum_check <- function(parts, total, tolerance = 0) abs(sum(parts) - total) <= tolerance
+  sum_check_map <- function_map(sum_check, .reported = "total", .reported_variadic = "parts", .name_test = "SUMCHECK")
+  d <- tibble::tibble(a = 0.1, b = 0.2, total = 0.3)
+  default_of <- function(out) scrutiny_meta(out)$default
+  d |> sum_check_map(parts = c(a, b))                   |> default_of() |> expect_true()
+  d |> sum_check_map(parts = c(a, b), tolerance = 0L)   |> default_of() |> expect_true()
+  d |> sum_check_map(parts = c(a, b), tolerance = 1e-9) |> default_of() |> expect_false()
+})
