@@ -222,6 +222,11 @@ test_that("`explain_print()` explains only the rows it prints", {
   returned |> expect_identical(data)
 })
 
+test_that("`explain_print()` doesn't print an `explanation` column of the user's", {
+  data <- pigs1 |> dplyr::mutate(explanation = "my note") |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  data |> explain_print(1)                    |> expect_error("already has an `explanation` column")
+})
+
 test_that("`explain_map()` and `explain_print()` only take mapper output", {
   pigs1                                       |> explain_map()   |> expect_error("must be the output")
   pigs1                                       |> explain_print() |> expect_error("must be the output")
