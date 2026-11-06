@@ -303,6 +303,14 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
 })
 
 
+# `map_value_sets()` raised a bare "Need to specify" for a missing `data_type`.
+test_that("a missing `data_type` is a bespoke error in the vectorized tests", {
+  5.19 |> grim(28, 2, items_averaged = 1)               |> expect_error("quasi-integer")
+  5.19 |> grimmer(1.2, 28, 2, 1, items_averaged = 1)    |> expect_error("quasi-integer")
+  0.35 |> debit(0.18, 20, 2, 2)                         |> expect_error("quasi-integer")
+})
+
+
 # It used to reach these through the dots, invisible to `formals()`, to
 # tab-completion, and to the help page:
 test_that("every GRIM and GRIMMER mapper has `items_averaged` right after the key arguments and the dots", {

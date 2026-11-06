@@ -115,7 +115,10 @@ map_value_sets <- function(fn, along, type = "logical") {
     if (identical(formals_wrapper[[name]], quote(expr = ))) {
       # `fn` has errors of its own for these, which say how to fix them. R's
       # error for any other would name `fn`, which the user never called:
-      if (!startsWith(name, "digits_") && name != "items_averaged") {
+      if (
+        !startsWith(name, "digits_") &&
+          !name %in% c("items_averaged", "data_type")
+      ) {
         abort_in_export("Need to specify {.arg {name}}.")
       }
       vals_first <- vals
