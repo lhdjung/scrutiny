@@ -26,8 +26,8 @@
 #' Percentages and sample sizes for GRIM-testing
 #'
 #' A fictional dataset with percentages and sample sizes of flying pigs. It can
-#' be used to demonstrate the functionality of `grim_map()`, particularly its
-#' `percent` argument, and functions built on it.
+#' be used to demonstrate the functionality of `grim_map()`, particularly with
+#' `x_meaning = "percentage"`, and functions built on it.
 
 #' @include utils.R grim.R
 #'
