@@ -203,7 +203,8 @@ grimmer_candidate_absolute <- function(candidate) {
 # Which sums of squares two to four whole numbers can have is worked out in
 # doubles (`sum_squares_attainable()`), and for three, by generating the
 # numbers `x^2 + xy + y^2`, which takes seconds and gigabytes from about 2^40
-# on. That takes an SD of about 3e5 to 1e6, divided by `items_averaged`,
+# on. That takes an SD of about 6e5 to 1e6, or an SE of 3e5, divided by
+# `items_averaged`,
 # which no study reports for so few values. One number is decided exactly in
 # `grimmer_candidate()`.
 check_grimmer_attainable_exact <- function(upper, n) {
@@ -655,8 +656,9 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   `x` and `sd` are limited to about 15 significant digits, as in
 #'   [`grim()`]. Beyond that, `grimmer()` decides value sets of any size
 #'   exactly, but refuses some it would take too long to decide, none of which
-#'   occur in practice: an SD of about 3e5 or more for `n` from 2 to 4
-#'   (divided by `items_averaged`), an `n` of 2^52 or more, and a value set
+#'   occur in practice: an SD of about 6e5 or more for `n` from 2 to 4, or
+#'   3e5 if it is an SE (divided by `items_averaged`), an `n` of 2^52 or
+#'   more, and a value set
 #'   that leaves more than a million candidate sums to test, which takes an
 #'   `n` of more than a million.
 #'

@@ -114,8 +114,9 @@ decides exactly whether a mean and SD are possible within the bounds.
 \code{x} and \code{sd} are limited to about 15 significant digits, as in
 \code{\link[=grim]{grim()}}. Beyond that, \code{grimmer()} decides value sets of any size
 exactly, but refuses some it would take too long to decide, none of which
-occur in practice: an SD of about 3e5 or more for \code{n} from 2 to 4
-(divided by \code{items_averaged}), an \code{n} of 2^52 or more, and a value set
+occur in practice: an SD of about 6e5 or more for \code{n} from 2 to 4, or
+3e5 if it is an SE (divided by \code{items_averaged}), an \code{n} of 2^52 or
+more, and a value set
 that leaves more than a million candidate sums to test, which takes an
 \code{n} of more than a million.
 }
