@@ -6,7 +6,7 @@
 \usage{
 grim_map_seq(
   data,
-  digits_x = NULL,
+  digits_x,
   x = NULL,
   n = NULL,
   ...,

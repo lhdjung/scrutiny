@@ -6,7 +6,7 @@
 \usage{
 is_percentage_of_map_seq(
   data,
-  digits_percentage = NULL,
+  digits_percentage,
   absolute = NULL,
   percentage = NULL,
   n = NULL,

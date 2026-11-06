@@ -301,10 +301,9 @@ function_map_seq <- function(
     paste0("digits_", .reported[.reported != "n"]),
     names(formals(.fn))
   )
-  digits_pairlist_entries <- setNames(
-    replicate(length(digits_args_names), NULL, simplify = FALSE),
-    digits_args_names
-  )
+  # With `.fn`'s defaults, i.e., none: a default of `NULL` would show in the
+  # usage as if the arguments could be left out.
+  digits_pairlist_entries <- formals(.fn)[digits_args_names]
   # Other arguments that the basic mapper takes one value per row of:
   args_by_row_fn <- setdiff(
     attr(.fn, "scrutiny_args_by_row", exact = TRUE),

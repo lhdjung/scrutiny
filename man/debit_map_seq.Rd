@@ -6,8 +6,8 @@
 \usage{
 debit_map_seq(
   data,
-  digits_x = NULL,
-  digits_sd = NULL,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,

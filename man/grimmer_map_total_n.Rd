@@ -6,8 +6,8 @@
 \usage{
 grimmer_map_total_n(
   data,
-  digits_x = NULL,
-  digits_sd = NULL,
+  digits_x,
+  digits_sd,
   x1 = NULL,
   x2 = NULL,
   sd1 = NULL,

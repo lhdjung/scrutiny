@@ -319,10 +319,9 @@ function_map_total_n <- function(
     paste0("digits_", .reported),
     names(formals(.fn))
   )
-  digits_pairlist_entries <- setNames(
-    replicate(length(digits_args_names), NULL, simplify = FALSE),
-    digits_args_names
-  )
+  # With `.fn`'s defaults, i.e., none: a default of `NULL` would show in the
+  # usage as if the arguments could be left out.
+  digits_pairlist_entries <- formals(.fn)[digits_args_names]
 
   # The same goes for helper arguments, with `.fn`'s defaults, i.e., none for
   # `items_averaged`:

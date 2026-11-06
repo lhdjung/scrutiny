@@ -6,7 +6,7 @@
 \usage{
 grim_map_total_n(
   data,
-  digits_x = NULL,
+  digits_x,
   x1 = NULL,
   x2 = NULL,
   n = NULL,

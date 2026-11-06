@@ -36,3 +36,21 @@ test_that("the output has the same columns in the same order whatever is dispers
     colnames() |>
     expect_equal(cols_rec)
 })
+
+
+test_that("the `digits_*` arguments of sequence and total-n mappers have no default", {
+  # They were `NULL`, which the usage showed next to "There is no default":
+  mappers <- list(
+    grim_map_seq, grimmer_map_seq, debit_map_seq,
+    grim_map_total_n, grimmer_map_total_n, debit_map_total_n
+  )
+  for (mapper in mappers) {
+    digits <- formals(mapper)[grepl("^digits_", names(formals(mapper)))]
+    length(digits) |> expect_gt(0L)
+    digits |> vapply(rlang::is_missing, logical(1L)) |> all() |> expect_true()
+  }
+
+  # Left out or `NULL`, the error is the same as before:
+  pigs1 |> grim_map_seq(items_averaged = 1, data_type = "integer")                  |> expect_error("Need to specify `digits_x`")
+  pigs1 |> grim_map_seq(digits_x = NULL, items_averaged = 1, data_type = "integer") |> expect_error("digits_x")
+})
