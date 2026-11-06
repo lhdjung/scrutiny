@@ -231,7 +231,7 @@ test_that("a comb with too many values is an error, not a hang", {
   5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1, zoom = "wide") |> expect_error("1,000,001 values")
   5.1234    |> grim_plot_line(28, 4, 1, zoom = "wide")                 |> expect_s3_class("ggplot")
   # Zoomed in, the window stops widening at that limit:
-  5.1234567 |> grim_plot_line(28, 7, 1)                 |> expect_s3_class("ggplot")
+  5.1234567 |> grim_plot_line(28, 7, 1) |> suppressWarnings() |> expect_s3_class("ggplot")
   5.21      |> grimmer_plot_line(1.623457, 28, 2, 6, 1) |> expect_s3_class("ggplot")
 })
 
@@ -325,4 +325,15 @@ test_that("zero is not labeled as negative", {
   grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1) |> labels() |> expect_no_match("-0.00")
   grim_plot_line(x = 0.01, n = 31, digits_x = 2, items_averaged = 1)  |> labels() |> expect_no_match("-0.00")
   grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1) |> labels() |> expect_contains("0.00")
+})
+
+
+test_that("a row without any attainable value in reach says so", {
+  # The search for the nearest one stops after some values, which left an
+  # empty row with no hint that attainable values exist:
+  grim_plot_line(x = 5.12345, n = 3, digits_x = 5, items_averaged = 1) |> expect_warning("No attainable value is close enough")
+  grim_plot_line(x = 5.12, n = 3, digits_x = 2, items_averaged = 1)    |> expect_no_warning()
+  # Not if the whole window was searched, as for a mean that fails GRIM, which
+  # no SD goes with:
+  grimmer_plot_line(x = 5.19, sd = 0.4, n = 28, digits_x = 2, digits_sd = 1, items_averaged = 1) |> expect_no_warning()
 })

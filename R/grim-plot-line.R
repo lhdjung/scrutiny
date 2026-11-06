@@ -362,6 +362,21 @@ comb_window <- function(
     steps <- min(2 * steps, steps_max)
   }
 
+  # The search ends after `COMB_TEETH_MAX` values even if the full window is
+  # wider, which may be before the nearest attainable value, as for a mean of
+  # three values with five decimal places. An empty row would look as if
+  # there were none:
+  steps_window <- max(ceiling((upper - lower) / step), 1)
+  if (!any(possible) && steps_max < steps_window) {
+    cli::cli_warn(c(
+      "No attainable value is close enough to draw.",
+      "i" = "None is within \\
+      {format(steps, big.mark = ',', scientific = FALSE)} values of the \\
+      reported `{name}`, which is as far as the plot looks. There may be \\
+      some beyond."
+    ))
+  }
+
   if (is_medium || !consistent) {
     reaches <- c(
       index_reported - left[length(left)],
