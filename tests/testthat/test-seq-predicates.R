@@ -405,7 +405,8 @@ test_that("a `tolerance` of 0 doesn't rule out a dispersed sequence with gaps", 
   set.seed(sweep_seed(49L))
   for (i in 1:200) {
     from <- round(runif(1, 0, 100), 2)
-    out <- seq_disperse(from, dispersion = 1:sample(2:8, 1))
+    # Without the lower limit, which cuts a sequence near zero short:
+    out <- seq_disperse(from, dispersion = 1:sample(2:8, 1), out_min = NULL)
     out[sample(length(out), sample(length(out) - 2L, 1))] <- NA
     out |> is_seq_dispersed(from = from, tolerance = 0) |> isFALSE() |> expect_false()
   }
