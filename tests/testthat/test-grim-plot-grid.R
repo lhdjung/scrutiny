@@ -387,3 +387,19 @@ test_that("three decimal places without the gradient leave the panel plain", {
   plot <- grim_plot_grid(show_data = FALSE, digits = 3, n = 20, show_gradient = FALSE)
   ggplot2::ggplot_build(plot)$data[[1L]]$fill |> expect_equal(NA)
 })
+
+
+test_that("GRIMMER inconsistencies are only announced if drawn, and once per plot", {
+  out <- pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+  out |> grim_plot_grid() |> expect_message("GRIMMER inconsistenc")
+  out |> grim_plot_grid(show_data = FALSE) |> expect_no_message() |> suppressWarnings()
+  messages <- character()
+  withCallingHandlers(
+    grim_plot_grid(out, split_by_digits = TRUE),
+    message = function(cnd) {
+      messages <<- c(messages, conditionMessage(cnd))
+      invokeRestart("muffleMessage")
+    }
+  )
+  messages |> grepl(pattern = "GRIMMER inconsistenc") |> sum() |> expect_equal(1L)
+})

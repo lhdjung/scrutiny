@@ -152,7 +152,9 @@ grim_plot_grid <- function(
         stringr::str_detect("GRIMMER") |>
         which() |>
         length()
-      if (n_grimmer_cases > 0L) {
+      # Not if the data are not drawn, nor before splitting them: each plot's
+      # own call says what it shows.
+      if (n_grimmer_cases > 0L && show_data && !split_by_digits) {
         msg_incon <- if (n_grimmer_cases == 1L) {
           "inconsistency"
         } else {
