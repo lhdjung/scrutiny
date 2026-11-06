@@ -77,3 +77,13 @@ test_that("a list is tested the same under any decimal mark", {
   list(NA, "NA")       |> is_numeric_like() |> expect_na()
   list(1.5, NA, "2.0") |> is_numeric_like() |> expect_true()
 })
+
+
+test_that("the string `\"NA\"` next to whitespace is missing", {
+  # It was compared to `"NA"` before the whitespace was trimmed:
+  c("1", " NA")             |> is_numeric_like() |> expect_true()
+  c("1", "NA ")        |> is_numeric_like() |> expect_true()
+  c("1", " NA", "3")        |> is_seq_linear()   |> expect_na()
+  c("1", "2", "3")          |> is_seq_dispersed(from = " NA") |> expect_na()
+  tibble::tibble(a = c("1.50", "NA ")) |> decimal_places_df() |> _$a |> expect_equal(c(2L, NA))
+})
