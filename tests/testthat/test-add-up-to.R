@@ -63,3 +63,22 @@ test_that("missing `summands` get the package's own error", {
   add_up_to(total = 120) |> expect_error("Need to specify `summands`")
   add_up_to(c(1, 2))     |> expect_error("Need to specify `total`")
 })
+
+test_that("`summands` can name a key column as the user knows it", {
+  # The selection ran after `total = sum` had renamed the column, so `!sum`
+  # found no `sum`:
+  d <- tibble::tibble(a = 1:2, b = 3:4, sum = c(4, 7))
+  expected <- d |> add_up_to_map(summands = c(a, b), total = sum)
+  d |> add_up_to_map(summands = !sum, total = sum)   |> expect_equal(expected)
+  d |> add_up_to_map(summands = !total, total = sum) |> expect_equal(expected)
+  d |> add_up_to_map(summands = c(a, sum), total = sum) |> expect_error("selected `total`")
+  d |> add_up_to_map(summands = !nope, total = sum)     |> expect_error("Column `nope` doesn't exist")
+})
+
+test_that("row names are not selected as summands", {
+  # They become a `rowname` column, which `!total` then included:
+  out <- data.frame(a = 1:2, b = 3:4, total = c(4, 7), row.names = c("r1", "r2")) |>
+    add_up_to_map(summands = !total)
+  out$consistency |> expect_equal(c(TRUE, FALSE))
+  out$rowname |> expect_equal(c("r1", "r2"))
+})

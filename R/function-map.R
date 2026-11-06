@@ -286,6 +286,8 @@ function_map <- function(
     "cols_variadic",
     "names_variadic",
     "quo_variadic",
+    "cols_added",
+    "data_given",
     "index_variadic",
     "enum_defaults",
     "enum_vals",
@@ -371,13 +373,59 @@ function_map <- function(
   # `tidyselect::eval_select()` both finds and renames the variadic columns.
   # The argument is spliced in as a symbol so that `rlang::enquo()` captures
   # the expression instead of evaluating it:
+  # The row names of a data frame become a `rowname` column, which is no column
+  # of the user's and so not selected. Whether they will is only known before
+  # `data` is converted:
+  code_variadic_input <- if (is.null(.reported_variadic)) {
+    list()
+  } else {
+    list(rlang::expr({
+      cols_added <- if (
+        is.data.frame(data) &&
+          !tibble::is_tibble(data) &&
+          is.character(attr(data, "row.names"))
+      ) {
+        "rowname"
+      }
+    }))
+  }
+
+  # `data` before its key columns are renamed and moved to the front: the
+  # selection may name a key column as the user knows it, as in
+  # `summands = !sum, total = sum`.
+  code_variadic_given <- if (is.null(.reported_variadic)) {
+    list()
+  } else {
+    list(rlang::expr(data_given <- data))
+  }
+
   code_variadic <- if (is.null(.reported_variadic)) {
     list()
   } else {
     list(rlang::expr({
       quo_variadic <- rlang::enquo(`!!`(as.name(.reported_variadic)))
       check_variadic_arg(quo_variadic, `!!`(.reported_variadic))
-      index_variadic <- tidyselect::eval_select(quo_variadic, data)
+      index_variadic <- tryCatch(
+        tidyselect::eval_select(quo_variadic, data, exclude = cols_added),
+        vctrs_error_subscript_oob = function(cnd) {
+          # If the names as given don't help either, the first error stands:
+          index_given <- tryCatch(
+            tidyselect::eval_select(
+              quo_variadic,
+              data_given,
+              exclude = cols_added
+            ),
+            error = function(cnd_given) rlang::cnd_signal(cnd)
+          )
+          # The same columns in `data`. A renamed key column has no match by
+          # name; it stands for all of them, which the check below rejects:
+          index <- match(colnames(data_given)[index_given], colnames(data))
+          names(index) <- names(index_given)
+          cols_renamed <- which(!colnames(data) %in% colnames(data_given))
+          names(cols_renamed) <- colnames(data)[cols_renamed]
+          c(index[!is.na(index)], if (anyNA(index)) cols_renamed)
+        }
+      )
       check_variadic_cols(
         index = index_variadic,
         data = data,
@@ -458,8 +506,11 @@ function_map <- function(
 
       # Checks ---
 
+      `!!!`(code_variadic_input)
+
       # First, before anything reads columns off `data`:
       data <- as_tibble_input(data)
+      `!!!`(code_variadic_given)
 
       # Rename columns named by key arguments:
       `!!!`(code_key_arg_checks)
