@@ -39,7 +39,7 @@ pigs1 |>
 
 - `rec_sum` is `x * n * items_averaged`, the sum implied by the reported mean. The sum of integer data is a whole number, which `rec_sum` generally is not.
 - `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would have been reported as `x`. A value set is consistent if and only if `sum_lower <= sum_upper`. If it is inconsistent, they are the whole numbers just above and below `rec_sum`, so their difference is always 1 and says nothing about how far off the mean is.
-- `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items_averaged`. They show how far the reported mean is from an achievable one. With `percent = TRUE`, they are percentages like `x`.
+- `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items_averaged`. They show how far the reported mean is from an achievable one. With `x_meaning = "percentage"`, they are percentages like `x`.
 
 ### Achievable means
 
@@ -207,7 +207,7 @@ grim_exp_incon(
   n = 40,
   digits_x = 2,
   items_averaged = 1,
-  percent = TRUE
+  x_meaning = "percentage"
 )
 ```
 

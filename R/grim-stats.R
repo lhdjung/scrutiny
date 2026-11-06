@@ -9,7 +9,7 @@
 #'   [`grim_map()`].
 #'   - `grim_total()` returns the number of such inconsistent values between
 #'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
-#'   `percent = TRUE`).
+#'   `x_meaning = "percentage"`).
 #'
 #'   See `vignette("grim-in-depth")`, section *GRIM statistics*.
 #'
@@ -23,8 +23,8 @@
 #' @param items_averaged Integer. As in [`grim()`]. Like `x`, `n`, and
 #'   `digits_x`, it is recycled under the tidyverse rules: all four must have
 #'   the same length, or length 1.
-#' @param percent Logical. If `TRUE`, `x` is a percentage, which adds 2 to the
-#'   decimal count. Default is `FALSE`.
+#' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
+#'   adds 2 to the decimal count, as in [`grim()`].
 #' @param rounding,threshold The rounding method and, for the `"*_from"`
 #'   methods, its threshold, as in [`grim()`]. Defaults are `"up_or_down"` and
 #'   `5`. The count depends on the method: `"up_or_down"` accepts a mean on a
@@ -40,7 +40,7 @@
 #'   [`grim()`] cannot decide a case: if `x` is missing or infinite, or if `n`
 #'   or `items_averaged` is not a positive whole number. They are never
 #'   negative. A count above 2^53, which only `digits_x` of 14 or more with
-#'   `percent = TRUE` can reach, is the nearest number a double can hold.
+#'   `x_meaning = "percentage"` can reach, is the nearest number a double can hold.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -66,14 +66,14 @@
 #'   n = 120,
 #'   digits_x = 2,
 #'   items_averaged = 1,
-#'   percent = TRUE
+#'   x_meaning = "percentage"
 #' )
 #' grim_total(
 #'   x = 5.14,
 #'   n = 120,
 #'   digits_x = 2,
 #'   items_averaged = 1,
-#'   percent = TRUE
+#'   x_meaning = "percentage"
 #' )
 
 # Relative ----------------------------------------------------------------
@@ -83,7 +83,7 @@ grim_exp_incon <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
 ) {
@@ -91,18 +91,19 @@ grim_exp_incon <- function(
     error_digits_missing(x)
   }
   digits_x <- round_whole(digits_x)
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
 
   out <- grim_total(
     x,
     n,
     digits_x,
     items_averaged,
-    percent,
+    x_meaning,
     rounding,
     threshold
   )
 
-  if (percent) {
+  if (x_meaning == "percentage") {
     digits_x <- digits_x + 2L
   }
 
@@ -119,7 +120,7 @@ grim_total <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
 ) {
@@ -139,7 +140,7 @@ grim_total <- function(
   items_averaged <- round_whole(items_averaged)
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
-  check_flag(percent)
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
   if (!is.numeric(x) && !all(is.na(x))) {
     check_type(x, c("double", "integer"))
   }
@@ -160,7 +161,7 @@ grim_total <- function(
     )
   }
 
-  if (percent) {
+  if (x_meaning == "percentage") {
     digits_x <- digits_x + 2L
   }
 
@@ -303,8 +304,8 @@ grim_total <- function(
 
   n_multiples <- pmax(multiple_last - multiple_first + 1, 0)
 
-  # A double, not an integer: from `digits_x = 10` on (8 with `percent =
-  # TRUE`), the count can exceed `.Machine$integer.max`, and the type should not
+  # A double, not an integer: from `digits_x = 10` on (8 with `x_meaning =
+  # "percentage"`), the count can exceed `.Machine$integer.max`, and the type should not
   # depend on the values. Doubles are exact for whole numbers up to 2^53; a
   # count beyond is the nearest double, as documented.
   #

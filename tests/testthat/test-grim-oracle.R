@@ -13,7 +13,7 @@
 # `test-grim.R` has a narrower oracle of the same kind, covering the verdict of
 # `grim()` alone under `"up_or_down"`, `"up"`, and `"down"`. This one widens the
 # parameter space -- every rounding method, both boundary thresholds,
-# `symmetric`, `items`, `percent`, and negative means -- and checks not just the
+# `symmetric`, `items`, `x_meaning`, and negative means -- and checks not just the
 # verdict but the numbers the verdict is made of: `sum_lower` and `sum_upper`,
 # the granules, and the values that `grim_values()` and `grim_closest()` derive
 # from the same range. One method is left out of the equality check on purpose:
@@ -116,8 +116,9 @@ grim_oracle_grid <- function() {
 }
 
 
-test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
+test_grim_oracle <- function(x, n, digits_x, items, x_meaning, symmetric) {
   grid <- grim_oracle_grid()
+  percent <- x_meaning == "percentage"
   data <- tibble::tibble(x = x, n = n)
 
   # GRIM works with decimal numbers internally, so a percentage is divided by
@@ -143,7 +144,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
 
     # fmt: skip
     info <- paste0(
-      "digits_x = ", digits_x, ", items = ", items, ", percent = ", percent,
+      "digits_x = ", digits_x, ", items = ", items, ", x_meaning = ", x_meaning,
       ", rounding = ", rounding, ", threshold = ", threshold,
       ", symmetric = ", symmetric
     )
@@ -152,7 +153,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       grim_map(
         digits_x = digits_x,
         items_averaged = items,
-        percent = percent,
+        x_meaning = x_meaning,
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,
@@ -165,7 +166,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       n,
       digits_x = digits_x,
       items_averaged = items,
-      percent = percent,
+      x_meaning = x_meaning,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -175,7 +176,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       n,
       digits_x = digits_x,
       items_averaged = items,
-      percent = percent,
+      x_meaning = x_meaning,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -223,7 +224,7 @@ test_grim_oracle <- function(x, n, digits_x, items, percent, symmetric) {
       all() |>
       expect_true(info = info)
 
-    # `rec_sum` is a sum of the underlying data, so `percent` leaves it alone;
+    # `rec_sum` is a sum of the underlying data, so `x_meaning` leaves it alone;
     # the granules are read against `x`, so they follow its scale:
     out$rec_sum |> expect_equal(x_num * n_items, info = info)
     out$rec_x_lower |>
@@ -328,7 +329,7 @@ test_that("GRIM agrees with the oracle for every rounding method", {
         n = data_oracle$n,
         digits_x = digits_x,
         items = 1,
-        percent = FALSE,
+        x_meaning = "mean",
         symmetric = symmetric
       )
     }
@@ -342,7 +343,7 @@ test_that("GRIM agrees with the oracle for multi-item scales", {
     n = data_oracle$n,
     digits_x = 2,
     items = 3,
-    percent = FALSE,
+    x_meaning = "mean",
     symmetric = FALSE
   )
 })
@@ -358,7 +359,7 @@ test_that("GRIM agrees with the oracle for percentages", {
       n = data_percent$n,
       digits_x = digits_x,
       items = 1,
-      percent = TRUE,
+      x_meaning = "percentage",
       symmetric = FALSE
     )
   }

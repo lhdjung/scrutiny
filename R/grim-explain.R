@@ -33,14 +33,14 @@
 #'   n = 43,
 #'   digits_x = 0,
 #'   items_averaged = 1,
-#'   percent = TRUE
+#'   x_meaning = "percentage"
 #' )
 grim_explain <- function(
   x,
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -53,6 +53,8 @@ grim_explain <- function(
   check_length(items_averaged, 1L)
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  is_percentage <- x_meaning == "percentage"
 
   # `paste()` would write a number like 100000 as 1e+05:
   rlang::local_options(scipen = 100L)
@@ -72,7 +74,7 @@ grim_explain <- function(
     n = n,
     digits_x = digits_x,
     items_averaged = items_averaged,
-    percent = percent,
+    x_meaning = x_meaning,
     show_rec = TRUE,
     rounding = rounding,
     threshold = threshold,
@@ -87,7 +89,7 @@ grim_explain <- function(
       items_averaged = if (is.na(items_averaged) || items_averaged != 1) {
         items_averaged
       },
-      percent = if (percent) TRUE
+      x_meaning = if (is_percentage) "\"percentage\""
     )
     new_explanation(
       "GRIM",
@@ -120,9 +122,9 @@ grim_explain <- function(
   # The bounds of `x` on the scale it was reported on, i.e. as a percentage if
   # it is one. Each is an exact numerator over `denom`, and multiplying before
   # dividing keeps a value like 70.5 from showing up as 70.4999999999.
-  digits_num <- if (percent) digits_x + 2L else digits_x
-  x_num <- if (percent) x / 100 else x
-  scale_x <- if (percent) 100 else 1
+  digits_num <- if (is_percentage) digits_x + 2L else digits_x
+  x_num <- if (is_percentage) x / 100 else x
+  scale_x <- if (is_percentage) 100 else 1
   bounds <- roundwork::bound_numerators(
     x_num,
     digits_num,
@@ -158,7 +160,7 @@ grim_explain <- function(
   )
 
   text_bounds <- describe_reported(
-    if (percent) "percentage" else "mean",
+    if (is_percentage) "percentage" else "mean",
     x,
     digits_x,
     x_lower,
@@ -168,7 +170,7 @@ grim_explain <- function(
   )
 
   # How the mean or percentage comes from a sum, and which sums it allows:
-  if (percent) {
+  if (is_percentage) {
     n_shown <- if (items_averaged == 1) {
       n
     } else {
@@ -234,7 +236,7 @@ grim_explain <- function(
       sum,
       " / ",
       n_items,
-      if (percent) " * 100",
+      if (is_percentage) " * 100",
       " = ",
       format_number(sum * scale_x / n_items, digits_num, bounds_x)
     )
@@ -262,7 +264,7 @@ grim_explain <- function(
       paste0(if (is_tie) " (a tie)")
   }
 
-  whole_intro <- if (percent) {
+  whole_intro <- if (is_percentage) {
     "A count is a whole number"
   } else {
     "A sum of whole numbers is itself a whole number"

@@ -70,7 +70,7 @@ n <- rnorm(500, 50, 20) |>
 
 df3 <- tibble::tibble(x, n)
 
-df3_percent_true  <- df3 |> grim_map(digits_x = 0, items_averaged = 1, percent = TRUE, show_rec = TRUE) |> suppressMessages() # fmt: skip
+df3_percent_true  <- df3 |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage", show_rec = TRUE) |> suppressMessages() # fmt: skip
 df3_percent_false <- df3 |> grim_map(digits_x = 0, items_averaged = 1, show_rec = TRUE) # fmt: skip
 
 # Two more decimal places can only rule out more values, not fewer. Not always
@@ -78,14 +78,14 @@ df3_percent_false <- df3 |> grim_map(digits_x = 0, items_averaged = 1, show_rec 
 # under `"up_or_down"`, since ties are admitted toward both neighbors.
 test_that(
   "The probability of GRIM inconsistency is never smaller
-  with `percent = TRUE` than without it", {
+  with percentages than with means", {
     (df3_percent_true$exp_incon >= df3_percent_false$exp_incon) |>
       all() |>
       expect_true()
 })
 
 
-test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
+test_that("percentages leave the granules on the scale of `x`", {
   # Up to scrutiny 1.0.0, these were the decimal numbers that GRIM converts `x`
   # to internally, so they could not be read against the `x` column they are
   # documented as bracketing:
@@ -94,11 +94,11 @@ test_that("`percent = TRUE` leaves the granules on the scale of `x`", {
 
   # `grim_values()` returns its values on that same scale, so a consistent case
   # must be bracketed by the two granules there as well:
-  out <- tibble::tibble(x = c(71, 84), n = c(25L, 25L)) |> grim_map(digits_x = 0, items_averaged = 1, percent = TRUE, show_rec = TRUE)
+  out <- tibble::tibble(x = c(71, 84), n = c(25L, 25L)) |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage", show_rec = TRUE)
   out$rec_x_lower |> expect_equal(c(68, 84))
   out$rec_x_upper |> expect_equal(c(72, 84))
   84 |>
-    grim_values(25, digits_x = 0, items_averaged = 1, percent = TRUE) |>
+    grim_values(25, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |>
     purrr::pluck("x") |>
     expect_equal(84)
 

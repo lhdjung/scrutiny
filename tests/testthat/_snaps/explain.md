@@ -32,9 +32,9 @@
       
       ==> Consistent
     Code
-      grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+      grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
     Output
-      GRIM test: x = 71, n = 43, percent = TRUE
+      GRIM test: x = 71, n = 43, x_meaning = "percentage"
       
       The percentage was reported as 71, with no decimal places. Before rounding, it
       could have been anything from 70.5 to 71.5.

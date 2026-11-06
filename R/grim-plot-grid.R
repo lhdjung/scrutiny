@@ -21,7 +21,8 @@
 #'   get one plot per number of decimal places instead, or `digits` to choose
 #'   one.
 #'
-#'   With `percent = TRUE` in the `grim_map()` call, percentages are plotted
+#'   With `x_meaning = "percentage"` in the `grim_map()` call, percentages are
+#'   plotted
 #'   as the proportions they were tested as, with two more decimal places.
 #'
 #'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits`,
@@ -93,7 +94,7 @@
 #'
 #' # Percentages are plotted as proportions:
 #' pigs2 |>
-#'   grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+#'   grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
 #'   grim_plot_grid()
 #'
 #' # Other colors for the value sets, here the ones before scrutiny 1.0.0:
@@ -236,7 +237,7 @@ grim_plot_grid <- function(
     )
   }
 
-  is_percent <- isTRUE(scrutiny_args(data)$percent)
+  is_percent <- identical(scrutiny_args(data)$x_meaning, "percentage")
 
   # Zero-row mapper output is an ordinary result of `dplyr::filter()`; without
   # this check, `digits` would come out `NA` and fail further down:
@@ -416,8 +417,9 @@ grim_plot_grid <- function(
       "`digits` must be at least 1, but it is {digits}.",
       "i" = "The y-axis is the fractional portion of the mean, which is zero \\
       for a mean reported with no decimal places.",
-      "i" = "With `percent = TRUE` in the `grim_map()` call, a whole-number \\
-      percentage does have a fractional portion as a decimal number."
+      "i" = "With `x_meaning = \"percentage\"` in the `grim_map()` call, a \\
+      whole-number percentage does have a fractional portion as a decimal \\
+      number."
     )
   }
 

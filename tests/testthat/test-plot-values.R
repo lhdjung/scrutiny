@@ -54,7 +54,7 @@ test_that("the marker's labels keep clear of each other at any size", {
   plots <- list(
     grim = grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1),
     # Wider labels, and a neighbor right next to the reported value:
-    percent = grim_plot_values(x = 67.4, n = 40, digits_x = 1, items_averaged = 1, percent = TRUE),
+    percent = grim_plot_values(x = 67.4, n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage"),
     grimmer = grimmer_plot_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
   )
   sizes <- list(c(8, 3.5), c(4.5, 3.5), c(8, 2), c(3, 3))
@@ -111,7 +111,7 @@ test_that("the marker says and shows the verdict", {
 
   # Attainable percentages at `n = 40` are 2.5 points apart, so the window
   # reaches 3 points beyond the unit on either side:
-  pct <- 67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, percent = TRUE) |> marker()
+  pct <- 67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> marker()
   pct$label     |> expect_match("^67.4%\n")
   pct$neighbors |> expect_equal(c("65.0%", "67.5%"))
 
@@ -124,7 +124,7 @@ test_that("the marker says and shows the verdict", {
 test_that("`grim_plot_values()` needs `digits_x` and a decidable `n`", {
   5.19         |> grim_plot_values(n = 28, items_averaged = 1)                 |> expect_error("digits_x")
   5.19         |> grim_plot_values(n = 28.5, digits_x = 2, items_averaged = 1) |> expect_error("whole")
-  5.19         |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1, percent = NA) |> expect_error("`TRUE` or `FALSE`")
+  5.19         |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1, x_meaning = NA) |> expect_error("`x_meaning`")
   c(5.19, 5.2) |> grim_plot_values(n = 28, digits_x = 2, items_averaged = 1)   |> expect_error()
   # The errors name the function the user called, not a helper:
   err <- rlang::catch_cnd(grim_plot_values(x = 5.19, n = 28.5, digits_x = 2, items_averaged = 1))
@@ -150,7 +150,7 @@ test_that("`grimmer_plot_values()` checks its own arguments", {
 test_that("the comb plots raise no warnings", {
   # A deprecation warns once per session, so earlier tests could hide one:
   rlang::local_options(lifecycle_verbosity = "warning")
-  67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, percent = TRUE) |> expect_no_warning()
+  67.4 |> grim_plot_values(n = 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> expect_no_warning()
   -2.51 |> grim_plot_values(n = 20, digits_x = 2, items_averaged = 1) |> expect_no_warning()
   2.74 |>
     grimmer_plot_values(sd = 0.96, n = 63, digits_x = 2, digits_sd = 2, items_averaged = 2) |>
@@ -207,8 +207,8 @@ test_that("`grimmer_plot_values()` draws every valid input", {
 
 
 test_that("the percentage comb stays within 0 and 100", {
-  grim_plot_values(100, 3, 0, 1, percent = TRUE) |> squares() |> max() |> expect_equal(100)
-  grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> squares() |> min() |> expect_equal(0)
+  grim_plot_values(100, 3, 0, 1, x_meaning = "percentage") |> squares() |> max() |> expect_equal(100)
+  grim_plot_values(0, 3, 0, 1, x_meaning = "percentage")   |> squares() |> min() |> expect_equal(0)
 })
 
 

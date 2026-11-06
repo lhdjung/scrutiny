@@ -3,7 +3,7 @@ audit_pigs1 <- pigs1 |>
   audit()
 
 audit_pigs2 <- pigs2 |>
-  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+  grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
   suppressMessages() |>
   audit()
 

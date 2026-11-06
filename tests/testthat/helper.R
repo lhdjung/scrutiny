@@ -28,7 +28,7 @@ settings_tbl <- function(values, default, added_by) {
 
 # The settings of `grim_map()` under the defaults:
 grim_args_default <- list(
-  percent = FALSE,
+  x_meaning = "mean",
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -44,7 +44,7 @@ meta_seq <- function(
   tested,
   cases,
   rows_each = 10L,
-  percent = FALSE,
+  x_meaning = "mean",
   var = c("x", "n"),
   include_reported = FALSE
 ) {
@@ -59,8 +59,8 @@ meta_seq <- function(
   list(
     settings = dplyr::bind_rows(
       settings_tbl(
-        utils::modifyList(grim_args_default, list(percent = percent)),
-        c(!percent, TRUE, TRUE, TRUE, TRUE),
+        utils::modifyList(grim_args_default, list(x_meaning = x_meaning)),
+        c(x_meaning == "mean", TRUE, TRUE, TRUE, TRUE),
         "grim_map"
       ),
       settings_tbl(

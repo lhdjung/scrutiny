@@ -33,7 +33,7 @@ makes no difference.
 
 For percentages, use the number of decimal places of the proportion,
 which is two more: \code{grim_grid(2)} for whole percentages, as in
-\code{\link[=grim_map]{grim_map()}} with \code{percent = TRUE}.
+\code{\link[=grim_map]{grim_map()}} with \code{x_meaning = "percentage"}.
 
 Grids for one or two decimal places are precomputed for every rounding
 method that has no \code{threshold}. All others are computed on demand, which

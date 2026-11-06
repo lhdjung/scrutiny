@@ -106,11 +106,11 @@ test_that("the `hits_total` column correctly sums up
 
 test_that("`audit_seq()` replays the original call's test arguments
           when re-testing the reconstructed data", {
-  # 71% of 43 participants is GRIM-inconsistent. `percent` changes the verdict
+  # 71% of 43 participants is GRIM-inconsistent. `x_meaning` changes the verdict
   # but leaves no trace in the output columns, so it used to be dropped by
   # `audit_seq()`, whose `consistency` column then wrongly said `TRUE`:
   tibble::tibble(x = 71, n = 43) |>
-    grim_map_seq(digits_x = 0, items_averaged = 1, percent = TRUE, include_consistent = TRUE) |>
+    grim_map_seq(digits_x = 0, items_averaged = 1, x_meaning = "percentage", include_consistent = TRUE) |>
     audit_seq() |>
     dplyr::pull(consistency) |>
     expect_false()

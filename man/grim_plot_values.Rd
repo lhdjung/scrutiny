@@ -9,7 +9,7 @@ grim_plot_values(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -18,7 +18,7 @@ grim_plot_values(
 )
 }
 \arguments{
-\item{x, n, digits_x, items_averaged, percent, rounding, threshold, symmetric}{The
+\item{x, n, digits_x, items_averaged, x_meaning, rounding, threshold, symmetric}{The
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
 
@@ -49,7 +49,7 @@ The row runs from the whole number at or below \code{x} to the next one
 up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
 included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
 all if \code{n} exceeds \code{10 ^ digits_x}. With
-\code{percent = TRUE}, a unit is one percentage point, and the row widens by
+\code{x_meaning = "percentage"}, a unit is one percentage point, and the row widens by
 \code{100 / (n * items_averaged)} points, rounded up, on either side so that
 the nearest attainable values remain visible, but not beyond 0 or 100.
 With more than two decimal places, the squares crowd together.
@@ -74,7 +74,7 @@ grim_plot_values(
   n = 40,
   digits_x = 1,
   items_averaged = 1,
-  percent = TRUE
+  x_meaning = "percentage"
 )
 }
 \seealso{

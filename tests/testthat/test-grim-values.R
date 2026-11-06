@@ -46,7 +46,7 @@ test_that("both functions are vectorized like `grim()`", {
   numeric(0) |> grim_values(numeric(0), digits_x = 2, items_averaged = 1)  |> expect_equal(tibble::tibble(case = integer(), x = double(), n = double(), sum = double()))
   numeric(0) |> grim_closest(numeric(0), digits_x = 2, items_averaged = 1) |> expect_identical(numeric(0))
   5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, rounding = c("up", "floor")) |> expect_error("must be length 1")
-  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE))     |> expect_error("must be length 1")
+  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, x_meaning = c("percentage", "mean")) |> expect_error("must be length 1")
   c(1.1, 1.2, 1.3) |> grim_closest(c(10, 20), digits_x = 1, items_averaged = 1) |> expect_error()
   5.19 |> grim_closest(28, items_averaged = 1) |> expect_error("digits_x")
 })
@@ -103,16 +103,16 @@ test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
 })
 
 
-test_that("`percent` returns values on the scale of `x`", {
+test_that("`x_meaning = \"percentage\"` returns values on the scale of `x`", {
   # Not on the decimal scale that GRIM works with internally, so that the
   # values can be read against `x`:
-  closest <- grim_closest(71, 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+  closest <- grim_closest(71, 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
   closest |> expect_gt(70)
   closest |> expect_lt(74)
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
-  40 |> grim_values(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(tibble::tibble(case = 1L, x = 40, n = 5, sum = 2))
-  40 |> grim_closest(5, digits_x = 0, items_averaged = 1, percent = TRUE) |> expect_equal(40)
+  40 |> grim_values(5, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |> expect_equal(tibble::tibble(case = 1L, x = 40, n = 5, sum = 2))
+  40 |> grim_closest(5, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |> expect_equal(40)
 })
 
 
@@ -164,6 +164,6 @@ test_that("type mistakes are errors, as in `grim()`, not undecidable value sets"
   5.19 |> grim_values(n = "20", digits_x = 2, items_averaged = 1)   |> expect_error("`n` must be one of these types")
   5.19 |> grim_closest(n = "20", digits_x = 2, items_averaged = 1)  |> expect_error("`n` must be one of these types")
   5.19 |> grim_values(n = 20, digits_x = 2, items_averaged = "1")   |> expect_error("`items_averaged` must be one of these types")
-  5.19 |> grim_values(n = 20, digits_x = 2, items_averaged = 1, percent = NA)    |> expect_error("`TRUE` or `FALSE`")
-  5.19 |> grim_closest(n = 20, digits_x = 2, items_averaged = 1, percent = "yes") |> expect_error("`TRUE` or `FALSE`")
+  5.19 |> grim_values(n = 20, digits_x = 2, items_averaged = 1, x_meaning = NA)    |> expect_error("`x_meaning`")
+  5.19 |> grim_closest(n = 20, digits_x = 2, items_averaged = 1, x_meaning = "yes") |> expect_error("`x_meaning`")
 })

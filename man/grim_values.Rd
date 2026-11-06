@@ -10,7 +10,7 @@ grim_values(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -21,7 +21,7 @@ grim_closest(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -38,7 +38,8 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
 
-\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage. Default is \code{FALSE}.}
+\item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, as in
+\code{\link[=grim]{grim()}}.}
 
 \item{rounding, threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
 }
@@ -85,7 +86,7 @@ number grows with \code{n * items_averaged}. GRIM is then no longer informative.
 \code{grim_closest()} stays cheap in that case. \code{grim_values()} does not, and
 more than a million values for one value set is an error.
 
-With \code{percent = TRUE}, the values are percentages, like \code{x}.
+With \code{x_meaning = "percentage"}, the values are percentages, like \code{x}.
 
 Under \code{rounding = "even"}, or its synonym \code{"ties_even"}, both bounds of
 that range are inclusive (see \code{\link[roundwork:unround]{roundwork::unround()}}), so the values

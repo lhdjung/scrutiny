@@ -7,7 +7,7 @@ grim_sums_scalar <- function(
   n,
   digits_x,
   items_averaged,
-  percent,
+  x_meaning,
   rounding,
   threshold,
   symmetric
@@ -21,7 +21,7 @@ grim_sums_scalar <- function(
 
   # The same type checks as in `grim_scalar()`: a string `n` is a mistake, not
   # an undecidable value set, which `is_decidable_n_items()` would make of it.
-  check_flag(percent)
+  is_percentage <- arg_match_in_export(x_meaning, X_MEANINGS) == "percentage"
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))
   }
@@ -37,7 +37,7 @@ grim_sums_scalar <- function(
 
   x_num <- x
 
-  if (percent) {
+  if (is_percentage) {
     x_num <- x_num / 100
     digits_x <- digits_x + 2L
   }
@@ -76,7 +76,7 @@ grim_sums_scalar <- function(
     n_items = n_items,
     # Values are returned on the scale of `x`, so that they can be read against
     # it. Internally, a percentage is a decimal number:
-    scale = if (percent) 100 else 1
+    scale = if (is_percentage) 100 else 1
   )
 }
 
@@ -86,7 +86,7 @@ grim_values_scalar <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -96,7 +96,7 @@ grim_values_scalar <- function(
     n,
     digits_x,
     items_averaged,
-    percent,
+    x_meaning,
     rounding,
     threshold,
     symmetric
@@ -143,7 +143,7 @@ grim_closest_scalar <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -153,7 +153,7 @@ grim_closest_scalar <- function(
     n,
     digits_x,
     items_averaged,
-    percent,
+    x_meaning,
     rounding,
     threshold,
     symmetric
@@ -216,7 +216,7 @@ grim_closest_scalar <- function(
 #'   `grim_closest()` stays cheap in that case. `grim_values()` does not, and
 #'   more than a million values for one value set is an error.
 #'
-#'   With `percent = TRUE`, the values are percentages, like `x`.
+#'   With `x_meaning = "percentage"`, the values are percentages, like `x`.
 #'
 #'   Under `rounding = "even"`, or its synonym `"ties_even"`, both bounds of
 #'   that range are inclusive (see [`roundwork::unround()`]), so the values
@@ -234,7 +234,8 @@ grim_closest_scalar <- function(
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`].
-#' @param percent Logical. If `TRUE`, `x` is a percentage. Default is `FALSE`.
+#' @param x_meaning String. `"mean"` (the default) or `"percentage"`, as in
+#'   [`grim()`].
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
 #'
 #' @return
@@ -298,7 +299,7 @@ grim_values <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -319,7 +320,7 @@ grim_closest <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

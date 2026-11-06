@@ -60,7 +60,7 @@ test_that("no data is dropped from the plot", {
 test_that("plotting raises no warnings of its own", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> grim_plot_grid() |> expect_no_warning()
   pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
     grim_plot_grid() |>
     expect_no_warning()
   # The gradient branch, for more than two decimal places:
@@ -177,12 +177,12 @@ test_that("`digits_x = 0` rows are reported, not dropped in silence", {
 
 
 test_that("percentages are plotted on the grid they were tested on", {
-  # `grim_map(percent = TRUE)` divides `x` by 100 and raises its decimal count
+  # `grim_map(x_meaning = "percentage")` divides `x` by 100 and raises its decimal count
   # by 2 before testing. `grim_plot_grid()` did neither, so a percentage reported as
   # `67.4` was drawn at a fractional portion of `0.4` against the raster for
   # one decimal place, while the verdict coloring that tile was reached at
   # three. The y-axis label promised "% (as decimal)" the whole time.
-  data <- pigs2 |> grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |> suppressMessages()
+  data <- pigs2 |> grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> suppressMessages()
   # Three effective decimal places, so this is the gradient branch, whose tile
   # layer is the last one rather than the second:
   built <- data |> grim_plot_grid() |> ggplot2::ggplot_build() |> purrr::pluck("data")
@@ -192,7 +192,7 @@ test_that("percentages are plotted on the grid they were tested on", {
   # A whole-number percentage does have a fractional portion as a decimal, so
   # `digits_x = 0` is plottable here although it is not for a plain mean:
   tibble::tibble(x = 71, n = 43L) |>
-    grim_map(digits_x = 0, items_averaged = 1, percent = TRUE) |>
+    grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage") |>
     grim_plot_grid() |>
     expect_s3_class("ggplot")
 })

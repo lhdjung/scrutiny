@@ -82,7 +82,8 @@ errors if \code{digits_x} varies across rows. Use \code{split_by_digits = TRUE} 
 get one plot per number of decimal places instead, or \code{digits} to choose
 one.
 
-With \code{percent = TRUE} in the \code{grim_map()} call, percentages are plotted
+With \code{x_meaning = "percentage"} in the \code{grim_map()} call, percentages are
+plotted
 as the proportions they were tested as, with two more decimal places.
 
 Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits},
@@ -118,7 +119,7 @@ pigs1 |>
 
 # Percentages are plotted as proportions:
 pigs2 |>
-  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+  grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
   grim_plot_grid()
 
 # Other colors for the value sets, here the ones before scrutiny 1.0.0:

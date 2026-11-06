@@ -38,8 +38,9 @@ ARGS_WHOLE <- c(
 # and `"sd_sample_or_pop"` accepts a value set that passes under one or
 # the other. `"se"` is the standard error of the mean, the sample SD divided by
 # `sqrt(n)`, for an SE reported as if it were an SD. Each value is one premise,
-# so a new one takes a row in `sd_denominator()`. And the values of DEBIT's
-# `formula`.
+# so a new one takes a row in `sd_denominator()`. The values of DEBIT's
+# `formula`. And the values of GRIM's `x_meaning`: what `x` is, a mean or a
+# percentage, which is tested as a proportion with two more decimal places.
 #
 # Every function with one of these arguments spells the values out as its
 # default, so that they show in its usage. The `*_scalar()` functions check
@@ -47,6 +48,7 @@ ARGS_WHOLE <- c(
 # per row. A test in test-utils.R requires every default to equal its constant.
 SD_MEANINGS <- c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 DEBIT_FORMULAS <- c("exact", "mean_n")
+X_MEANINGS <- c("mean", "percentage")
 
 
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their

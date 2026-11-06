@@ -84,7 +84,7 @@ test_that("explanations print as expected", {
   expect_snapshot({
     grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
     grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
-    grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+    grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
     grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, rounding = "up")
     grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1)
     grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
@@ -137,7 +137,7 @@ test_that("only a single case is explained", {
 test_that("`explain_map()` agrees with every mapper tier", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
   pigs1 |> grim_map(digits_x = 2, items_averaged = 2)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs2 |> grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage")                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                        |> explain_map() |> getElement("explanation") |> expect_length(7L)
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
@@ -154,7 +154,7 @@ test_that("`explain_map()` keeps the data as it is", {
 })
 
 test_that("`explain_map()` uses the settings of the mapper call", {
-  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, percent = TRUE) |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, percent = TRUE", fixed = TRUE)
+  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage") |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, x_meaning = \"percentage\"", fixed = TRUE)
 })
 
 test_that("`explain_map()` catches rows changed after testing", {

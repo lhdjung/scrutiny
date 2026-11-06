@@ -9,7 +9,7 @@ grim_explain(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -30,8 +30,9 @@ with some answer, 4 for the mean of a four-item scale, 10 for the average
 percent correct on a ten-question test. Not the number of scale points.
 No default.}
 
-\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
-100 and the decimal count is increased by 2. Default is \code{FALSE}.}
+\item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
+\code{"percentage"}. A percentage is divided by 100 and tested with two more
+decimal places, as the proportion it is. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -79,7 +80,7 @@ grim_explain(
   n = 43,
   digits_x = 0,
   items_averaged = 1,
-  percent = TRUE
+  x_meaning = "percentage"
 )
 }
 \seealso{

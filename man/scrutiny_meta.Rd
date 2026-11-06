@@ -29,7 +29,7 @@ that a report can state the rounding method or SD convention behind a
 result.
 
 Settings are the arguments that apply to the whole call, with defaults
-resolved, such as \code{rounding}, \code{percent}, or \code{sd_meaning}. Arguments that
+resolved, such as \code{rounding}, \code{x_meaning}, or \code{sd_meaning}. Arguments that
 may vary by row, such as \code{digits_x} and \code{items_averaged}, are columns of
 the output instead, even if given as a single value. Sequence and total-n
 mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, add their own settings, such as

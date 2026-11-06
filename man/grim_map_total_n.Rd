@@ -12,7 +12,7 @@ grim_map_total_n(
   n = NULL,
   ...,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -45,13 +45,13 @@ named in full.}
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
 
-\item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
-divided by 100 and tested with two more decimal places. Default is
-\code{FALSE}. It applies to the whole call, so test a table that mixes means
-and percentages part by part, as in the examples. Each part records its
-own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others read,
-so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep them
-apart.}
+\item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
+\code{"percentage"}. Percentages are divided by 100 and tested with two more
+decimal places. It applies to the whole call, so test a table that mixes
+means and percentages part by part, as in the examples. Each part records
+its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others
+read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
+them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}

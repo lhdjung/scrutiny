@@ -110,7 +110,7 @@ mixed_scales |>
 
 ### Percentages
 
-A percentage with one decimal place is a proportion with three. `percent = TRUE` divides `x` by 100 and adds 2 to `digits_x`, so these percentages are tested as proportions with three decimal places:
+A percentage with one decimal place is a proportion with three. `x_meaning = "percentage"` divides `x` by 100 and adds 2 to `digits_x`, so these percentages are tested as proportions with three decimal places:
 
 ```{r}
 percentages <- tibble::tribble(
@@ -122,7 +122,7 @@ percentages <- tibble::tribble(
 )
 
 percentages |>
-  grim_map(digits_x = 1, items_averaged = 1, percent = TRUE)
+  grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage")
 ```
 
 GRIM is therefore much more powerful for percentages than for means with the same number of decimal places.

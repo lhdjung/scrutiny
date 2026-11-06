@@ -135,7 +135,7 @@ test_that("arguments that describe the test as a whole must be length 1", {
       rounding = c("up", "down"),
       threshold = c(5, 6),
       symmetric = c(TRUE, FALSE),
-      percent = c(TRUE, FALSE)
+      x_meaning = c("percentage", "mean")
     ),
     grimmer = list(
       rounding = c("up", "down"),

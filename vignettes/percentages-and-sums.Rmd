@@ -45,7 +45,7 @@ is_percentage_of(
 
 `digits_percentage` is required, like `digits_x` in `grim()`, since a numeric value does not keep trailing zeros. `rounding`, `threshold`, and `symmetric` work as in `grim()`.
 
-This check is stricter than `grim()` with `percent = TRUE`, which only asks whether *some* count out of `n` could have produced the percentage. `is_percentage_of()` asks about one specific count, so it needs that count to be reported.
+This check is stricter than `grim()` with `x_meaning = "percentage"`, which only asks whether *some* count out of `n` could have produced the percentage. `is_percentage_of()` asks about one specific count, so it needs that count to be reported.
 
 ### Many cases: `is_percentage_of_map()`
 

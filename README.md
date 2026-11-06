@@ -103,9 +103,9 @@ pigs2
 #> 5  68.1   150
 #> 6  55.4   150
 
-grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE)
+grim_map(pigs2, digits_x = 1, items_averaged = 1, x_meaning = "percentage")
 #> # A tibble: 6 × 6
-#> # GRIM: percent = TRUE
+#> # GRIM: x_meaning = "percentage"
 #>       x     n items_averaged digits_x consistency exp_incon
 #>   <dbl> <int>          <int>    <int> <lgl>           <dbl>
 #> 1  67.4   150              1        1 FALSE            0.85

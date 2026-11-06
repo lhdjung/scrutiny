@@ -9,7 +9,7 @@ grim(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -30,8 +30,9 @@ with some answer, 4 for the mean of a four-item scale, 10 for the average
 percent correct on a ten-question test. Not the number of scale points.
 No default.}
 
-\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage: it is divided by
-100 and the decimal count is increased by 2. Default is \code{FALSE}.}
+\item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
+\code{"percentage"}. A percentage is divided by 100 and tested with two more
+decimal places, as the proportion it is. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -67,8 +68,8 @@ number divided by \code{n * items_averaged}, so only certain values are
 possible; the test asks whether any of them would have been reported as
 \code{x}.
 
-Set \code{percent} to \code{TRUE} if \code{x} is a percentage. It is then divided by 100
-and tested with two more decimal places.
+Set \code{x_meaning} to \code{"percentage"} if \code{x} is a percentage. It is then
+divided by 100 and tested with two more decimal places.
 
 The function is vectorized, but \code{\link[=grim_map]{grim_map()}} is more convenient for
 testing many cases.
@@ -99,6 +100,9 @@ digit. The default accepts a tie rounded either way, so a value set that
 fails is inconsistent under all of them. Choose another method only if
 you know which one was used. \code{threshold} and \code{symmetric} do not affect
 it.
+\item \code{x_meaning = "mean"}: GRIM was devised for means, and most values that
+it is applied to are means. A percentage needs to be marked as one, since
+the same number, such as 71, can be either.
 }
 }
 
@@ -113,7 +117,7 @@ grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
 grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
 
 # With percentages instead of means -- here, 71\%:
-grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

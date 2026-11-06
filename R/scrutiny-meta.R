@@ -8,7 +8,7 @@
 #'   result.
 #'
 #'   Settings are the arguments that apply to the whole call, with defaults
-#'   resolved, such as `rounding`, `percent`, or `sd_meaning`. Arguments that
+#'   resolved, such as `rounding`, `x_meaning`, or `sd_meaning`. Arguments that
 #'   may vary by row, such as `digits_x` and `items_averaged`, are columns of
 #'   the output instead, even if given as a single value. Sequence and total-n
 #'   mappers, such as [`grim_map_seq()`], add their own settings, such as

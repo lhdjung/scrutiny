@@ -4,7 +4,7 @@ test_that("`grim_total()` returns correct values", {
 
 
 test_that("`grim_total()` works with percentage conversion", {
-  87.50 |> grim_total(45:55, digits_x = 2, items_averaged = 1, percent = TRUE) |> expect_equal(9955:9945)
+  87.50 |> grim_total(45:55, digits_x = 2, items_averaged = 1, x_meaning = "percentage") |> expect_equal(9955:9945)
 })
 
 
@@ -59,7 +59,7 @@ test_that("`grim_total()` returns a double whatever the count", {
   5.30 |> grim_total(40, digits_x = 2, items_averaged = 1)                 |> expect_type("double")
   5.30 |> grim_total(40, digits_x = 10, items_averaged = 1)                |> expect_type("double")
   5.30 |> grim_total(40, digits_x = c(2, 10), items_averaged = 1)          |> expect_type("double")
-  5.30 |> grim_total(40, digits_x = 8, items_averaged = 1, percent = TRUE) |> expect_type("double")
+  5.30 |> grim_total(40, digits_x = 8, items_averaged = 1, x_meaning = "percentage") |> expect_type("double")
 })
 
 
@@ -113,7 +113,7 @@ test_that("`grim_map()`'s `exp_incon` is the share its `consistency` rules out",
       out <- one_decimal |> grim_map(digits_x = 1, items_averaged = items, rounding = rounding, threshold = 3)
       out$exp_incon |> expect_equal(ave(!out$consistency, out$n))
     }
-    out <- percentage |> grim_map(digits_x = 0, items_averaged = 1, percent = TRUE, rounding = rounding, threshold = 3)
+    out <- percentage |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage", rounding = rounding, threshold = 3)
     out$exp_incon |> expect_equal(ave(!out$consistency, out$n))
   }
 })
@@ -168,7 +168,7 @@ test_that("near-whole arguments are counted as the whole numbers they are", {
   1.5 |> grim_exp_incon(1 - 1e-9, digits_x = 2, items_averaged = 1)       |> expect_equal(grim_exp_incon(1.5, 1, digits_x = 2, items_averaged = 1))
   1.5 |> grim_exp_incon(40, digits_x = 2 - 1e-9, items_averaged = 1)      |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 2, items_averaged = 1))
   1.5 |> grim_total(40, digits_x = 2, items_averaged = 2 - 1e-9)          |> expect_equal(grim_total(1.5, 40, digits_x = 2, items_averaged = 2))
-  1.5 |> grim_exp_incon(40, digits_x = 1 - 1e-9, items_averaged = 1, percent = TRUE) |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 1, items_averaged = 1, percent = TRUE))
+  1.5 |> grim_exp_incon(40, digits_x = 1 - 1e-9, items_averaged = 1, x_meaning = "percentage") |> expect_equal(grim_exp_incon(1.5, 40, digits_x = 1, items_averaged = 1, x_meaning = "percentage"))
 })
 
 
@@ -177,26 +177,27 @@ test_that("type mistakes are errors, as in `grim()`", {
   1 |> grim_total(n = 7, digits_x = 2, items_averaged = "1")          |> expect_error("`items_averaged` must be one of these types")
   # Missing values are undecidable, whatever their type. This was an error:
   1 |> grim_total(n = 7, digits_x = 2, items_averaged = NA_character_) |> expect_na()
-  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
-  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("`TRUE` or `FALSE`")
+  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, x_meaning = NA)                       |> expect_error("`x_meaning`")
+  1 |> grim_exp_incon(10, digits_x = 1, items_averaged = 1, x_meaning = c("mean", "mean"))       |> expect_error("`x_meaning`")
+  1 |> grim_total(10, digits_x = 1, items_averaged = 1, x_meaning = "percent")                   |> expect_error("percentage")
 })
 
 
 test_that("counts beyond 2^53 come without a precision warning", {
   # `10^17 %% 7` lost all accuracy; the true count is `10^17 - 7`:
-  1 |> grim_total(7, digits_x = 15, items_averaged = 1, percent = TRUE) |> expect_no_warning()
-  1 |> grim_total(7, digits_x = 15, items_averaged = 1, percent = TRUE) |> expect_equal(1e17 - 7)
+  1 |> grim_total(7, digits_x = 15, items_averaged = 1, x_meaning = "percentage") |> expect_no_warning()
+  1 |> grim_total(7, digits_x = 15, items_averaged = 1, x_meaning = "percentage") |> expect_equal(1e17 - 7)
   # Below 2^53, the count is exact:
-  1 |> grim_total(7, digits_x = 13, items_averaged = 1, percent = TRUE) |> expect_identical(1e15 - 7)
+  1 |> grim_total(7, digits_x = 13, items_averaged = 1, x_meaning = "percentage") |> expect_identical(1e15 - 7)
   # 2^14 means, half of them on a tie that is consistent both ways:
   1 |> grim_total(2^14, digits_x = 13, items_averaged = 1)              |> expect_identical(1e13 - 2^14 - 2^13)
 })
 
 test_that("`grim_total()` counts exactly where the steps pass 2^53", {
-  # With `percent = TRUE`, the offset times `n` passed 2^53 and the count was
+  # With `x_meaning = "percentage"`, the offset times `n` passed 2^53 and the count was
   # one too few or too many; the true counts are `1e16 - n` and the other:
-  1 |> grim_total(1862956302252229, 14, 1, percent = TRUE, rounding = "floor")                       |> expect_equal(1e16 - 1862956302252229)
-  1 |> grim_total(2126481517639647, 14, 1, percent = TRUE, rounding = "down_from", threshold = 1.25) |> expect_equal(1e16 - 2126481517639647)
+  1 |> grim_total(1862956302252229, 14, 1, x_meaning = "percentage", rounding = "floor")                       |> expect_equal(1e16 - 1862956302252229)
+  1 |> grim_total(2126481517639647, 14, 1, x_meaning = "percentage", rounding = "down_from", threshold = 1.25) |> expect_equal(1e16 - 2126481517639647)
 })
 
 test_that("`grim_total()` refuses sizes where its remainders lose accuracy", {

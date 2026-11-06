@@ -11,7 +11,7 @@ grim_exp_incon(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
 )
@@ -21,7 +21,7 @@ grim_total(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
 )
@@ -41,8 +41,8 @@ keep them (\code{1.40} is \code{1.4}).}
 \code{digits_x}, it is recycled under the tidyverse rules: all four must have
 the same length, or length 1.}
 
-\item{percent}{Logical. If \code{TRUE}, \code{x} is a percentage, which adds 2 to the
-decimal count. Default is \code{FALSE}.}
+\item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, which
+adds 2 to the decimal count, as in \code{\link[=grim]{grim()}}.}
 
 \item{rounding, threshold}{The rounding method and, for the \code{"*_from"}
 methods, its threshold, as in \code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and
@@ -58,7 +58,7 @@ Double. \code{grim_exp_incon()} and \code{grim_total()} return \code{NA} where
 \code{\link[=grim]{grim()}} cannot decide a case: if \code{x} is missing or infinite, or if \code{n}
 or \code{items_averaged} is not a positive whole number. They are never
 negative. A count above 2^53, which only \code{digits_x} of 14 or more with
-\code{percent = TRUE} can reach, is the nearest number a double can hold.
+\code{x_meaning = "percentage"} can reach, is the nearest number a double can hold.
 }
 \description{
 These functions quantify how informative a GRIM test is for a
@@ -70,7 +70,7 @@ GRIM-inconsistent with \code{n}. It is the \code{exp_incon} column of
 \code{\link[=grim_map]{grim_map()}}.
 \item \code{grim_total()} returns the number of such inconsistent values between
 two whole numbers, out of \code{10^digits_x} (\code{10^(digits_x + 2)} with
-\code{percent = TRUE}).
+\code{x_meaning = "percentage"}).
 }
 
 See \code{vignette("grim-in-depth")}, section \emph{GRIM statistics}.
@@ -90,14 +90,14 @@ grim_exp_incon(
   n = 120,
   digits_x = 2,
   items_averaged = 1,
-  percent = TRUE
+  x_meaning = "percentage"
 )
 grim_total(
   x = 5.14,
   n = 120,
   digits_x = 2,
   items_averaged = 1,
-  percent = TRUE
+  x_meaning = "percentage"
 )
 }
 \references{

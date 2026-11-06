@@ -15,7 +15,7 @@
 #'
 #'   For percentages, use the number of decimal places of the proportion,
 #'   which is two more: `grim_grid(2)` for whole percentages, as in
-#'   [`grim_map()`] with `percent = TRUE`.
+#'   [`grim_map()`] with `x_meaning = "percentage"`.
 #'
 #'   Grids for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which

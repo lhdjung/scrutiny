@@ -56,7 +56,7 @@ test_that("Correct values are returned (`items_averaged` argument)", {
 vec4 <- 519:530
 
 vec4_tested <- vec4 |>
-  grim(28, digits_x = 0, items_averaged = 1, percent = TRUE) |>
+  grim(28, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |>
   unname()
 
 vec4_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
@@ -64,13 +64,13 @@ vec4_expected <- c(f, f, t, f, f, f, t, f, f, f, t, f)
 vec5 <- 6:16
 
 vec5_tested <- vec5 |>
-  grim(50, digits_x = 0, items_averaged = 1, percent = TRUE) |>
+  grim(50, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |>
   unname()
 
 vec5_expected <- c(t, f, t, f, t, f, t, f, t, f, t)
 
 
-test_that("Correct values are returned (`percent` argument)", {
+test_that("Correct values are returned (`x_meaning` argument)", {
   vec4_tested |> expect_equal(vec4_expected)
   vec5_tested |> expect_equal(vec5_expected)
 })
@@ -316,10 +316,13 @@ test_that("arguments after the dots can't be abbreviated", {
 })
 
 
-test_that("`percent` must be a single `TRUE` or `FALSE`", {
+test_that("`x_meaning` must be a single valid string", {
   # These used to fail in `if ()` with base R's message:
-  1.4 |> grim(20, digits_x = 1, items_averaged = 1, percent = NA)             |> expect_error("`TRUE` or `FALSE`")
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |> expect_error("must be length 1")
+  1.4 |> grim(20, digits_x = 1, items_averaged = 1, x_meaning = NA)                           |> expect_error("`x_meaning`")
+  1.4 |> grim(20, digits_x = 1, items_averaged = 1, x_meaning = "proportion")                 |> expect_error("percentage")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, x_meaning = c("percentage", "mean")) |> expect_error("must be length 1")
+  # The old logical argument is gone:
+  1.4 |> grim(20, digits_x = 1, items_averaged = 1, percent = TRUE)  |> expect_error("unused argument")
 })
 
 test_that("a `NULL` key argument and an out-of-range `digits_x` are errors", {
@@ -406,7 +409,7 @@ test_that("invalid rounding arguments are errors from the function called", {
 # The arithmetic on `x` came before the check for a missing one:
 test_that("a character `NA` as `x` is `NA`, as in the other tests", {
   NA_character_ |> grim(20, 2, 1)                 |> expect_na()
-  NA_character_ |> grim(20, 2, 1, percent = TRUE) |> expect_na()
+  NA_character_ |> grim(20, 2, 1, x_meaning = "percentage") |> expect_na()
   NA_character_ |> grim_explain(20, 2, 1)         |> format() |> expect_match("Undecidable")
   tibble::tibble(x = NA_character_, n = 20) |> grim_map(digits_x = 2, items_averaged = 1) |> purrr::pluck("consistency") |> expect_na()
 })

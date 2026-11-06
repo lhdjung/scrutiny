@@ -515,7 +515,7 @@ pigs1_exp <- tibble::tibble(
 
 
 # Note: x values are on the original percentage scale (e.g. 66.9 not 0.669)
-# because percent=TRUE no longer divides x by 100 in the output.
+# because x_meaning = "percentage" doesn't divide x by 100 in the output.
 pigs2_exp <- tibble::tibble(
   x = c(
     66.9,
@@ -825,16 +825,27 @@ pigs2_exp <- tibble::tibble(
     FALSE,
     FALSE
   ),
-  exp_incon = grim_exp_incon(x, n, 1, percent = TRUE, items_averaged = 1),
+  exp_incon = grim_exp_incon(
+    x,
+    n,
+    1,
+    x_meaning = "percentage",
+    items_averaged = 1
+  ),
   diff_var = rep(c(-5L, -4L, -3L, -2L, -1L, 1L, 2L, 3L, 4L, 5L), 10),
   case = rep(rep(c(1L, 2L, 4L, 5L, 6L), 2), each = 10L),
   var = rep(c("x", "n"), each = 50L),
 ) |>
   structure(
     scrutiny = meta_seq(
-      grim_map(pigs2, digits_x = 1, items_averaged = 1, percent = TRUE),
+      grim_map(
+        pigs2,
+        digits_x = 1,
+        items_averaged = 1,
+        x_meaning = "percentage"
+      ),
       cases = c(1L, 2L, 4L, 5L, 6L),
-      percent = TRUE
+      x_meaning = "percentage"
     ),
     class = c(
       "scrutiny_map_seq",
@@ -1411,7 +1422,7 @@ pigs1_include_reported_exp <- tibble::tibble(
 
 test_that("`grim_map_seq()` works correctly", {
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_equal(pigs1_exp)
-  pigs2 |> grim_map_seq(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+  pigs2 |> grim_map_seq(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
     suppressMessages() |> expect_equal(pigs2_exp)
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, include_reported = TRUE) |>
     expect_equal(pigs1_include_reported_exp)
@@ -1435,7 +1446,7 @@ test_that("`grim_map_seq()` output has correct structure", {
 })
 
 
-test_that("`grim_map_seq()` with percent=TRUE has correct structure", {
+test_that("`grim_map_seq()` with percentages has correct structure", {
   pigs2_exp |> expect_s3_class("scrutiny_grim_map_seq")
   pigs2_exp |>
     expect_named(c("x", "n", "items_averaged", "digits_x", "consistency", "exp_incon", "diff_var", "case", "var"))

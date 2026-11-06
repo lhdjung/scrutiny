@@ -5,7 +5,7 @@
 #' must mirror `fn`'s, minus `show_rec` and `show_reason`:
 #'
 #' ```
-#' grim <- function(x, n, digits_x, items_averaged, percent = FALSE, ...) {
+#' grim <- function(x, n, digits_x, items_averaged, x_meaning = c("mean", "percentage"), ...) {
 #'   map_value_sets(grim_scalar, c("x", "n", "digits_x", "items_averaged"))
 #' }
 #' ```

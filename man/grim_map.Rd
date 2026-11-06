@@ -11,7 +11,7 @@ grim_map(
   n = NULL,
   ...,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -38,13 +38,13 @@ averaged into each score, not the number of scale points. Give it as an
 argument or as a column of \code{data}; there is no default. It is returned as
 a column.}
 
-\item{percent}{Logical. If \code{TRUE}, the \code{x} values are percentages: they are
-divided by 100 and tested with two more decimal places. Default is
-\code{FALSE}. It applies to the whole call, so test a table that mixes means
-and percentages part by part, as in the examples. Each part records its
-own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others read,
-so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep them
-apart.}
+\item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
+\code{"percentage"}. Percentages are divided by 100 and tested with two more
+decimal places. It applies to the whole call, so test a table that mixes
+means and percentages part by part, as in the examples. Each part records
+its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others
+read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
+them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
@@ -72,10 +72,10 @@ The tibble has the class \code{scrutiny_grim_map}, which is recognized by
 \code{grim_map()} applies \code{\link[=grim]{grim()}} to every row of a data frame
 with means (or percentages) and sample sizes.
 
-Set \code{percent} to \code{TRUE} if \code{x} contains percentages, and \code{show_rec} to
-\code{TRUE} to see the reconstructed values behind each result. Call
-\code{\link[=audit]{audit()}} on the output for summary statistics and \code{\link[=grim_plot_grid]{grim_plot_grid()}} to
-visualize it.
+Set \code{x_meaning} to \code{"percentage"} if \code{x} contains percentages, and
+\code{show_rec} to \code{TRUE} to see the reconstructed values behind each result.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics and
+\code{\link[=grim_plot_grid]{grim_plot_grid()}} to visualize it.
 }
 \section{Reconstructed numbers}{
  With \code{show_rec = TRUE}, the output has these
@@ -90,7 +90,8 @@ are the whole numbers on either side of \code{rec_sum}, so their gap is always 1
 and does not measure how far off the reported values are.
 \item \code{rec_x_upper}, \code{rec_x_lower}: the two achievable means closest to \code{x},
 i.e., \code{rec_sum} rounded up and down, divided by \code{n} (times
-\code{items_averaged}). With \code{percent = TRUE}, these are percentages like \code{x};
+\code{items_averaged}). With \code{x_meaning = "percentage"}, these are percentages
+like \code{x};
 the sum columns are not affected.
 }
 }
@@ -144,7 +145,7 @@ df |>
   grim_map(digits_x = 2, items_averaged = 1)
 df |>
   dplyr::filter(is_percent) |>
-  grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
+  grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage")
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

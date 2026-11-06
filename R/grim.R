@@ -4,13 +4,13 @@ grim_scalar <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
 ) {
-  check_flag(percent)
+  is_percentage <- arg_match_in_export(x_meaning, X_MEANINGS) == "percentage"
   check_flag(show_rec)
   # A missing `n` is undecidable, but a string is a mistake: comparing it with
   # numbers would make the verdict an unexplained `NA`.
@@ -53,7 +53,7 @@ grim_scalar <- function(
 
   # `x` itself stays on the reported scale for the `show_rec` values:
   x_num <- x
-  if (percent) {
+  if (is_percentage) {
     x_num <- x_num / 100
     digits_x <- digits_x + 2L
   }
@@ -98,10 +98,10 @@ grim_scalar <- function(
   rec_sum_num <- round(x_num * denom) * n_items
 
   # On the scale of `x`, like `grim_values()` and `grim_closest()`. The sums are
-  # not converted: `percent` does not change the underlying data. The factor
+  # not converted: `x_meaning` does not change the underlying data. The factor
   # multiplies the integer sum, not the quotient, so the granule is the result
   # of a single division; converting afterwards would round twice.
-  scale_x <- if (percent) 100 else 1
+  scale_x <- if (is_percentage) 100 else 1
   rec_x_upper <- ceiling(rec_sum_num / denom) * scale_x / n_items
   rec_x_lower <- floor(rec_sum_num / denom) * scale_x / n_items
 
@@ -130,8 +130,8 @@ grim_scalar <- function(
 #'   possible; the test asks whether any of them would have been reported as
 #'   `x`.
 #'
-#'   Set `percent` to `TRUE` if `x` is a percentage. It is then divided by 100
-#'   and tested with two more decimal places.
+#'   Set `x_meaning` to `"percentage"` if `x` is a percentage. It is then
+#'   divided by 100 and tested with two more decimal places.
 #'
 #'   The function is vectorized, but [`grim_map()`] is more convenient for
 #'   testing many cases.
@@ -160,8 +160,9 @@ grim_scalar <- function(
 #'   with some answer, 4 for the mean of a four-item scale, 10 for the average
 #'   percent correct on a ten-question test. Not the number of scale points.
 #'   No default.
-#' @param percent Logical. If `TRUE`, `x` is a percentage: it is divided by
-#'   100 and the decimal count is increased by 2. Default is `FALSE`.
+#' @param x_meaning String. What `x` is: `"mean"` (the default) or
+#'   `"percentage"`. A percentage is divided by 100 and tested with two more
+#'   decimal places, as the proportion it is. See *Defaults* in [`grim()`].
 #' @param rounding String. The rounding method assumed to have produced `x`.
 #'   Default is `"up_or_down"`, which accepts either direction; see
 #'   *Defaults* in [`grim()`]. The others are `"up_from_or_down_from"`,
@@ -190,6 +191,9 @@ grim_scalar <- function(
 #'   fails is inconsistent under all of them. Choose another method only if
 #'   you know which one was used. `threshold` and `symmetric` do not affect
 #'   it.
+#'   - `x_meaning = "mean"`: GRIM was devised for means, and most values that
+#'   it is applied to are means. A percentage needs to be marked as one, since
+#'   the same number, such as 71, can be either.
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
@@ -223,7 +227,7 @@ grim_scalar <- function(
 #' grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
 #'
 #' # With percentages instead of means -- here, 71%:
-#' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, percent = TRUE)
+#' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
 
 # The signature mirrors `grim_scalar()`'s minus `show_rec`; see
 # `map_value_sets()`.
@@ -232,7 +236,7 @@ grim <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

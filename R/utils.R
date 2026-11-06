@@ -168,9 +168,9 @@ an_a_type <- function(x) {
 #' @noRd
 # `is_decidable_n_items()` and `check_newly_numeric()` write this test out
 # rather than calling it, because they run once per row; keep them in step.
-# A logical setting such as `percent`, `show_rec`, or `include_consistent` is
-# checked here so that a missing value, a string, or a vector fails with a
-# clear message, not with `if ()`'s.
+# A logical setting such as `show_rec` or `include_consistent` is checked here
+# so that a missing value, a string, or a vector fails with a clear message,
+# not with `if ()`'s.
 check_flag <- function(flag) {
   if (!isTRUE(flag) && !isFALSE(flag)) {
     name <- deparse(substitute(flag))

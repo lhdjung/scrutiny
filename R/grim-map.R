@@ -3,10 +3,10 @@
 #' @description `grim_map()` applies [`grim()`] to every row of a data frame
 #'   with means (or percentages) and sample sizes.
 #'
-#'   Set `percent` to `TRUE` if `x` contains percentages, and `show_rec` to
-#'   `TRUE` to see the reconstructed values behind each result. Call
-#'   [`audit()`] on the output for summary statistics and [`grim_plot_grid()`] to
-#'   visualize it.
+#'   Set `x_meaning` to `"percentage"` if `x` contains percentages, and
+#'   `show_rec` to `TRUE` to see the reconstructed values behind each result.
+#'   Call [`audit()`] on the output for summary statistics and
+#'   [`grim_plot_grid()`] to visualize it.
 #'
 #' @param data Data frame with columns `x` and `n`, and optionally
 #'   `items_averaged`. Any other columns are returned alongside the results.
@@ -20,13 +20,13 @@
 #'   averaged into each score, not the number of scale points. Give it as an
 #'   argument or as a column of `data`; there is no default. It is returned as
 #'   a column.
-#' @param percent Logical. If `TRUE`, the `x` values are percentages: they are
-#'   divided by 100 and tested with two more decimal places. Default is
-#'   `FALSE`. It applies to the whole call, so test a table that mixes means
-#'   and percentages part by part, as in the examples. Each part records its
-#'   own settings, which [`grim_plot_grid()`], [`audit()`], and others read,
-#'   so the parts can't be combined with [`dplyr::bind_rows()`]: keep them
-#'   apart.
+#' @param x_meaning String. What the `x` values are: `"mean"` (the default) or
+#'   `"percentage"`. Percentages are divided by 100 and tested with two more
+#'   decimal places. It applies to the whole call, so test a table that mixes
+#'   means and percentages part by part, as in the examples. Each part records
+#'   its own settings, which [`grim_plot_grid()`], [`audit()`], and others
+#'   read, so the parts can't be combined with [`dplyr::bind_rows()`]: keep
+#'   them apart. See *Defaults* in [`grim()`].
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
 #' @param rounding,threshold,symmetric Passed on to [`grim()`], whose
@@ -59,7 +59,8 @@
 #'   and does not measure how far off the reported values are.
 #' - `rec_x_upper`, `rec_x_lower`: the two achievable means closest to `x`,
 #'   i.e., `rec_sum` rounded up and down, divided by `n` (times
-#'   `items_averaged`). With `percent = TRUE`, these are percentages like `x`;
+#'   `items_averaged`). With `x_meaning = "percentage"`, these are percentages
+#'   like `x`;
 #'   the sum columns are not affected.
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `grim_map()` output
@@ -120,7 +121,7 @@
 #'   grim_map(digits_x = 2, items_averaged = 1)
 #' df |>
 #'   dplyr::filter(is_percent) |>
-#'   grim_map(digits_x = 0, items_averaged = 1, percent = TRUE)
+#'   grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage")
 
 grim_map <- function_map(
   .fn = grim_scalar,

@@ -313,7 +313,7 @@ check_comb_value <- function(value, digits, name) {
 #'   [`grim_plot_grid()`] shows many results at once; this function explains
 #'   one. [`grim_values()`] returns the attainable values as numbers.
 #'
-#' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
+#' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
 #' @param color_con String. Color of the squares for attainable values.
@@ -325,7 +325,7 @@ check_comb_value <- function(value, digits, name) {
 #'   up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
 #'   included. With `items_averaged = 1`, about `n` of them are attainable, or
 #'   all if `n` exceeds `10 ^ digits_x`. With
-#'   `percent = TRUE`, a unit is one percentage point, and the row widens by
+#'   `x_meaning = "percentage"`, a unit is one percentage point, and the row widens by
 #'   `100 / (n * items_averaged)` points, rounded up, on either side so that
 #'   the nearest attainable values remain visible, but not beyond 0 or 100.
 #'   With more than two decimal places, the squares crowd together.
@@ -357,7 +357,7 @@ check_comb_value <- function(value, digits, name) {
 #'   n = 40,
 #'   digits_x = 1,
 #'   items_averaged = 1,
-#'   percent = TRUE
+#'   x_meaning = "percentage"
 #' )
 
 grim_plot_values <- function(
@@ -365,7 +365,7 @@ grim_plot_values <- function(
   n,
   digits_x,
   items_averaged,
-  percent = FALSE,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -388,7 +388,8 @@ grim_plot_values <- function(
   if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
     check_type(items_averaged, c("double", "integer"))
   }
-  check_flag(percent)
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  is_percentage <- x_meaning == "percentage"
   n <- round_whole(n)
   items_averaged <- round_whole(items_averaged)
   digits_x <- round_whole(digits_x)
@@ -403,10 +404,14 @@ grim_plot_values <- function(
   # One unit around `x`, which holds about `n` attainable means. Attainable
   # percentages are `100 / n` points apart, so the window widens by that much
   # on either side (within 0 to 100), to keep the nearest ones in view:
-  reach <- if (percent) ceiling(100 / (as.numeric(n) * items_averaged)) else 0
+  reach <- if (is_percentage) {
+    ceiling(100 / (as.numeric(n) * items_averaged))
+  } else {
+    0
+  }
   lower <- floor(x) - reach
   upper <- floor(x) + 1 + reach
-  if (percent) {
+  if (is_percentage) {
     lower <- max(lower, min(0, floor(x)))
     upper <- min(upper, max(100, ceiling(x)))
   }
@@ -418,7 +423,7 @@ grim_plot_values <- function(
       n = n,
       digits_x = digits_x,
       items_averaged = items_averaged,
-      percent = percent,
+      x_meaning = x_meaning,
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -444,12 +449,12 @@ grim_plot_values <- function(
     label_value = function(value) {
       value |>
         formatC(format = "f", digits = digits_x) |>
-        paste0(if (percent) "%")
+        paste0(if (is_percentage) "%")
     },
     claim = c(claim$lower[1L], claim$upper[1L]),
     # fmt: skip
     x_label = paste0(
-      if (percent) "Reported percentage" else "Reported mean",
+      if (is_percentage) "Reported percentage" else "Reported mean",
       " (n = ", format(n, scientific = FALSE),
       if (items_averaged != 1) {
         paste(", items_averaged =", format(items_averaged, scientific = FALSE))

@@ -272,10 +272,10 @@ test_that("arguments of the test function become real arguments", {
     .fn = grim_scalar,
     .reported = c("x", "n"),
     .name_test = "GRIM",
-    .args_disabled = "percent"
+    .args_disabled = "x_meaning"
   )
-  map_disabled |> formals() |> names() |> expect_no_match("percent")
-  pigs1 |> map_disabled(digits_x = 2, percent = TRUE) |> expect_error()
+  map_disabled |> formals() |> names() |> expect_no_match("x_meaning")
+  pigs1 |> map_disabled(digits_x = 2, x_meaning = "percentage") |> expect_error()
 })
 
 
@@ -599,7 +599,7 @@ test_that("`.cols_derived` computes columns the test function never returns", {
     ))
 
   # The derived function only gets the arguments it has formals for, and
-  # `rounding`, `items_averaged`, and `percent` must reach it:
+  # `rounding`, `items_averaged`, and `x_meaning` must reach it:
   pigs1 |>
     grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
     purrr::pluck("exp_incon") |>
@@ -609,17 +609,17 @@ test_that("`.cols_derived` computes columns the test function never returns", {
     purrr::pluck("exp_incon") |>
     expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 2))
   pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
     purrr::pluck("exp_incon") |>
-    expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, percent = TRUE, items_averaged = 1))
+    expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, x_meaning = "percentage", items_averaged = 1))
 })
 
 
 test_that("the arguments of the whole call are recorded, with defaults", {
   args <- pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, percent = TRUE, rounding = "ceiling") |>
+    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage", rounding = "ceiling") |>
     scrutiny_args()
-  args$percent |> expect_true()
+  args$x_meaning |> expect_equal("percentage")
   args$rounding |> expect_equal("ceiling")
   args$threshold |> expect_equal(5)
   # Per-row and helper arguments are columns, not settings of the call:
@@ -629,11 +629,11 @@ test_that("the arguments of the whole call are recorded, with defaults", {
     expect_length(0L)
   # Settings survive verbs that keep the class:
   pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, percent = TRUE) |>
+    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
     dplyr::filter(consistency) |>
     scrutiny_args() |>
-    getElement("percent") |>
-    expect_true()
+    getElement("x_meaning") |>
+    expect_equal("percentage")
 })
 
 
@@ -782,8 +782,8 @@ test_that("the other settings must be length 1 in every tier", {
     mapper(sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be length 1, not 2")
     mapper(sd_meaning = SD_MEANINGS) |> expect_no_error()
   }
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, percent = c(TRUE, FALSE)) |>
-    expect_error("`percent` must be length 1, not 2")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, x_meaning = c("percentage", "mean")) |>
+    expect_error("`x_meaning` must be length 1, not 2")
 })
 
 

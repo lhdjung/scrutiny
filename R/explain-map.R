@@ -12,7 +12,7 @@
 #'   To read the explanations, use [`explain_print()`].
 #'
 #' @details Each row is tested again from its own values and the settings of
-#'   the mapper call, such as `rounding` and `percent`. If the result differs
+#'   the mapper call, such as `rounding` and `x_meaning`. If the result differs
 #'   from the row's `consistency` value, the row must have been changed after
 #'   testing, and `explain_map()` throws an error.
 #'
