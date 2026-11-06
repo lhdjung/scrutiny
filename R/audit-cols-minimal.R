@@ -45,7 +45,7 @@ audit_cols_minimal <- function(data) {
     x = list(
       all_cases = all_cases,
       incon_cases = incon_cases,
-      emp_incon = incon_cases / all_cases
+      emp_incon = nan_to_na(incon_cases / all_cases)
     ),
     nrow = 1L,
     class = NULL

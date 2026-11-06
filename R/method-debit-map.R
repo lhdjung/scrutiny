@@ -7,9 +7,9 @@ audit.scrutiny_debit_map <- function(data, ...) {
 
   # A missing value makes a case undecidable; it should not also erase the
   # summary of the cases that could be decided:
-  mean_x <- mean(data$x, na.rm = TRUE)
+  mean_x <- nan_to_na(mean(data$x, na.rm = TRUE))
 
-  mean_sd <- mean(data$sd, na.rm = TRUE)
+  mean_sd <- nan_to_na(mean(data$sd, na.rm = TRUE))
 
   distinct_n <- dplyr::n_distinct(data$n, na.rm = TRUE)
 

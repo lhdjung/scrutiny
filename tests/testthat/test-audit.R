@@ -236,6 +236,12 @@ test_that("`audit()` on GRIMMER output without rows has zero counts", {
   out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 3))
 })
 
+test_that("`audit()` without rows has `NA` rates and means, not `NaN`", {
+  pigs1[0, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit() |> dplyr::select(emp_incon:ratio)          |> unlist() |> is.nan() |> any() |> expect_false()
+  pigs3[0, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")     |> audit() |> dplyr::select(emp_incon, mean_x, mean_sd) |> unlist() |> is.na()  |> all() |> expect_true()
+  pigs3[0, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")     |> audit() |> dplyr::select(emp_incon, mean_x, mean_sd) |> unlist() |> is.nan() |> any() |> expect_false()
+})
+
 test_that("`audit()` names the columns it lacks", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `exp_incon`")
   pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")

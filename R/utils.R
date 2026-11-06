@@ -195,6 +195,14 @@ check_string <- function(string) {
 }
 
 
+# A rate or mean over no values is `NaN`, which reads as a computation gone
+# wrong; it is a missing value like any other:
+nan_to_na <- function(x) {
+  x[is.nan(x)] <- NA
+  x
+}
+
+
 is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
   abs(x - round(x)) < tolerance
 }
