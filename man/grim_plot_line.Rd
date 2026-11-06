@@ -50,16 +50,18 @@ A ggplot object.
 row of squares. Of all means (or percentages) that could have been
 reported with \code{digits_x} decimal places, each square is one that a sample
 of size \code{n} can have; the others are left out. The reported value is
-marked above the row and labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
-values on either side are labeled.
+marked above the row and labeled as consistent or inconsistent.
 
 \code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function explains
 one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
 }
 \details{
 By default, the row shows 10 values on either side of \code{x}. If \code{x}
-is inconsistent, it widens until the nearest attainable value on each side
-is in view, but no farther than the row with \code{zoom = "wide"} is wide.
+is inconsistent, it widens until the nearest attainable value is in view,
+but no farther than the row with \code{zoom = "wide"} is wide. It does not
+widen further for the nearest one on the other side: attainable
+percentages in particular can be dozens of values apart, so the squares
+and the strip would shrink to specks.
 
 Each attainable value is labeled below its square unless the squares are
 too close together for that, as they mostly are with \code{zoom = "wide"}. Then

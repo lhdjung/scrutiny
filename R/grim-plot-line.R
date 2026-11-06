@@ -272,13 +272,14 @@ comb_values <- function(from, to, digits, name) {
 # The values to draw, and which of them `test` admits: every value from `lower`
 # to `upper` under `zoom = "wide"` or, under `"close"`, the ones around
 # `reported`, so that it and the strip behind it stand out. The close window
-# reaches `COMB_ZOOM_STEPS` values
-# to either side. If `reported` is inconsistent, it doubles until the nearest
-# attainable value on each side is in view, and then keeps three values beyond
-# the farther one. It reaches no farther to either side than the full window is
-# wide, so that a value near a limit can still reach a neighbor on the other
-# side, and holds no values outside of `limits`, the ones that can be reported
-# at all, nor more than `COMB_TEETH_MAX`.
+# reaches `COMB_ZOOM_STEPS` values to either side. If `reported` is
+# inconsistent, it doubles until the nearest attainable value is in view, and
+# then keeps three values beyond it. Only the nearest one: attainable
+# percentages can be dozens of values apart, and a window that reached the one
+# on the other side as well would shrink the squares and the strip to specks.
+# It reaches no farther to either side than the full window is wide, and holds
+# no values outside of `limits`, the ones that can be reported at all, nor more
+# than `COMB_TEETH_MAX`.
 comb_window <- function(
   reported,
   consistent,
@@ -312,25 +313,18 @@ comb_window <- function(
     possible <- test(values)
     index_reported <- which.min(abs(values - reported))
     index_possible <- which(possible)
-    left <- index_possible[index_possible < index_reported]
-    right <- index_possible[index_possible > index_reported]
-    # A side that ends at a limit has nothing more to show:
-    seen_left <- length(left) > 0L || values[1L] - step < limits[1L]
-    seen_right <- length(right) > 0L ||
+    # With both ends at a limit, there is nothing more to show:
+    is_full <- values[1L] - step < limits[1L] &&
       values[length(values)] + step > limits[2L]
-    if (consistent || (seen_left && seen_right) || steps >= steps_max) {
+    is_found <- length(index_possible) > 0L
+    if (consistent || is_found || is_full || steps >= steps_max) {
       break
     }
     steps <- min(2 * steps, steps_max)
   }
 
   if (!consistent) {
-    reach <- max(
-      index_reported - left[length(left)],
-      right[1L] - index_reported,
-      0L,
-      na.rm = TRUE
-    )
+    reach <- if (is_found) min(abs(index_possible - index_reported)) else 0L
     steps <- min(steps, max(min(COMB_ZOOM_STEPS, steps_max), reach + 3L))
   }
   keep <- abs(seq_along(values) - index_reported) <= steps
@@ -393,8 +387,7 @@ check_comb_value <- function(value, digits, name) {
 #'   row of squares. Of all means (or percentages) that could have been
 #'   reported with `digits_x` decimal places, each square is one that a sample
 #'   of size `n` can have; the others are left out. The reported value is
-#'   marked above the row and labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
-#'   values on either side are labeled.
+#'   marked above the row and labeled as consistent or inconsistent.
 #'
 #'   [`grim_plot_grid()`] shows many results at once; this function explains
 #'   one. [`grim_values()`] returns the attainable values as numbers.
@@ -414,8 +407,11 @@ check_comb_value <- function(value, digits, name) {
 #'   raster.
 #'
 #' @details By default, the row shows 10 values on either side of `x`. If `x`
-#'   is inconsistent, it widens until the nearest attainable value on each side
-#'   is in view, but no farther than the row with `zoom = "wide"` is wide.
+#'   is inconsistent, it widens until the nearest attainable value is in view,
+#'   but no farther than the row with `zoom = "wide"` is wide. It does not
+#'   widen further for the nearest one on the other side: attainable
+#'   percentages in particular can be dozens of values apart, so the squares
+#'   and the strip would shrink to specks.
 #'
 #'   Each attainable value is labeled below its square unless the squares are
 #'   too close together for that, as they mostly are with `zoom = "wide"`. Then

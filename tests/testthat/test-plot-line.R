@@ -239,14 +239,20 @@ test_that("a comb with too many values is an error, not a hang", {
 test_that("the zoomed window shows the reported value and its nearest attainable ones", {
   # 10 values to either side, of which these are attainable at `n = 28`:
   5.19 |> grim_plot_line(28, 2, 1) |> squares() |> expect_equal(c(5.11, 5.14, 5.18, 5.21, 5.25, 5.29))
-  # The window widens to the next attainable value, 5.29, and three beyond:
+  # 5.14 is within reach, so the window doesn't widen to 5.29 on the other side:
   p <- 5.15 |> grim_plot_line(7, 2, 1)
-  p |> squares() |> range() |> expect_equal(c(5.00, 5.29))
+  p |> squares() |> expect_equal(5.14)
   # The axis line spans the window and 3% of it to either side:
   axis <- p |> ggplot2::layer_data(2L)
-  (axis$xend - axis$x) |> expect_equal(0.34 * 1.06)
-  # Near a limit, it reaches as far as the window without zooming:
-  0.3 |> grim_plot_line(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(c(0, 50))
+  (axis$xend - axis$x) |> expect_equal(0.2 * 1.06)
+  # Attainable percentages at `n = 2` are 0, 50, and 100. The window widens to
+  # the nearest one, 0, 200 values away, and stops 3 values beyond it, at the
+  # limit, rather than reaching 50:
+  p <- 20 |> grim_plot_line(2, 1, 1, x_meaning = "percentage")
+  p |> squares() |> expect_equal(0)
+  axis <- p |> ggplot2::layer_data(2L)
+  (axis$xend - axis$x) |> expect_equal(40.3 * 1.06)
+  0.3 |> grim_plot_line(2, 1, 1, x_meaning = "percentage") |> squares() |> expect_equal(0)
   # A consistent value keeps the 10 values to either side:
   5.19 |> grim_plot_line(26, 2, 1) |> squares() |> range() |> expect_equal(c(5.12, 5.27))
   # No more than the whole window with few decimal places:
@@ -267,7 +273,7 @@ test_that("squares are labeled if there is room, and grey unless reported", {
   # Every value is attainable at `n = 300`, so the squares are too close:
   5.19 |> grim_plot_line(300, 2, 1)                          |> axis_labels() |> expect_s3_class("waiver")
   5.19 |> grim_plot_line(28, 2, 1, zoom = "wide")            |> axis_labels() |> expect_s3_class("waiver")
-  67.4 |> grim_plot_line(40, 1, 1, x_meaning = "percentage") |> axis_labels() |> expect_equal(c("65.0%", "67.5%", "70.0%"))
+  67.4 |> grim_plot_line(40, 1, 1, x_meaning = "percentage") |> axis_labels() |> expect_equal("67.5%")
 
   p <- 5.23 |> grimmer_plot_line(2.55, 31, 2, 2, 1, color_con = "orange", color_attainable = "black")
   p |> fills() |> unique() |> sort() |> expect_equal(c("black", "orange"))
