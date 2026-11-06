@@ -362,3 +362,13 @@ test_that("an `.args_by_row` argument other than `digits_*` must be a single val
   d |> gt(digits_x = 1, w = c(1, 3)) |> expect_error("`w` must be a single value here")
   d |> gt(digits_x = 1, w = 2)       |> nrow() |> expect_gt(0L)
 })
+
+
+test_that("a `.dir` column of `data` does not replace the direction", {
+  # `dir = .dir` inside `mutate()` read the column, not the argument:
+  out <- tibble::tibble(x1 = 5.19, x2 = 3.2, n = 40, .dir = "zz") |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out$dir |> levels() |> expect_equal(c("forth", "back"))
+  out$.dir |> unique() |> expect_equal("zz")
+  out |> audit_total_n() |> expect_no_error()
+})

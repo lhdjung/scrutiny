@@ -151,8 +151,12 @@ function_map_total_n_proto <- function(
 
     out_df <- out_df |>
       mutate_both_consistent(name_key_result) |>
-      dplyr::mutate(case, dir = .dir, n = as_integer_if_lossless(n)) |>
-      dplyr::relocate(n_change, .after = n)
+      dplyr::mutate(case, n = as_integer_if_lossless(n))
+
+    # Assigned, not mutated in: a `.dir` column of `data` would mask the
+    # argument.
+    out_df$dir <- .dir
+    out_df <- dplyr::relocate(out_df, n_change, .after = n)
 
     # An even total splits into two equal groups at a `dispersion` step of 0,
     # where pairing the groups the other way round gives the same scenario. It
