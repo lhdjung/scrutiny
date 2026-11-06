@@ -74,16 +74,16 @@ audit_by <- function(data, by) {
       error_call = rlang::caller_env()
     ),
     vctrs_error_subscript_oob = function(cnd) {
-      # Sequence and total-n output has the tested columns and its results,
-      # but not the other columns of the input:
-      if (!is_map_seq_df(data) && !is_map_total_n_df(data)) {
+      # Sequence output has the tested columns and its results, but not the
+      # other columns of the input. Total-n output keeps them:
+      if (!is_map_seq_df(data)) {
         rlang::cnd_signal(cnd)
       }
       abort_in_export(
         "`.by` selects a column that `data` doesn't have.",
         "x" = "There is no column {wrap_in_backticks(cnd$i)}.",
-        "i" = "Sequence and total-n output doesn't keep the other columns \\
-        of the input. Its `case` column numbers the input rows."
+        "i" = "Sequence output doesn't keep the other columns of the input. \\
+        Its `case` column numbers the input rows."
       )
     }
   )

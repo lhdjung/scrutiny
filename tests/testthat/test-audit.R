@@ -340,3 +340,17 @@ test_that("`.by` can't rename a column", {
   # The new name was ignored:
   pigs1 |> dplyr::mutate(s = rep(c("a", "b"), 6)) |> grim_map(2, items_averaged = 1, data_type = "integer") |> audit(.by = c(new = s)) |> expect_error("Can't rename")
 })
+
+
+test_that("the hint about dropped columns is only for sequence output", {
+  # Total-n output keeps the other columns of the input, but was told it
+  # doesn't:
+  df <- tibble::tibble(x1 = c(3.43, 2.97), x2 = c(5.28, 4.42), n = c(90, 103), study = c("a", "b"))
+  out_total_n <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out_seq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+
+  msg <- out_total_n |> audit(.by = stdy) |> tryCatch(error = conditionMessage)
+  msg |> expect_no_match("doesn't keep")
+  out_seq     |> audit(.by = stdy)  |> expect_error("Sequence output doesn't keep")
+  out_total_n |> audit(.by = study) |> nrow() |> expect_equal(2L)
+})
