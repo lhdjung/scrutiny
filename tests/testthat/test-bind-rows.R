@@ -167,3 +167,22 @@ test_that("the sequence and total-n audits reject rows added by a join", {
   suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit_seq()     |> expect_error("rows that the mapper call didn't return")
   rbind(tot_out, tot_out[1, ])                                                     |> audit_total_n() |> expect_error("rows that the mapper call didn't return")
 })
+
+
+test_that("`rows_delete()` and `rows_update()` pass, as they add no rows", {
+  # They cast `y` to the output to match its rows, which the guard took for
+  # combining the two:
+  out <- tibble::tibble(x = c(5.19, 5.18), n = c(28, 28)) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  key <- tibble::tibble(x = 5.19, n = 28L)
+
+  out |> dplyr::rows_delete(key, by = c("x", "n")) |> nrow() |> expect_equal(1L)
+  out |> dplyr::rows_update(dplyr::mutate(key, exp_incon = 0), by = c("x", "n")) |> dplyr::pull(exp_incon) |> expect_equal(c(0, 0.72))
+  out |> dplyr::rows_delete(key, by = c("x", "n")) |> scrutiny_meta() |> expect_equal(scrutiny_meta(out))
+
+  # Those that add rows still don't:
+  new <- tibble::tibble(x = 9.99, n = 28L)
+  out |> dplyr::rows_insert(new, by = c("x", "n")) |> expect_error("Can't combine mapper output")
+  out |> dplyr::rows_upsert(new, by = c("x", "n")) |> expect_error("Can't combine mapper output")
+  out |> dplyr::rows_append(new)                   |> expect_error("Can't combine mapper output")
+})

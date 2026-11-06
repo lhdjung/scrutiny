@@ -97,11 +97,25 @@ vec_cast_scrutiny <- function(
   call = rlang::caller_env()
 ) {
   # `x` is cast to `to`, which comes first, as in `rows_append(to, x)`:
-  if (nrow(x) > 0L) {
+  if (nrow(x) > 0L && !cast_adds_no_rows(call)) {
     check_same_mapper_call(to, x, to_arg, x_arg, call)
   }
   vctrs::df_cast(x, to, ..., x_arg = x_arg, to_arg = to_arg, call = call) |>
     restore_scrutiny(to)
+}
+
+
+# `dplyr::rows_delete()` and `rows_update()` cast their `y` to the mapper
+# output to match its rows, but add none, like `filter()` and `mutate()`, so
+# they pass. `call` is the frame of the casting function:
+cast_adds_no_rows <- function(call) {
+  if (!is.environment(call)) {
+    return(FALSE)
+  }
+  fn <- rlang::frame_call(call)[[1L]]
+  is.symbol(fn) &&
+    as.character(fn) %in%
+      c("rows_delete.data.frame", "rows_update.data.frame")
 }
 
 
