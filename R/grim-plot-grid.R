@@ -557,7 +557,9 @@ grim_plot_grid <- function(
           x = .data$n,
           y = .data$frac
         ),
-        fill = "white"
+        # The pro forma tile of three or more decimal places is not a cell:
+        # without the gradient over it, it was a white box at the origin.
+        fill = if (digits <= 2L) "white" else NA
       ) +
       # The panel is the consistent cells, so only inconsistent ones are drawn:
       ggplot2::theme(

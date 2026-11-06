@@ -380,3 +380,10 @@ test_that("negative means get the raster of the mirrored rounding method", {
     grim_plot_grid() |>
     expect_no_warning()
 })
+
+
+test_that("three decimal places without the gradient leave the panel plain", {
+  # The tile that stands in for the raster was drawn in white at the origin:
+  plot <- grim_plot_grid(show_data = FALSE, digits = 3, n = 20, show_gradient = FALSE)
+  ggplot2::ggplot_build(plot)$data[[1L]]$fill |> expect_equal(NA)
+})
