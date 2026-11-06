@@ -43,7 +43,7 @@ column of \code{data}; there is no default. It is returned as a column.}
 \code{\link[=debit]{debit()}}, which explains the defaults.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed values are returned
-as further columns; see \emph{Value}. Default is \code{FALSE}.}
+as further columns; see \emph{Value} in \code{\link[=debit_map]{debit_map()}}. Default is \code{FALSE}.}
 }
 \value{
 A tibble with these columns:

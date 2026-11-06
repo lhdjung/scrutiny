@@ -28,10 +28,11 @@
 #'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits`,
 #'   `rounding`, and `n`.
 #'
-#'   Under the default `rounding = "up_or_down"`, few values are inconsistent
-#'   at sample sizes 40 and 80 with two decimal places (4 and 8 with one),
-#'   because many achievable means there are ties, which the default accepts
-#'   in both directions.
+#'   Under the default `rounding = "up_or_down"`, fewer values are
+#'   inconsistent at sample sizes 40 and 80 than at their neighbors with two
+#'   decimal places (4 and 8 with one), and none at 80 (or 8), because many
+#'   achievable means there are ties, which the default accepts in both
+#'   directions.
 #'
 #' @section Negative means: The y-axis is the fractional part of the absolute
 #'   value of `x`, so a mean of `-2.51` is drawn at `0.51`. GRIM's granularity

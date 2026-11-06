@@ -111,14 +111,13 @@ For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
 decides exactly whether a mean and SD are possible within the bounds.
 
-\code{x} and \code{sd} are limited to about 15 significant digits, as in
-\code{\link[=grim]{grim()}}. Beyond that, \code{grimmer()} decides value sets of any size
-exactly, but refuses some it would take too long to decide, none of which
-occur in practice: an SD of about 6e5 or more for \code{n} from 2 to 4, or
-3e5 if it is an SE (divided by \code{items_averaged}), an \code{n} of 2^52 or
-more, and a value set
-that leaves more than a million candidate sums to test, which takes an
-\code{n} of more than a million.
+\code{x} and \code{sd} are limited to about 15 significant digits, and \code{x} with
+\code{n} and \code{items_averaged} as in \code{\link[=grim]{grim()}}. Within these limits,
+\code{grimmer()} decides value sets of any size exactly, but refuses some it
+would take too long to decide, none of which occur in practice: an SD of
+about 6e5 or more for \code{n} from 2 to 4, or 3e5 if it is an SE (divided by
+\code{items_averaged}), and a value set that leaves more than a million
+candidate sums to test, which takes an \code{n} of more than a million.
 }
 \section{Defaults}{
  \code{sd_meaning = "sd_sample"} because the sample SD is what
@@ -154,7 +153,7 @@ convention fits a set of values, test them under \code{"sd_sample"} and
 Some papers report a standard error as if it were an SD. \code{"se"} tests
 whether a value set is consistent under that premise. The SE was rounded,
 not the SD, so the SD may lie anywhere in the SE's rounding range times
-\code{sqrt(n)}. This range is wide: from about \code{n = 20} on, nearly every value
+\code{sqrt(n)}. This range is wide: from about \code{n = 30} on, nearly every value
 set whose mean passes GRIM is consistent under \code{"se"}. Such a result says
 little, and it is no evidence that an SE was reported.
 

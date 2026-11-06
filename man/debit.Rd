@@ -80,9 +80,9 @@ testing many cases.
 vectorized and recycled to a common length by the tidyverse rules. All
 other arguments must have length 1.
 
-\code{x} and \code{sd} are limited to about 15 significant digits, as in
-\code{\link[=grim]{grim()}}. Beyond that, \code{debit()} decides value sets of any size
-exactly, but refuses an \code{n} of 2^52 or more.
+\code{x} and \code{sd} are limited to about 15 significant digits, and \code{x} with \code{n}
+as in \code{\link[=grim]{grim()}}. Within these limits, \code{debit()} decides value sets of
+any size exactly. With \code{x} missing, \code{n} must be below 2^52, about 4.5e15.
 }
 \examples{
 debit(

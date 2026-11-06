@@ -17,7 +17,7 @@
 #' @param data_type String. As in [`debit()`]. Give it as an argument or as a
 #'   column of `data`; there is no default. It is returned as a column.
 #' @param show_rec Logical. If `TRUE`, the reconstructed values are returned
-#'   as further columns; see *Value*. Default is `FALSE`.
+#'   as further columns; see *Value* in [`debit_map()`]. Default is `FALSE`.
 #' @param formula,rounding,threshold,symmetric,sd_meaning Passed on to
 #'   [`debit()`], which explains the defaults.
 #' @param ... These dots must be empty. Every argument after them must be

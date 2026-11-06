@@ -731,9 +731,9 @@ debit_scalar <- function(
 #'   vectorized and recycled to a common length by the tidyverse rules. All
 #'   other arguments must have length 1.
 #'
-#'   `x` and `sd` are limited to about 15 significant digits, as in
-#'   [`grim()`]. Beyond that, `debit()` decides value sets of any size
-#'   exactly, but refuses an `n` of 2^52 or more.
+#'   `x` and `sd` are limited to about 15 significant digits, and `x` with `n`
+#'   as in [`grim()`]. Within these limits, `debit()` decides value sets of
+#'   any size exactly. With `x` missing, `n` must be below 2^52, about 4.5e15.
 #'
 #' @param x Numeric. The reported mean of the binary data, between 0 and 1.
 #' @param sd Numeric. The reported standard deviation, between 0 and 1.

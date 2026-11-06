@@ -89,10 +89,11 @@ as the proportions they were tested as, with two more decimal places.
 Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits},
 \code{rounding}, and \code{n}.
 
-Under the default \code{rounding = "up_or_down"}, few values are inconsistent
-at sample sizes 40 and 80 with two decimal places (4 and 8 with one),
-because many achievable means there are ties, which the default accepts
-in both directions.
+Under the default \code{rounding = "up_or_down"}, fewer values are
+inconsistent at sample sizes 40 and 80 than at their neighbors with two
+decimal places (4 and 8 with one), and none at 80 (or 8), because many
+achievable means there are ties, which the default accepts in both
+directions.
 }
 
 \section{Negative means}{

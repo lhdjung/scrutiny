@@ -56,7 +56,8 @@ read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bi
 them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
-as columns; see \emph{Reconstructed numbers}. Default is \code{FALSE}.}
+as columns; see \emph{Reconstructed numbers} in \code{\link[=grim_map]{grim_map()}}. Default is
+\code{FALSE}.}
 
 \item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}, whose
 section \emph{Defaults} explains the defaults.}

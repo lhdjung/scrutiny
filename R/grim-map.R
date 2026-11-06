@@ -31,7 +31,8 @@
 #'   read, so the parts can't be combined with [`dplyr::bind_rows()`]: keep
 #'   them apart. See *Defaults* in [`grim()`].
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
-#'   as columns; see *Reconstructed numbers*. Default is `FALSE`.
+#'   as columns; see *Reconstructed numbers* in [`grim_map()`]. Default is
+#'   `FALSE`.
 #' @param rounding,threshold,symmetric Passed on to [`grim()`], whose
 #'   section *Defaults* explains the defaults.
 #' @param ... These dots must be empty. Every argument after them must be

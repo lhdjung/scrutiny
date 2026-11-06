@@ -699,14 +699,13 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`
 #'   decides exactly whether a mean and SD are possible within the bounds.
 #'
-#'   `x` and `sd` are limited to about 15 significant digits, as in
-#'   [`grim()`]. Beyond that, `grimmer()` decides value sets of any size
-#'   exactly, but refuses some it would take too long to decide, none of which
-#'   occur in practice: an SD of about 6e5 or more for `n` from 2 to 4, or
-#'   3e5 if it is an SE (divided by `items_averaged`), an `n` of 2^52 or
-#'   more, and a value set
-#'   that leaves more than a million candidate sums to test, which takes an
-#'   `n` of more than a million.
+#'   `x` and `sd` are limited to about 15 significant digits, and `x` with
+#'   `n` and `items_averaged` as in [`grim()`]. Within these limits,
+#'   `grimmer()` decides value sets of any size exactly, but refuses some it
+#'   would take too long to decide, none of which occur in practice: an SD of
+#'   about 6e5 or more for `n` from 2 to 4, or 3e5 if it is an SE (divided by
+#'   `items_averaged`), and a value set that leaves more than a million
+#'   candidate sums to test, which takes an `n` of more than a million.
 #'
 #' @param x Numeric. The reported mean.
 #' @param sd Numeric. The reported standard deviation.
@@ -761,7 +760,7 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   Some papers report a standard error as if it were an SD. `"se"` tests
 #'   whether a value set is consistent under that premise. The SE was rounded,
 #'   not the SD, so the SD may lie anywhere in the SE's rounding range times
-#'   `sqrt(n)`. This range is wide: from about `n = 20` on, nearly every value
+#'   `sqrt(n)`. This range is wide: from about `n = 30` on, nearly every value
 #'   set whose mean passes GRIM is consistent under `"se"`. Such a result says
 #'   little, and it is no evidence that an SE was reported.
 #'
