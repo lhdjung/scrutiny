@@ -69,10 +69,17 @@ is_numeric_like <- function(x) {
     if (any(vapply(x, is_logical_value, logical(1L), USE.NAMES = FALSE))) {
       return(FALSE)
     }
-    x <- lapply(x, function(e) {
-      if (is.numeric(e) || is.logical(e)) e else as.character(e)
-    })
-    return(is_numeric_like(unlist(x, recursive = FALSE, use.names = FALSE)))
+    # Each element on its own: `unlist()` would write a number next to a
+    # string with the decimal mark of `options(OutDec = )`.
+    # A plain `NA` is logical, but missing all the same:
+    is_empty <- function(e) is.null(e) || (is.logical(e) && all(is.na(e)))
+    out <- x[!vapply(x, is_empty, logical(1L), USE.NAMES = FALSE)] |>
+      vapply(is_numeric_like, logical(1L), USE.NAMES = FALSE)
+    # Nothing but plain `NA`s is a logical vector, which is not numeric-like:
+    if (length(out) == 0L || any(!out, na.rm = TRUE)) {
+      return(FALSE)
+    }
+    return(if (all(is.na(out))) NA else TRUE)
   }
   # A factor is read as its labels, and a date or time as the string it prints
   # as, not as the number of days or seconds it is stored as:

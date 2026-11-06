@@ -67,3 +67,13 @@ test_that("a non-breaking space next to a number is numeric-like", {
   "1.50 " |> is_numeric_like() |> expect_true()
   tibble::tibble(a = c("1.50 ", "2.1")) |> decimal_places_df() |> _$a |> expect_equal(c(2L, 1L))
 })
+
+
+test_that("a list is tested the same under any decimal mark", {
+  # `unlist()` wrote 1.5 as "1,5" next to a string:
+  withr::local_options(OutDec = ",")
+  list(1.5, "2")       |> is_numeric_like() |> expect_true()
+  list(1.5, "a")       |> is_numeric_like() |> expect_false()
+  list(NA, "NA")       |> is_numeric_like() |> expect_na()
+  list(1.5, NA, "2.0") |> is_numeric_like() |> expect_true()
+})
