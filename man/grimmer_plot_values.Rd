@@ -16,7 +16,6 @@ grimmer_plot_values(
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   color_con = "#2f7d74",
-  color_incon = "#6f685e",
   color_reported = "#c1522e"
 )
 }
@@ -24,11 +23,10 @@ grimmer_plot_values(
 \item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
 must have length 1.}
 
-\item{color_con, color_incon}{Strings. Colors of the teeth for attainable
-and unattainable values.}
+\item{color_con}{String. Color of the squares for attainable values.}
 
 \item{color_reported}{String. Color of the marker for the reported value
-and of the strip behind the teeth, if the value is inconsistent. A
+and of the strip behind the squares, if the value is inconsistent. A
 consistent value is marked in \code{color_con}.}
 }
 \value{
@@ -38,20 +36,21 @@ A ggplot object.
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 \code{grimmer_plot_values()} draws the GRIMMER test for a single value set, as
-\code{\link[=grim_plot_values]{grim_plot_values()}} does for GRIM. Each tooth of the comb is an SD that
-could have been reported with \code{digits_sd} decimal places; the ones that a
-sample of size \code{n} with mean \code{x} could have are tall. The reported SD is
-marked above the comb and labeled as consistent or inconsistent.
+\code{\link[=grim_plot_values]{grim_plot_values()}} does for GRIM. Of all SDs that could have been
+reported with \code{digits_sd} decimal places, each square is one that a
+sample of size \code{n} with mean \code{x} could have; the others are left out. The
+reported SD is marked above the row and labeled as consistent or
+inconsistent.
 
 For many value sets, \code{\link[=grim_plot_grid]{grim_plot_grid()}} accepts \code{\link[=grimmer_map]{grimmer_map()}} output
 and shows the GRIM part of the test.
 }
 \details{
-The comb runs from the whole number at or below \code{sd} to the next
+The row runs from the whole number at or below \code{sd} to the next
 one up, but not below zero.
 
-If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the comb has
-no tall teeth.
+If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the row has
+no squares.
 }
 \examples{
 # A mean of 5.23 with an SD of 2.55 is not consistent with a sample size of

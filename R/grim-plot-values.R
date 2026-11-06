@@ -1,13 +1,13 @@
 # The comb behind `grim_plot_values()` and `grimmer_plot_values()`: every value
-# a report could take within a window, drawn as a tooth -- short and pale where
-# no sample can produce it, tall and colored where one can. Unattainable values
-# are drawn too because the ratio of ink to gaps makes the point; attainable
-# values alone would look like an ordinary scale.
+# a report could take within a window, drawn as a square where some sample can
+# produce it and left out where none can. The panel is a strip, so that the
+# squares are square in any device; the gaps between them make the point.
 #
 # The callers resolve `color_reported` by the verdict, so a consistent value is
-# marked in its tooth's own color. An inconsistent value gets the nearest tall
-# tooth on either side labeled, since "not this one" begs the question of which
-# ones instead. `label_value` formats a value the way the caller reports it.
+# marked in its square's own color. An inconsistent value gets the nearest
+# square on either side labeled, since "not this one" begs the question of
+# which ones instead. `label_value` formats a value the way the caller reports
+# it.
 
 plot_comb <- function(
   values,
@@ -18,45 +18,33 @@ plot_comb <- function(
   claim,
   x_label,
   color_con,
-  color_incon,
   color_reported
 ) {
-  bare_tooth <- function(keep, height) {
-    nrow_out <- sum(keep)
-    tibble::new_tibble(
-      list(x = values[keep], height = rep(height, nrow_out)),
-      nrow = nrow_out
-    )
-  }
-
-  geom_teeth <- function(data, ...) {
-    ggplot2::geom_segment(
-      data = data,
-      mapping = ggplot2::aes(
-        x = .data$x,
-        xend = .data$x,
-        y = 0,
-        yend = .data$height
-      ),
-      ...
-    )
-  }
-
   span <- diff(range(values))
 
   # The panel's ranges are fixed rather than left to the scales, so that a value
   # can be placed in the panel's npc units below. The panel ends just above the
   # strip; everything over it is drawn into the top margin.
   xlim <- range(values) + c(-1, 1) * span * 0.067
-  ylim <- c(0, 1.04)
+  ylim <- c(0, 1)
+
+  # A square's side as a share of the panel's width: 80% of the step between
+  # values, but at most 8%, as with no decimal places. The panel's height is a
+  # share of its width as well, so the squares stay square on any device; it
+  # holds them with some room to spare, but not less than 3% of the width, to
+  # remain a strip for the marker to point at.
+  step <- min(diff(values))
+  side <- min(0.8 * step / diff(xlim), 0.08)
+  aspect <- max(2.5 * side, 0.03)
+  squares <- tibble::tibble(x = values[possible])
 
   # The marker and, if the value is inconsistent, labels for the nearest
-  # attainable values, each connected to its tooth by an elbow.
+  # attainable values, each connected to its square by an elbow.
   #
   # Text and the arrowhead have a physical size, so no fixed data positions keep
   # them apart at every plot size. The marker is therefore one grob in grid
   # units: npc for where a value is, `strwidth`, `char`, and `lines` for spacing.
-  # Heights are counted in `lines` up from the top of the teeth, and the top
+  # Heights are counted in `lines` up from the top of the panel, and the top
   # margin is sized from the same count.
   attainable <- values[possible]
   neighbors <- if (consistent) {
@@ -69,10 +57,9 @@ plot_comb <- function(
   }
   neighbors <- neighbors[is.finite(neighbors)]
   npc_x <- function(v) grid::unit((v - xlim[1L]) / diff(xlim), "npc")
-  teeth_top <- grid::unit((1 - ylim[1L]) / diff(ylim), "npc")
-  above <- function(lines) teeth_top + grid::unit(lines, "lines")
+  above <- function(lines) grid::unit(1, "npc") + grid::unit(lines, "lines")
 
-  # Heights above the teeth, in lines. `elbow` runs across above the
+  # Heights above the panel, in lines. `elbow` runs across above the
   # arrowhead, whose base is at `arrow_tip` plus its length.
   arrow_tip <- 0.4
   arrow_head <- 0.6
@@ -177,15 +164,17 @@ plot_comb <- function(
   )
 
   ggplot2::ggplot() +
-    # The interval the reported value stands for, behind the teeth: the values
-    # that would have been rounded to it. It is a fact about the reported value,
-    # not about the scale, so it takes the marker's color at low opacity.
+    # The interval the reported value stands for, behind the squares: the
+    # values that would have been rounded to it. It is a fact about the
+    # reported value, not about the scale, so it takes the marker's color at
+    # low opacity.
     ggplot2::annotate(
       "rect",
-      xmin = claim[1L],
-      xmax = claim[2L],
+      # Within the panel, which is not clipped:
+      xmin = max(claim[1L], xlim[1L]),
+      xmax = min(claim[2L], xlim[2L]),
       ymin = 0,
-      ymax = 1.04,
+      ymax = 1,
       fill = color_reported,
       alpha = 0.18
     ) +
@@ -198,14 +187,19 @@ plot_comb <- function(
       colour = "grey60",
       linewidth = 0.5
     ) +
-    geom_teeth(bare_tooth(!possible, 0.3), colour = color_incon) +
-    geom_teeth(bare_tooth(possible, 1), colour = color_con, linewidth = 0.9) +
-    # The reported value points down at the comb from above rather than being
-    # drawn across it. A full-height marker would stand exactly where the tooth
-    # it is asking about stands, and hide the one thing the figure is for:
-    # whether there is a tooth there at all.
+    ggplot2::geom_tile(
+      data = squares,
+      mapping = ggplot2::aes(x = .data$x, y = 0.5),
+      width = side * diff(xlim),
+      height = side * diff(ylim) / aspect,
+      fill = color_con
+    ) +
+    # The reported value points down at the strip from above rather than being
+    # drawn across it. A marker in the strip would stand exactly where the
+    # square it is asking about stands, and hide the one thing the figure is
+    # for: whether there is a square there at all.
     ggplot2::annotation_custom(marker_grob) +
-    # `clip = "off"` so the marker can sit above the comb rather than being cut
+    # `clip = "off"` so the marker can sit above the strip rather than being cut
     # by the top of the panel; the top margin is the marker's stack of lines,
     # and the side margins leave room for a value at either end of the window.
     ggplot2::coord_cartesian(
@@ -217,7 +211,8 @@ plot_comb <- function(
     ggplot2::labs(x = x_label, y = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      # A comb has no height to read, so an axis for it would only invite
+      aspect.ratio = aspect,
+      # The strip has no height to read, so an axis for it would only invite
       # someone to look for one.
       axis.text.y = ggplot2::element_blank(),
       panel.grid = ggplot2::element_blank(),
@@ -237,7 +232,7 @@ plot_comb <- function(
 # hundred times over lands a little beside the two-decimal number it should be,
 # and these values go into a consistency test that checks them against `digits`.
 # The values from `from` to `to` at `digits` decimal places, one for each
-# tooth. Each is tested, so their number is checked first; it grows tenfold
+# possible square. Each is tested, so their number is checked first; it grows tenfold
 # with each decimal place. `name` is `"x"` or `"sd"`, for the message:
 comb_values <- function(from, to, digits, name) {
   size <- (to - from) * 10^digits + 1
@@ -245,8 +240,8 @@ comb_values <- function(from, to, digits, name) {
     limit <- format(COMB_TEETH_MAX, big.mark = ",", scientific = FALSE)
     abort_in_export(
       "Too many values to draw.",
-      "x" = "With `digits_{name} = {digits}`, the comb would have \\
-      {format(size, big.mark = ',', scientific = FALSE)} teeth, more than \\
+      "x" = "With `digits_{name} = {digits}`, the plot would test \\
+      {format(size, big.mark = ',', scientific = FALSE)} values, more than \\
       {limit}.",
       "i" = "Each decimal place multiplies them by 10."
     )
@@ -309,10 +304,10 @@ check_comb_value <- function(value, digits, name) {
 #' @description `r lifecycle::badge("experimental")`
 #'
 #'   `grim_plot_values()` draws the GRIM test for a single value set as a
-#'   comb. Each tooth is a mean (or percentage) that could have been reported
-#'   with `digits_x` decimal places. Teeth for means that a sample of size `n`
-#'   can have are tall. The reported value is marked above the comb and
-#'   labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
+#'   row of squares. Of all means (or percentages) that could have been
+#'   reported with `digits_x` decimal places, each square is one that a sample
+#'   of size `n` can have; the others are left out. The reported value is
+#'   marked above the row and labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
 #'   values on either side are labeled.
 #'
 #'   [`grim_plot_grid()`] shows many results at once; this function explains
@@ -321,26 +316,25 @@ check_comb_value <- function(value, digits, name) {
 #' @param x,n,digits_x,items_averaged,percent,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
-#' @param color_con,color_incon Strings. Colors of the teeth for attainable
-#'   and unattainable values.
+#' @param color_con String. Color of the squares for attainable values.
 #' @param color_reported String. Color of the marker for the reported value
-#'   and of the strip behind the teeth, if the value is inconsistent. A
+#'   and of the strip behind the squares, if the value is inconsistent. A
 #'   consistent value is marked in `color_con`.
 #'
-#' @details The comb runs from the whole number at or below `x` to the next one
+#' @details The row runs from the whole number at or below `x` to the next one
 #'   up. That unit contains `10 ^ digits_x + 1` reportable values, both ends
 #'   included. With `items_averaged = 1`, about `n` of them are attainable, or
 #'   all if `n` exceeds `10 ^ digits_x`. With
-#'   `percent = TRUE`, a unit is one percentage point, and the comb widens by
+#'   `percent = TRUE`, a unit is one percentage point, and the row widens by
 #'   `100 / (n * items_averaged)` points, rounded up, on either side so that
 #'   the nearest attainable values remain visible, but not beyond 0 or 100.
-#'   With more than two decimal places, the teeth crowd together.
+#'   With more than two decimal places, the squares crowd together.
 #'
-#'   The strip behind the teeth is the range of unrounded means that would
+#'   The strip behind the squares is the range of unrounded means that would
 #'   have been reported as `x`, from [`roundwork::unround()`]. The value is
-#'   consistent exactly if a tall tooth stands within the strip. Under methods
+#'   consistent exactly if a square stands within the strip. Under methods
 #'   such as `"trunc"` or `"ceiling"`, one edge of the strip is not part of it,
-#'   so a tall tooth on that edge does not count.
+#'   so a square on that edge does not count.
 #'
 #' @return A ggplot object.
 #'
@@ -351,7 +345,7 @@ check_comb_value <- function(value, digits, name) {
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
-#' # no tall tooth stands where the marker points.
+#' # no square stands where the marker points.
 #' grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 #'
 #' # With `n = 26`, it is:
@@ -376,7 +370,6 @@ grim_plot_values <- function(
   threshold = 5,
   symmetric = FALSE,
   color_con = "#2f7d74",
-  color_incon = "#6f685e",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
@@ -464,7 +457,6 @@ grim_plot_values <- function(
       ")"
     ),
     color_con = color_con,
-    color_incon = color_incon,
     color_reported = if (consistent) color_con else color_reported
   )
 }

@@ -1,10 +1,6 @@
-# The teeth are two `geom_segment()` layers after the two `annotate()` calls
-# that draw the strip and the baseline: unattainable, then attainable. Their row
-# counts are the verdicts the comb draws.
-teeth_counts <- function(p) {
-  built <- ggplot2::ggplot_build(p)$data
-  vapply(built[3:4], nrow, integer(1L))
-}
+# The squares are the `geom_tile()` layer after the two `annotate()` calls that
+# draw the strip and the baseline, one per attainable value.
+squares <- function(p) p$layers[[3L]]$data$x
 
 # The marker is one grob in the last layer: the verdict label, whose color is
 # the marker's, and the labels of the nearest attainable values.
@@ -89,14 +85,17 @@ test_that("the marker's labels keep clear of each other at any size", {
   }
 })
 
-test_that("`grim_plot_values()` draws one tooth per value in the unit window", {
+test_that("`grim_plot_values()` draws a square per attainable value only", {
   p <- grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
   p |> expect_s3_class("ggplot")
-  counts <- teeth_counts(p)
-  counts |> sum() |> expect_equal(101L)
   # 28 attainable means per unit at `n = 28`, plus the whole number at the
   # far end of the window:
-  counts[[2L]] |> expect_equal(29L)
+  p |> squares() |> length() |> expect_equal(29L)
+  p |> squares() |> call_on(\(x) 5.19 %in% x) |> expect_false()
+  # Square in any device: the panel's aspect ratio converts the side.
+  tile <- p |> ggplot2::layer_data(3L)
+  ratio <- (tile$ymax - tile$ymin)[1L] / (tile$xmax - tile$xmin)[1L]
+  ratio |> expect_equal(1 / diff(range(p$coordinates$limits$x)) / p$theme$aspect.ratio)
 })
 
 test_that("the marker says and shows the verdict", {
@@ -134,11 +133,11 @@ test_that("`grim_plot_values()` needs `digits_x` and a decidable `n`", {
   err$call[[1L]] |> expect_equal(quote(grim_plot_values))
 })
 
-test_that("`grimmer_plot_values()` draws one tooth per value in the unit window", {
+test_that("`grimmer_plot_values()` draws a square per attainable value only", {
   p <- grimmer_plot_values(x = 5.23, sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1)
   p |> expect_s3_class("ggplot")
-  p |> teeth_counts() |> sum() |> expect_equal(101L)
-  p |> teeth_counts() |> purrr::pluck(2L) |> expect_gt(0L)
+  p |> squares() |> length() |> call_on(\(len) len > 0L && len < 101L) |> expect_true()
+  p |> squares() |> call_on(\(x) 2.55 %in% x) |> expect_true()
 })
 
 test_that("`grimmer_plot_values()` checks its own arguments", {
@@ -208,10 +207,8 @@ test_that("`grimmer_plot_values()` draws every valid input", {
 
 
 test_that("the percentage comb stays within 0 and 100", {
-  # Layers 3 and 4 are the teeth for unattainable and attainable values:
-  teeth <- function(p) c(p$layers[[3]]$data$x, p$layers[[4]]$data$x)
-  grim_plot_values(100, 3, 0, 1, percent = TRUE) |> teeth() |> max() |> expect_lte(100)
-  grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> teeth() |> min() |> expect_gte(0)
+  grim_plot_values(100, 3, 0, 1, percent = TRUE) |> squares() |> max() |> expect_equal(100)
+  grim_plot_values(0, 3, 0, 1, percent = TRUE)   |> squares() |> min() |> expect_equal(0)
 })
 
 
@@ -222,10 +219,10 @@ test_that("near-whole arguments are drawn as the whole numbers they are", {
 })
 
 
-test_that("a comb with too many teeth is an error, not a hang", {
-  # Each tooth is a test, and their number grows tenfold per decimal place:
-  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_error("10,000,001 teeth")
-  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_error("1,000,001 teeth")
+test_that("a comb with too many values is an error, not a hang", {
+  # Each value is a test, and their number grows tenfold per decimal place:
+  5.1234567 |> grim_plot_values(28, 7, 1)                 |> expect_error("10,000,001 values")
+  5.21      |> grimmer_plot_values(1.623457, 28, 2, 6, 1) |> expect_error("1,000,001 values")
   5.1234    |> grim_plot_values(28, 4, 1)                 |> expect_s3_class("ggplot")
 })
 

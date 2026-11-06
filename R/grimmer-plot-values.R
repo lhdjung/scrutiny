@@ -3,10 +3,11 @@
 #' @description `r lifecycle::badge("experimental")`
 #'
 #'   `grimmer_plot_values()` draws the GRIMMER test for a single value set, as
-#'   [`grim_plot_values()`] does for GRIM. Each tooth of the comb is an SD that
-#'   could have been reported with `digits_sd` decimal places; the ones that a
-#'   sample of size `n` with mean `x` could have are tall. The reported SD is
-#'   marked above the comb and labeled as consistent or inconsistent.
+#'   [`grim_plot_values()`] does for GRIM. Of all SDs that could have been
+#'   reported with `digits_sd` decimal places, each square is one that a
+#'   sample of size `n` with mean `x` could have; the others are left out. The
+#'   reported SD is marked above the row and labeled as consistent or
+#'   inconsistent.
 #'
 #'   For many value sets, [`grim_plot_grid()`] accepts [`grimmer_map()`] output
 #'   and shows the GRIM part of the test.
@@ -16,11 +17,11 @@
 #'   must have length 1.
 #' @inheritParams grim_plot_values
 #'
-#' @details The comb runs from the whole number at or below `sd` to the next
+#' @details The row runs from the whole number at or below `sd` to the next
 #'   one up, but not below zero.
 #'
-#'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the comb has
-#'   no tall teeth.
+#'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the row has
+#'   no squares.
 #'
 #' @return A ggplot object.
 #'
@@ -58,7 +59,6 @@ grimmer_plot_values <- function(
   symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   color_con = "#2f7d74",
-  color_incon = "#6f685e",
   color_reported = "#c1522e"
 ) {
   if (missing(digits_x)) {
@@ -156,7 +156,6 @@ grimmer_plot_values <- function(
       ")"
     ),
     color_con = color_con,
-    color_incon = color_incon,
     color_reported = if (consistent) color_con else color_reported
   )
 }

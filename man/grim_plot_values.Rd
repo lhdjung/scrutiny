@@ -14,7 +14,6 @@ grim_plot_values(
   threshold = 5,
   symmetric = FALSE,
   color_con = "#2f7d74",
-  color_incon = "#6f685e",
   color_reported = "#c1522e"
 )
 }
@@ -23,11 +22,10 @@ grim_plot_values(
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
 
-\item{color_con, color_incon}{Strings. Colors of the teeth for attainable
-and unattainable values.}
+\item{color_con}{String. Color of the squares for attainable values.}
 
 \item{color_reported}{String. Color of the marker for the reported value
-and of the strip behind the teeth, if the value is inconsistent. A
+and of the strip behind the squares, if the value is inconsistent. A
 consistent value is marked in \code{color_con}.}
 }
 \value{
@@ -37,34 +35,34 @@ A ggplot object.
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 \code{grim_plot_values()} draws the GRIM test for a single value set as a
-comb. Each tooth is a mean (or percentage) that could have been reported
-with \code{digits_x} decimal places. Teeth for means that a sample of size \code{n}
-can have are tall. The reported value is marked above the comb and
-labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
+row of squares. Of all means (or percentages) that could have been
+reported with \code{digits_x} decimal places, each square is one that a sample
+of size \code{n} can have; the others are left out. The reported value is
+marked above the row and labeled as consistent or inconsistent. If it is inconsistent, the nearest attainable
 values on either side are labeled.
 
 \code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function explains
 one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
 }
 \details{
-The comb runs from the whole number at or below \code{x} to the next one
+The row runs from the whole number at or below \code{x} to the next one
 up. That unit contains \code{10 ^ digits_x + 1} reportable values, both ends
 included. With \code{items_averaged = 1}, about \code{n} of them are attainable, or
 all if \code{n} exceeds \code{10 ^ digits_x}. With
-\code{percent = TRUE}, a unit is one percentage point, and the comb widens by
+\code{percent = TRUE}, a unit is one percentage point, and the row widens by
 \code{100 / (n * items_averaged)} points, rounded up, on either side so that
 the nearest attainable values remain visible, but not beyond 0 or 100.
-With more than two decimal places, the teeth crowd together.
+With more than two decimal places, the squares crowd together.
 
-The strip behind the teeth is the range of unrounded means that would
+The strip behind the squares is the range of unrounded means that would
 have been reported as \code{x}, from \code{\link[roundwork:unround]{roundwork::unround()}}. The value is
-consistent exactly if a tall tooth stands within the strip. Under methods
+consistent exactly if a square stands within the strip. Under methods
 such as \code{"trunc"} or \code{"ceiling"}, one edge of the strip is not part of it,
-so a tall tooth on that edge does not count.
+so a square on that edge does not count.
 }
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
-# no tall tooth stands where the marker points.
+# no square stands where the marker points.
 grim_plot_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
 
 # With `n = 26`, it is:
