@@ -949,6 +949,38 @@ test_that("`function_map()` rejects arguments it can't honor", {
 })
 
 
+# Only the other arguments of `.fn` were checked. A key column named `case` got
+# the case numbers in place of its dispersed values, and so on.
+test_that("the factories refuse key columns named like their own names", {
+  map_named <- function(name) {
+    fn <- rlang::new_function(setNames(alist(a = , n = ), c(name, "n")), quote(TRUE))
+    function_map(.fn = fn, .reported = c(name, "n"), .name_test = "T")
+  }
+  for (name in c("data", "fn", "reported")) {
+    name |> map_named() |> expect_error("uses internally")
+  }
+
+  for (name in c("case", "diff_var", "var", "dispersion")) {
+    name |>
+      map_named() |>
+      function_map_seq(.reported = c(name, "n"), .name_test = "T") |>
+      expect_error("`function_map_seq\\(\\)` uses internally")
+  }
+
+  for (name in c("case", "dir", "n_change", "times", "df_list")) {
+    name |>
+      map_named() |>
+      function_map_total_n(.reported = name, .name_test = "T") |>
+      expect_error("`function_map_total_n\\(\\)` uses internally")
+  }
+
+  # Any other name works in all three:
+  map_score <- map_named("score")
+  map_score |> function_map_seq(.reported = c("score", "n"), .name_test = "T") |> expect_no_error()
+  map_score |> function_map_total_n(.reported = "score", .name_test = "T")     |> expect_no_error()
+})
+
+
 # `check_args_disabled()` read the names off the call, which through `lapply()`
 # is `FUN(X[[i]], ...)`, so a disabled argument went through.
 test_that("disabled arguments stay disabled when the mapper is called indirectly", {

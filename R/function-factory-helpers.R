@@ -865,3 +865,19 @@ check_args_by_row_single <- function(args_by_row, dots, name_fn, tier) {
     }
   }
 }
+
+
+# A key column named like something the factory-made function uses itself --
+# an argument, a variable in its body, or a column of its output -- would be
+# overwritten or misread at call time, so the factory refuses it. `reserved`
+# has the names, `factory` the factory's name:
+check_reported_reserved <- function(reported, reserved, factory) {
+  offenders <- intersect(reported, reserved)
+  if (length(offenders) > 0L) {
+    abort_in_export(
+      "`.reported` has names that `{factory}()` uses internally.",
+      "x" = "Rename {wrap_in_backticks(offenders)}.",
+      "i" = "Reserved: {wrap_in_backticks(reserved)}."
+    )
+  }
+}

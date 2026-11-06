@@ -201,6 +201,35 @@ function_map_seq <- function(
   force(.fn)
   force(.var)
   force(.reported)
+
+  # Its own arguments, the variables its body assigns before reading the key
+  # arguments, and the columns it adds:
+  check_reported_reserved(
+    .reported,
+    c(
+      "data",
+      "var",
+      "dispersion",
+      "out_min",
+      "out_max",
+      "include_reported",
+      "include_consistent",
+      "diff_var",
+      "case",
+      "fn",
+      "reported",
+      "name_test",
+      "name_fn",
+      "name_class",
+      "name_key_result",
+      "args_disabled",
+      "helper_vals",
+      "setting_vals",
+      "arg_helper",
+      "arg_setting"
+    ),
+    "function_map_seq"
+  )
   force(.name_test)
   force(.name_key_result)
   check_string(.name_key_result)

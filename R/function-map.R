@@ -296,6 +296,11 @@ function_map <- function(
     "vals",
     "arg"
   )
+  check_reported_reserved(
+    c(.reported, .reported_variadic),
+    names_locals,
+    "function_map"
+  )
   args_shadowed <- intersect(args_promoted, names_locals)
   if (length(args_shadowed) > 0L) {
     abort_in_export(

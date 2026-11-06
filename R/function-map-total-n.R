@@ -288,6 +288,22 @@ function_map_total_n <- function(
     )
   }
 
+  # The columns that the output adds, and those that the rebuilt data go
+  # through on the way:
+  check_reported_reserved(
+    .reported,
+    c(
+      "case",
+      "dir",
+      "n_change",
+      "both_consistent",
+      "times",
+      "df_list",
+      "reported"
+    ),
+    "function_map_total_n"
+  )
+
   name_fn <- deparse(substitute(.fn))
 
   reported_reduplicated <- rep(.reported, each = 2L)
