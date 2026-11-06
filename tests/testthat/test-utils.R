@@ -243,6 +243,46 @@ test_that("`is_decidable_n_items()` recycles like the vector path", {
 })
 
 
+# A missing `data_type` could be integer or continuous, so `test_data_type()`
+# gives the integer result only where the continuous one is the same. This
+# restates that rule over every edge case at once, for each test and premise,
+# rather than checking that the rule is right; the tests' own files do that.
+# `grim_total()` decides continuous data in a vectorized path of its own.
+
+test_that("a missing `data_type` gives a result only where both data types agree", {
+  # Element-wise: `NA` is no result, so two `NA`s agree:
+  agree <- function(a, b) (is.na(a) & is.na(b)) | (!is.na(a) & !is.na(b) & a == b)
+  expect_na_rule <- function(test) {
+    integer <- test("integer")
+    continuous <- test("continuous")
+    expected <- integer
+    expected[!agree(integer, continuous)] <- NA
+    NA |> test() |> expect_identical(expected)
+  }
+  n <- c(NA, 0, 1, 2, 3, 20.5, -1, 7, 25)
+  grid_grim <- tidyr::expand_grid(x = c(5.19, 3.4, NA, Inf), n = n, items_averaged = c(NA, 0, 1, 2))
+  grid <- tidyr::expand_grid(grid_grim, sd = c(-0.5, 0, 0.5, 1.3, NA, Inf))
+  grid_debit <- tidyr::expand_grid(x = c(0, 0.25, 0.5, NA), sd = c(0, 0.5, 0.52, NA), n = n)
+
+  grim_grid <- function(type) grim(grid_grim$x, grid_grim$n, 2, grid_grim$items_averaged, type)
+  expect_na_rule(grim_grid)
+  for (sd_meaning in SD_MEANINGS) {
+    expect_na_rule(function(type) grimmer(grid$x, grid$sd, grid$n, 2, 1, grid$items_averaged, type, sd_meaning = sd_meaning))
+    expect_na_rule(function(type) debit(grid_debit$x, grid_debit$sd, grid_debit$n, 2, 2, type, sd_meaning = sd_meaning))
+  }
+
+  # A number of inconsistencies where `grim()` has a verdict, and only there.
+  # The numbers follow the rule above themselves: 3.40 at `n = 25` passes as
+  # either type, but has `NA` for a missing one, since integers could fail
+  # and continuous data could not.
+  total <- function(type) grim_total(grid_grim$x, grid_grim$n, 2, grid_grim$items_averaged, type)
+  for (type in c("integer", "continuous")) {
+    type |> total() |> is.na() |> expect_identical(is.na(grim_grid(type)))
+  }
+  expect_na_rule(total)
+})
+
+
 test_that("every `sd_meaning` and `formula` default spells out its constant", {
   # The scalar functions check against `SD_MEANINGS` and `DEBIT_FORMULAS`, so a
   # default that lists other values would offer choices that fail:
