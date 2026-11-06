@@ -85,8 +85,10 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
   correct <- vapply(
     seq_along(data),
     function(i) {
+      # Not `as.character()`, which writes 100000 as "1e+05" and the decimal
+      # mark of `options(OutDec = )`:
       cells <- data[[i]][row] |>
-        as.character() |>
+        value_to_string() |>
         call_on(\(x) x[!is.na(x)])
       if (length(cells) == 0L) {
         colnames(data)[i]

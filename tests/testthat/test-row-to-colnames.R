@@ -81,3 +81,11 @@ test_that("a row given twice is used once", {
   df <- tibble::tibble(a = c("x", "y"), b = c("u", "v"))
   df |> row_to_colnames(row = c(1, 1)) |> names() |> expect_equal(c("x", "u"))
 })
+
+
+test_that("numbers in a header row are written out in full, with a point", {
+  df <- tibble::tibble(a = c(100000, 1), b = c(1.5, 2))
+  df |> row_to_colnames() |> colnames() |> expect_equal(c("100000", "1.5"))
+  rlang::local_options(OutDec = ",")
+  df |> row_to_colnames() |> colnames() |> expect_equal(c("100000", "1.5"))
+})
