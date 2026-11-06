@@ -32,8 +32,9 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 \item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
 No default. For DEBIT, \code{"integer"} means the binary
 values 0 and 1 that the test assumes. Continuous data can have any mean
-and SD, so the result is \code{TRUE}, unless the SD is the population SD of a
-single value, which is 0.}
+and SD from 0 to 1, so the result is \code{TRUE}, unless the SD is the
+population SD of a single value, which is 0. Values outside of 0 to 1 are
+an error for either data type.}
 
 \item{formula}{String. \code{"exact"} (the default) only considers means that
 \code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is

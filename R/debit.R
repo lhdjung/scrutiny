@@ -713,8 +713,9 @@ debit_scalar <- function(
 #' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`.
 #'   No default. For DEBIT, `"integer"` means the binary
 #'   values 0 and 1 that the test assumes. Continuous data can have any mean
-#'   and SD, so the result is `TRUE`, unless the SD is the population SD of a
-#'   single value, which is 0.
+#'   and SD from 0 to 1, so the result is `TRUE`, unless the SD is the
+#'   population SD of a single value, which is 0. Values outside of 0 to 1 are
+#'   an error for either data type.
 #' @param formula String. `"exact"` (the default) only considers means that
 #'   `n` binary values can have, i.e., `k / n` for a whole number `k`. It is
 #'   the default because no other mean is possible.
