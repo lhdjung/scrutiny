@@ -347,6 +347,12 @@ test_that("a value set that is inconsistent with the decimal places it shows is 
   5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> nrow()                                      |> expect_equal(0L)
   grimmer_scalar(2.5, 1.05, 10, 1, NA, 1, show_reason = TRUE, data_type = "integer")[[2L]]                  |> expect_equal("GRIMMER inconsistent (test 1)")
 
+  # Continuous data: a single value has a population SD of 0, which 0.5 is
+  # not rounded from at any number of decimal places. This was `TRUE`:
+  2   |> grimmer(0.5, 1, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "continuous", sd_meaning = "sd_pop") |> expect_false()
+  0.5 |> debit(0.5, 1, digits_x = 1, digits_sd = NA, data_type = "continuous", sd_meaning = "sd_pop")                     |> expect_false()
+  2   |> grimmer(0, 1, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "continuous", sd_meaning = "sd_pop")   |> expect_true()
+
   # Nothing else that is missing or undecidable is decided by it:
   5.19 |> grim(NA, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_na()
   5.19 |> grim(0, digits_x = NA, items_averaged = 1, data_type = "integer")  |> expect_na()

@@ -889,6 +889,9 @@ verdict_continuous <- function(
   if (!is.na(sd) && sd < 0) {
     return(c("Negative SD" = FALSE))
   }
+  # With the decimal places missing, the fewest that `sd` can have: if 0 is
+  # not rounded to it with these, it is not with more.
+  digits_sd <- digits_least(sd, digits_sd)
   if (isTRUE(n == 1) && !is.na(sd) && !is.na(digits_sd)) {
     bounds <- roundwork::bound_numerators(
       sd,
