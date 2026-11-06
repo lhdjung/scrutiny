@@ -129,7 +129,7 @@ test_that("explanations of continuous data follow the verdict", {
   # The same for both data types, so the type doesn't come up:
   undecidable <- grim_explain(5.2, 0, 1, 1, NA)
   undecidable$consistency |> expect_equal(NA)
-  undecidable$paragraphs  |> expect_equal("The test needs n to be a positive whole number, but it is 0.")
+  undecidable$paragraphs  |> expect_equal("The test needs n to be a positive integer, but it is 0.")
 })
 
 test_that("`data_type` must be a single value", {
@@ -147,7 +147,7 @@ test_that("missing `items_averaged` is undecidable, not an error", {
 })
 
 test_that("large numbers are written out in full", {
-  5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1, data_type = "integer")       |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
+  5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1, data_type = "integer")       |> format() |> expect_match("100000 integers", fixed = TRUE)
   0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1, data_type = "integer") |> format() |> expect_no_match("e+0", fixed = TRUE)
 })
 
@@ -250,14 +250,14 @@ test_that("`explain_print()` prints as expected", {
 
 
 test_that("GRIMMER explains a sum of squares below what whole numbers can reach", {
-  3.6 |> grimmer_explain(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("can have is 148, with 7 of them 4 and 4 of them 3. So none of", fixed = TRUE)
-  1.9 |> grimmer_explain(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("can have is 91, with 22 of them 2 and 3 of them 1. It is in this range", fixed = TRUE)
+  3.6 |> grimmer_explain(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> _$paragraphs |> paste(collapse = " ") |> expect_match("can have is 148, with 7 of them 4 and 4 of them 3. So none of", fixed = TRUE)
+  1.9 |> grimmer_explain(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> _$paragraphs |> paste(collapse = " ") |> expect_match("can have is 91, with 22 of them 2 and 3 of them 1. It is in this range", fixed = TRUE)
 })
 
 
 test_that("GRIMMER explains a sum of squares that fewer than five numbers cannot have", {
-  1 |> grimmer_explain(2, 2, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("and 2 whole numbers with a sum of 2 cannot have 6.", fixed = TRUE)
-  1 |> grimmer_explain(6, 4, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("numbers with a sum of 4 can have is 98.", fixed = TRUE)
+  1 |> grimmer_explain(2, 2, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> _$paragraphs |> paste(collapse = " ") |> expect_match("and 2 integers with a sum of 2 cannot have 6.", fixed = TRUE)
+  1 |> grimmer_explain(6, 4, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer") |> _$paragraphs |> paste(collapse = " ") |> expect_match("integers with a sum of 4 can have is 98.", fixed = TRUE)
 })
 
 
@@ -314,7 +314,7 @@ test_that("a negative zero is shown as zero", {
 test_that("an explanation names the missing value that left the mean unknown", {
   grimmer_explain(5.2, 0.3, 4, NA, 1, 1, data_type = "integer") |> format() |> expect_match("digits_x is missing")
   debit_explain(0.5, 0.9, 10, NA, 1, data_type = "integer")     |> format() |> expect_match("digits_x is missing")
-  grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop", data_type = "integer") |> format() |> expect_match("1 whole number with")
+  grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop", data_type = "integer") |> format() |> expect_match("1 integer with")
 })
 test_that("only the first `n` sums are tested, and the rest are counted", {
   # This looped over 20 million sums; all fail, as the first two do:

@@ -219,8 +219,8 @@ debit_explain <- function(
     text_none <- if (formula == "exact") {
       paste0(
         name_missing,
-        " is missing, so the number of ones is unknown. But it is a whole ",
-        "number from 0 to ",
+        " is missing, so the number of ones is unknown. But it is an integer ",
+        "from 0 to ",
         n,
         ", and none of these gives an SD in that range."
       )
@@ -292,7 +292,7 @@ debit_explain <- function(
   if (sum_lower > sum_upper) {
     text_ones <- paste0(
       text_ones,
-      "But it has to be a whole number, and there is none in this ",
+      "But it has to be an integer, and there is none in this ",
       "range. So no number of ones fits the mean, whatever the SD is."
     )
     return(explain(c(text_intro, text_bounds_x, text_ones)))
@@ -300,7 +300,7 @@ debit_explain <- function(
 
   text_ones <- paste0(
     text_ones,
-    "It has to be a whole number, so it can ",
+    "It has to be an integer, so it can ",
     if (sum_lower == sum_upper) {
       paste0("only be ", sum_lower, ".")
     } else {

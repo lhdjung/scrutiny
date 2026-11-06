@@ -4,7 +4,7 @@
 #'
 #'   `grim_explain()` tests a single mean like [`grim()`] does, but
 #'   also lays out the calculation in plain words: which true means the
-#'   reported one could stand for, which sums of the underlying whole numbers
+#'   reported one could stand for, which sums of the underlying integers
 #'   follow from them, and whether any of these sums is possible.
 #'
 #'   The text is built from the numbers that decide the test itself, so it
@@ -227,18 +227,23 @@ grim_explain <- function(
       n_shown,
       " is a count divided by ",
       n_items,
-      ", times 100. So the count must be "
+      ", times 100. So ",
+      format_reported(x, digits_x),
+      "% stands for the proportion ",
+      format_reported(x / 100, digits_x + 2L),
+      ", with two more decimal places than the percentage shows. ",
+      "The count must be "
     )
   } else if (n == 1 && items_averaged == 1) {
     # No sum to calculate, so the bounds are shown as they are:
     times <- NULL
-    text_sums <- "The mean of a single whole number is that number. So it must be "
+    text_sums <- "The mean of a single integer is that number. So it must be "
   } else if (items_averaged == 1) {
     times <- paste0(" * ", n, " = ")
     text_sums <- paste0(
       "The mean of ",
       n,
-      " whole numbers is their sum divided by ",
+      " integers is their sum divided by ",
       n,
       ". ",
       "So the sum must be "
@@ -249,7 +254,7 @@ grim_explain <- function(
       if (n == 1) "The single score" else paste("Each of the", n, "scores"),
       " is the average of ",
       items_averaged,
-      " whole-number items. ",
+      " integer items. ",
       if (n == 1) "It" else "Their mean",
       " is therefore the sum of all ",
       n_items,
@@ -311,9 +316,9 @@ grim_explain <- function(
   }
 
   whole_intro <- if (is_percentage) {
-    "A count is a whole number"
+    "A count is an integer"
   } else {
-    "A sum of whole numbers is itself a whole number"
+    "A sum of integers is itself an integer"
   }
 
   if (consistency) {
@@ -348,7 +353,7 @@ grim_explain <- function(
       paste0(", and ", sum_lower, " is in this range: ")
     } else {
       paste0(
-        ", and the whole numbers from ",
+        ", and the integers from ",
         sum_lower,
         " to ",
         sum_upper,
@@ -368,7 +373,7 @@ grim_explain <- function(
     # means:
     text_whole <- paste0(
       whole_intro,
-      ", but there is no whole number in this range. The ",
+      ", but there is no integer in this range. The ",
       "nearest ones are ",
       sum_upper,
       " and ",
@@ -426,7 +431,7 @@ explain_data_type <- function(
   } else if (is.na(data_type)) {
     if (identical(consistency, NA)) {
       c(
-        "The data type is missing. If the data are whole numbers, the test goes as follows.",
+        "The data type is missing. If the data are integers, the test goes as follows.",
         out$paragraphs,
         paste0(
           "If the data are continuous, ",
@@ -452,7 +457,7 @@ explain_data_type <- function(
       "The data are continuous, so ",
       text_continuous,
       if (consistency) {
-        ". The test only applies to whole numbers, so the value set is consistent."
+        ". The test only applies to integers, so the value set is consistent."
       } else {
         "."
       }
@@ -460,9 +465,9 @@ explain_data_type <- function(
   } else {
     c(
       paste(
-        "The data are quasi-integer: whole numbers that stand for something",
-        "continuous. The test assumes that the analysis used these whole",
-        "numbers, not more precise values."
+        "The data are quasi-integer: integers that stand for something",
+        "continuous. The test assumes that the analysis used these",
+        "integers, not more precise values."
       ),
       out$paragraphs
     )
@@ -668,21 +673,21 @@ explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
 explain_n_items <- function(n, items_averaged, min_n) {
   if (is_decidable_n_items(n, min_n = min_n)) {
     paste0(
-      "The test needs the number of items to be a positive whole number, but ",
+      "The test needs the number of items to be a positive integer, but ",
       "it is ",
       items_averaged,
       "."
     )
   } else if (min_n == 2) {
     paste0(
-      "The test needs n to be a whole number of at least 2, because the ",
+      "The test needs n to be an integer of at least 2, because the ",
       "SD of a sample divides by n - 1. But n is ",
       n,
       "."
     )
   } else {
     paste0(
-      "The test needs n to be a positive whole number, but it is ",
+      "The test needs n to be a positive integer, but it is ",
       n,
       "."
     )

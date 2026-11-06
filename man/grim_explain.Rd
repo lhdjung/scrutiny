@@ -86,7 +86,7 @@ and the \code{test} and its \code{inputs}. It prints as the explanation.
 
 \code{grim_explain()} tests a single mean like \code{\link[=grim]{grim()}} does, but
 also lays out the calculation in plain words: which true means the
-reported one could stand for, which sums of the underlying whole numbers
+reported one could stand for, which sums of the underlying integers
 follow from them, and whether any of these sums is possible.
 
 The text is built from the numbers that decide the test itself, so it

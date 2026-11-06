@@ -239,7 +239,7 @@ grimmer_explain <- function(
       ", and none passes: for a sum with any remainder, ",
       "the sums of squares that ",
       n,
-      if (n == 1) " whole number" else " whole numbers",
+      if (n == 1) " integer" else " integers",
       " with that sum can have miss the range that the SD requires."
     )
     return(explain(c(text_bounds, text_sums)))
@@ -339,8 +339,8 @@ grimmer_explain <- function(
     sd_term(if (sd_meaning == "se") "SE" else "SD"),
     " + sum^2 / ",
     n,
-    ". The values are whole numbers, so their squares are whole ",
-    "numbers, too, and so is the sum of squares. What's more, a whole number ",
+    ". The values are integers, so their squares are ",
+    "integers, too, and so is the sum of squares. What's more, an integer ",
     "and its square are either both odd or both even. So the sum of squares ",
     "must be odd if the sum is odd, and even if the sum is even."
   )
@@ -396,7 +396,7 @@ grimmer_explain <- function(
     paste0(
       "Not every sum needs to be tried. Of ",
       n,
-      " whole numbers with a given sum, those closest to each other have the ",
+      " integers with a given sum, those closest to each other have the ",
       "smallest sum of squares: sum^2 / ",
       n,
       " plus r * (",
@@ -476,7 +476,7 @@ grimmer_explain <- function(
     text_reach <- NULL
     text_candidates <- paste0(
       "The sums of squares reach 2^53, about 9e15, which is too large to show ",
-      "them here as exact numbers. GRIMMER compares them in exact whole-number ",
+      "them here as exact numbers. GRIMMER compares them in exact integer ",
       "arithmetic, and ",
       if (passed) {
         "one of the sums passes."
@@ -547,11 +547,11 @@ grimmer_explain_candidate <- function(
   }
 
   whole <- if (lower > upper) {
-    "There is no whole number in this range."
+    "There is no integer in this range."
   } else if (lower == upper) {
     parity_lower <- if (lower %% 2 == 0) "even" else "odd"
     paste0(
-      "The only whole number in this range is ",
+      "The only integer in this range is ",
       lower,
       ", which is ",
       parity_lower,
@@ -561,7 +561,7 @@ grimmer_explain_candidate <- function(
     )
   } else {
     paste0(
-      "The whole numbers from ",
+      "The integers from ",
       lower,
       " to ",
       upper,
@@ -595,10 +595,10 @@ grimmer_explain_candidate <- function(
     )
   } else if (is.na(attained)) {
     paste0(
-      "But fewer than five whole numbers cannot have every such sum of ",
+      "But fewer than five integers cannot have every such sum of ",
       "squares, and ",
       n,
-      " whole numbers with a sum of ",
+      " integers with a sum of ",
       s,
       " cannot have ",
       if (lower == upper) lower else "any of those in this range",
@@ -606,10 +606,10 @@ grimmer_explain_candidate <- function(
     )
   } else {
     paste0(
-      "Fewer than five whole numbers cannot have every such sum of squares, ",
+      "Fewer than five integers cannot have every such sum of squares, ",
       "and the smallest in this range that ",
       n,
-      " whole numbers with a sum of ",
+      " integers with a sum of ",
       s,
       " can have is ",
       attained,
@@ -641,10 +641,10 @@ grimmer_explain_minimum <- function(
   }
 
   in_range <- if (lower == upper) {
-    paste0("The only whole number in this range is ", lower, ".")
+    paste0("The only integer in this range is ", lower, ".")
   } else {
     paste0(
-      "The whole numbers from ",
+      "The integers from ",
       lower,
       " to ",
       upper,
@@ -655,7 +655,7 @@ grimmer_explain_minimum <- function(
   smallest <- paste0(
     "However, the smallest sum of squares that ",
     n,
-    " whole numbers with a sum of ",
+    " integers with a sum of ",
     s,
     " can have is ",
     minimum,
@@ -672,7 +672,7 @@ grimmer_explain_minimum <- function(
       parity_s,
       ", like ",
       s,
-      ", being a sum of squares of whole numbers."
+      ", being a sum of squares of integers."
     )
   }
 
