@@ -96,6 +96,7 @@ split_by_parens <- function(
   # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
   force(sep)
   data <- as_data_frame_input(data, "`before_parens()` or `inside_parens()`")
+  check_unique_names(data, "data")
 
   # The function works on whole columns; with groups, `dplyr::select()` would
   # re-add the grouping columns, and `across()` would run per group:
@@ -154,11 +155,17 @@ split_by_parens <- function(
       "x" = "Both are \"{end1}\"."
     )
   }
-  names_taken <- intersect(names_new, colnames(data))
+  # ...and differ from each other: `a` with the ending `x_y` and `a_x` with `y`
+  # would both be `a_x_y`.
+  names_taken <- unique(c(
+    intersect(names_new, colnames(data)),
+    names_new[duplicated(names_new)]
+  ))
   if (length(names_taken) > 0L) {
     abort_in_export(
       "!" = "Splitting would overwrite existing columns.",
-      "x" = "{.var {names_taken}} {?is/are} already in `data`.",
+      "x" = "{.var {names_taken}} {?is/are} already in `data`, or would be \\
+      created twice.",
       "i" = "Rename {cli::qty(names_taken)}{?it/them}, or choose other `end1` and \\
       `end2`."
     )
@@ -241,6 +248,14 @@ split_by_parens <- function(
     abort_in_export(
       "!" = "`transform` can't be `TRUE` if some columns are left unsplit.",
       "i" = "This concerns {names_neutral_cols}."
+    )
+  }
+
+  # The longer format has a column of its own by this name:
+  if (any(c(end1, end2) == ".origin")) {
+    abort_in_export(
+      "!" = "`end1` and `end2` can't be \".origin\" if `transform` is `TRUE`.",
+      "i" = "The transformed data have an `.origin` column already."
     )
   }
 

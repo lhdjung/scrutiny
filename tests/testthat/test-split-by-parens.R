@@ -215,3 +215,26 @@ test_that("a column named `_` is no name clash", {
   data |> split_by_parens() |> expect_warning("not split")
   data |> split_by_parens() |> suppressWarnings() |> colnames() |> expect_equal("_")
 })
+
+
+test_that("name clashes and empty input get the package's own errors and shapes", {
+  # Two new columns of the same name failed inside `dplyr::across()`:
+  tibble::tibble(a = c("1 (2)", "3 (4)"), a_x = c("5 (6)", "7 (8)")) |>
+    split_by_parens(end1 = "x_y", end2 = "y") |>
+    expect_error("Splitting would overwrite existing columns")
+
+  # The transformed data have an `.origin` column of their own:
+  tibble::tibble(a = "1 (2)") |>
+    split_by_parens(end1 = ".origin", end2 = "sd", transform = TRUE) |>
+    expect_error("can't be \".origin\"")
+
+  # No column to stack was a subsetting error:
+  tibble::tibble() |>
+    split_by_parens(transform = TRUE) |>
+    expect_identical(tibble::tibble(.origin = character(0), x = character(0), sd = character(0)))
+
+  # Repeated column names failed inside `dplyr::select()`:
+  data.frame(a = "1 (2)", a = "3 (4)", check.names = FALSE) |>
+    split_by_parens() |>
+    expect_error("must have unique names")
+})

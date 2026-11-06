@@ -1508,7 +1508,12 @@ index_central <- function(x) {
 #'
 #' @noRd
 transform_split_parens <- function(data, origins, end1, end2) {
+  # With no column to stack, `paste0()` would return `"_x"`, and `unlist()`
+  # would return `NULL`, which is no column:
   stack_cols <- function(end) {
+    if (length(origins) == 0L) {
+      return(character(0L))
+    }
     unlist(data[paste0(origins, "_", end)], use.names = FALSE)
   }
   tibble::tibble(
