@@ -138,3 +138,15 @@ test_that("summary columns stay double when every value is missing", {
     out[[col]] |> expect_type("double")
   }
 })
+
+
+test_that("the tally columns are found after `select()` and `relocate()`", {
+  # They used to be taken as every second column:
+  tally <- duplicate_tally(pigs4)
+  expected <- audit(tally)
+
+  tally |> dplyr::select(dplyr::ends_with("_n"))   |> audit() |> expect_equal(expected)
+  tally |> dplyr::relocate(dplyr::ends_with("_n")) |> audit() |> expect_equal(expected)
+
+  tally |> dplyr::select(snout, snout_n) |> audit() |> _$term |> expect_equal(c("snout_n", ".total"))
+})
