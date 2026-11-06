@@ -392,7 +392,7 @@ function_map <- function(
 
   # `data` before its key columns are renamed and moved to the front: the
   # selection may name a key column as the user knows it, as in
-  # `summands = !sum, total = sum`.
+  # `summands = !sum, total = sum`, and positions count as in `data` as given.
   code_variadic_given <- if (is.null(.reported_variadic)) {
     list()
   } else {
@@ -405,17 +405,16 @@ function_map <- function(
     list(rlang::expr({
       quo_variadic <- rlang::enquo(`!!`(as.name(.reported_variadic)))
       check_variadic_arg(quo_variadic, `!!`(.reported_variadic))
+      # By the columns as the user knows them, so that a position counts
+      # in `data` as given, not after the key columns moved to the front. A
+      # name only `data` has, i.e., that of a key column after renaming, is
+      # tried next; if that fails too, the first error stands:
       index_variadic <- tryCatch(
-        tidyselect::eval_select(quo_variadic, data, exclude = cols_added),
-        vctrs_error_subscript_oob = function(cnd) {
-          # If the names as given don't help either, the first error stands:
-          index_given <- tryCatch(
-            tidyselect::eval_select(
-              quo_variadic,
-              data_given,
-              exclude = cols_added
-            ),
-            error = function(cnd_given) rlang::cnd_signal(cnd)
+        {
+          index_given <- tidyselect::eval_select(
+            quo_variadic,
+            data_given,
+            exclude = cols_added
           )
           # The same columns in `data`. A renamed key column has no match by
           # name; it stands for all of them, which the check below rejects:
@@ -424,6 +423,12 @@ function_map <- function(
           cols_renamed <- which(!colnames(data) %in% colnames(data_given))
           names(cols_renamed) <- colnames(data)[cols_renamed]
           c(index[!is.na(index)], if (anyNA(index)) cols_renamed)
+        },
+        vctrs_error_subscript_oob = function(cnd) {
+          tryCatch(
+            tidyselect::eval_select(quo_variadic, data, exclude = cols_added),
+            error = function(cnd_renamed) rlang::cnd_signal(cnd)
+          )
         }
       )
       check_variadic_cols(
@@ -524,8 +529,8 @@ function_map <- function(
         `!!`(.name_key_result)
       )
 
-      # After the renaming, so that tidyselect sees the same column names as
-      # the rest of the function:
+      # After the renaming, so that a selection may also name a key column
+      # by its argument:
       cols_variadic <- list()
       names_variadic <- character(0L)
       `!!!`(code_variadic)

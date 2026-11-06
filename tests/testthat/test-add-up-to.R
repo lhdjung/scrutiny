@@ -75,6 +75,16 @@ test_that("`summands` can name a key column as the user knows it", {
   d |> add_up_to_map(summands = !nope, total = sum)     |> expect_error("Column `nope` doesn't exist")
 })
 
+test_that("positions in `summands` count in `data` as given", {
+  # The key column moves to the front, which shifted every position:
+  d <- tibble::tibble(a = 5, b = 1, c = 2, sum = 3)
+  expected <- d |> add_up_to_map(summands = c(b, c), total = sum)
+  expected$consistency |> expect_true()
+  d |> add_up_to_map(summands = 2:3, total = sum)        |> expect_equal(expected)
+  d |> add_up_to_map(summands = last_col(), total = sum) |> expect_error("selected `total`")
+})
+
+
 test_that("row names are not selected as summands", {
   # They become a `rowname` column, which `!total` then included:
   out <- data.frame(a = 1:2, b = 3:4, total = c(4, 7), row.names = c("r1", "r2")) |>
