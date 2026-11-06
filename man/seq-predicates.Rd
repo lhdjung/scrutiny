@@ -32,7 +32,11 @@ error.}
 \code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}. Any tolerance is widened to the
 rounding error of arithmetic on the values, at most about \code{4e-16} times
 the largest, so \code{0} allows that error only, and large values such as
-\code{123456789.01} are compared as precisely as doubles can.}
+\code{123456789.01} are compared as precisely as doubles can. In
+\code{is_seq_dispersed()}, a central value that is missing is worked out from
+the known ones, step by step, and the error grows with each step, so the
+comparison with \code{from} allows about \code{4e-16} times the largest value per
+step to the center.}
 
 \item{test_linear}{Logical. Should linearity be tested as well? Default is
 \code{TRUE}. Not in \code{is_seq_linear()}.}

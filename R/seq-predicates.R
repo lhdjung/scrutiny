@@ -306,7 +306,11 @@ is_seq_basic <- function(
 #'   `1.5e-8`, as in [`dplyr::near()`]. Any tolerance is widened to the
 #'   rounding error of arithmetic on the values, at most about `4e-16` times
 #'   the largest, so `0` allows that error only, and large values such as
-#'   `123456789.01` are compared as precisely as doubles can.
+#'   `123456789.01` are compared as precisely as doubles can. In
+#'   `is_seq_dispersed()`, a central value that is missing is worked out from
+#'   the known ones, step by step, and the error grows with each step, so the
+#'   comparison with `from` allows about `4e-16` times the largest value per
+#'   step to the center.
 #'
 #' @return Logical (length 1). If `x` contains `NA`:
 #'   - `NA` if some values substituted for the `NA`s would make `x` the kind of
