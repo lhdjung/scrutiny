@@ -212,7 +212,7 @@ test_that("a repeated step counts once", {
 })
 
 test_that("a repeated step doesn't keep sequence output from being audited", {
-  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = c(1, 1, 2))
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = c(1, 1, 2))
   out |> audit_seq()       |> nrow() |> expect_equal(1L)
   out |> reverse_map_seq() |> nrow() |> expect_equal(1L)
 })

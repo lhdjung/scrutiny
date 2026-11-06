@@ -12,6 +12,7 @@ grimmer(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -34,6 +35,10 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"},
+\code{"quasi-integer"}, or \code{"continuous"}, the last of which can have any mean
+and SD. No default.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -84,9 +89,9 @@ The function is vectorized, but \code{\link[=grimmer_map]{grimmer_map()}} is mor
 testing many cases.
 }
 \details{
-\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{items_averaged} are
-vectorized and recycled to a common length by the tidyverse rules. All
-other arguments must have length 1.
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, \code{items_averaged}, and
+\code{data_type} are vectorized and recycled to a common length by the
+tidyverse rules. All other arguments must have length 1.
 
 The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
 does \code{rsprite2::GRIMMER_test()}, with a stricter first test: the sum of
@@ -166,7 +171,7 @@ grimmer(
   n = 35,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1, data_type = "integer"
 )
 
 # However, mean and SD are consistent with a
@@ -177,7 +182,7 @@ grimmer(
   n = 31,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1, data_type = "integer"
 )
 
 # For a scale composed of two items:
@@ -187,7 +192,7 @@ grimmer(
   n = 63,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 2
+  items_averaged = 2, data_type = "integer"
 )
 }
 \references{

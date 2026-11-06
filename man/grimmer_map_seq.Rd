@@ -13,6 +13,7 @@ grimmer_map_seq(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -42,6 +43,10 @@ named in full.}
 \item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
@@ -110,6 +115,7 @@ out <- grimmer_map_seq(
   digits_x = 2,
   digits_sd = 2,
   items_averaged = 1,
+  data_type = "integer",
   include_consistent = TRUE
 )
 out

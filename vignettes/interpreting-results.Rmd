@@ -36,7 +36,7 @@ So an inconsistency means that an assumption is false or a number was reported i
 
 ```{r}
 pigs1 |>
-  grim_map_seq(digits_x = 2, items_averaged = 1, var = "n") |>
+  grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", var = "n") |>
   audit_seq()
 ```
 
@@ -48,14 +48,14 @@ pigs1 |>
 
 ```{r}
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop")
 ```
 
 **SD or SE.** Some papers report a standard error as if it were an SD. `sd_meaning = "se"` tests that premise, but weakly: the SE was rounded, so the SD may lie in a range `sqrt(n)` times as wide. Beyond very small samples, nearly every value set passes, so a consistent result under `"se"` is no evidence that an SE was reported.
 
 **A percentage of another total.** A percentage may refer to the valid answers rather than to all participants. `is_percentage_of()` tests a percentage against a count and its total.
 
-**Data that are not whole numbers.** The tests do not apply to continuous measures such as reaction times, nor to means that were weighted, imputed, or estimated by a model, such as estimated marginal means. Check the methods section before testing.
+**Data that are not whole numbers.** The tests do not apply to continuous measures such as reaction times, nor to means that were weighted, imputed, or estimated by a model, such as estimated marginal means. Check the methods section before testing, and set `data_type = "continuous"` for such values, or `"quasi-integer"` for whole numbers that stand for something continuous, such as age in years.
 
 **Typos.** A swapped or mistyped digit can make a mean inconsistent. `grim_map_seq()` with `var = "x"` finds nearby consistent values, but at large `n`, a nearby hit is likely by chance alone and says little.
 
@@ -69,7 +69,7 @@ pigs5 |>
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::filter(!consistency) |>
   explain_print(1)
 ```
@@ -78,7 +78,7 @@ pigs1 |>
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   scrutiny_meta()
 ```
 

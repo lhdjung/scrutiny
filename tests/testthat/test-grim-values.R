@@ -73,7 +73,7 @@ test_that("`grim_values()` agrees with `grim()` itself", {
       for (x in c(5.19, 4.2, 0.24)) {
         values <- x |> grim_values(n, digits_x = 2, items_averaged = 1, rounding = rounding)
         info <- paste0("x = ", x, ", n = ", n, ", rounding = ", rounding)
-        consistency <- grim(x, n, digits_x = 2, items_averaged = 1, rounding = rounding)
+        consistency <- grim(x, n, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = rounding)
         values |> nrow() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
         for (value in values$x) {
           value |>
@@ -89,7 +89,7 @@ test_that("`grim_values()` agrees with `grim()` itself", {
 
 
 test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
-  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE)
   values <- grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1)
   counts <- pmax(0L, out$sum_upper - out$sum_lower + 1L)
   values$case |> tabulate(nrow(out)) |> expect_equal(as.integer(counts))
@@ -153,7 +153,7 @@ test_that("`digits_x` is required, with the bespoke error message", {
 
 
 test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` is", {
-  5.19 |> grim(20.5, 2, items_averaged = 1)         |> is.na() |> expect_true()
+  5.19 |> grim(20.5, 2, items_averaged = 1, data_type = "integer")         |> is.na() |> expect_true()
   5.19 |> grim_values(20.5, 2, items_averaged = 1)  |> expect_undecidable()
   5.19 |> grim_closest(20.5, 2, items_averaged = 1) |> expect_equal(NA_real_)
   5.19 |> grim_values(28, 2, items_averaged = 1.5)  |> expect_undecidable()

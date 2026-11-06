@@ -20,6 +20,9 @@
 #'   averaged into each score, not the number of scale points. Give it as an
 #'   argument or as a column of `data`; there is no default. It is returned as
 #'   a column.
+#' @param data_type String. As in [`grim()`]: `"integer"`, `"quasi-integer"`,
+#'   or `"continuous"`. Like `items_averaged`, give it as an argument or as a
+#'   column of `data`; there is no default. It is returned as a column.
 #' @param x_meaning String. What the `x` values are: `"mean"` (the default) or
 #'   `"percentage"`. Percentages are divided by 100 and tested with two more
 #'   decimal places. It applies to the whole call, so test a table that mixes
@@ -37,6 +40,7 @@
 #' @return A tibble with these columns:
 #' - `x`, `n`: the inputs.
 #' - `items_averaged`: the number of items averaged into each score.
+#' - `data_type`: the kind of data, as given.
 #' - `digits_x`: the number of decimal places in `x`, as given.
 #' - `consistency`: GRIM consistency of `x`, `n`, and `items_averaged`. `NA` for
 #'   a case that cannot be decided, such as one with a missing value.
@@ -93,20 +97,25 @@
 #' # The `consistency` column shows whether the
 #' # values to its left are GRIM-consistent:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1)
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # Show the reconstructed numbers:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
+#'   grim_map(
+#'     digits_x = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer",
+#'     show_rec = TRUE
+#'   )
 #'
 #' # Get summaries with `audit()`:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   audit()
 #'
 #' # Explain the results in plain words:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   explain_print(1:2)
 #'
 #' # A table of means and percentages, tested part by part. Each part records
@@ -118,17 +127,22 @@
 #' )
 #' df |>
 #'   dplyr::filter(!is_percent) |>
-#'   grim_map(digits_x = 2, items_averaged = 1)
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
 #' df |>
 #'   dplyr::filter(is_percent) |>
-#'   grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage")
+#'   grim_map(
+#'     digits_x = 0,
+#'     items_averaged = 1,
+#'     data_type = "integer",
+#'     x_meaning = "percentage"
+#'   )
 
 grim_map <- function_map(
   .fn = grim_scalar,
   .reported = c("x", "n"),
   .name_test = "GRIM",
   .args_by_row = "digits_x",
-  .cols_helper = "items_averaged",
+  .cols_helper = c("items_averaged", "data_type"),
   .col_names = c(
     "consistency",
     "rec_sum",

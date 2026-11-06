@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' out_grim <- pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   audit()
 #'
 #' write_doc_audit(sample_output = out_grim, name_test = "GRIM")

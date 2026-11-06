@@ -79,21 +79,21 @@ df2_debit_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `audit_total_n()` works correctly", {
-  df1 |> grim_map_total_n(digits_x = 2, items_averaged = 1)                   |> audit_total_n() |> audit() |> expect_equal(df1_grim_exp)
-  df1 |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |> audit_total_n() |> audit() |> expect_equal(df1_grimmer_exp)
+  df1 |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> audit_total_n() |> audit() |> expect_equal(df1_grim_exp)
+  df1 |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit_total_n() |> audit() |> expect_equal(df1_grimmer_exp)
   df2 |> debit_map_total_n(digits_x = 2, digits_sd = 2)                       |> audit_total_n() |> audit() |> expect_equal(df2_debit_exp)
 })
 
 test_that("undecidable splits count as neither hits nor scenarios", {
   out <- tibble::tibble(x1 = c(NA, 5.2), x2 = 4.1, n = 30L) |>
-    grim_map_total_n(digits_x = 1, items_averaged = 1, dispersion = 0:1) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
     audit_total_n()
   out$scenarios_total |> expect_equal(c(0L, 3L))
   out$hit_rate[1L]    |> expect_na()
 
   # A sample SD has no value for a group of 1, so those splits are left out:
   out <- tibble::tibble(x1 = 3, x2 = 4, sd1 = 0, sd2 = 0, n = 4L) |>
-    grimmer_map_total_n(digits_x = 0, digits_sd = 0, items_averaged = 1, n_min = 1) |>
+    grimmer_map_total_n(digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer", n_min = 1) |>
     audit_total_n()
   out$scenarios_total |> expect_equal(1L)
 })
@@ -101,7 +101,7 @@ test_that("undecidable splits count as neither hits nor scenarios", {
 
 test_that("a direction whose rows were filtered out has unknown hits", {
   # `hits_back` was 0, and the totals and rate were those of "forth" alone:
-  out <- tibble::tibble(x1 = c(3.43, 4.61), x2 = c(5.24, 4.19), n = c(70, 81)) |> grim_map_total_n(digits_x = 2, items_averaged = 1)
+  out <- tibble::tibble(x1 = c(3.43, 4.61), x2 = c(5.24, 4.19), n = c(70, 81)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
   audited <- out |> dplyr::filter(dir == "forth") |> audit_total_n()
   audited$hits_forth      |> expect_equal(audit_total_n(out)$hits_forth)
   audited$hits_back       |> expect_equal(c(NA_integer_, NA_integer_))

@@ -72,6 +72,7 @@
 #'   pigs1,
 #'   digits_x = 2,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   include_consistent = TRUE
 #' )
 #' out

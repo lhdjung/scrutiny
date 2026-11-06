@@ -153,6 +153,7 @@ test_grim_oracle <- function(x, n, digits_x, items, x_meaning, symmetric) {
       grim_map(
         digits_x = digits_x,
         items_averaged = items,
+        data_type = "integer",
         x_meaning = x_meaning,
         rounding = rounding,
         threshold = threshold,
@@ -390,13 +391,13 @@ test_that("`\"even\"` is never too strict, only ever too permissive", {
       x = (-30:30 * unit) |> round(digits_x),
       n = c(4L, 8L, 20L, 40L)
     )
-    verdict <- grim(grid$x, grid$n, digits_x = digits_x, items_averaged = 1, rounding = "even")
+    verdict <- grim(grid$x, grid$n, digits_x = digits_x, items_averaged = 1, data_type = "integer", rounding = "even")
 
     # `"ties_even"` is the same method under the name that says which tie rule
     # it is, so it inherits the property below rather than needing its own
     # oracle run. What has to hold is that the two really are one method here:
     grid$x |>
-      grim(grid$n, digits_x = digits_x, items_averaged = 1, rounding = "ties_even") |>
+      grim(grid$n, digits_x = digits_x, items_averaged = 1, data_type = "integer", rounding = "ties_even") |>
       expect_equal(verdict)
 
     for (i in seq_len(nrow(grid))) {

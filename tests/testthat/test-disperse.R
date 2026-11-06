@@ -69,7 +69,7 @@ test_that("`n` is integer, as it is in the mappers", {
   20        |> disperse()       |> purrr::pluck("n_change") |> expect_type("integer")
 
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     reverse_map_total_n() |>
     purrr::pluck("n") |>
     expect_type("integer")
@@ -130,7 +130,7 @@ test_that("a `constant` element of the wrong length is an error that names it", 
   20 |> disperse(constant = list(1:2, 1:3))     |> expect_error("`constant$constant2` must have length 2", fixed = TRUE)
   # No purrr "In index" context around an error about the argument:
   tibble::tibble(x1 = 4.5, x2 = 5.2, n = 40) |>
-    grim_map_total_n(digits_x = 1, items_averaged = 1, constant = list(z = 1)) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", constant = list(z = 1)) |>
     expect_error("`constant$z` must have length 2", fixed = TRUE, class = "rlang_error") |>
     conditionMessage() |>
     expect_no_match("In index")
@@ -201,7 +201,7 @@ test_that("group sizes from 2^52 on are refused", {
 test_that("a name repeated in `constant` is an error", {
   # Only the last of the columns was kept:
   5 |> disperse(1, constant = list(a = 1:2, a = 3:4))             |> expect_error("`a` occurs more than once")
-  tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(a = 1:2, a = 3:4)) |> expect_error("`a` occurs more than once")
+  tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(a = 1:2, a = 3:4)) |> expect_error("`a` occurs more than once")
 })
 
 test_that("an integer `n` near the integer limit is an error, not an `NA` row", {

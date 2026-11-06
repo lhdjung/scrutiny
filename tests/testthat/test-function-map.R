@@ -97,23 +97,23 @@ df_grim3 <- tibble::tibble(
 # Running old and new (= manufactured) functions --------------------------
 
 out_grim_old1 <- df_grim1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::select(x, n, consistency)
 out_debit_old1 <- df_debit1 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
-out_grim_new1  <- df_grim1  |> grim_map_alt(digits_x = 2, items_averaged = 1) # fmt: skip
+out_grim_new1  <- df_grim1  |> grim_map_alt(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
 out_debit_new1 <- df_debit1 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
 
 out_grim_old2 <- df_grim2 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::select(x, n, consistency)
 out_debit_old2 <- df_debit2 |>
   debit_map(digits_x = 2, digits_sd = 2) |>
   dplyr::select(x, sd, n, consistency)
 
-out_grim_new2  <- df_grim2  |> grim_map_alt(digits_x = 2, items_averaged = 1) # fmt: skip
+out_grim_new2  <- df_grim2  |> grim_map_alt(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
 out_debit_new2 <- df_debit2 |> debit_map_alt(digits_x = 2, digits_sd = 2) # fmt: skip
 
 
@@ -121,7 +121,7 @@ out_grim_old_renamed <- out_grim_old1 |>
   dplyr::rename(success = consistency)
 
 out_grim_new_renamed <- df_grim1 |>
-  grim_map_alt_renamed(digits_x = 2, items_averaged = 1)
+  grim_map_alt_renamed(digits_x = 2, items_averaged = 1, data_type = "integer")
 
 out_debit_old_renamed <- out_debit_old1 |>
   dplyr::rename(success = consistency)
@@ -185,10 +185,10 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
     .reported = c("x", "sd", "n"),
     .name_test = "GRIMMER"
   )
-  df |> map_const(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  df |> map_const(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     colnames() |>
     expect_equal(c("x", "sd", "n", "consistency"))
-  df |> map_const(digits_x = c(2, 1), digits_sd = 2, items_averaged = 1) |> expect_error()
+  df |> map_const(digits_x = c(2, 1), digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error()
 
   map_by_row <- function_map(
     .fn = grimmer_scalar,
@@ -196,7 +196,7 @@ test_that("`.args_by_row` allows one value per row and returns a column", {
     .name_test = "GRIMMER",
     .args_by_row = c("digits_x", "digits_sd")
   )
-  out <- df |> map_by_row(digits_x = c(2, 1), digits_sd = 2, items_averaged = 1)
+  out <- df |> map_by_row(digits_x = c(2, 1), digits_sd = 2, items_averaged = 1, data_type = "integer")
   out$digits_x |> expect_equal(c(2, 1))
   out$digits_sd |> expect_equal(c(2, 2))
   out |>
@@ -219,18 +219,18 @@ test_that("`.cols_helper` supports helper columns", {
 
   # `items_averaged` may be a column of `data`, returned as itself right after
   # `n`...
-  out <- df |> grimmer_map(digits_x = 2, digits_sd = 2)
-  out |> colnames() |> expect_equal(c("x", "sd", "n", "items_averaged", "digits_x", "digits_sd", "consistency", "reason"))
+  out <- df |> grimmer_map(digits_x = 2, digits_sd = 2, data_type = "integer")
+  out |> colnames() |> expect_equal(c("x", "sd", "n", "items_averaged", "data_type", "digits_x", "digits_sd", "consistency", "reason"))
   out$n              |> expect_equal(2L)
   out$items_averaged |> expect_equal(3)
   # ...or an argument, which must agree with the column if both are given:
-  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 5) |> expect_error("already in")
-  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(out)
-  out <- pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 2)
+  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 5, data_type = "integer") |> expect_error("already in")
+  df |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3, data_type = "integer") |> expect_equal(out)
+  out <- pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer")
   out$n              |> expect_equal(pigs5$n)
   out$items_averaged |> expect_equal(rep(2, nrow(pigs5)))
   # Neither is an error, since there is no default:
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2) |> expect_error("items_averaged")
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error("items_averaged")
 })
 
 
@@ -239,15 +239,15 @@ test_that("`.args_fixed` passes a value on without exposing the argument", {
   grimmer_scalar |> formals() |> call_on(\(x) x$show_reason) |> expect_false()
   grimmer_map    |> formals() |> names() |> expect_no_match("show_reason")
   pigs5 |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     purrr::pluck("reason") |>
     expect_type("character")
   pigs5 |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, show_reason = FALSE) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", show_reason = FALSE) |>
     expect_error("disabled")
   # A fixed argument is a setting of the factory, not of the call:
   pigs5 |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     scrutiny_args() |>
     names() |>
     expect_no_match("show_reason")
@@ -585,31 +585,31 @@ test_that("wrong argument names throw an error at factory time", {
 
 test_that("`.cols_derived` computes columns the test function never returns", {
   # `exp_incon` comes from `grim_exp_incon()`, not from `grim_scalar()`:
-  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   out$exp_incon |> expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 1))
   # It follows the key result column, ahead of the `.col_names` columns:
   out |>
     colnames() |>
-    expect_equal(c("x", "n", "items_averaged", "digits_x", "consistency", "exp_incon"))
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE) |>
+    expect_equal(c("x", "n", "items_averaged", "data_type", "digits_x", "consistency", "exp_incon"))
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE) |>
     colnames() |>
     expect_equal(c(
-      "x", "n", "items_averaged", "digits_x", "consistency", "exp_incon",
+      "x", "n", "items_averaged", "data_type", "digits_x", "consistency", "exp_incon",
       "rec_sum", "sum_lower", "sum_upper", "rec_x_upper", "rec_x_lower"
     ))
 
   # The derived function only gets the arguments it has formals for, and
   # `rounding`, `items_averaged`, and `x_meaning` must reach it:
   pigs1 |>
-    grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling") |>
     purrr::pluck("exp_incon") |>
     expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, rounding = "ceiling", items_averaged = 1))
   pigs1 |>
-    grim_map(digits_x = 2, items_averaged = 2) |>
+    grim_map(digits_x = 2, items_averaged = 2, data_type = "integer") |>
     purrr::pluck("exp_incon") |>
     expect_equal(grim_exp_incon(pigs1$x, pigs1$n, 2, items_averaged = 2))
   pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
+    grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |>
     purrr::pluck("exp_incon") |>
     expect_equal(grim_exp_incon(pigs2$x, pigs2$n, 1, x_meaning = "percentage", items_averaged = 1))
 })
@@ -617,7 +617,7 @@ test_that("`.cols_derived` computes columns the test function never returns", {
 
 test_that("the arguments of the whole call are recorded, with defaults", {
   args <- pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage", rounding = "ceiling") |>
+    grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage", rounding = "ceiling") |>
     scrutiny_args()
   args$x_meaning |> expect_equal("percentage")
   args$rounding |> expect_equal("ceiling")
@@ -629,7 +629,7 @@ test_that("the arguments of the whole call are recorded, with defaults", {
     expect_length(0L)
   # Settings survive verbs that keep the class:
   pigs2 |>
-    grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
+    grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |>
     dplyr::filter(consistency) |>
     scrutiny_args() |>
     getElement("x_meaning") |>
@@ -639,8 +639,8 @@ test_that("the arguments of the whole call are recorded, with defaults", {
 
 test_that("a mapper called on a 0-row data frame returns a valid tibble", {
   for (out in list(
-    pigs1[0L, ] |> grim_map(digits_x = 2, items_averaged = 1),
-    pigs5[0L, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1),
+    pigs1[0L, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer"),
+    pigs5[0L, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer"),
     pigs3[0L, ] |> debit_map(digits_x = 2, digits_sd = 2)
   )) {
     out |> nrow() |> expect_equal(0L)
@@ -654,9 +654,9 @@ test_that("a mapper called on a 0-row data frame returns a valid tibble", {
   }
 
   # A required argument is still required:
-  pigs1[0L, ] |> grim_map()             |> expect_error("digits_x")
-  pigs1[0L, ] |> grim_map(digits_x = 2) |> expect_error("items_averaged")
-  pigs1[0L, ] |> grim_map_seq()         |> expect_error("digits_x")
+  pigs1[0L, ] |> grim_map(data_type = "integer")             |> expect_error("digits_x")
+  pigs1[0L, ] |> grim_map(digits_x = 2, data_type = "integer") |> expect_error("items_averaged")
+  pigs1[0L, ] |> grim_map_seq(data_type = "integer")         |> expect_error("digits_x")
 })
 
 
@@ -665,11 +665,11 @@ test_that("`data` must be a data frame, and that is checked first of all", {
   # single column name. Only the wording of the error depends on what the
   # object turned out to be.
   for (mapper in list(
-    function(d) grim_map(d, digits_x = 2, items_averaged = 1),
-    function(d) grimmer_map(d, digits_x = 2, digits_sd = 2, items_averaged = 1),
+    function(d) grim_map(d, digits_x = 2, items_averaged = 1, data_type = "integer"),
+    function(d) grimmer_map(d, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer"),
     function(d) debit_map(d, digits_x = 2, digits_sd = 2),
-    function(d) grim_map_seq(d, digits_x = 2, items_averaged = 1),
-    function(d) grim_map_total_n(d, digits_x = 2, items_averaged = 1)
+    function(d) grim_map_seq(d, digits_x = 2, items_averaged = 1, data_type = "integer"),
+    function(d) grim_map_total_n(d, digits_x = 2, items_averaged = 1, data_type = "integer")
   )) {
     # Not aligning pipes here because the lengths are too different
     pigs1 |> as.matrix() |> mapper() |> expect_error("must be a data frame")
@@ -678,7 +678,7 @@ test_that("`data` must be a data frame, and that is checked first of all", {
   }
 
   # Everything else is named for what it is:
-  1:10 |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("integer vector")
+  1:10 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("integer vector")
 
   # The most confusing case is an undefined `data`, which R resolves to
   # `utils::data()`. The calls below name that function explicitly, because a
@@ -686,19 +686,19 @@ test_that("`data` must be a data frame, and that is checked first of all", {
   # when the tests run interactively. This used to be reported as the key
   # columns missing from `data`, which blamed the user's data for what was
   # really the wrong object:
-  utils::data |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("must be a data frame")
-  utils::data |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("`data\\(\\)` function")
-  utils::data |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  utils::data |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("must be a data frame")
+  utils::data |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
+  utils::data |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("`data\\(\\)` function")
   utils::data |> debit_map(digits_x = 2, digits_sd = 2) |>
     expect_error("`data\\(\\)` function")
-  utils::data |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("`data\\(\\)` function")
-  utils::data |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("`data\\(\\)` function")
+  utils::data |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
+  utils::data |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`data\\(\\)` function")
 
   # A tibble that really is missing the key columns still gets the column
   # error, not the type error:
   tibble::tibble(a = 1, b = 2) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("must be in `data`")
 })
 
@@ -709,19 +709,19 @@ test_that("an `n` too large for integer keeps its value", {
   # before that, so the row came out saying `n = NA` and `consistency = TRUE`
   # at once -- while a missing `n` yields an `NA` verdict everywhere else.
   df <- tibble::tibble(x = c(5.19, 5.19), n = c(28, 3e9))
-  out <- df |> grim_map(digits_x = 2, items_averaged = 1) |> expect_no_warning()
+  out <- df |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_no_warning()
   out$n |> expect_equal(c(28, 3e9))
   out$n |> expect_type("double")
   out$consistency |> expect_equal(c(FALSE, TRUE))
 
   # Within integer range, `n` is still integer, which is what makes it print
   # without a decimal point:
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)     |> purrr::pluck("n") |>
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")     |> purrr::pluck("n") |>
     expect_type("integer")
-  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> purrr::pluck("n") |>
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> purrr::pluck("n") |>
     expect_type("integer")
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     purrr::pluck("n") |>
     expect_type("integer")
 
@@ -729,11 +729,11 @@ test_that("an `n` too large for integer keeps its value", {
   # same guard:
   df_seq <- tibble::tibble(x = 5.19, n = 3e9)
   out_seq <- df_seq |>
-    grim_map_seq(digits_x = 2, items_averaged = 1, var = "x", include_consistent = TRUE) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", var = "x", include_consistent = TRUE) |>
     expect_no_warning()
   out_seq$n |> unique() |> expect_equal(3e9)
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 6e9) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
     expect_no_warning()
 })
 
@@ -745,12 +745,12 @@ test_that("vector-valued `rounding` and `symmetric` are rejected clearly", {
   # 1", "'length = 2' in coercion to 'logical(1)'"). The check now sits in
   # `rounding_offsets()`, which every one of the three tests reaches:
   for (mapper in list(
-    function(...) grim_map(pigs1, digits_x = 2, items_averaged = 1, ...),
-    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, ...),
+    function(...) grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer", ...),
+    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
-    function(...) grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, ...),
+    function(...) grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) grim_map_total_n(
-      tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L), digits_x = 2, items_averaged = 1, ...
+      tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L), digits_x = 2, items_averaged = 1, data_type = "integer", ...
     )
   )) {
     mapper(rounding = c("up", "down")) |> expect_error("must each have length")
@@ -771,18 +771,18 @@ test_that("the other settings must be length 1 in every tier", {
   # Not rlang's "must be one of ..., not \"se\"" for an enum, which used to
   # pass a congruence check that allowed one setting longer than 1:
   for (mapper in list(
-    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, ...),
+    function(...) grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) debit_map(pigs3, digits_x = 2, digits_sd = 2, ...),
-    function(...) grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, ...),
+    function(...) grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...),
     function(...) grimmer_map_total_n(
       tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.2, sd2 = 1.3, n = 40L),
-      digits_x = 2, digits_sd = 2, items_averaged = 1, ...
+      digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", ...
     )
   )) {
     mapper(sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be length 1, not 2")
     mapper(sd_meaning = SD_MEANINGS) |> expect_no_error()
   }
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, x_meaning = c("percentage", "mean")) |>
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x_meaning = c("percentage", "mean")) |>
     expect_error("`x_meaning` must be length 1, not 2")
 })
 
@@ -801,22 +801,22 @@ test_that("a setting whose default is not a single value may stay that way", {
 test_that("integer `n` and `digits_*` columns are rounded, not truncated", {
   # `100 * 0.29` is 28.999999999999996, which was shown as 28 next to the
   # verdict for 29:
-  tibble::tibble(x = 5.31, n = 100 * 0.29) |> grim_map(digits_x = 2, items_averaged = 1) |> _$n |> expect_identical(29L)
+  tibble::tibble(x = 5.31, n = 100 * 0.29) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> _$n |> expect_identical(29L)
   # A `digits_x` just below 2 was shown as 1, and the seq mapper's re-tests
   # then found the column and the argument at odds:
-  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2 - 1e-9, items_averaged = 1)     |> _$digits_x |> expect_identical(2L)
-  tibble::tibble(x = 5.19, n = 40) |> grim_map_seq(digits_x = 2 - 1e-9, items_averaged = 1) |> _$digits_x |> unique() |> expect_identical(2L)
+  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2 - 1e-9, items_averaged = 1, data_type = "integer")     |> _$digits_x |> expect_identical(2L)
+  tibble::tibble(x = 5.19, n = 40) |> grim_map_seq(digits_x = 2 - 1e-9, items_averaged = 1, data_type = "integer") |> _$digits_x |> unique() |> expect_identical(2L)
 
   # Shown as 2 but tested as 1.999999999, which flipped GRIM's verdict under
   # `"ceiling"` and left GRIMMER undecidable; the total-n mapper split a
   # near-whole total as odd, into 19.5 and 20.5:
-  tibble::tibble(x = 1.5, n = 2 - 1e-9)                   |> grim_map(digits_x = 1, items_averaged = 1, rounding = "ceiling")   |> _$consistency |> expect_true()
-  tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling")                      |> _$consistency |> expect_true()
-  tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling")                      |> _$items_averaged |> expect_identical(1L)
+  tibble::tibble(x = 1.5, n = 2 - 1e-9)                   |> grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling")   |> _$consistency |> expect_true()
+  tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling", data_type = "integer")                      |> _$consistency |> expect_true()
+  tibble::tibble(x = 1.5, n = 2, items_averaged = 1 - 1e-9) |> grim_map(digits_x = 1, rounding = "ceiling", data_type = "integer")                      |> _$items_averaged |> expect_identical(1L)
   tibble::tibble(absolute = 100 * 0.29, percentage = 72.5, n = 40) |> is_percentage_of_map(digits_percentage = 1) |> _$absolute |> expect_identical(29L)
-  tibble::tibble(x = 1.5, sd = 0.71, n = 2 - 1e-9)        |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1)       |> _$consistency |> expect_true()
-  near_whole <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40 - 1e-9) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()
-  whole      <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40)        |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> unclass_scr()
+  tibble::tibble(x = 1.5, sd = 0.71, n = 2 - 1e-9)        |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")       |> _$consistency |> expect_true()
+  near_whole <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40 - 1e-9) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> unclass_scr()
+  whole      <- tibble::tibble(x1 = 5.19, x2 = 4.5, n = 40)        |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> unclass_scr()
   near_whole |> expect_equal(whole)
 })
 
@@ -855,7 +855,7 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
   # own first. `purrr::pmap()`'s "i In index: 1." context would only obscure
   # the message. This used to happen for a missing required argument but not
   # for a bad `rounding` string:
-  err <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, rounding = "nonsense") |> tryCatch_error()
+  err <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "nonsense") |> tryCatch_error()
   err |> expect_s3_class("error")
   msg <- error_message_full(err)
   msg |> expect_match("one of the rounding methods")
@@ -863,7 +863,7 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
 
   # Same for the missing-argument case, which is what the pre-application was
   # originally added for:
-  err <- pigs1 |> grim_map() |> tryCatch_error()
+  err <- pigs1 |> grim_map(data_type = "integer") |> tryCatch_error()
   msg <- error_message_full(err)
   msg |> expect_match("digits_x")
   msg |> grepl(pattern = "In index", fixed = TRUE) |> expect_false()
@@ -874,13 +874,13 @@ test_that("a mapper's argument errors are not wrapped in `pmap()` context", {
 # where `lapply()` shows `FUN(X[[i]], ...)` and a wrapper shows a variable name.
 test_that("key arguments work when the mapper is called indirectly", {
   d <- tibble::tibble(mean = c(5.19, 5.2), n = c(28, 30))
-  expected <- d |> grim_map(digits_x = 2, items_averaged = 1, x = mean)
-  list(d) |> lapply(grim_map, digits_x = 2, items_averaged = 1, x = "mean")     |> purrr::pluck(1L) |> expect_equal(expected)
-  list(d) |> purrr::map(grim_map, digits_x = 2, items_averaged = 1, x = "mean") |> purrr::pluck(1L) |> expect_equal(expected)
-  wrapper <- function(data, col) grim_map(data, digits_x = 2, items_averaged = 1, x = col)
+  expected <- d |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x = mean)
+  list(d) |> lapply(grim_map, digits_x = 2, items_averaged = 1, data_type = "integer", x = "mean")     |> purrr::pluck(1L) |> expect_equal(expected)
+  list(d) |> purrr::map(grim_map, digits_x = 2, items_averaged = 1, data_type = "integer", x = "mean") |> purrr::pluck(1L) |> expect_equal(expected)
+  wrapper <- function(data, col) grim_map(data, digits_x = 2, items_averaged = 1, data_type = "integer", x = col)
   d |> wrapper("mean") |> expect_equal(expected)
   d |>
-    grim_map_seq(digits_x = 2, items_averaged = 1, x = mean) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", x = mean) |>
     purrr::pluck("x", 1L) |>
     expect_equal(5.14)
 })
@@ -889,11 +889,11 @@ test_that("key arguments work when the mapper is called indirectly", {
 # read as a column name.
 test_that("a key argument forwarded as `NULL` is left out", {
   d <- tibble::tibble(x = c(5.19, 5.2), n = c(28, 30))
-  wrapper     <- function(data, col = NULL) grim_map(data, digits_x = 2, items_averaged = 1, x = col)
-  wrapper_seq <- function(data, col = NULL) grim_map_seq(data, digits_x = 2, items_averaged = 1, x = col)
-  d |> wrapper()     |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1))
-  d |> wrapper_seq() |> expect_equal(grim_map_seq(d, digits_x = 2, items_averaged = 1))
-  d |> grim_map(digits_x = 2, items_averaged = 1, x = if (FALSE) "y") |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1))
+  wrapper     <- function(data, col = NULL) grim_map(data, digits_x = 2, items_averaged = 1, data_type = "integer", x = col)
+  wrapper_seq <- function(data, col = NULL) grim_map_seq(data, digits_x = 2, items_averaged = 1, data_type = "integer", x = col)
+  d |> wrapper()     |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1, data_type = "integer"))
+  d |> wrapper_seq() |> expect_equal(grim_map_seq(d, digits_x = 2, items_averaged = 1, data_type = "integer"))
+  d |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x = if (FALSE) "y") |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1, data_type = "integer"))
 })
 
 # It also ignored a key argument whenever `data` had a column of that name, and
@@ -910,8 +910,8 @@ test_that("`absorb_key_args()` reads key arguments passed through dots", {
 
 test_that("a key argument clashing with an existing column is an error", {
   d <- tibble::tibble(x = c(1.11, 2.22), mean = c(5.19, 5.2), n = c(28, 30))
-  d |> grim_map(digits_x = 2, items_averaged = 1, x = mean) |> expect_error("already has a `x` column")
-  d |> grim_map(digits_x = 2, items_averaged = 1, x = x)    |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1))
+  d |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x = mean) |> expect_error("already has a `x` column")
+  d |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x = x)    |> expect_equal(grim_map(d, digits_x = 2, items_averaged = 1, data_type = "integer"))
 })
 
 
@@ -963,8 +963,8 @@ test_that("disabled arguments stay disabled when the mapper is called indirectly
 
 # Such a column was silently dropped in favor of the result column.
 test_that("a data column named like a result column is an error", {
-  pigs1 |> dplyr::mutate(exp_incon = 1) |> grim_map(digits_x = 2, items_averaged = 1)                   |> expect_error("`exp_incon` would be overwritten")
-  pigs5 |> dplyr::mutate(reason = "a")    |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("`reason` would be overwritten")
+  pigs1 |> dplyr::mutate(exp_incon = 1) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> expect_error("`exp_incon` would be overwritten")
+  pigs5 |> dplyr::mutate(reason = "a")    |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error("`reason` would be overwritten")
 })
 
 
@@ -1023,8 +1023,8 @@ test_that("`.args_disabled` covers formals of the sequence mapper", {
     .name_test = "GRIM",
     .args_disabled = "dispersion"
   )
-  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1, dispersion = 1:2) |> expect_error("disabled")
-  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1) |> expect_no_error()
+  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 1:2) |> expect_error("disabled")
+  pigs1 |> seq_disabled(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_no_error()
 })
 
 test_that("a by-row argument with a default takes its values from a column", {
@@ -1051,56 +1051,56 @@ test_that("a `data.frame` is coerced to a tibble, keeping its row names", {
   # them hit the main workflow on the first call. The result is the same as
   # for the tibble, and the output is a tibble:
   df <- as.data.frame(pigs1)
-  from_tibble <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
-  from_df     <- df    |> grim_map(digits_x = 2, items_averaged = 1)
+  from_tibble <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  from_df     <- df    |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   from_df |> expect_equal(from_tibble)
-  df |> grim_map_seq(digits_x = 2, items_averaged = 1) |>
-    expect_equal(grim_map_seq(pigs1, digits_x = 2, items_averaged = 1))
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    expect_equal(grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer"))
 
   # A tibble has no row names, so character ones would be lost in silence.
   # They are returned as a column instead, like any other column of `data`:
   rownames(df) <- paste0("study_", seq_len(nrow(df)))
-  out <- df |> grim_map(digits_x = 2, items_averaged = 1)
+  out <- df |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   out$rowname |> expect_equal(rownames(df))
   out |> dplyr::select(-rowname) |> expect_equal(from_tibble)
 
   # Integer row names, as left by `df[rows, ]`, are row numbers, not labels:
   df <- as.data.frame(pigs1)
-  df[df$n > 25, ] |> grim_map(digits_x = 2, items_averaged = 1) |> rlang::has_name("rowname") |> expect_false()
+  df[df$n > 25, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> rlang::has_name("rowname") |> expect_false()
 
   # A `rowname` column next to row names would appear twice:
   df_labeled <- data.frame(x = 5.19, n = 28, rowname = "a", row.names = "study_1")
-  df_labeled |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("has row names and a `rowname` column")
+  df_labeled |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("has row names and a `rowname` column")
 
   # A data frame or tibble with duplicate column names, as from `read.csv()`
   # with `check.names = FALSE`, is an error in every tier:
   df_dup <- data.frame(x = 1, n = 2, check.names = FALSE)
   names(df_dup) <- c("x", "x")
-  df_dup |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("more than one column named `x`")
+  df_dup |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("more than one column named `x`")
   tbl_dup <- tibble::tibble(x = 5.19, n = 28, z = 1, z = 2, .name_repair = "minimal")
-  tbl_dup |> grim_map(digits_x = 2, items_averaged = 1)     |> expect_error("more than one column named `z`")
-  tbl_dup |> grim_map_seq(digits_x = 2, items_averaged = 1) |> expect_error("more than one column named `z`")
+  tbl_dup |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")     |> expect_error("more than one column named `z`")
+  tbl_dup |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("more than one column named `z`")
   df_unnamed <- data.frame(5.19, 28, 1, 2)
   names(df_unnamed) <- c("x", "n", "", NA)
-  df_unnamed |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("Columns 3, 4 have none")
+  df_unnamed |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("Columns 3, 4 have none")
 
   # A helper argument of the wrong length is the mapper's error, not dplyr's:
-  tibble::tibble(x = c(5.19, 4.56, 7.1), n = c(28, 30, 15)) |> grim_map(digits_x = 2, items_averaged = c(1, 2)) |> expect_error("`items_averaged` must have length 1 or the number of rows")
+  tibble::tibble(x = c(5.19, 4.56, 7.1), n = c(28, 30, 15)) |> grim_map(digits_x = 2, items_averaged = c(1, 2), data_type = "integer") |> expect_error("`items_averaged` must have length 1 or the number of rows")
 })
 
 
 test_that("an error in a later row names that row, not purrr's index", {
-  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("In row 2 of `data`", fixed = TRUE)
-  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error(class = "rlang_error") |> class() |> expect_no_match("purrr_error_indexed")
+  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("In row 2 of `data`", fixed = TRUE)
+  tibble::tibble(x = c(5.19, 5.123), n = c(28, 30)) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error(class = "rlang_error") |> class() |> expect_no_match("purrr_error_indexed")
 })
 
 test_that("an error in row 1 names it only if it is about that row", {
   # Row 2 passes, so the error is about row 1:
-  tibble::tibble(x = c(5.123, 5.19), n = c(30, 28)) |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("In row 1 of `data`", fixed = TRUE)
+  tibble::tibble(x = c(5.123, 5.19), n = c(30, 28)) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("In row 1 of `data`", fixed = TRUE)
   # An error about the arguments fails on every row:
   df <- tibble::tibble(x = c(5.19, 5.18), n = 28)
-  df |> grim_map(items_averaged = 1)                                    |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
-  df |> grim_map(digits_x = 2, items_averaged = 1, rounding = "nope")   |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
+  df |> grim_map(items_averaged = 1, data_type = "integer")                                    |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
+  df |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "nope")   |> expect_error(class = "rlang_error") |> conditionMessage() |> expect_no_match("In row", fixed = TRUE)
 })
 
 
@@ -1108,10 +1108,10 @@ test_that("an error in row 1 names it only if it is about that row", {
 # default, was recorded as the set, and `grimmer_map_seq()` then failed on it:
 test_that("an enum given as its whole default set is recorded as its first value", {
   df <- tibble::tibble(x = c(5.19, 4.5), sd = c(1.2, 2.1), n = c(28, 30), items_averaged = 1)
-  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
-  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map(digits_x = 2, digits_sd = 1) |> unclass_scr())
-  df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df |> grimmer_map_seq(digits_x = 2, digits_sd = 1) |> unclass_scr())
-  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("must be length 1")
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS, data_type = "integer") |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS, data_type = "integer") |> unclass_scr() |> expect_equal(df |> grimmer_map(digits_x = 2, digits_sd = 1, data_type = "integer") |> unclass_scr())
+  df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, sd_meaning = SD_MEANINGS, data_type = "integer") |> unclass_scr() |> expect_equal(df |> grimmer_map_seq(digits_x = 2, digits_sd = 1, data_type = "integer") |> unclass_scr())
+  df |> grimmer_map(digits_x = 2, digits_sd = 1, sd_meaning = c("se", "sd_pop"), data_type = "integer") |> expect_error("must be length 1")
 })
 
 test_that("a non-logical result in a later row is an error, not a character column", {
@@ -1125,6 +1125,6 @@ test_that("a `NULL` helper argument adds no column", {
   helper_null <- function(x, n, w = NULL) TRUE
   helper_null_map <- function_map(.fn = helper_null, .reported = c("x", "n"), .name_test = "H", .cols_helper = "w")
   tibble::tibble(x = 1:2, n = 3:4) |> helper_null_map() |> colnames() |> expect_equal(c("x", "n", "consistency"))
-  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = NULL) |> expect_error("Need to specify `items_averaged`")
-  tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = NULL) |> expect_error("Need to specify `items_averaged`")
+  tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = NULL, data_type = "integer") |> expect_error("Need to specify `items_averaged`")
+  tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = NULL, data_type = "integer") |> expect_error("Need to specify `items_averaged`")
 })

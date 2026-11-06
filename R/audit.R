@@ -38,7 +38,7 @@
 #'
 #' @examples
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   audit()
 #'
 #' pigs4 |>
@@ -47,7 +47,7 @@
 #'
 #' # Summaries by group:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   dplyr::mutate(study = rep(c("A", "B", "C"), each = 4)) |>
 #'   audit(.by = study)
 
@@ -186,7 +186,7 @@ hint_grouped <- function(data, alternative) {
 #'
 #' @examples
 #' out <- pigs1 |>
-#'   grim_map_seq(digits_x = 2, items_averaged = 1) |>
+#'   grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   audit_seq()
 #' out
 #'

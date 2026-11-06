@@ -11,8 +11,18 @@ df2 <- tibble::tibble(
   n = runif(150, 20, 120) |> round()
 )
 
-df1_tested <- grim_map_total_n(df1, digits_x = 2, items_averaged = 1)
-df2_tested <- grim_map_total_n(df2, digits_x = 2, items_averaged = 1)
+df1_tested <- grim_map_total_n(
+  df1,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+df2_tested <- grim_map_total_n(
+  df2,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
 df1_rec <- reverse_map_total_n(df1_tested)
 df2_rec <- reverse_map_total_n(df2_tested)
@@ -33,7 +43,7 @@ test_that("a case whose first pair is a back pair keeps its groups in order", {
   # GRIMMER, with a second pair of reported columns:
   df_sd <- tibble::tibble(x1 = 3.43, x2 = 5.28, sd1 = 1.21, sd2 = 0.95, n = 90)
   df_sd |>
-    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     dplyr::filter(dir == "back") |>
     reverse_map_total_n() |>
     expect_equal(df_sd)
@@ -44,7 +54,7 @@ test_that("The reconstruction does not depend on the first dispersion step", {
   # The total was taken as twice the second group size, right only for `0`:
   df <- tibble::tibble(x1 = c(3.43, 5.14), x2 = c(3.6, 2.95), n = c(43L, 40L))
   df |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 1:5) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 1:5) |>
     reverse_map_total_n() |>
     expect_equal(df)
 })
@@ -52,7 +62,7 @@ test_that("The reconstruction does not depend on the first dispersion step", {
 
 test_that("`items_averaged` is not multiplied into the reconstructed total", {
   df <- tibble::tibble(x1 = 3.43, x2 = 4.20, n = 71L)
-  out <- grim_map_total_n(df, digits_x = 2, items_averaged = 2)
+  out <- grim_map_total_n(df, digits_x = 2, items_averaged = 2, data_type = "integer")
   out$n[1:2] |> expect_equal(c(35L, 36L))
   out$items_averaged |> unique() |> expect_equal(2)
   out |> reverse_map_total_n() |> expect_equal(df)
@@ -65,6 +75,7 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
     tibble::tibble(x1 = 3.4, x2 = 4.2, n = 3L),
     digits_x = 1,
     items_averaged = 1,
+    data_type = "integer",
     n_min = 2
   ) |>
     suppressWarnings()
@@ -79,7 +90,7 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
 test_that("incomplete mapper output is rejected", {
   # The first two rows of each case used to be paired up whatever they were:
   out <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1)
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
   out[-1, ]                           |> reverse_map_total_n() |> expect_error("in full")
   out[-c(2, 3), ]                     |> reverse_map_total_n() |> expect_error("in full")
   out |> dplyr::filter(consistency)   |> reverse_map_total_n() |> expect_error("in full")
@@ -105,7 +116,7 @@ test_that("the reported columns are found wherever `n` is", {
 })
 
 test_that("a missing column or a lost attribute is a scrutiny error", {
-  out <- tibble::tibble(x1 = c(5.19, 4.56), x2 = c(4.5, 1.2), n = c(28, 31)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1)
+  out <- tibble::tibble(x1 = c(5.19, 4.56), x2 = c(4.5, 1.2), n = c(28, 31)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1)
   out |> dplyr::select(-both_consistent) |> audit_total_n()       |> expect_error("Missing: `both_consistent`")
   out |> dplyr::select(-dir)             |> audit_total_n()       |> expect_error("Missing: `dir`")
   out |> dplyr::select(-n_change)        |> audit_total_n()       |> expect_error("Missing: `n_change`")

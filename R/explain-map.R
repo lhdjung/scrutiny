@@ -28,7 +28,7 @@
 #'
 #' @examples
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   dplyr::filter(!consistency) |>
 #'   explain_map()
 explain_map <- function(data) {
@@ -58,7 +58,7 @@ explain_map.scrutiny_grim_map <- function(data) {
     data,
     grim_explain,
     c("x", "n", "digits_x"),
-    "items_averaged"
+    c("items_averaged", "data_type")
   )
 }
 
@@ -68,7 +68,7 @@ explain_map.scrutiny_grimmer_map <- function(data) {
     data,
     grimmer_explain,
     c("x", "sd", "n", "digits_x", "digits_sd"),
-    "items_averaged"
+    c("items_averaged", "data_type")
   )
 }
 

@@ -11,6 +11,7 @@ grimmer_explain(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -33,6 +34,10 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"},
+\code{"quasi-integer"}, or \code{"continuous"}, the last of which can have any mean
+and SD. No default.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -86,7 +91,8 @@ grimmer_explain(
   n = 35,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 
 grimmer_explain(
@@ -95,6 +101,7 @@ grimmer_explain(
   n = 31,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 }

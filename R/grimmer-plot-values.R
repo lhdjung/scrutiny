@@ -110,6 +110,7 @@ grimmer_plot_values <- function(
       digits_x = digits_x,
       digits_sd = digits_sd,
       items_averaged = items_averaged,
+      data_type = "integer",
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric,

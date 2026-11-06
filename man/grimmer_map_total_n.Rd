@@ -15,6 +15,7 @@ grimmer_map_total_n(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -47,6 +48,10 @@ named in full.}
 \item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
@@ -110,11 +115,22 @@ df <- tibble::tribble(
   2.97, 4.42, 0.43, 1.65, 65
 )
 
-grimmer_map_total_n(df, digits_x = 2, digits_sd = 2, items_averaged = 1)
+grimmer_map_total_n(
+  df,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
 # `hits_total` counts the splits in which both groups are consistent:
 df |>
-  grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map_total_n(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer"
+  ) |>
   audit_total_n()
 
 # More steps away from the even split tend to find more hits:
@@ -123,6 +139,7 @@ df |>
     digits_x = 2,
     digits_sd = 2,
     items_averaged = 1,
+    data_type = "integer",
     dispersion = 0:10
   ) |>
   audit_total_n()

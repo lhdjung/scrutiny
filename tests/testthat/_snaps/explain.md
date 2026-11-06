@@ -1,7 +1,7 @@
 # explanations print as expected
 
     Code
-      grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+      grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
     Output
       GRIM test: x = 5.19, n = 28
       
@@ -17,7 +17,7 @@
       
       ==> Inconsistent
     Code
-      grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+      grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
     Output
       GRIM test: x = 5.19, n = 32
       
@@ -32,7 +32,8 @@
       
       ==> Consistent
     Code
-      grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
+      grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, data_type = "integer",
+        x_meaning = "percentage")
     Output
       GRIM test: x = 71, n = 43, x_meaning = "percentage"
       
@@ -48,7 +49,8 @@
       
       ==> Inconsistent
     Code
-      grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, rounding = "up")
+      grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer",
+        rounding = "up")
     Output
       GRIM test: x = 2.84, n = 16, items_averaged = 2, rounding = "up"
       
@@ -64,7 +66,7 @@
       
       ==> Consistent
     Code
-      grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1)
+      grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1, data_type = "integer")
     Output
       GRIM test: x = 5.2, n = 20.5
       
@@ -73,7 +75,7 @@
       ==> Undecidable
     Code
       grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2,
-        items_averaged = 1)
+        items_averaged = 1, data_type = "integer")
     Output
       GRIMMER test: x = 5.23, sd = 2.55, n = 35
       
@@ -103,7 +105,7 @@
       ==> Inconsistent
     Code
       grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2,
-        items_averaged = 1)
+        items_averaged = 1, data_type = "integer")
     Output
       GRIMMER test: x = 5.19, sd = 2.55, n = 28
       
@@ -121,7 +123,7 @@
       ==> Inconsistent
     Code
       grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1,
-        items_averaged = 1)
+        items_averaged = 1, data_type = "integer")
     Output
       GRIMMER test: x = 3.1, sd = 1.3, n = 200
       
@@ -213,11 +215,73 @@
       
       ==> Inconsistent
 
+# explanations say what the data type does
+
+    Code
+      grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "continuous")
+    Output
+      GRIM test: x = 5.19, n = 28, data_type = "continuous"
+      
+      The data are continuous, so they can have any mean. The test only applies to
+      whole numbers, so the value set is consistent.
+      
+      ==> Consistent
+    Code
+      grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = NA)
+    Output
+      GRIM test: x = 5.19, n = 28, data_type = NA
+      
+      The data type is missing. If the data are whole numbers, the test goes as
+      follows.
+      
+      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      have been anything from 5.185 to 5.195.
+      
+      The mean of 28 whole numbers is their sum divided by 28. So the sum must be
+      from 5.185 * 28 = 145.18 to 5.195 * 28 = 145.46.
+      
+      A sum of whole numbers is itself a whole number, but there is no whole number
+      in this range. The nearest ones are 145 and 146. They give 145 / 28 = 5.1786
+      and 146 / 28 = 5.2143, which round to 5.18 and 5.21, not to 5.19.
+      
+      If the data are continuous, they can have any mean. So whether the value set is
+      consistent depends on the data type.
+      
+      ==> Undecidable
+    Code
+      grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = NA)
+    Output
+      GRIM test: x = 5.19, n = 32, data_type = NA
+      
+      The mean was reported as 5.19, with 2 decimal places. Before rounding, it could
+      have been anything from 5.185 to 5.195.
+      
+      The mean of 32 whole numbers is their sum divided by 32. So the sum must be
+      from 5.185 * 32 = 165.92 to 5.195 * 32 = 166.24.
+      
+      A sum of whole numbers is itself a whole number, and 166 is in this range:
+      166 / 32 = 5.1875, which rounds to 5.19.
+      
+      The data type is missing, but this doesn't matter here. If the data are
+      continuous, they can have any mean, so the value set is consistent either way.
+      
+      ==> Consistent
+    Code
+      grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2,
+        items_averaged = 1, data_type = "continuous")
+    Output
+      GRIMMER test: x = 5.23, sd = 2.55, n = 35, data_type = "continuous"
+      
+      The data are continuous, so they can have any mean and SD. The test only
+      applies to whole numbers, so the value set is consistent.
+      
+      ==> Consistent
+
 # `explain_print()` prints as expected
 
     Code
-      explain_print(explain_map(grim_map(pigs1, digits_x = 2, items_averaged = 1)), 1:
-        2)
+      explain_print(explain_map(grim_map(pigs1, digits_x = 2, items_averaged = 1,
+        data_type = "integer")), 1:2)
     Output
       GRIM test: x = 7.22, n = 32
       
@@ -247,8 +311,8 @@
       ==> Inconsistent
       
     Code
-      explain_print(dplyr::filter(grim_map(pigs1, digits_x = 2, items_averaged = 1),
-      n > 1000))
+      explain_print(dplyr::filter(grim_map(pigs1, digits_x = 2, items_averaged = 1,
+        data_type = "integer"), n > 1000))
     Output
       No rows to explain.
 

@@ -11,6 +11,7 @@ pigs5_exp <- tibble::tibble(
   sd = c(5.3, 6.55, 2.55, 2.57, 2.18, 2.59, 6.68, 3.65, 5.32, 4.18, 2.18, 6.43),
   n = c(38, 31, 35, 30, 33, 34, 35, 32, 33, 37, 31, 34),
   items_averaged = rep(1, 12L),
+  data_type = rep("integer", 12L),
   digits_x = rep(2, 12L),
   digits_sd = rep(2, 12L),
   consistency = c(
@@ -67,18 +68,18 @@ pigs5_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`grimmer_map()` works correctly by default", {
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(pigs5_exp)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(pigs5_exp)
 })
 
 test_that("`grimmer_map()` works correctly with columns renamed", {
-  pigs5_renamed |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, x = q, sd = w, n = e) |>
+  pigs5_renamed |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", x = q, sd = w, n = e) |>
     expect_equal(pigs5_exp)
 })
 
 test_that("`grimmer_map()` returns other columns from `data`", {
   pigs5_extra <- pigs5 |>
     dplyr::mutate(study = seq_len(nrow(pigs5)), note = "hi")
-  out <- pigs5_extra |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out <- pigs5_extra |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
   # The extra columns come along, to the right of the key result columns...
   out |> colnames() |> expect_equal(c(colnames(pigs5_exp), "study", "note"))
   out$study |> expect_equal(pigs5_extra$study)
@@ -93,10 +94,10 @@ test_that("`grimmer_map()` doesn't duplicate `digits_*` columns from `data`", {
   # would be name-repaired and then forwarded back as a bogus argument.
   pigs5[1:3, ] |>
     dplyr::mutate(digits_x = 2, digits_sd = 2) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     colnames() |>
     expect_equal(c(
-      "x", "sd", "n", "items_averaged", "digits_x", "digits_sd", "consistency",
+      "x", "sd", "n", "items_averaged", "data_type", "digits_x", "digits_sd", "consistency",
       "reason"
     ))
 })
@@ -104,10 +105,10 @@ test_that("`grimmer_map()` doesn't duplicate `digits_*` columns from `data`", {
 test_that("`grimmer_map()` returns other columns after the results", {
   pigs5 |>
     dplyr::mutate(study = seq_len(nrow(pigs5))) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     colnames() |>
     expect_equal(c(
-      "x", "sd", "n", "items_averaged", "digits_x", "digits_sd", "consistency",
+      "x", "sd", "n", "items_averaged", "data_type", "digits_x", "digits_sd", "consistency",
       "reason", "study"
     ))
 })
@@ -118,7 +119,7 @@ test_that("`grimmer_map()` returns other columns after the results", {
 
 test_that("`grimmer_map_seq()` can disperse an SD down to zero, but no lower", {
   out <- tibble::tibble(x = 1.03, sd = 0.03, n = 40) |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, var = "sd", include_consistent = TRUE)
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = "sd", include_consistent = TRUE)
   out$sd |> min() |> expect_equal(0)
   out$sd |> call_on(\(x) x < 0) |> any() |> expect_false()
 })

@@ -11,6 +11,7 @@ grim_map(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -38,6 +39,10 @@ averaged into each score, not the number of scale points. Give it as an
 argument or as a column of \code{data}; there is no default. It is returned as
 a column.}
 
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
+
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
 decimal places. It applies to the whole call, so test a table that mixes
@@ -57,6 +62,7 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{n}: the inputs.
 \item \code{items_averaged}: the number of items averaged into each score.
+\item \code{data_type}: the kind of data, as given.
 \item \code{digits_x}: the number of decimal places in \code{x}, as given.
 \item \code{consistency}: GRIM consistency of \code{x}, \code{n}, and \code{items_averaged}. \code{NA} for
 a case that cannot be decided, such as one with a missing value.
@@ -117,20 +123,25 @@ pigs1
 # The `consistency` column shows whether the
 # values to its left are GRIM-consistent:
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1)
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # Show the reconstructed numbers:
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE)
+  grim_map(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    show_rec = TRUE
+  )
 
 # Get summaries with `audit()`:
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   audit()
 
 # Explain the results in plain words:
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   explain_print(1:2)
 
 # A table of means and percentages, tested part by part. Each part records
@@ -142,10 +153,15 @@ df <- tibble::tibble(
 )
 df |>
   dplyr::filter(!is_percent) |>
-  grim_map(digits_x = 2, items_averaged = 1)
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
 df |>
   dplyr::filter(is_percent) |>
-  grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage")
+  grim_map(
+    digits_x = 0,
+    items_averaged = 1,
+    data_type = "integer",
+    x_meaning = "percentage"
+  )
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

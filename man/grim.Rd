@@ -9,6 +9,7 @@ grim(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -29,6 +30,21 @@ respondent's score: 1 for a single item or the percentage of participants
 with some answer, 4 for the mean of a four-item scale, 10 for the average
 percent correct on a ten-question test. Not the number of scale points.
 No default.}
+
+\item{data_type}{String. The kind of data that \code{x} summarizes. No default.
+\itemize{
+\item \code{"integer"}: whole numbers, such as answers on a rating scale, counts,
+or yes/no answers for a percentage.
+\item \code{"quasi-integer"}: whole numbers that stand for something continuous,
+such as age in years or reaction times in whole milliseconds. They are
+tested like \code{"integer"} data, with a warning, once per session, that
+the result only holds if the analysis used the recorded whole numbers.
+\item \code{"continuous"}: anything else, such as body mass index or a visual
+analogue scale. The test does not apply, and the result is \code{TRUE}.
+}
+
+If it is missing, the result is \code{TRUE} if the value set is consistent as
+whole numbers, and \code{NA} otherwise.}
 
 \item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
 \code{"percentage"}. A percentage is divided by 100 and tested with two more
@@ -77,11 +93,14 @@ testing many cases.
 \details{
 \code{items_averaged} must be specified because a mean over several
 items is a mean of more values, which changes the test. A default of 1
-would let multi-item scales pass unnoticed.
+would let multi-item scales pass unnoticed. \code{data_type} must be specified
+because GRIM only applies to whole numbers. A default of \code{"integer"}
+would let the test flag means of continuous data, which can take any
+value.
 
-\code{x}, \code{n}, \code{digits_x}, and \code{items_averaged} are vectorized and recycled to a
-common length by the tidyverse rules: an argument has length 1 or the
-length of the longest. All other arguments must have length 1.
+\code{x}, \code{n}, \code{digits_x}, \code{items_averaged}, and \code{data_type} are vectorized
+and recycled to a common length by the tidyverse rules: an argument has
+length 1 or the length of the longest. All other arguments must have length 1.
 
 Numbers beyond the precision of a double are an error rather than a
 guess. \code{x} with its \code{digits_x} may have about 15 significant digits:
@@ -108,16 +127,32 @@ the same number, such as 71, can be either.
 
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
-grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # However, it is consistent with a sample size of 32:
-grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # For a scale composed of two items:
-grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
+grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer")
 
 # With percentages instead of means -- here, 71\%:
-grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
+grim(
+  x = 71,
+  n = 43,
+  digits_x = 0,
+  items_averaged = 1,
+  data_type = "integer",
+  x_meaning = "percentage"
+)
+
+# Means of continuous data, such as reaction times, can take any value:
+grim(
+  x = 5.19,
+  n = 28,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "continuous"
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A

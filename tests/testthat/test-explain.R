@@ -4,6 +4,9 @@
 # that check to work.
 
 test_that("explanations agree with the tests (sweep)", {
+  rlang::local_options(rlib_warning_verbosity = "quiet")
+  # Every data type takes its turn, each one on every fourth row:
+  data_types <- c("integer", "quasi-integer", "continuous", NA)
   grid <- tidyr::expand_grid(
     x = c(0.05, 0.36, 0.5, 1.7, 3, 5.19, 5.23),
     sd = c(0, 0.11, 0.21, 0.49, 1.3, 2.55),
@@ -21,8 +24,9 @@ test_that("explanations agree with the tests (sweep)", {
       rounding = row$rounding
     )
     args_sd <- c(args, list(sd = row$sd, digits_sd = row$digits))
-    args_grim <- c(args, list(items_averaged = 1))
-    args_grimmer <- c(args_sd, list(items_averaged = 1))
+    data_type <- data_types[(i - 1L) %% 4L + 1L]
+    args_grim <- c(args, list(items_averaged = 1, data_type = data_type))
+    args_grimmer <- c(args_sd, list(items_averaged = 1, data_type = data_type))
 
     args_grim    |> do.call(what = grim_explain)    |> getElement("consistency") |> expect_identical(do.call(grim, args_grim))
     args_grimmer |> do.call(what = grimmer_explain) |> getElement("consistency") |> expect_identical(do.call(grimmer, args_grimmer))
@@ -69,9 +73,9 @@ test_that("DEBIT's example SD is not shown as a bound", {
 # With `n` above `10^digits_x`, 499 / 999 printed as 0.4995, the bound it falls
 # short of, and 50 / 101 as 0.495, the bound that `"down"` excludes:
 test_that("GRIM's example means are not shown as bounds", {
-  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1)                   |> format() |> expect_match("499 / 999 = 0.499499", fixed = TRUE)
-  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1)                   |> format() |> expect_match("500 / 999 = 0.500501", fixed = TRUE)
-  0.50  |> grim_explain(n = 101, digits_x = 2, items_averaged = 1, rounding = "down") |> format() |> expect_match("50 / 101 = 0.49505, which rounds to 0.50", fixed = TRUE)
+  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1, data_type = "integer")                   |> format() |> expect_match("499 / 999 = 0.499499", fixed = TRUE)
+  0.500 |> grim_explain(n = 999, digits_x = 3, items_averaged = 1, data_type = "integer")                   |> format() |> expect_match("500 / 999 = 0.500501", fixed = TRUE)
+  0.50  |> grim_explain(n = 101, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "down") |> format() |> expect_match("50 / 101 = 0.49505, which rounds to 0.50", fixed = TRUE)
 })
 
 test_that("a value that would look like a whole number or a bound gets just enough places", {
@@ -82,50 +86,64 @@ test_that("a value that would look like a whole number or a bound gets just enou
 
 test_that("explanations print as expected", {
   expect_snapshot({
-    grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
-    grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
-    grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
-    grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, rounding = "up")
-    grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1)
-    grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1)
-    grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1)
-    grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1, items_averaged = 1)
+    grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
+    grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
+    grim_explain(x = 71, n = 43, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage")
+    grim_explain(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer", rounding = "up")
+    grim_explain(x = 5.2, n = 20.5, digits_x = 1, items_averaged = 1, data_type = "integer")
+    grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+    grimmer_explain(x = 5.19, sd = 2.55, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+    grimmer_explain(x = 3.1, sd = 1.3, n = 200, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer")
     debit_explain(x = 0.36, sd = 0.11, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2)
     debit_explain(x = 0.36, sd = 0.49, n = 1000, digits_x = 2, digits_sd = 2)
   })
 })
 
+test_that("explanations say what the data type does", {
+  expect_snapshot({
+    grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "continuous")
+    grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = NA)
+    grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = NA)
+    grimmer_explain(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "continuous")
+  })
+  rlang::local_options(rlib_warning_verbosity = "quiet")
+  quasi <- grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "quasi-integer")
+  quasi$consistency |> expect_false()
+  quasi$paragraphs[[1L]] |> expect_match("quasi-integer")
+  quasi$inputs |> expect_match('data_type = "quasi-integer"', fixed = TRUE)
+})
+
 test_that("a missing `digits_x` gets the usual error", {
-  5.19 |> grim_explain(n = 28, items_averaged = 1) |> expect_error("digits_x")
+  5.19 |> grim_explain(n = 28, items_averaged = 1, data_type = "integer") |> expect_error("digits_x")
 })
 
 test_that("missing `items_averaged` is undecidable, not an error", {
-  5.19 |> grim_explain(n = 28, digits_x = 2, items_averaged = NA)                             |> getElement("consistency") |> expect_identical(NA)
-  5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items_averaged = NA) |> getElement("consistency") |> expect_identical(NA)
+  5.19 |> grim_explain(n = 28, digits_x = 2, items_averaged = NA, data_type = "integer")                             |> getElement("consistency") |> expect_identical(NA)
+  5.19 |> grimmer_explain(sd = 1.2, n = 28, digits_x = 2, digits_sd = 2, items_averaged = NA, data_type = "integer") |> getElement("consistency") |> expect_identical(NA)
 })
 
 test_that("large numbers are written out in full", {
-  5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1)       |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
+  5.19 |> grim_explain(n = 1e5, digits_x = 2, items_averaged = 1, data_type = "integer")       |> format() |> expect_match("100000 whole numbers", fixed = TRUE)
   0.5  |> debit_explain(sd = 0.5, n = 2e5, digits_x = 1, digits_sd = 1) |> format() |> expect_no_match("e+0", fixed = TRUE)
 })
 
 test_that("bounds of values with many decimal places are shown in full", {
-  5.1234 |> grim_explain(n = 28, digits_x = 4, items_averaged = 1)                                |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
-  5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4, items_averaged = 1) |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
+  5.1234 |> grim_explain(n = 28, digits_x = 4, items_averaged = 1, data_type = "integer")                                |> format() |> expect_match("from 5.12335 to 5.12345", fixed = TRUE)
+  5.2345 |> grimmer_explain(sd = 1.2345, n = 30, digits_x = 4, digits_sd = 4, items_averaged = 1, data_type = "integer") |> format() |> expect_match("from 5.23445 to 5.23455", fixed = TRUE)
   0.3621 |> debit_explain(sd = 0.4811, n = 500, digits_x = 4, digits_sd = 4)                      |> format() |> expect_match("from 0.36205 to 0.36215", fixed = TRUE)
 })
 
 test_that("`grim_explain()` shows its bounds exactly", {
   # The bound 5.18255 was shown as 5.1826, and the range of 2e14 as a point:
-  5.19 |> grim_explain(28, 2, 1, rounding = "up_from", threshold = 2.55) |> format() |> paste(collapse = " ") |> expect_match("5.18255 * 28 = 145.1114", fixed = TRUE)
-  2e14 |> grim_explain(3, 0, 1) |> format() |> paste(collapse = " ") |> expect_match("199999999999999.5 * 3 = 599999999999998.5", fixed = TRUE)
-  -5.19 |> grim_explain(28, 2, 1) |> format() |> paste(collapse = " ") |> expect_match("-5.195 * 28 = -145.46", fixed = TRUE)
+  5.19 |> grim_explain(28, 2, 1, rounding = "up_from", threshold = 2.55, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("5.18255 * 28 = 145.1114", fixed = TRUE)
+  2e14 |> grim_explain(3, 0, 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("199999999999999.5 * 3 = 599999999999998.5", fixed = TRUE)
+  -5.19 |> grim_explain(28, 2, 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("-5.195 * 28 = -145.46", fixed = TRUE)
 })
 
 
 test_that("only a single case is explained", {
-  c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1) |> expect_error("length 1")
+  c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("length 1")
 })
 
 
@@ -135,17 +153,17 @@ test_that("only a single case is explained", {
 # row's `consistency` value, so explaining whole mapper outputs checks them all.
 
 test_that("`explain_map()` agrees with every mapper tier", {
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 2)                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
-  pigs2 |> grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage")                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 2, data_type = "integer")                                    |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs2 |> grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage")                    |> explain_map() |> getElement("explanation") |> expect_length(6L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                  |> explain_map() |> getElement("explanation") |> expect_length(12L)
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2)                                        |> explain_map() |> getElement("explanation") |> expect_length(7L)
-  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")                                |> explain_map() |> getElement("explanation") |> expect_length(160L)
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up") |> explain_map() |> getElement("explanation") |> expect_length(12L)
 })
 
 test_that("`explain_map()` keeps the data as it is", {
-  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   explained <- data |> explain_map()
   explained |> class()            |> expect_identical(class(data))
   explained |> scrutiny_meta()    |> expect_identical(scrutiny_meta(data))
@@ -154,25 +172,25 @@ test_that("`explain_map()` keeps the data as it is", {
 })
 
 test_that("`explain_map()` uses the settings of the mapper call", {
-  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage") |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, x_meaning = \"percentage\"", fixed = TRUE)
+  tibble::tibble(x = 71, n = 43) |> grim_map(digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> explain_map() |> getElement("explanation") |> expect_match("x = 71, n = 43, x_meaning = \"percentage\"", fixed = TRUE)
 })
 
 test_that("`explain_map()` catches rows changed after testing", {
-  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   data$n[1] <- 28
   data |> explain_map() |> expect_error("row with x = 7.22, n = 28 doesn't match")
 })
 
 test_that("`explain_map()` needs columns and settings", {
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::select(-digits_x) |> explain_map() |> expect_error("Missing: `digits_x`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(-digits_x) |> explain_map() |> expect_error("Missing: `digits_x`")
   pigs3 |> debit_map(digits_x = 2, digits_sd = 2, formula = "mean_n")             |> explain_map() |> expect_error("was tested with")
-  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   attr(data, "scrutiny") <- NULL
   data |> explain_map() |> expect_error("lost the settings")
 })
 
 test_that("`explain_print()` explains only the rows it prints", {
-  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   data |> explain_print(2)                    |> expect_output("^GRIM test: x = 4.74, n = 25\n")
   data |> explain_print(1:2)                  |> expect_output("x = 4.74")
   data |> explain_print(-1)                   |> expect_output("x = 4.74")
@@ -191,7 +209,7 @@ test_that("`explain_map()` and `explain_print()` only take mapper output", {
   pigs1                                       |> explain_map()   |> expect_error("must be the output")
   pigs1                                       |> explain_print() |> expect_error("must be the output")
   pigs1 |> structure(class = c("scrutiny_add_up_to_map", class(pigs1))) |> explain_print() |> expect_error("must be the output")
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::summarise(m = mean(x)) |> explain_print() |> expect_error("must be the output")
   1:3                                         |> explain_print() |> expect_error("must be a data frame")
 })
 
@@ -202,21 +220,21 @@ test_that("`explain_map()` can be extended to other classes", {
 
 test_that("`explain_print()` prints as expected", {
   expect_snapshot({
-    pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> explain_map() |> explain_print(1:2)
-    pigs1 |> grim_map(digits_x = 2, items_averaged = 1) |> dplyr::filter(n > 1000) |> explain_print()
+    pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> explain_map() |> explain_print(1:2)
+    pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::filter(n > 1000) |> explain_print()
   })
 })
 
 
 test_that("GRIMMER explains a sum of squares below what whole numbers can reach", {
-  3.6 |> grimmer_explain(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("can have is 148, with 7 of them 4 and 4 of them 3. So none of", fixed = TRUE)
-  1.9 |> grimmer_explain(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("can have is 91, with 22 of them 2 and 3 of them 1. It is in this range", fixed = TRUE)
+  3.6 |> grimmer_explain(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("can have is 148, with 7 of them 4 and 4 of them 3. So none of", fixed = TRUE)
+  1.9 |> grimmer_explain(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("can have is 91, with 22 of them 2 and 3 of them 1. It is in this range", fixed = TRUE)
 })
 
 
 test_that("GRIMMER explains a sum of squares that fewer than five numbers cannot have", {
-  1 |> grimmer_explain(2, 2, digits_x = 1, digits_sd = 1, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("and 2 whole numbers with a sum of 2 cannot have 6.", fixed = TRUE)
-  1 |> grimmer_explain(6, 4, digits_x = 1, digits_sd = 0, items_averaged = 1) |> format() |> paste(collapse = " ") |> expect_match("numbers with a sum of 4 can have is 98.", fixed = TRUE)
+  1 |> grimmer_explain(2, 2, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("and 2 whole numbers with a sum of 2 cannot have 6.", fixed = TRUE)
+  1 |> grimmer_explain(6, 4, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("numbers with a sum of 4 can have is 98.", fixed = TRUE)
 })
 
 
@@ -224,60 +242,60 @@ test_that("GRIMMER explains a sum of squares that fewer than five numbers cannot
 # either way, so the text used to say "1 / 4 = 0.25, which rounds to 0.2" and
 # then "Consistent":
 test_that("`grim_explain()` does not claim a rounding for a tie under `\"even\"`", {
-  tie_only <- grim_explain(0.2, 4, digits_x = 1, items_averaged = 1, rounding = "even")
+  tie_only <- grim_explain(0.2, 4, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "even")
   tie_only$paragraphs[[3]] |> expect_match("a tie that rounding to even may break either way")
   # With another sum in the range, that one is shown instead:
-  tie_and_more <- grim_explain(0.3, 20, digits_x = 1, items_averaged = 1, rounding = "even")
+  tie_and_more <- grim_explain(0.3, 20, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "even")
   tie_and_more$paragraphs[[3]] |> expect_match("6 / 20 = 0.3, which rounds to 0.3")
-  grim_explain(0.2, 4, digits_x = 1, items_averaged = 1)$paragraphs[[3]] |> expect_match("which rounds to 0.3 or 0.2")
+  grim_explain(0.2, 4, digits_x = 1, items_averaged = 1, data_type = "integer")$paragraphs[[3]] |> expect_match("which rounds to 0.3 or 0.2")
 })
 
 test_that("an inconsistent case names both roundings of a tie under `\"even\"`", {
   # 0.025 used to be said to round to 0.03, from the double's binary value:
-  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1, rounding = "even")      |> _$paragraphs[[3]] |> expect_match("round to 0.02 or 0.03 (a tie) and 0.05", fixed = TRUE)
-  2.986 |> grim_explain(80, digits_x = 3, items_averaged = 1, rounding = "ties_even") |> _$paragraphs[[3]] |> expect_match("2.987 or 2.988 (a tie)", fixed = TRUE)
-  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1)                         |> _$paragraphs[[3]] |> expect_no_match("a tie")
-  0.04  |> grimmer_explain(0.2, 40, 2, 2, 1, rounding = "even") |> format() |> paste(collapse = " ") |> expect_match("0.02 or 0.03 (a tie)", fixed = TRUE)
+  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "even")      |> _$paragraphs[[3]] |> expect_match("round to 0.02 or 0.03 (a tie) and 0.05", fixed = TRUE)
+  2.986 |> grim_explain(80, digits_x = 3, items_averaged = 1, data_type = "integer", rounding = "ties_even") |> _$paragraphs[[3]] |> expect_match("2.987 or 2.988 (a tie)", fixed = TRUE)
+  0.04  |> grim_explain(40, digits_x = 2, items_averaged = 1, data_type = "integer")                         |> _$paragraphs[[3]] |> expect_no_match("a tie")
+  0.04  |> grimmer_explain(0.2, 40, 2, 2, 1, rounding = "even", data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("0.02 or 0.03 (a tie)", fixed = TRUE)
 })
 
 test_that("`grimmer_explain()` squares a negative sum as a whole", {
-  out <- grimmer_explain(-3.15, 1.15, 20, digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out <- grimmer_explain(-3.15, 1.15, 20, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
   out$paragraphs[[6]] |> expect_match("(-63)^2", fixed = TRUE)
 })
 
 
 test_that("a single score averaged from items is not \"each of the 1 scores\"", {
-  5.5 |> grim_explain(1, digits_x = 1, items_averaged = 2) |> format() |> paste(collapse = " ") |> expect_match("The single score")
+  5.5 |> grim_explain(1, digits_x = 1, items_averaged = 2, data_type = "integer") |> format() |> paste(collapse = " ") |> expect_match("The single score")
 })
 
 
 test_that("a near-whole `n` is explained as the whole number, as the tests test it", {
-  1.5 |> grim_explain(2 - 1e-9, digits_x = 1, items_averaged = 1, rounding = "ceiling") |> format() |> expect_identical(format(grim_explain(1.5, 2, digits_x = 1, items_averaged = 1, rounding = "ceiling")))
-  1.5 |> grimmer_explain(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1) |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+  1.5 |> grim_explain(2 - 1e-9, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling") |> format() |> expect_identical(format(grim_explain(1.5, 2, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "ceiling")))
+  1.5 |> grimmer_explain(0.71, 2 - 1e-9, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer") |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")))
   0.5 |> debit_explain(0.58, 2 - 1e-9, digits_x = 1, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
 
   # The decimal count was written as 0.999999999:
-  1.5 |> grim_explain(20, digits_x = 1 - 1e-9, items_averaged = 1)                         |> format() |> expect_identical(format(grim_explain(1.5, 20, digits_x = 1, items_averaged = 1)))
-  1.5 |> grimmer_explain(0.71, 2, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1)   |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1)))
+  1.5 |> grim_explain(20, digits_x = 1 - 1e-9, items_averaged = 1, data_type = "integer")                         |> format() |> expect_identical(format(grim_explain(1.5, 20, digits_x = 1, items_averaged = 1, data_type = "integer")))
+  1.5 |> grimmer_explain(0.71, 2, digits_x = 1, digits_sd = 2 - 1e-9, items_averaged = 1, data_type = "integer")   |> format() |> expect_identical(format(grimmer_explain(1.5, 0.71, 2, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")))
   0.5 |> debit_explain(0.58, 2, digits_x = 1 - 1e-9, digits_sd = 2)                       |> format() |> expect_identical(format(debit_explain(0.5, 0.58, 2, digits_x = 1, digits_sd = 2)))
 })
 
 
 test_that("a negative zero is shown as zero", {
   # `formatC()` printed it as "-0.0":
-  -0 |> grim_explain(3, digits_x = 1, items_averaged = 1)    |> _$inputs |> expect_equal("x = 0.0, n = 3")
-  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3")
-  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1)     |> format() |> paste(collapse = " ") |> expect_no_match("-0.0[^0-9]")
+  -0 |> grim_explain(3, digits_x = 1, items_averaged = 1, data_type = "integer")    |> _$inputs |> expect_equal("x = 0.0, n = 3")
+  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1, data_type = "integer")     |> _$inputs |> expect_equal("x = 0.0, sd = 0.00, n = 3")
+  -0 |> grimmer_explain(-0, 3, 1, 2, items_averaged = 1, data_type = "integer")     |> format() |> paste(collapse = " ") |> expect_no_match("-0.0[^0-9]")
 })
 
 test_that("an explanation names the missing value that left the mean unknown", {
-  grimmer_explain(5.2, 0.3, 4, NA, 1, 1) |> format() |> expect_match("digits_x is missing")
+  grimmer_explain(5.2, 0.3, 4, NA, 1, 1, data_type = "integer") |> format() |> expect_match("digits_x is missing")
   debit_explain(0.5, 0.9, 10, NA, 1)     |> format() |> expect_match("digits_x is missing")
-  grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop") |> format() |> expect_match("1 whole number with")
+  grimmer_explain(NA, 0.3, 1, 2, 1, 1, sd_meaning = "sd_pop", data_type = "integer") |> format() |> expect_match("1 whole number with")
 })
 test_that("only the first `n` sums are tested, and the rest are counted", {
   # This looped over 20 million sums; all fail, as the first two do:
-  text <- grimmer_explain(5, 1e-8, 2, digits_x = 0, digits_sd = 8, items_averaged = 1e7) |> format()
+  text <- grimmer_explain(5, 1e-8, 2, digits_x = 0, digits_sd = 8, items_averaged = 1e7, data_type = "integer") |> format()
   text |> expect_match("The remaining 19999999 sums fail as well")
   text |> expect_match("Inconsistent")
 })
@@ -285,12 +303,12 @@ test_that("only the first `n` sums are tested, and the rest are counted", {
 test_that("sums out of reach of the SD are said to be skipped, and counted", {
   # The sums from 4500000 on were skipped, yet counted among "the next 499772
   # sums" after the three shown, from 4999549:
-  text <- grimmer_explain(5, 0.01, 1e6, 0, 2, 1)$paragraphs |> paste(collapse = " ")
+  text <- grimmer_explain(5, 0.01, 1e6, 0, 2, 1, data_type = "integer")$paragraphs |> paste(collapse = " ")
   text |> expect_match("more than 451 away from a multiple of 1000000")
   text |> expect_match("The other 499772 sums below 4999775 fail as well")
   text |> expect_no_match("next")
   # Nothing is skipped when every sum is within reach:
-  grimmer_explain(3, 1.2, 6, 0, 1, 1)$paragraphs |> paste(collapse = " ") |> expect_no_match("Not every sum")
+  grimmer_explain(3, 1.2, 6, 0, 1, 1, data_type = "integer")$paragraphs |> paste(collapse = " ") |> expect_no_match("Not every sum")
 })
 
 test_that("numbers past 2^53 are shown exactly", {
@@ -320,9 +338,9 @@ test_that("`debit_explain()` rejects a string `n`, as `debit()` does", {
 })
 
 test_that("`explain_map()` doesn't overwrite a column of the user's", {
-  out <- tibble::tibble(x = 5.19, n = 28, explanation = "mine") |> grim_map(2, items_averaged = 1)
+  out <- tibble::tibble(x = 5.19, n = 28, explanation = "mine") |> grim_map(2, items_averaged = 1, data_type = "integer")
   out |> explain_map() |> expect_error("already has an `explanation` column")
   # Its own column from an earlier call is the same, so it is kept:
-  explained <- pigs1 |> grim_map(2, items_averaged = 1) |> explain_map()
+  explained <- pigs1 |> grim_map(2, items_averaged = 1, data_type = "integer") |> explain_map()
   explained |> explain_map() |> expect_identical(explained)
 })

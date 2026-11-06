@@ -96,6 +96,7 @@ df2_rows_1_3_expected <- tibble::tibble(
   ),
   n_change = rep(c(0L, 0L, -1L, 1L, -2L, 2L, -3L, 3L, -4L, 4L, -5L, 5L), 4),
   items_averaged = rep(1, 48L),
+  data_type = rep("integer", 48L),
   digits_x = rep(2, 48L),
   consistency = rep(
     c(
@@ -173,7 +174,11 @@ df2_rows_1_3_expected <- tibble::tibble(
       reported = "x",
       values_reported = c(
         as.list(df2),
-        list(digits_x = c(2, 2), items_averaged = rep(1, nrow(df2)))
+        list(
+          digits_x = c(2, 2),
+          items_averaged = rep(1, nrow(df2)),
+          data_type = rep("integer", nrow(df2))
+        )
       )
     ),
     class = c(
@@ -197,9 +202,19 @@ attr(df2_rows_1_3_expected, "scrutiny")$rows_tested <-
 # The function itself -----------------------------------------------------
 
 df1_tested <- df1 |>
-  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:5)
+  grim_map_total_n(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 0:5
+  )
 df2_tested <- df2 |>
-  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:5)
+  grim_map_total_n(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 0:5
+  )
 
 
 test_that("The output is a tibble", {
@@ -210,13 +225,13 @@ test_that("The output is a tibble", {
 test_that("It has correct dimensions", {
   # The 50/50 split of an even total is tested in one direction only, so each
   # even total has two rows fewer:
-  df1_tested |> dim() |> expect_equal(c(1200 - 2 * sum(df1$n %% 2 == 0), 10))
-  df2_tested |> dim() |> expect_equal(c(  46, 10))
+  df1_tested |> dim() |> expect_equal(c(1200 - 2 * sum(df1$n %% 2 == 0), 11))
+  df2_tested |> dim() |> expect_equal(c(  46, 11))
 })
 
 test_that("It has correct values", {
   # This doesn't work with `df1`; its values are randomly generated!
-  df2 |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_equal(df2_rows_1_3_expected)
+  df2 |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(df2_rows_1_3_expected)
 })
 
 
@@ -225,6 +240,7 @@ colnames_exp <- c(
   "n",
   "n_change",
   "items_averaged",
+  "data_type",
   "digits_x",
   "consistency",
   "both_consistent",
@@ -243,12 +259,12 @@ test_that("It has correct column names", {
 # An `items` column used to be dropped, so the groups were tested with one item.
 test_that("an `items_averaged` column works like the argument", {
   df <- tibble::tibble(x1 = 4.74, x2 = 2.57, n = 50L)
-  from_arg <- df |> grim_map_total_n(digits_x = 2, items_averaged = 2)
-  from_col <- df |> dplyr::mutate(items_averaged = 2) |> grim_map_total_n(digits_x = 2)
+  from_arg <- df |> grim_map_total_n(digits_x = 2, items_averaged = 2, data_type = "integer")
+  from_col <- df |> dplyr::mutate(items_averaged = 2) |> grim_map_total_n(digits_x = 2, data_type = "integer")
   from_col |> expect_equal(from_arg)
   df_grimmer <- tibble::tibble(x1 = 4.74, x2 = 2.57, sd1 = 1.21, sd2 = 0.98, n = 50L)
-  from_arg <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 2)
-  from_col <- df_grimmer |> dplyr::mutate(items_averaged = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2)
+  from_arg <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer")
+  from_col <- df_grimmer |> dplyr::mutate(items_averaged = 2) |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")
   from_col |> expect_equal(from_arg)
 })
 
@@ -256,31 +272,31 @@ test_that("an `items_averaged` column works like the argument", {
 test_that("a `constant` named like an output column is an error", {
   # `case` replaced the row numbers, and `both_consistent` the verdicts:
   df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(case = c(7, 8)))            |> expect_error("`case` is taken")
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(both_consistent = c(7, 8))) |> expect_error("`both_consistent` is taken")
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(n = c(7, 8)))               |> expect_error("`n` is taken")
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(k = c(7, 8)))               |> expect_s3_class("scrutiny_map_total_n")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(case = c(7, 8)))            |> expect_error("`case` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(both_consistent = c(7, 8))) |> expect_error("`both_consistent` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(n = c(7, 8)))               |> expect_error("`n` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(k = c(7, 8)))               |> expect_s3_class("scrutiny_map_total_n")
 })
 
 
 test_that("an error in the first case names its row although both groups fail", {
   # Row 2 of the data built from it is the other group of the same case:
   df <- tibble::tibble(x1 = c(9000000000.01, 5.19), x2 = c(9000000000.01, 5.19), n = c(2008, 56))
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("In row 1 of `data`")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("In row 1 of `data`")
 })
 
 test_that("a `constant` named like a result column of the test is an error", {
   df <- tibble::tibble(x1 = c(3.84, 5.1), x2 = c(4.21, 3.9), n = c(41L, 30L))
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(exp_incon = 1:2)) |> expect_error("`exp_incon` is taken")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(exp_incon = 1:2)) |> expect_error("`exp_incon` is taken")
 })
 
 test_that("a total of 2^31 or more has no `NA` rows", {
   # `2L * n` overflowed, and the rows it selected were all `NA`:
-  tibble::tibble(x1 = 5, x2 = 5, n = 2^32) |> grim_map_total_n(0, items_averaged = 1, dispersion = 0:1) |> _$x |> anyNA() |> expect_false()
+  tibble::tibble(x1 = 5, x2 = 5, n = 2^32) |> grim_map_total_n(0, items_averaged = 1, data_type = "integer", dispersion = 0:1) |> _$x |> anyNA() |> expect_false()
 })
 
 test_that("a data-frame column goes along with each case", {
   # `[case]` selected columns of it, and tibble failed:
   data <- tibble::tibble(x1 = 5.19, x2 = 3.2, n = 50, meta = tibble::tibble(a = 1))
-  data |> grim_map_total_n(2, items_averaged = 1, dispersion = 0:1) |> _$meta$a |> expect_equal(rep(1, 6))
+  data |> grim_map_total_n(2, items_averaged = 1, data_type = "integer", dispersion = 0:1) |> _$meta$a |> expect_equal(rep(1, 6))
 })

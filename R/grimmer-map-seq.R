@@ -67,6 +67,7 @@
 #'   digits_x = 2,
 #'   digits_sd = 2,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   include_consistent = TRUE
 #' )
 #' out

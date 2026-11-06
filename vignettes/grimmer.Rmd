@@ -33,10 +33,10 @@ The GRIMMER functions work like their GRIM counterparts, so this vignette follow
 To test whether a mean of 7.3 and an SD of 2.51 are consistent with a sample size of 12:
 
 ```{r}
-grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1)
+grimmer(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")
 ```
 
-`digits_x` and `digits_sd` are the numbers of decimal places of the reported mean and SD. As in `grim()`, they must be given because numeric values lose trailing zeros.
+`digits_x` and `digits_sd` are the numbers of decimal places of the reported mean and SD. As in `grim()`, they must be given because numeric values lose trailing zeros. So must `items_averaged` and `data_type`; see `vignette("grim")`.
 
 The SD is taken to be a sample SD, which divides by $n - 1$ (`sd_meaning = "sd_sample"`). That is what nearly all software reports by default: R, SPSS, Stata, SAS, Excel, and pandas. NumPy's `np.std()` is the main exception and reports the population SD, which divides by $n$. If the data may have been analyzed with it, set `sd_meaning = "sd_pop"`; see `vignette("grimmer-in-depth")`.
 
@@ -56,7 +56,7 @@ flying_pigs1 <- tibble::tribble(
    7.3 , 3.14 , 25
 )
 
-grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2, items_averaged = 1)
+grimmer_map(flying_pigs1, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")
 ```
 
 `consistency` is the test result, and `reason` states which part of the test an inconsistent value set failed. A value set passes GRIMMER if it passes GRIM and the three tests of @allard2018:
@@ -83,10 +83,10 @@ flying_pigs2 <- tibble::tribble(
 )
 
 flying_pigs2 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 
 flying_pigs2 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3)
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 3, data_type = "integer")
 ```
 
 ## Explaining consistency results
@@ -95,7 +95,7 @@ flying_pigs2 |>
 
 ```{r}
 flying_pigs1 |>
-  grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::filter(!consistency) |>
   explain_print()
 ```
@@ -106,7 +106,7 @@ flying_pigs1 |>
 
 ```{r}
 flying_pigs1 |>
-  grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
   audit()
 ```
 

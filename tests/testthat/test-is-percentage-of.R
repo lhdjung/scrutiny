@@ -30,7 +30,7 @@ test_that("a percentage is GRIM-consistent iff some count produces it", {
   n <- 37
   percentage <- seq(0, 100, by = 0.1)
   some_count <- percentage |> vapply(\(p) any(is_percentage_of(0:n, p, n, 1)), logical(1L))
-  percentage |> grim(n, digits_x = 1, items_averaged = 1, x_meaning = "percentage") |> expect_equal(some_count)
+  percentage |> grim(n, digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> expect_equal(some_count)
 })
 
 test_that("`is_percentage_of()` is `NA` for undecidable cases", {
@@ -47,7 +47,7 @@ test_that("a missing `absolute` is `FALSE` if no count has the percentage", {
   # `NA` exactly where GRIM finds some count, over every percentage with one
   # decimal place:
   percentage <- seq(0, 100, by = 0.1)
-  some_count <- percentage |> grim(37, digits_x = 1, items_averaged = 1, x_meaning = "percentage")
+  some_count <- percentage |> grim(37, digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage")
   NA |> is_percentage_of(percentage, 37, 1) |> is.na() |> expect_equal(some_count)
 })
 

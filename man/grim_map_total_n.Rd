@@ -12,6 +12,7 @@ grim_map_total_n(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -44,6 +45,10 @@ named in full.}
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
 
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
@@ -128,16 +133,21 @@ df <- tibble::tribble(
   2.97, 4.42, 103
 )
 
-grim_map_total_n(df, digits_x = 2, items_averaged = 1)
+grim_map_total_n(df, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # `hits_total` counts the splits in which both means are consistent:
 df |>
-  grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   audit_total_n()
 
 # More steps away from the even split tend to find more hits:
 df |>
-  grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:10) |>
+  grim_map_total_n(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 0:10
+  ) |>
   audit_total_n()
 }
 \references{

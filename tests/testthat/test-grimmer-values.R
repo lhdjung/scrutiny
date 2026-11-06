@@ -71,7 +71,7 @@ test_that("`grimmer_values()` has a pair exactly where `grimmer()` is `TRUE`", {
       for (sd in c(0.5, 0.7, 2.55)) {
         info <- paste0("sd = ", sd, ", n = ", n, ", rounding = ", rounding)
         out <- 5.3 |> grimmer_values(sd, n, digits_x = 1, digits_sd = 2, items_averaged = 1, rounding = rounding)
-        consistency <- 5.3 |> grimmer(sd, n, digits_x = 1, digits_sd = 2, items_averaged = 1, rounding = rounding)
+        consistency <- 5.3 |> grimmer(sd, n, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = rounding)
         out |> nrow() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
         # Every pair would be reported as `x` and `sd`:
         for (value in out$x) {

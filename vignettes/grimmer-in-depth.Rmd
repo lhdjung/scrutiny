@@ -28,8 +28,8 @@ This vignette builds on `vignette("grimmer")`, which covers the basics of GRIMME
 GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software, such as NumPy's `np.std()` or Excel's `STDEV.P`, reports the population SD, which divides by $n$. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
 
 ```{r}
-grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1)
-grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop")
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")
+grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop")
 ```
 
 `sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under either convention, and the `reason` column of `grimmer_map()` says which one. It accepts more SDs than either convention alone, and a study has most likely computed all its SDs the same way, so testing under `"sd_sample"` and `"sd_pop"` separately tells you more.
@@ -65,7 +65,7 @@ grimmer_plot_values(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, ite
 
 ```{r, fig.width=6, fig.height=5.5}
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
   grim_plot_grid()
 ```
 
@@ -74,7 +74,7 @@ pigs5 |>
 `grimmer_map_seq()` varies `x`, `sd`, and `n` around the reported values, by default only for inconsistent value sets:
 
 ```{r}
-out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1)
+out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 out_seq1
 
 audit_seq(out_seq1)
@@ -88,6 +88,7 @@ out_seq2 <- grimmer_map_seq(
   digits_x = 2,
   digits_sd = 2,
   items_averaged = 1,
+  data_type = "integer",
   dispersion = 1:10
 )
 audit_seq(out_seq2)
@@ -96,7 +97,7 @@ audit_seq(out_seq2)
 `grim_plot_grid()` accepts this output as well, and `var` restricts the dispersion to one variable:
 
 ```{r, fig.width=6, fig.height=5.5}
-grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, var = "n") |>
+grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = "n") |>
   grim_plot_grid()
 ```
 
@@ -111,7 +112,7 @@ flying_pigs4 <- tibble::tribble(
   2.97 , 4.42 , 0.43 , 1.65 , 65
 )
 
-out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1)
+out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 out_total_n
 
 audit_total_n(out_total_n)

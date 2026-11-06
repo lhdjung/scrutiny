@@ -48,7 +48,7 @@
 #' )
 #'
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   dplyr::mutate(study = codes) |>
 #'   grim_plot_rates(study)
 

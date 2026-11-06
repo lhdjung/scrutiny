@@ -84,22 +84,32 @@
 #' # `grim_plot_grid()` reads the number of decimal places
 #' # from the `digits_x` column:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   grim_plot_grid()
 #'
 #' # The raster follows the rounding method of the `grim_map()` call:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
+#'   grim_map(
+#'     digits_x = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer",
+#'     rounding = "ceiling"
+#'   ) |>
 #'   grim_plot_grid()
 #'
 #' # Percentages are plotted as proportions:
 #' pigs2 |>
-#'   grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage") |>
+#'   grim_map(
+#'     digits_x = 1,
+#'     items_averaged = 1,
+#'     data_type = "integer",
+#'     x_meaning = "percentage"
+#'   ) |>
 #'   grim_plot_grid()
 #'
 #' # Other colors for the value sets, here the ones before scrutiny 1.0.0:
 #' pigs1 |>
-#'   grim_map(digits_x = 2, items_averaged = 1) |>
+#'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   grim_plot_grid() +
 #'   ggplot2::scale_colour_manual(
 #'     values = c("TRUE" = "royalblue1", "FALSE" = "red"),
@@ -269,6 +279,26 @@ grim_plot_grid <- function(
       {?is/are} plotted."
     ))
     data <- data[!is.na(data$consistency), ]
+  }
+
+  # Continuous data pass whatever the raster says about them:
+  is_continuous <- data[["data_type"]] %in% "continuous"
+  if (show_data && any(is_continuous)) {
+    n_continuous <- sum(is_continuous)
+    if (n_continuous == nrow(data)) {
+      abort_in_export(
+        "All value sets in `data` are continuous data.",
+        "i" = "GRIM only applies to whole numbers, so there is nothing to \\
+        draw.",
+        "i" = "Set `show_data = FALSE` for the background raster on its own."
+      )
+    }
+    cli::cli_warn(c(
+      "!" = "Dropping {n_continuous} value set{?s} of continuous data from \\
+      the plot.",
+      "i" = "GRIM only applies to whole numbers."
+    ))
+    data <- data[!is_continuous, ]
   }
 
   if (is.null(digits)) {

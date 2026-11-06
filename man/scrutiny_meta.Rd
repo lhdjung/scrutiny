@@ -45,12 +45,22 @@ header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.
 }
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1, rounding = "up") |>
+  grim_map(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    rounding = "up"
+  ) |>
   scrutiny_meta()
 
 # Only the settings that are not at their defaults:
 pigs1 |>
-  grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:10) |>
+  grim_map_seq(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 1:10
+  ) |>
   scrutiny_meta() |>
   dplyr::filter(!default)
 }

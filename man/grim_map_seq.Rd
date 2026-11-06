@@ -11,6 +11,7 @@ grim_map_seq(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -41,6 +42,10 @@ named in full.}
 \item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
 averaged into each score, given as an argument or as a column of \code{data}.
 There is no default.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"}, \code{"quasi-integer"},
+or \code{"continuous"}. Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
 
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
@@ -121,6 +126,7 @@ out <- grim_map_seq(
   pigs1,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   include_consistent = TRUE
 )
 out

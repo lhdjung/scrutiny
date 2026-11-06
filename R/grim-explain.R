@@ -24,15 +24,28 @@
 #' @export
 #'
 #' @examples
-#' grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim_explain(
+#'   x = 5.19,
+#'   n = 28,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
-#' grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+#' grim_explain(
+#'   x = 5.19,
+#'   n = 32,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
 #' grim_explain(
 #'   x = 71,
 #'   n = 43,
 #'   digits_x = 0,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   x_meaning = "percentage"
 #' )
 grim_explain <- function(
@@ -40,6 +53,7 @@ grim_explain <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -74,6 +88,7 @@ grim_explain <- function(
     n = n,
     digits_x = digits_x,
     items_averaged = items_averaged,
+    data_type = data_type,
     x_meaning = x_meaning,
     show_rec = TRUE,
     rounding = rounding,
@@ -81,6 +96,23 @@ grim_explain <- function(
     symmetric = symmetric
   )
   consistency <- rec[[1L]]
+
+  if (!identical(data_type, "integer")) {
+    explain_integer <- function() {
+      grim_explain(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      )
+    }
+    return(explain_data_type(data_type, consistency, explain_integer, "mean"))
+  }
 
   explain <- function(text) {
     inputs <- list(
@@ -346,6 +378,62 @@ grim_explain <- function(
 
 
 # Shared by all explanations ----------------------------------------------
+
+# The explanation for data that are not plainly whole numbers, as decided by
+# `test_data_type()`: the one for whole numbers, `explain_integer()`, with a
+# paragraph on the data type. `what` is what continuous data can have any of.
+explain_data_type <- function(data_type, consistency, explain_integer, what) {
+  out <- explain_integer()
+  any_value <- paste0("they can have any ", what)
+
+  out$paragraphs <- if (is.na(data_type)) {
+    if (isTRUE(consistency)) {
+      c(
+        out$paragraphs,
+        paste0(
+          "The data type is missing, but this doesn't matter here. If the ",
+          "data are continuous, ",
+          any_value,
+          ", so the value set is consistent either way."
+        )
+      )
+    } else {
+      c(
+        "The data type is missing. If the data are whole numbers, the test goes as follows.",
+        out$paragraphs,
+        paste0(
+          "If the data are continuous, ",
+          any_value,
+          ". So whether the value set is consistent depends on the data type."
+        )
+      )
+    }
+  } else if (data_type == "continuous") {
+    paste0(
+      "The data are continuous, so ",
+      any_value,
+      ". The test only applies to whole numbers, so the value set is ",
+      "consistent."
+    )
+  } else {
+    c(
+      paste(
+        "The data are quasi-integer: whole numbers that stand for something",
+        "continuous. The test assumes that the analysis used these whole",
+        "numbers, not more precise values."
+      ),
+      out$paragraphs
+    )
+  }
+
+  out$consistency <- consistency
+  out$inputs <- paste0(
+    out$inputs,
+    ", data_type = ",
+    if (is.na(data_type)) "NA" else paste0("\"", data_type, "\"")
+  )
+  out
+}
 
 new_explanation <- function(
   test,

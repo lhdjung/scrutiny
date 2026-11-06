@@ -88,11 +88,13 @@ expect_tiers_agree <- function(
 test_that("every GRIM mapper tier agrees with `grim()` row by row", {
   grid <- tidyr::expand_grid(x = round(seq(-3, 3, by = 0.1), 1), n = c(2:30, 40L, 50L, 100L))
   settings <- list(rounding = "up_from", threshold = 3, symmetric = TRUE)
-  grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1, items_averaged = 2), settings)
+  grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1, items_averaged = 2, data_type = "integer"), settings)
 })
 
-test_that("every GRIM mapper tier agrees with `grim()` on percentages and an `items_averaged` column", {
-  grid <- tidyr::expand_grid(x = seq(0, 100, by = 2.5), n = c(3:20, 40L, 50L), items_averaged = 1:3)
+test_that("every GRIM mapper tier agrees with `grim()` on percentages and `items_averaged` and `data_type` columns", {
+  rlang::local_options(rlib_warning_verbosity = "quiet")
+  data_types <- c("integer", "quasi-integer", "continuous", NA)
+  grid <- tidyr::expand_grid(x = seq(0, 100, by = 2.5), n = c(3:20, 40L, 50L), items_averaged = 1:3, data_type = data_types)
   settings <- list(x_meaning = "percentage", rounding = "up_from", threshold = 3)
   grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(digits_x = 1), settings)
 })
@@ -100,7 +102,7 @@ test_that("every GRIM mapper tier agrees with `grim()` on percentages and an `it
 test_that("every GRIMMER mapper tier agrees with `grimmer()` row by row", {
   grid <- tidyr::expand_grid(x = round(seq(-2, 3, by = 0.1), 1), sd = c(0.3, 0.8, 1.1, 1.6), n = c(2:12, 20L, 50L))
   settings <- list(rounding = "up_from", threshold = 3, symmetric = TRUE, sd_meaning = "sd_pop")
-  grid |> expect_tiers_agree(grimmer_map, grimmer_map_seq, grimmer_map_total_n, grimmer, list(digits_x = 1, digits_sd = 1, items_averaged = 2), settings)
+  grid |> expect_tiers_agree(grimmer_map, grimmer_map_seq, grimmer_map_total_n, grimmer, list(digits_x = 1, digits_sd = 1, items_averaged = 2, data_type = "integer"), settings)
 })
 
 test_that("every DEBIT mapper tier agrees with `debit()` row by row", {

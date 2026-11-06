@@ -50,6 +50,11 @@ SD_MEANINGS <- c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 DEBIT_FORMULAS <- c("exact", "mean_n")
 X_MEANINGS <- c("mean", "percentage")
 
+# The values of GRIM's and GRIMMER's `data_type`. Unlike the ones above, the
+# argument has no default and takes one value per row, like `items_averaged`,
+# so the functions don't spell these out; see `test_data_type()`.
+DATA_TYPES <- c("integer", "quasi-integer", "continuous")
+
 
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their
 # letters are lowercased. `decimal_places()` and `decimal_places_scalar()` give

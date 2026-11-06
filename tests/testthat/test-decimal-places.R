@@ -418,9 +418,9 @@ test_that("a decimal comma from `options(OutDec = )` changes no result", {
   1.23456789012345e-5   |> decimal_places() |> expect_equal(19L)
   c(0.5, 123.25, 2)     |> restore_zeros()  |> expect_equal(c("0.50", "123.25", "2.00"))
   4.02                  |> seq_disperse(dispersion = 1:2) |> expect_equal(c(4.00, 4.01, 4.02, 4.03, 4.04))
-  5.19 |> grim(40, digits_x = 1, items_averaged = 1) |> expect_error("More decimal places than specified digits")
+  5.19 |> grim(40, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_error("More decimal places than specified digits")
   data.frame(a = c(0.5, 1), b = c("0.5", "1")) |> duplicate_count() |> _$frequency |> expect_equal(c(2L, 2L))
-  tibble::tibble(x = c(5.19, 2.56), n = c(40, 20)) |> grim_map_seq(digits_x = 2, items_averaged = 1) |> audit_seq() |> _$hits_total |> expect_equal(c(10L, 5L))
+  tibble::tibble(x = c(5.19, 2.56), n = c(40, 20)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit_seq() |> _$hits_total |> expect_equal(c(10L, 5L))
 })
 
 test_that("a column named `sep` is counted, not taken for the argument", {

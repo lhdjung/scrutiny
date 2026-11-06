@@ -798,6 +798,71 @@ error_digits_missing <- function(x) {
 }
 
 
+#' Error if `data_type` is missing
+#'
+#' Like `items_averaged`, `data_type` has no default, so that every call states
+#' whether the test applies to the data at all.
+#'
+#' @returns No return value; throws an error.
+#'
+#' @noRd
+error_data_type_missing <- function() {
+  name_fn <- name_last_export()
+  msg_column <- if (grepl("_map", name_fn)) {
+    ", or give `data` a `data_type` column"
+  }
+
+  abort_in_export(
+    "Need to specify `data_type`{msg_column}.",
+    "i" = "`\"integer\"`: the values are whole numbers, such as answers on a \\
+    rating scale or counts.",
+    "i" = "`\"quasi-integer\"`: whole numbers that stand for something \\
+    continuous, such as age in years.",
+    "i" = "`\"continuous\"`: the values are not whole numbers, such as \\
+    reaction times. Any mean is possible, so the result is `TRUE`."
+  )
+}
+
+
+# What the tests return for data that are not plainly whole numbers.
+# `test_integer` is a function that runs the test as if they were, `pass` is
+# what the test returns for a consistent case, and `missing` for an
+# undecidable one. Continuous data can have any mean or SD, so they pass. A
+# missing `data_type` might be continuous, so it is `NA` unless the test passes
+# anyway. Quasi-integer data are tested as whole numbers, with a warning.
+test_data_type <- function(data_type, test_integer, pass, missing) {
+  if (is.na(data_type)) {
+    out <- test_integer()
+    return(if (isTRUE(out[[1L]])) out else missing)
+  }
+  data_type <- arg_match_in_export(data_type, DATA_TYPES)
+  if (data_type == "continuous") {
+    return(pass)
+  }
+  warn_quasi_integer()
+  test_integer()
+}
+
+
+# Once per session, so that it doesn't repeat for every row. Not
+# `cli::cli_warn()`, which would format the message on every call before
+# rlang sees that it was already given.
+warn_quasi_integer <- function() {
+  rlang::warn(
+    c(
+      "Testing quasi-integer data as whole numbers.",
+      "i" = paste(
+        "The verdict assumes that the analysis used the recorded whole",
+        "numbers. If it used more precise values, such as exact ages, an",
+        "inconsistency is no evidence of an error."
+      )
+    ),
+    .frequency = "once",
+    .frequency_id = "scrutiny_quasi_integer"
+  )
+}
+
+
 #' Error if `items_averaged` is missing
 #'
 #' Like `digits_x`, `items_averaged` has no default, so that every call states

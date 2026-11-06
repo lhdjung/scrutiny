@@ -34,7 +34,7 @@ DEBIT explanations cover \code{formula = "exact"} only.
 }
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::filter(!consistency) |>
   explain_map()
 }

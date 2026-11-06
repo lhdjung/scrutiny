@@ -34,12 +34,20 @@ This vignette covers the basics: `grim()` and `grim_map()` for the test itself, 
 To test whether a mean of 5.27 is consistent with a sample size of 43:
 
 ```{r}
-grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1)
+grim(x = 5.27, n = 43, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 `digits_x` is the number of decimal places the mean was reported with. It cannot be inferred from the value, because a mean reported as 5.30 is stored as `5.3`.
 
-`items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below. Neither argument has a default, since the result depends on both.
+`items_averaged` is the number of items averaged into each respondent's score. Use 1 for a single item or for the percentage of participants with some answer; see *Scale items* and *Percentages* below.
+
+`data_type` says what kind of data the mean summarizes. GRIM only applies to whole numbers:
+
+- `"integer"`: whole numbers, such as answers on a rating scale or counts.
+- `"quasi-integer"`: whole numbers that stand for something continuous, such as age in years. They are tested like integers, with a warning that the result only holds if the analysis used these whole numbers rather than more precise values.
+- `"continuous"`: anything else, such as reaction times or body mass index. Any mean is possible, so the result is `TRUE`.
+
+None of these arguments has a default, since the result depends on all of them.
 
 By default, `grim()` accepts a mean whether a tie was rounded up or down (`rounding = "up_or_down"`). Reports rarely say how they rounded, and the common methods only disagree on ties: SPSS and Excel round a 5 away from zero, R and Python round it to an even digit. A mean that fails under the default is inconsistent under all of them. See *Defaults* in `?grim`.
 
@@ -62,7 +70,7 @@ flying_pigs1 <- tibble::tribble(
 ) |>
   dplyr::mutate(n = 28)
 
-grim_map(flying_pigs1, digits_x = 2, items_averaged = 1)
+grim_map(flying_pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 `x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `exp_incon` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* in `vignette("grim-in-depth")`.
@@ -84,10 +92,10 @@ scale_means <- tibble::tribble(
   dplyr::mutate(n = 40)
 
 scale_means |>
-  grim_map(digits_x = 2, items_averaged = 1)
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
 
 scale_means |>
-  grim_map(digits_x = 2, items_averaged = 3)
+  grim_map(digits_x = 2, items_averaged = 3, data_type = "integer")
 ```
 
 An `items_averaged` column of `data` lets the number vary by row:
@@ -105,7 +113,7 @@ mixed_scales <- tibble::tribble(
   dplyr::mutate(n = 30)
 
 mixed_scales |>
-  grim_map(digits_x = 2)
+  grim_map(digits_x = 2, data_type = "integer")
 ```
 
 ### Percentages
@@ -122,7 +130,7 @@ percentages <- tibble::tribble(
 )
 
 percentages |>
-  grim_map(digits_x = 1, items_averaged = 1, x_meaning = "percentage")
+  grim_map(digits_x = 1, items_averaged = 1, data_type = "integer", x_meaning = "percentage")
 ```
 
 GRIM is therefore much more powerful for percentages than for means with the same number of decimal places.
@@ -135,7 +143,7 @@ A percentage can average several items, too: the mean percent correct on a test 
 
 ```{r}
 flying_pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::filter(!consistency) |>
   explain_print(1)
 ```
@@ -150,7 +158,7 @@ To see the test rather than read it, draw one value set with `grim_plot_values()
 
 ```{r}
 flying_pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   audit()
 ```
 
@@ -179,7 +187,7 @@ many_means <- tibble::tribble(
 )
 
 many_means |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   grim_plot_grid()
 ```
 
@@ -187,7 +195,7 @@ Each value set is plotted at its sample size (x-axis) and the fractional part of
 
 ```{r, fig.width=6, fig.height=5.5}
 many_means |>
-  grim_map(digits_x = 2, items_averaged = 1, rounding = "ceiling") |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling") |>
   grim_plot_grid()
 ```
 

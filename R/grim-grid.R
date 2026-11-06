@@ -127,6 +127,7 @@ generate_grim_grid <- function(digits, rounding, threshold = 5) {
     n = grid$n,
     digits_x = digits,
     items_averaged = 1,
+    data_type = "integer",
     rounding = rounding,
     threshold = threshold
   )

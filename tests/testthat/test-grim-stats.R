@@ -70,7 +70,7 @@ test_that("`grim_exp_incon()` is a probability", {
   5.19 |> grim_exp_incon(n = 0, digits_x = 2, items_averaged = 1)  |> expect_na()
   5.19 |> grim_exp_incon(n = -3, digits_x = 2, items_averaged = 1) |> expect_na()
   tibble::tibble(x = 5.19, n = -3L) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     purrr::pluck("exp_incon") |>
     expect_na()
   # Ordinary cases are untouched, and never above 1 or below 0:
@@ -110,10 +110,10 @@ test_that("`grim_map()`'s `exp_incon` is the share its `consistency` rules out",
   )
   for (rounding in roundings) {
     for (items in c(1, 3)) {
-      out <- one_decimal |> grim_map(digits_x = 1, items_averaged = items, rounding = rounding, threshold = 3)
+      out <- one_decimal |> grim_map(digits_x = 1, items_averaged = items, data_type = "integer", rounding = rounding, threshold = 3)
       out$exp_incon |> expect_equal(ave(!out$consistency, out$n))
     }
-    out <- percentage |> grim_map(digits_x = 0, items_averaged = 1, x_meaning = "percentage", rounding = rounding, threshold = 3)
+    out <- percentage |> grim_map(digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage", rounding = rounding, threshold = 3)
     out$exp_incon |> expect_equal(ave(!out$consistency, out$n))
   }
 })
@@ -124,7 +124,7 @@ test_that("`grim_exp_incon()` and `grim_total()` are `NA` where `grim()` is", {
   5    |> grim_total(200, 2, items_averaged = 1) |> expect_equal(0)
   5.14 |> grim_total(83, 2, items_averaged = 0.5) |> expect_na()
   tibble::tibble(x = c(Inf, NA, 5.19), n = c(20L, 20L, 28L)) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     purrr::pluck("exp_incon") |>
     expect_equal(c(NA, NA, 0.72))
 })

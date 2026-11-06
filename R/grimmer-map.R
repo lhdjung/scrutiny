@@ -14,7 +14,7 @@
 #'   whole column or one number per row of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
-#' @param items_averaged Integer. As in [`grim_map()`], for `x` and `sd`.
+#' @param items_averaged,data_type As in [`grim_map()`], for `x` and `sd`.
 #' @param rounding,threshold,symmetric,sd_meaning Passed on to
 #'   [`grimmer()`], whose section *Defaults* explains the defaults.
 #' @param ... These dots must be empty. Every argument after them must be
@@ -23,11 +23,13 @@
 #' @return A tibble with these columns:
 #' - `x`, `sd`, `n`: the inputs.
 #' - `items_averaged`: the number of items averaged into each score.
+#' - `data_type`: the kind of data, as given.
 #' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
 #' - `consistency`: GRIMMER consistency of `x`, `sd`, `n`, and `items_averaged`.
 #'   `NA` for a case that cannot be decided, such as one with a missing value.
-#' - `reason`: `"Passed all"` if consistent; otherwise the test that failed, or
-#'   why the case cannot be decided.
+#' - `reason`: `"Passed all"` if consistent, or `"Continuous data"` if the
+#'   test does not apply; otherwise the test that failed, or why the case
+#'   cannot be decided.
 #' - Any other columns from `data`.
 #'
 #' The `reason` column refers to GRIM and the GRIMMER tests of Allard (2018):
@@ -84,16 +86,31 @@
 #' # The `consistency` column shows whether the values to its left are
 #' # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 #' pigs5 |>
-#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+#'   grimmer_map(
+#'     digits_x = 2,
+#'     digits_sd = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer"
+#'   )
 #'
 #' # Get summaries with `audit()`:
 #' pigs5 |>
-#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+#'   grimmer_map(
+#'     digits_x = 2,
+#'     digits_sd = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer"
+#'   ) |>
 #'   audit()
 #'
 #' # Explain the results in plain words:
 #' pigs5 |>
-#'   grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+#'   grimmer_map(
+#'     digits_x = 2,
+#'     digits_sd = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer"
+#'   ) |>
 #'   explain_print(1:2)
 
 grimmer_map <- function_map(
@@ -104,6 +121,6 @@ grimmer_map <- function_map(
   # Unlike `grimmer()`, the mapper shows the reasons for inconsistencies by
   # default -- they fit into a column, and `audit()` counts them:
   .args_fixed = list(show_reason = TRUE),
-  .cols_helper = "items_averaged",
+  .cols_helper = c("items_averaged", "data_type"),
   .col_names = c("consistency", "reason")
 )

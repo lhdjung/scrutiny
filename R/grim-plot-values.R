@@ -423,6 +423,7 @@ grim_plot_values <- function(
       n = n,
       digits_x = digits_x,
       items_averaged = items_averaged,
+      data_type = "integer",
       x_meaning = x_meaning,
       rounding = rounding,
       threshold = threshold,

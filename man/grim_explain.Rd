@@ -9,6 +9,7 @@ grim_explain(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -29,6 +30,21 @@ respondent's score: 1 for a single item or the percentage of participants
 with some answer, 4 for the mean of a four-item scale, 10 for the average
 percent correct on a ten-question test. Not the number of scale points.
 No default.}
+
+\item{data_type}{String. The kind of data that \code{x} summarizes. No default.
+\itemize{
+\item \code{"integer"}: whole numbers, such as answers on a rating scale, counts,
+or yes/no answers for a percentage.
+\item \code{"quasi-integer"}: whole numbers that stand for something continuous,
+such as age in years or reaction times in whole milliseconds. They are
+tested like \code{"integer"} data, with a warning, once per session, that
+the result only holds if the analysis used the recorded whole numbers.
+\item \code{"continuous"}: anything else, such as body mass index or a visual
+analogue scale. The test does not apply, and the result is \code{TRUE}.
+}
+
+If it is missing, the result is \code{TRUE} if the value set is consistent as
+whole numbers, and \code{NA} otherwise.}
 
 \item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
 \code{"percentage"}. A percentage is divided by 100 and tested with two more
@@ -71,15 +87,28 @@ The text is built from the numbers that decide the test itself, so it
 always agrees with \code{\link[=grim]{grim()}}.
 }
 \examples{
-grim_explain(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_explain(
+  x = 5.19,
+  n = 28,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
-grim_explain(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+grim_explain(
+  x = 5.19,
+  n = 32,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 
 grim_explain(
   x = 71,
   n = 43,
   digits_x = 0,
   items_averaged = 1,
+  data_type = "integer",
   x_meaning = "percentage"
 )
 }

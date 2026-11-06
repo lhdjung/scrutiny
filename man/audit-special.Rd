@@ -45,7 +45,7 @@ output, so it can be used instead.
 
 \examples{
 out <- pigs1 |>
-  grim_map_seq(digits_x = 2, items_averaged = 1) |>
+  grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   audit_seq()
 out
 

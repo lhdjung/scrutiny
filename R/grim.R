@@ -4,6 +4,7 @@ grim_scalar <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   show_rec = FALSE,
   rounding = "up_or_down",
@@ -30,8 +31,34 @@ grim_scalar <- function(
     check_type(items_averaged, c("double", "integer"))
   }
 
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+
   scale <- rounding_scale(rounding, threshold, symmetric)
   check_newly_numeric(x, digits_x, scale = scale)
+
+  if (!identical(data_type, "integer")) {
+    return(test_data_type(
+      data_type,
+      test_integer = function() {
+        grim_scalar(
+          x = x,
+          n = n,
+          digits_x = digits_x,
+          items_averaged = items_averaged,
+          data_type = "integer",
+          x_meaning = x_meaning,
+          show_rec = show_rec,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric
+        )
+      },
+      pass = if (show_rec) c(list(TRUE), rep(list(NA_real_), 5L)) else TRUE,
+      missing = if (show_rec) c(list(NA), rep(list(NA_real_), 5L)) else NA
+    ))
+  }
 
   # GRIM asks which integer sums of `n * items_averaged` integer values have a
   # mean that would be reported as `x`. Undecidable rather than inconsistent:
@@ -138,11 +165,14 @@ grim_scalar <- function(
 #'
 #' @details `items_averaged` must be specified because a mean over several
 #'   items is a mean of more values, which changes the test. A default of 1
-#'   would let multi-item scales pass unnoticed.
+#'   would let multi-item scales pass unnoticed. `data_type` must be specified
+#'   because GRIM only applies to whole numbers. A default of `"integer"`
+#'   would let the test flag means of continuous data, which can take any
+#'   value.
 #'
-#'   `x`, `n`, `digits_x`, and `items_averaged` are vectorized and recycled to a
-#'   common length by the tidyverse rules: an argument has length 1 or the
-#'   length of the longest. All other arguments must have length 1.
+#'   `x`, `n`, `digits_x`, `items_averaged`, and `data_type` are vectorized
+#'   and recycled to a common length by the tidyverse rules: an argument has
+#'   length 1 or the length of the longest. All other arguments must have length 1.
 #'
 #'   Numbers beyond the precision of a double are an error rather than a
 #'   guess. `x` with its `digits_x` may have about 15 significant digits:
@@ -160,6 +190,18 @@ grim_scalar <- function(
 #'   with some answer, 4 for the mean of a four-item scale, 10 for the average
 #'   percent correct on a ten-question test. Not the number of scale points.
 #'   No default.
+#' @param data_type String. The kind of data that `x` summarizes. No default.
+#'   - `"integer"`: whole numbers, such as answers on a rating scale, counts,
+#'   or yes/no answers for a percentage.
+#'   - `"quasi-integer"`: whole numbers that stand for something continuous,
+#'   such as age in years or reaction times in whole milliseconds. They are
+#'   tested like `"integer"` data, with a warning, once per session, that
+#'   the result only holds if the analysis used the recorded whole numbers.
+#'   - `"continuous"`: anything else, such as body mass index or a visual
+#'   analogue scale. The test does not apply, and the result is `TRUE`.
+#'
+#'   If it is missing, the result is `TRUE` if the value set is consistent as
+#'   whole numbers, and `NA` otherwise.
 #' @param x_meaning String. What `x` is: `"mean"` (the default) or
 #'   `"percentage"`. A percentage is divided by 100 and tested with two more
 #'   decimal places, as the proportion it is. See *Defaults* in [`grim()`].
@@ -218,16 +260,32 @@ grim_scalar <- function(
 #'
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
-#' grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # However, it is consistent with a sample size of 32:
-#' grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+#' grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # For a scale composed of two items:
-#' grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2)
+#' grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer")
 #'
 #' # With percentages instead of means -- here, 71%:
-#' grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, x_meaning = "percentage")
+#' grim(
+#'   x = 71,
+#'   n = 43,
+#'   digits_x = 0,
+#'   items_averaged = 1,
+#'   data_type = "integer",
+#'   x_meaning = "percentage"
+#' )
+#'
+#' # Means of continuous data, such as reaction times, can take any value:
+#' grim(
+#'   x = 5.19,
+#'   n = 28,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "continuous"
+#' )
 
 # The signature mirrors `grim_scalar()`'s minus `show_rec`; see
 # `map_value_sets()`.
@@ -236,6 +294,7 @@ grim <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -243,6 +302,6 @@ grim <- function(
 ) {
   map_value_sets(
     fn = grim_scalar,
-    along = c("x", "n", "digits_x", "items_averaged")
+    along = c("x", "n", "digits_x", "items_averaged", "data_type")
   )
 }

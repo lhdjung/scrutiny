@@ -286,7 +286,8 @@ df1 <- df1 |>
     sd = as.numeric(restore_zeros(sd, width = 2)),
     digits_x = 2L,
     digits_sd = 2L,
-    items_averaged = 1
+    items_averaged = 1,
+    data_type = "integer"
   )
 
 
@@ -487,42 +488,42 @@ df_disagree_all |>
 # New implementation from rsprite2 ----------------------------------------
 
 test_that("GRIMMER works correctly by default", {
-  5.21 |> grimmer_scalar(1.6, 28, digits_x = 2, digits_sd = 1, items_averaged = 1)  |> expect_true()
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_false()
+  5.21 |> grimmer_scalar(1.6, 28, digits_x = 2, digits_sd = 1, items_averaged = 1, data_type = "integer")  |> expect_true()
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_false()
 })
 
 test_that("GRIMMER works correctly when compared to the rsprite2 implementation", {
   # rsprite2 accepts this, but whole numbers with a mean of 1.2 at `n = 57` have
   # an SD of at least 0.368, as nine 2s and 48 1s. This is the minimum sum of
   # squares that `sum_squares_min()` adds to test 1:
-  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
-  8.3 |> grimmer_scalar(7.5, 103, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_equal(GRIMMER_test(8.3, 7.5, 103))
+  1.2 |> grimmer_scalar(0.3,  57, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_false()
+  8.3 |> grimmer_scalar(7.5, 103, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(8.3, 7.5, 103))
 
   # Dealing with test-3 inconsistencies:
-  5.23 |> grimmer_scalar(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1)  |> expect_equal(GRIMMER_test(5.23, 2.55, 35))
-  5.23 |> grimmer_scalar(2.55, 127, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(5.23, 2.55, 127))
-  5.2  |> grimmer_scalar(2.5 , 35, digits_x = 1, digits_sd = 1, items_averaged = 1)  |> expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
+  5.23 |> grimmer_scalar(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")  |> expect_equal(GRIMMER_test(5.23, 2.55, 35))
+  5.23 |> grimmer_scalar(2.55, 127, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(5.23, 2.55, 127))
+  5.2  |> grimmer_scalar(2.5 , 35, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer")  |> expect_equal(GRIMMER_test(5.2 , 2.5 , 35))
 
   # This value set is from `pigs5`. It used to be flagged as a test-3
   # inconsistency by `grimmer_scalar()`, but it is consistent according to both
   # the new version and rsprite2:
-  2.57 |> grimmer_scalar(2.57, 30, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(2.57, 2.57, 30))
+  2.57 |> grimmer_scalar(2.57, 30, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(2.57, 2.57, 30))
 
   # Some finer variations:
-  3.756 |> grimmer_scalar(4.485, 89, digits_x = 3, digits_sd = 3, items_averaged = 1) |> expect_equal(GRIMMER_test(3.756, 4.485, 89))
-  3.756 |> grimmer_scalar(4.485, 12, digits_x = 3, digits_sd = 3, items_averaged = 1) |> expect_equal(GRIMMER_test(3.756, 4.485, 12))
-  3.75  |> grimmer_scalar(4.48,  12, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(3.75, 4.48, 12))
-  3.75  |> grimmer_scalar(4.48,  89, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_equal(GRIMMER_test(3.75, 4.48, 89))
+  3.756 |> grimmer_scalar(4.485, 89, digits_x = 3, digits_sd = 3, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(3.756, 4.485, 89))
+  3.756 |> grimmer_scalar(4.485, 12, digits_x = 3, digits_sd = 3, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(3.756, 4.485, 12))
+  3.75  |> grimmer_scalar(4.48,  12, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(3.75, 4.48, 12))
+  3.75  |> grimmer_scalar(4.48,  89, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(GRIMMER_test(3.75, 4.48, 89))
 })
 
 test_that("GRIMMER works correctly with `items_averaged = 2`", {
-  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
+  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer") |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 2))
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer") |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 2))
 })
 
 test_that("GRIMMER works correctly with `items_averaged = 3`", {
-  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
-  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 3) |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
+  5.21 |> grimmer_scalar(1.60, 28, digits_x = 2, digits_sd = 2, items_averaged = 3, data_type = "integer") |> expect_equal(GRIMMER_test(5.21, 1.6 , 28, n_items = 3))
+  3.44 |> grimmer_scalar(2.47, 18, digits_x = 2, digits_sd = 2, items_averaged = 3, data_type = "integer") |> expect_equal(GRIMMER_test(3.44, 2.47, 18, n_items = 3))
 })
 
 
@@ -535,7 +536,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
   # both. This only affects `rounding = "up"`/`"down"`; see
   # https://github.com/lhdjung/scrutiny/issues/85.
   0.11 |>
-    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |>
+    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up") |>
     expect_false()
 
   cases <- tibble::tribble(
@@ -554,7 +555,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
 
   result_false <- cases |>
     purrr::pmap_lgl(function(x, sd, n) {
-      grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up")
+      grimmer(x = x, sd = sd, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up")
     })
 
   result_false |> any() |> expect_false()
@@ -562,7 +563,7 @@ test_that("GRIMMER checks SD-match and parity against the same candidate sum of 
   # The same value is genuinely GRIMMER-consistent under "up_or_down", where a
   # third candidate integer for the sum of squares is not at stake:
   0.11 |>
-    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up_or_down") |>
+    grimmer(sd = 0.87, n = 64, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up_or_down") |>
     expect_true()
 })
 
@@ -584,9 +585,9 @@ test_that("GRIMMER does not flag values that real datasets produce (#86)", {
   witness |> mean()                |> expect_equal(0.035)
   witness |> stats::sd() |> round(2) |> expect_equal(0.18)
 
-  0.03 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_true()
-  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_true()
-  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |> expect_true()
+  0.03 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                  |> expect_true()
+  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                  |> expect_true()
+  0.04 |> grimmer(sd = 0.18, n = 200, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up") |> expect_true()
 })
 
 
@@ -596,9 +597,9 @@ test_that("GRIMMER admits no phantom candidate sums (#86)", {
   # "up")$upper * 160` is 12.000000000000002, so 12 used to slip past the
   # exclusive upper bound and supply a parity-matching sum of squares. Note that
   # `grim()` itself passes here, so the GRIM gate cannot catch this.
-  0.07 |> grim(n = 160, digits_x = 2, items_averaged = 1, rounding = "up") |> expect_true()
+  0.07 |> grim(n = 160, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up") |> expect_true()
   0.07 |>
-    grimmer(sd = 0.08, n = 160, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = "up") |>
+    grimmer(sd = 0.08, n = 160, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = "up") |>
     expect_false()
 })
 
@@ -616,7 +617,7 @@ test_that("GRIMMER never flags an actual two-value dataset (#86)", {
         sd_value <- stats::sd(values)
         x          <- values   |> mean() |> roundwork::reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
         sd_rounded <- sd_value |> roundwork::reround(digits = 2, rounding = rounding) |> purrr::pluck(1L)
-        consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, rounding = rounding)
+        consistent <- x |> grimmer(sd = sd_rounded, n = n, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = rounding)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -642,7 +643,7 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
   (witness / 3) |> stats::sd()             |> expect_equal(0)
 
   7.67 |>
-    grimmer(sd = 0, n = 2, items_averaged = 3, digits_x = 2, digits_sd = 2) |>
+    grimmer(sd = 0, n = 2, items_averaged = 3, data_type = "integer", digits_x = 2, digits_sd = 2) |>
     expect_true()
 
   # Same mechanism at a range of magnitudes, all of them real data sets with
@@ -654,7 +655,7 @@ test_that("GRIMMER derives the sum-of-squares bounds exactly", {
     for (n in c(2, 3, 5, 10, 37)) {
       for (item_sum in c(23, 25, 28, 106, 400, 631, 1000, 2317)) {
         x <- (item_sum / items) |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
-        consistent <- x |> grimmer(sd = 0, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
+        consistent <- x |> grimmer(sd = 0, n = n, items_averaged = items, data_type = "integer", digits_x = 2, digits_sd = 2)
         if (!isTRUE(consistent)) {
           false_flags <- false_flags + 1L
         }
@@ -680,7 +681,7 @@ test_that("GRIMMER never flags a real multi-item data set", {
     sd_value <- stats::sd(scores)
     x          <- scores   |> mean() |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
     sd_rounded <- sd_value |> roundwork::reround(digits = 2) |> purrr::pluck(1L)
-    consistent <- x |> grimmer(sd = sd_rounded, n = n, items_averaged = items, digits_x = 2, digits_sd = 2)
+    consistent <- x |> grimmer(sd = sd_rounded, n = n, items_averaged = items, data_type = "integer", digits_x = 2, digits_sd = 2)
     if (!isTRUE(consistent)) {
       false_flags <- false_flags + 1L
     }
@@ -699,6 +700,7 @@ test_that("GRIMMER supports the compound rounding methods", {
     5.23 |>
       grimmer(
         sd = 2.55, n = 31, digits_x = 2, digits_sd = 2, items_averaged = 1,
+        data_type = "integer",
         rounding = rounding, threshold = 3
       ) |>
       expect_type("logical")
@@ -710,11 +712,12 @@ test_that("`symmetric` is passed on to the GRIM stage", {
   # `grimmer()` runs `grim()` first, so a mean that `symmetric` rules out must
   # make GRIMMER inconsistent as well:
   -0.07 |>
-    grim(n = 40, digits_x = 2, items_averaged = 1, rounding = "up", symmetric = TRUE) |>
+    grim(n = 40, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up", symmetric = TRUE) |>
     expect_false()
   -0.07 |>
     grimmer(
       sd = 0.1, n = 40, digits_x = 2, digits_sd = 1, items_averaged = 1,
+      data_type = "integer",
       rounding = "up", symmetric = TRUE
     ) |>
     expect_false()
@@ -728,9 +731,9 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # "missing value where TRUE/FALSE needed" instead of passing it on. `debit()`
   # has the same test. (Until `anti_trunc()` stopped sending zero away from
   # zero, `rounding = "anti_trunc"` at a mean of zero was a second such case.)
-  NA   |> grim(n = 40, digits_x = 2, items_averaged = 1)                              |> expect_na()
-  NA   |> grimmer(sd = 0.41, n = 40, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_na()
-  1.03 |> grimmer(sd = 0.41, n = 0, digits_x = 2, digits_sd = 2, items_averaged = 1)  |> expect_na()
+  NA   |> grim(n = 40, digits_x = 2, items_averaged = 1, data_type = "integer")                              |> expect_na()
+  NA   |> grimmer(sd = 0.41, n = 40, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_na()
+  1.03 |> grimmer(sd = 0.41, n = 0, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")  |> expect_na()
 
   # The reason names the stage the case got stuck at, the way the reason for an
   # undecidable SD does. It must not read as a GRIM *inconsistency*, which
@@ -739,7 +742,7 @@ test_that("GRIMMER returns `NA` where GRIM itself is undecidable", {
   # screens for missingness ahead of the test, so the vehicle here is an `n`
   # that leaves nothing to test.)
   out <- tibble::tibble(x = c(1.03, 1.03), sd = c(0.41, 0.41), n = c(0L, 40L)) |>
-    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
   out$consistency |> expect_equal(c(NA, FALSE))
   out$reason[1L] |> expect_equal("No testable value set")
   out |> audit() |> purrr::pluck("fail_grim")    |> expect_equal(0L)
@@ -790,7 +793,7 @@ test_that("GRIMMER never rejects an enumerable sample", {
         function(x, sd) {
           grimmer(
             x = x, sd = sd, n = n,
-            digits_x = digits, digits_sd = digits, items_averaged = 1
+            digits_x = digits, digits_sd = digits, items_averaged = 1, data_type = "integer"
           )
         }
       )
@@ -818,6 +821,7 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
     function(x, sd) {
       grimmer(
         x = x, sd = sd, n = 4L, items_averaged = 2,
+        data_type = "integer",
         digits_x = 2, digits_sd = 2
       )
     }
@@ -831,41 +835,41 @@ test_that("GRIMMER never rejects an enumerable multi-item sample", {
 test_that("the SD's term is exact beyond 2^53", {
   # 36864 values with the sum 315 and the sum of squares 99225 have the SD
   # 105/64 = 1.640625 exactly:
-  0.008544921875 |> grimmer(1.64063,   36864, 12, 5, 1)                     |> expect_true()
+  0.008544921875 |> grimmer(1.64063,   36864, 12, 5, 1, data_type = "integer")                     |> expect_true()
   # The SE 35/256 = 0.13671875, which `"up_or_down"` takes either way, but
   # `"up"` only up; the other bound's products pass 2^53:
-  0.11328125     |> grimmer(0.1367188, 64,    8,  7, 4, sd_meaning = "se")                  |> expect_true()
-  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se")                  |> expect_true()
-  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se", rounding = "up") |> expect_false()
+  0.11328125     |> grimmer(0.1367188, 64,    8,  7, 4, sd_meaning = "se", data_type = "integer")                  |> expect_true()
+  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se", data_type = "integer")                  |> expect_true()
+  0.11328125     |> grimmer(0.1367187, 64,    8,  7, 4, sd_meaning = "se", rounding = "up", data_type = "integer") |> expect_false()
 })
 
 test_that("an `n` too large to enumerate is an error, not a hang", {
-  5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
-  5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("too large for GRIMMER")
+  5.19 |> grimmer(sd = 2.5, n = 3e9, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error("too large for GRIMMER")
+  5.19 |> grimmer(sd = 2.5, n = 1e8, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error("too large for GRIMMER")
   # With the mean unknown, every remainder modulo `n` that the SD can reach is
   # a candidate:
-  NA   |> grimmer(sd = 0.73, n = 1e6 + 3, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_error("the mean unknown")
-  NA   |> grimmer(sd = 1e-4, n = 1e8,     digits_x = 2, digits_sd = 4, items_averaged = 1) |> expect_na()
+  NA   |> grimmer(sd = 0.73, n = 1e6 + 3, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error("the mean unknown")
+  NA   |> grimmer(sd = 1e-4, n = 1e8,     digits_x = 2, digits_sd = 4, items_averaged = 1, data_type = "integer") |> expect_na()
 
   # The limit is far above anything a published summary statistic looks like,
   # so a large but plausible `n` still goes through:
-  5.19 |> grimmer(sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_type("logical")
+  5.19 |> grimmer(sd = 2.5, n = 1e6, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_type("logical")
 })
 
 
 test_that("a wide range of sums of squares is no error at a small `n`", {
   # A large SD reported with few decimals spans millions of sums of squares.
   # These used to trip the limit meant for a huge `n`:
-  35000.5 |> grimmer(sd = 50000, n = 20, digits_x = 1, digits_sd = 0, items_averaged = 1)  |> expect_true()
-  512.3   |> grimmer(sd = 260, n = 2500, digits_x = 1, digits_sd = 0, items_averaged = 1)  |> expect_true()
-  45000.5 |> grimmer(sd = 12000, n = 100, digits_x = 1, digits_sd = 0, items_averaged = 1) |> expect_true()
+  35000.5 |> grimmer(sd = 50000, n = 20, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer")  |> expect_true()
+  512.3   |> grimmer(sd = 260, n = 2500, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer")  |> expect_true()
+  45000.5 |> grimmer(sd = 12000, n = 100, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer") |> expect_true()
 })
 
 
 test_that("a negative SD is inconsistent, and says why", {
-  5 |> grimmer(-0.5, 10, 2, 2, items_averaged = 1) |> expect_false()
+  5 |> grimmer(-0.5, 10, 2, 2, items_averaged = 1, data_type = "integer") |> expect_false()
   5 |>
-    grimmer_scalar(-0.5, 10, 2, 2, show_reason = TRUE, items_averaged = 1) |>
+    grimmer_scalar(-0.5, 10, 2, 2, show_reason = TRUE, items_averaged = 1, data_type = "integer") |>
     expect_equal(list(FALSE, "Negative SD"))
 })
 
@@ -887,16 +891,16 @@ test_that("`sum_squares_min()` is the smallest sum of squares of whole numbers",
 test_that("GRIMMER rejects a sum of squares below what whole numbers can reach", {
   # The SD admits only 146, but 11 whole numbers summing to 40 reach 148 at
   # least: seven 4s and four 3s.
-  3.6 |> grimmer(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
-  3.6 |> grimmer(0.5, 11, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_true()
+  3.6 |> grimmer(0.2, 11, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_false()
+  3.6 |> grimmer(0.5, 11, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_true()
   # Here, the minimum of 91 is part of the range from 90 to 91:
-  1.9 |> grimmer(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_true()
+  1.9 |> grimmer(0.3, 25, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_true()
   # With two items, the whole numbers are the respondents' totals. The SD admits
   # only 109, but 10 totals summing to 33 reach 111 at least:
-  1.65 |> grimmer(0.05, 10, digits_x = 2, digits_sd = 2, items_averaged = 2) |> expect_false()
+  1.65 |> grimmer(0.05, 10, digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer") |> expect_false()
 
   3.6 |>
-    grimmer_scalar(0.2, 11, 1, 1, show_reason = TRUE, items_averaged = 1) |>
+    grimmer_scalar(0.2, 11, 1, 1, show_reason = TRUE, items_averaged = 1, data_type = "integer") |>
     expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
 })
 
@@ -936,22 +940,22 @@ test_that("`sum_squares_attainable()` finds the next square for two numbers with
   minimum <- sum_squares_min(1e6 + 1, 2)
   (1e6 + 1) |> sum_squares_attainable(2, minimum + 1e9, minimum + 2e9) |> expect_equal(minimum + (44723^2 - 1) / 2)
   # Many items averaged make the range of sums of squares that wide:
-  2.5 |> grimmer(1.2, 2, digits_x = 2, digits_sd = 2, items_averaged = 50000) |> expect_true()
-  2.5 |> grimmer(1.2, 3, digits_x = 2, digits_sd = 2, items_averaged = 50000) |> expect_true()
+  2.5 |> grimmer(1.2, 2, digits_x = 2, digits_sd = 2, items_averaged = 50000, data_type = "integer") |> expect_true()
+  2.5 |> grimmer(1.2, 3, digits_x = 2, digits_sd = 2, items_averaged = 50000, data_type = "integer") |> expect_true()
 })
 
 
 test_that("GRIMMER rejects sums of squares that fewer than five numbers cannot have", {
   # Two whole numbers with a sum of 2 and a sum of squares of 6 would be
   # `1 +/- sqrt(2)`:
-  1   |> grimmer(2,   2, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
-  1   |> grimmer(1.4, 3, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
-  1.5 |> grimmer(1.5, 4, digits_x = 1, digits_sd = 1, items_averaged = 1) |> expect_false()
+  1   |> grimmer(2,   2, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_false()
+  1   |> grimmer(1.4, 3, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_false()
+  1.5 |> grimmer(1.5, 4, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_false()
   # Four numbers with a sum of 4 cannot have 96, but 98, as -7, 2, 3, 6:
-  1   |> grimmer(6,   4, digits_x = 1, digits_sd = 0, items_averaged = 1) |> expect_true()
+  1   |> grimmer(6,   4, digits_x = 1, digits_sd = 0, items_averaged = 1, data_type = "integer") |> expect_true()
 
   1 |>
-    grimmer_scalar(2, 2, 1, 1, show_reason = TRUE, items_averaged = 1) |>
+    grimmer_scalar(2, 2, 1, 1, show_reason = TRUE, items_averaged = 1, data_type = "integer") |>
     expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
 })
 
@@ -982,7 +986,7 @@ test_that("GRIMMER agrees with a brute force on random value sets", {
   sd <- round(runif(length(n), 0, 2.5), 1)
 
   truth <- list(x, sd, n) |> purrr::pmap_lgl(any_sample)
-  verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = 1)
+  verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer")
   verdict |> expect_equal(truth)
   # Both regimes are well represented: the exceptions at `n < 5` and the exact
   # verdicts from the minimum and the parity at `n >= 5`:
@@ -1035,7 +1039,7 @@ test_that("GRIMMER agrees with a brute force under every rounding method and wit
         x <- round(runif(60L, 1, if (items == 1L) 5 else 3), 1)
         sd <- round(runif(60L, 0, if (items == 1L) 2.5 else 1), 1)
         truth <- paste(round(10 * x), round(10 * sd)) %in% reachable(n, items, rounding)
-        verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, rounding = rounding, threshold = threshold)
+        verdict <- grimmer(x, sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, data_type = "integer", rounding = rounding, threshold = threshold)
         info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n, ", seed = ", seed)
         verdict |> expect_equal(truth, info = info)
         n_checked <- n_checked + sum(truth)
@@ -1084,7 +1088,7 @@ test_that("GRIMMER agrees with an exact oracle at two decimal places for `n` up 
   grid <- expand.grid(x = seq(0.5, 2.5, by = 0.01), sd = seq(0, 1.5, by = 0.01))
   for (n in c(9L, 12L)) {
     truth <- paste(round(100 * grid$x), round(100 * grid$sd)) %in% reachable(n)
-    verdict <- grimmer(round(grid$x, 2), round(grid$sd, 2), n, digits_x = 2, digits_sd = 2, items_averaged = 1)
+    verdict <- grimmer(round(grid$x, 2), round(grid$sd, 2), n, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
     verdict |> expect_equal(truth, info = paste("n =", n))
     truth |> sum() |> expect_gt(100L)
   }
@@ -1097,19 +1101,19 @@ test_that("GRIMMER agrees with an exact oracle at two decimal places for `n` up 
 # 1.62.
 
 test_that("`sd_meaning` decides which SD a value set is consistent with", {
-  4.4 |> grimmer(1.62, 5, 1, 2, 1)                         |> expect_false()
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_true()
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop")     |> expect_true()
-  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_false()
-  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop")     |> expect_true()
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, data_type = "integer")                         |> expect_false()
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")     |> expect_true()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")     |> expect_true()
 })
 
 test_that("`sd_meaning` is checked with `rlang::arg_match()`", {
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "pop") |> expect_error("must be one of")
-  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = NA)    |> expect_error("must be a")
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = "pop", data_type = "integer") |> expect_error("must be one of")
+  4.4 |> grimmer(1.62, 5, 1, 2, 1, sd_meaning = NA, data_type = "integer")    |> expect_error("must be a")
   # The error names the function the user called:
   error <- tibble::tibble(x = 4.4, sd = 1.62, n = 5) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "Sample") |>
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "Sample") |>
     expect_error("must be one of")
   error$call[[1L]] |> expect_equal(quote(grimmer_map))
 })
@@ -1157,10 +1161,10 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
         info <- paste0("items = ", items, ", rounding = ", rounding, ", n = ", n, ", seed = ", seed)
 
         x |>
-          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_pop") |>
+          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_pop", data_type = "integer") |>
           expect_equal(is_population, info = info)
         x |>
-          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_sample_or_pop") |>
+          grimmer(sd, n, 1, 1, items, rounding = rounding, sd_meaning = "sd_sample_or_pop", data_type = "integer") |>
           expect_equal(is_sample | is_population, info = info)
         n_checked <- n_checked + sum(is_population)
 
@@ -1170,7 +1174,7 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
           key <- paste(round(10 * x), round(10 * se))
           is_se <- key %in% reachable(n, items, rounding, "se")
           x |>
-            grimmer(se, n, 1, 1, items, rounding = rounding, sd_meaning = "se") |>
+            grimmer(se, n, 1, 1, items, rounding = rounding, sd_meaning = "se", data_type = "integer") |>
             expect_equal(is_se, info = paste(info, "(SE)"))
           n_checked_se <- n_checked_se + sum(is_se)
         }
@@ -1183,7 +1187,7 @@ test_that("GRIMMER agrees with a brute force on population SDs and SEs", {
 
 test_that("`grimmer_map()` names the SD type that a value set passed under", {
   out <- tibble::tibble(x = c(4.4, 4.4, 3.6, 4), sd = c(1.82, 1.62, 0.2, 0.5), n = c(5, 5, 11, 1)) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop")
 
   # A single value has no sample SD, so the population SD decides:
   out$consistency |> expect_equal(c(TRUE, TRUE, FALSE, FALSE))
@@ -1193,22 +1197,22 @@ test_that("`grimmer_map()` names the SD type that a value set passed under", {
 
 test_that("`sd_meaning` reaches the sequence and total-n mappers", {
   df <- tibble::tibble(x = 4.4, sd = 1.62, n = 5)
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1)                         |> nrow() |> expect_gt(0L)
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> expect_warning("No inconsistent cases")
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> suppressWarnings() |> nrow() |> expect_equal(0L)
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")                         |> nrow() |> expect_gt(0L)
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop") |> expect_warning("No inconsistent cases")
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop") |> suppressWarnings() |> nrow() |> expect_equal(0L)
 
-  seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
+  seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
   seq_either |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
   seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
 
   # Only groups of 5 and 5 fit, and only as population SDs:
   total <- tibble::tibble(x1 = 4.4, x2 = 4.4, sd1 = 1.62, sd2 = 1.62, n = 10)
-  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1)                         |> _$both_consistent |> any() |> expect_false()
-  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> _$both_consistent |> which() |> expect_equal(1:2)
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")                         |> _$both_consistent |> any() |> expect_false()
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop") |> _$both_consistent |> which() |> expect_equal(1:2)
 })
 
 test_that("`audit()` counts each \"sd_sample_or_pop\" case once, by the sample SD's reason", {
-  out <- tibble::tibble(x = 4.59, sd = 1.96, n = 17) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_sample_or_pop")
+  out <- tibble::tibble(x = 4.59, sd = 1.96, n = 17) |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop")
   out$reason |> expect_equal("Sample SD: GRIMMER inconsistent (test 1); population SD: GRIMMER inconsistent (test 3)")
   audit <- out |> audit()
   audit$fail_test1 |> expect_equal(1L)
@@ -1218,7 +1222,7 @@ test_that("`audit()` counts each \"sd_sample_or_pop\" case once, by the sample S
 test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
   df <- tibble::tibble(x = 2.5, sd = 0.9, n = 3)
   seq_n <- function(sd_meaning) {
-    df |> grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, sd_meaning = sd_meaning, var = "n", include_consistent = TRUE) |> _$n |> min()
+    df |> grimmer_map_seq(digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer", sd_meaning = sd_meaning, var = "n", include_consistent = TRUE) |> _$n |> min()
   }
   "sd_sample"     |> seq_n() |> expect_equal(2L)
   "sd_pop" |> seq_n() |> expect_equal(1L)
@@ -1228,35 +1232,35 @@ test_that("the sequence mapper disperses `n` down to 1 only for a population SD"
 test_that("explanations agree with the test under every SD type", {
   grid <- tidyr::expand_grid(x = c(3.6, 4.4, 5.2), sd = c(0, 0.5, 1.62, 1.82), n = c(1, 2, 5, 11))
   for (sd_meaning in c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")) {
-    verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = sd_meaning)
+    verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = sd_meaning, data_type = "integer")
     explained <- grid |>
       purrr::pmap_lgl(function(x, sd, n) {
-        explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = sd_meaning)
+        explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = sd_meaning, data_type = "integer")
         explanation$consistency
       })
     explained |> expect_equal(verdict, info = sd_meaning)
   }
 
-  explanation <- 4.4 |> grimmer_explain(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop") |> format()
+  explanation <- 4.4 |> grimmer_explain(1.62, 5, 1, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> format()
   explanation |> expect_match("sd_meaning = \"sd_sample_or_pop\"", fixed = TRUE)
   explanation |> expect_match("population SD, which divides by n rather than n - 1", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
 
   # At `n = 1`, only the sample SD is undecidable; at `n = 1.5`, both are, and
   # the population SD's requirement is the one stated:
-  4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_meaning = "sd_sample_or_pop") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
-  4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_meaning = "sd_sample_or_pop") |> _$paragraphs |> expect_no_match("sample", fixed = TRUE)
+  4 |> grimmer_explain(0.5, 1,   1, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> format() |> expect_match("A single value has no sample SD", fixed = TRUE)
+  4 |> grimmer_explain(0.5, 1.5, 1, 1, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> _$paragraphs |> expect_no_match("sample", fixed = TRUE)
   # A missing value is not why the sample SD is undecidable at `n = 1`:
   NA |> debit_explain(0.9, 1, 1, 1, sd_meaning = "sd_sample_or_pop") |> _$paragraphs |> _[[1L]] |> expect_match("at least 2", fixed = TRUE)
   # A population paragraph that reads like one of the sample's was dropped:
-  3 |> grimmer_explain(0.25, 6, 0, 2, 1, sd_meaning = "sd_sample_or_pop") |> _$paragraphs |> grepl(pattern = "remaining 4 sums") |> sum() |> expect_equal(2L)
+  3 |> grimmer_explain(0.25, 6, 0, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer") |> _$paragraphs |> grepl(pattern = "remaining 4 sums") |> sum() |> expect_equal(2L)
 
   # A single value's only sum of squares is its square, in the singular:
-  explanation <- 3 |> grimmer_explain(1, 1, 0, 0, 1, sd_meaning = "sd_pop") |> format()
+  explanation <- 3 |> grimmer_explain(1, 1, 0, 0, 1, sd_meaning = "sd_pop", data_type = "integer") |> format()
   explanation |> expect_match("its sum of squares can only be 9", fixed = TRUE)
 
   out <- tibble::tibble(x = c(4.4, 4.4), sd = c(1.62, 1.82), n = 5) |>
-    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |>
+    grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop") |>
     explain_map()
   out$explanation |> expect_match("For a population SD,\\s+it is 5 \\* SD\\^2")
 })
@@ -1274,38 +1278,38 @@ test_that("`grimmer_plot_values()` takes `sd_meaning`", {
 # The sample SD of 2, 4, 4, 5, 7, 1.82, has an SE of 0.81.
 
 test_that("`sd_meaning = \"se\"` tests `sd` as an SE", {
-  4.4 |> grimmer(0.81, 5, 1, 2, 1)                    |> expect_false()
-  4.4 |> grimmer(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_true()
-  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "se") |> expect_false()
+  4.4 |> grimmer(0.81, 5, 1, 2, 1, data_type = "integer")                    |> expect_false()
+  4.4 |> grimmer(0.81, 5, 1, 2, 1, sd_meaning = "se", data_type = "integer") |> expect_true()
+  4.4 |> grimmer(1.82, 5, 1, 2, 1, sd_meaning = "se", data_type = "integer") |> expect_false()
   # An SE needs a sample SD:
-  4   |> grimmer(0.5, 1, 1, 1, 1, sd_meaning = "se")  |> expect_na()
+  4   |> grimmer(0.5, 1, 1, 1, 1, sd_meaning = "se", data_type = "integer")  |> expect_na()
 })
 
 test_that("`sd_meaning = \"se\"` reaches every mapper, which records it", {
   df <- tibble::tibble(x = 4.4, sd = 0.81, n = 5)
-  out <- df |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se")
+  out <- df |> grimmer_map(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se")
   out$consistency |> expect_true()
   out |> scrutiny_args() |> _$sd_meaning |> expect_equal("se")
 
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1)                    |> nrow() |> expect_gt(0L)
-  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se") |> expect_warning("No inconsistent cases")
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")                    |> nrow() |> expect_gt(0L)
+  df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se") |> expect_warning("No inconsistent cases")
 
   total <- tibble::tibble(x1 = 4.4, x2 = 4.4, sd1 = 0.81, sd2 = 0.81, n = 10)
-  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1)                    |> _$both_consistent |> any() |> expect_false()
-  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, sd_meaning = "se") |> _$both_consistent |> any() |> expect_true()
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")                    |> _$both_consistent |> any() |> expect_false()
+  total |> grimmer_map_total_n(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se") |> _$both_consistent |> any() |> expect_true()
 })
 
 test_that("explanations and the comb plot agree with the test under an SE", {
   grid <- tidyr::expand_grid(x = c(4.4, 4.6), sd = c(0.73, 0.81, 1.82), n = c(1, 5, 12))
-  verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = "se")
+  verdict <- grid$x |> grimmer(grid$sd, grid$n, 1, 2, 1, sd_meaning = "se", data_type = "integer")
   explained <- grid |>
     purrr::pmap_lgl(function(x, sd, n) {
-      explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = "se")
+      explanation <- x |> grimmer_explain(sd, n, 1, 2, 1, sd_meaning = "se", data_type = "integer")
       explanation$consistency
     })
   explained |> expect_equal(verdict)
 
-  explanation <- 4.4 |> grimmer_explain(0.81, 5, 1, 2, 1, sd_meaning = "se") |> format()
+  explanation <- 4.4 |> grimmer_explain(0.81, 5, 1, 2, 1, sd_meaning = "se", data_type = "integer") |> format()
   explanation |> expect_match("sd_meaning = \"se\"", fixed = TRUE)
   explanation |> expect_match("5 * (5 - 1) * SE^2", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
@@ -1317,27 +1321,27 @@ test_that("sums of squares beyond 2^53 are compared exactly", {
   # 660701916 and 660701945 have this mean and population SD. Their sum of
   # squares is 8.7e17, which no double holds exactly; the verdict used to be
   # FALSE with a base R warning about the modulus, then an error:
-  grimmer(660701930.5, 14.50, 2, 1, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_true()
+  grimmer(660701930.5, 14.50, 2, 1, 2, 1, rounding = "floor", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
   # 752690716, 752690718, 752690720 under `rounding = "floor"`: the window loop
   # of `sum_squares_attainable_all()` could not advance past 2^54 and ran on:
-  grimmer(752690718.00, 1.63, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_true()
-  grimmer(752690718.00, 1.62, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop") |> expect_false()
-  grimmer(5.25, 1e7, 28, 2, 2, 1) |> expect_true()
+  grimmer(752690718.00, 1.63, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  grimmer(752690718.00, 1.62, 3, 2, 2, 1, rounding = "floor", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  grimmer(5.25, 1e7, 28, 2, 2, 1, data_type = "integer") |> expect_true()
   # Fewer than five values with an SD this large have sums of squared
   # deviations from 2^40 on, where `sum_squares_attainable()` takes seconds
   # and gigabytes for three values:
-  grimmer(5.25, 1e8, 4, 2, 0, 1) |> expect_error("too large for GRIMMER with `n` from 2 to 4")
-  grimmer(0.3, 1e7, 3, 1, 0, 1)  |> expect_error("too large for GRIMMER with `n` from 2 to 4")
+  grimmer(5.25, 1e8, 4, 2, 0, 1, data_type = "integer") |> expect_error("too large for GRIMMER with `n` from 2 to 4")
+  grimmer(0.3, 1e7, 3, 1, 0, 1, data_type = "integer")  |> expect_error("too large for GRIMMER with `n` from 2 to 4")
   # This was FALSE before the limit, though c(-17364762, -48535175, 65899938)
   # fits:
-  grimmer(0.33, 34156502.5532014, 3, 2, 7, 1, sd_meaning = "se") |> expect_error("too large for GRIMMER with `n` from 2 to 4")
-  grimmer(0, 41633319.99, 4, 0, 2, 1)                             |> expect_error("too large for GRIMMER with `n` from 2 to 4")
+  grimmer(0.33, 34156502.5532014, 3, 2, 7, 1, sd_meaning = "se", data_type = "integer") |> expect_error("too large for GRIMMER with `n` from 2 to 4")
+  grimmer(0, 41633319.99, 4, 0, 2, 1, data_type = "integer")                             |> expect_error("too large for GRIMMER with `n` from 2 to 4")
   # Just below the limit, c(0, 0, 1212436) has the sample SD 700000.25:
-  grimmer(404145.3, 700000, 3, 1, 0, 1) |> expect_true()
-  grimmer(404145.3, 800000, 3, 1, 0, 1) |> expect_error("too large")
+  grimmer(404145.3, 700000, 3, 1, 0, 1, data_type = "integer") |> expect_true()
+  grimmer(404145.3, 800000, 3, 1, 0, 1, data_type = "integer") |> expect_error("too large")
   # A single value has the SD 0, at any size. The first was refused:
-  grimmer(5, 7e7, 1, 0, 0, 1, sd_meaning = "sd_pop") |> expect_false()
-  grimmer(7e9, 0, 1, 0, 0, 1, sd_meaning = "sd_pop") |> expect_true()
+  grimmer(5, 7e7, 1, 0, 0, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  grimmer(7e9, 0, 1, 0, 0, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
 })
 
 test_that("a large mean is exact as long as the sums of squares are", {
@@ -1345,24 +1349,39 @@ test_that("a large mean is exact as long as the sums of squares are", {
   # sum of squares, about 4e13, is not. 999 values of 200000 and one of 201000:
   x <- 200001
   sd_sample <- sqrt(1000^2 * (1 - 1 / 1000) / 999)
-  grimmer(x, round(sd_sample, 2), 1000, 2, 2, 1) |> expect_true()
+  grimmer(x, round(sd_sample, 2), 1000, 2, 2, 1, data_type = "integer") |> expect_true()
   grimmer_values(x, round(sd_sample, 2), 1000, 2, 2, 1) |> nrow() |> expect_gt(0L)
   # Random samples of whole numbers around 2e5 pass:
   set.seed(sweep_seed(2026L))
   for (i in 1:20) {
     values <- round(stats::rnorm(1000, mean = 2e5, sd = 30))
-    grimmer(round(mean(values), 2), round(stats::sd(values), 2), 1000, 2, 2, 1) |> expect_true()
+    grimmer(round(mean(values), 2), round(stats::sd(values), 2), 1000, 2, 2, 1, data_type = "integer") |> expect_true()
   }
 })
 
 test_that("only the sums that GRIMMER tests count toward its limit", {
   # The mean admits some 7.4 million sums, but only `n` of them are distinct
   # modulo `n`, and only these are tested:
-  grimmer(-1, 0.11235448985, 59299, 0, 11, 125, rounding = "ceiling_or_floor", sd_meaning = "sd_pop") |> expect_true()
+  grimmer(-1, 0.11235448985, 59299, 0, 11, 125, rounding = "ceiling_or_floor", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
 })
 
 test_that("an integer `n` doesn't overflow in the shift of a large mean", {
-  5000.12 |> grimmer(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1) |> expect_no_warning()
-  grimmer_explain(5000.12, 10.12, 100L, 2, 2, items_averaged = 1)$consistency           |> expect_true()
+  5000.12 |> grimmer(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_no_warning()
+  grimmer_explain(5000.12, 10.12, 100L, 2, 2, items_averaged = 1, data_type = "integer")$consistency           |> expect_true()
   5000.12 |> grimmer_values(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1) |> nrow() |> expect_equal(10)
+})
+
+
+test_that("`data_type` decides whether GRIMMER applies", {
+  # 5.23 and 2.55 fail at `n = 35` and pass at `n = 31` as whole numbers:
+  c(5.23, 5.23) |> grimmer(2.55, c(35, 31), 2, 2, 1, "integer")    |> expect_equal(c(FALSE, TRUE))
+  c(5.23, 5.23) |> grimmer(2.55, c(35, 31), 2, 2, 1, "continuous") |> expect_equal(c(TRUE, TRUE))
+  c(5.23, 5.23) |> grimmer(2.55, c(35, 31), 2, 2, 1, NA)           |> expect_equal(c(NA, TRUE))
+  # Before `sd_meaning = "sd_sample_or_pop"` tries the two conventions:
+  5.23 |> grimmer(2.55, 35, 2, 2, 1, "continuous", sd_meaning = "sd_sample_or_pop") |> expect_true()
+  5.23 |> grimmer(2.55, 35, 2, 2, 1) |> expect_error("Need to specify `data_type`")
+  out <- tibble::tibble(x = 5.23, sd = 2.55, n = 35, data_type = c("integer", "continuous", NA)) |>
+    grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  out$consistency |> expect_equal(c(FALSE, TRUE, NA))
+  out$reason      |> expect_equal(c("GRIMMER inconsistent (test 3)", "Continuous data", "Missing value"))
 })

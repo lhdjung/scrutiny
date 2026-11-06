@@ -590,7 +590,7 @@ test_that("a large `n` is tested exactly", {
 test_that("an `n` beyond exact arithmetic is an error, not a wrong verdict or a hang", {
   0  |> debit(0.2, 1e20, 2, 1, sd_meaning = "sd_pop") |> expect_error("`n` is too large")
   NA |> debit(0.3, 1e18, 2, 1, sd_meaning = "sd_pop") |> expect_error("`n` is too large")
-  NA |> grimmer(0.5, 2^53 + 2, 1, 1, 1)                |> expect_error("`n` is too large")
+  NA |> grimmer(0.5, 2^53 + 2, 1, 1, 1, data_type = "integer")                |> expect_error("`n` is too large")
 })
 
 test_that("`formula = \"mean_n\"` is exact with `digits_x = 15`", {

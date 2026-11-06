@@ -10,7 +10,7 @@ test_that("cached grids equal computed ones", {
 test_that("`grim_grid()` has every cell, marked as `grim()` marks it", {
   grid <- grim_grid(1, rounding = "even")
   grid |> nrow() |> expect_equal(9 * 10)
-  grid$frac |> grim(grid$n, digits_x = 1, items_averaged = 1, rounding = "even") |> expect_identical(grid$consistency)
+  grid$frac |> grim(grid$n, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "even") |> expect_identical(grid$consistency)
 })
 
 test_that("the inconsistent cells of `grim_grid()` are the cached ones", {

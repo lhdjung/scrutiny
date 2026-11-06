@@ -301,24 +301,24 @@ test_that("`whole_add()` keeps a sum from 2^53 on as a big number", {
 test_that("an invalid `threshold` or `symmetric` is an error, even if the rounding method ignores it", {
   # `rounding_scale()` failed on these with a base R error, and then they were
   # accepted, and recorded in the print header:
-  5.19 |> grim(28, 2, 1, threshold = NA)                                      |> expect_error("must be a finite number")
+  5.19 |> grim(28, 2, 1, threshold = NA, data_type = "integer")                                      |> expect_error("must be a finite number")
   0.5  |> debit(0.5, 10, 2, 2, threshold = "5")                               |> expect_error("must be a finite number")
-  5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA)                |> expect_error("must be a finite number")
-  pigs1 |> grim_map(2, items_averaged = 1, threshold = "5")                   |> expect_error("must be a finite number")
-  5.19 |> grim(28, 2, 1, symmetric = "no")                                    |> expect_error("`TRUE` or `FALSE`")
+  5.19 |> grim(28, 2, 1, rounding = "up_from", threshold = NA, data_type = "integer")                |> expect_error("must be a finite number")
+  pigs1 |> grim_map(2, items_averaged = 1, data_type = "integer", threshold = "5")                   |> expect_error("must be a finite number")
+  5.19 |> grim(28, 2, 1, symmetric = "no", data_type = "integer")                                    |> expect_error("`TRUE` or `FALSE`")
 })
 
 
 test_that("the too-many-digits error states the limit it applies", {
   # "has 15" read like a contradiction of "about 15 significant digits":
-  0.5 |> grim(10, 15, 1) |> expect_error("or 14 if they start with 4.5 or more")
-  -81883629588554 |> grim(11, 0, 1, rounding = "up_from", threshold = 0.5) |> expect_error("That costs 1 digit")
+  0.5 |> grim(10, 15, 1, data_type = "integer") |> expect_error("or 14 if they start with 4.5 or more")
+  -81883629588554 |> grim(11, 0, 1, rounding = "up_from", threshold = 0.5, data_type = "integer") |> expect_error("That costs 1 digit")
 })
 
 test_that("a data frame without names is rejected like one with empty names", {
   df <- data.frame(5.19, 28)
   names(df) <- NULL
-  df |> grim_map(digits_x = 2, items_averaged = 1) |> expect_error("Columns 1, 2 have none")
+  df |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("Columns 1, 2 have none")
 })
 
 test_that("`gcd()` is exact past a quotient of 2^52", {
@@ -335,20 +335,20 @@ test_that("an `integer64` vector is an error, not an `NA` result", {
   n64 <- structure(c(28, 30), class = "integer64")
   n64_single <- structure(28, class = "integer64")
   msg <- "must not be a 64-bit integer vector"
-  5.25 |> grim(n64_single, 2, items_averaged = 1)                                              |> expect_error(paste("`n`", msg))
-  5.25 |> grim_explain(n64_single, 2, items_averaged = 1)                                      |> expect_error(paste("`n`", msg))
-  tibble::tibble(x = c(5.25, 2.5), n = n64) |> grim_map(digits_x = 2, items_averaged = 1)      |> expect_error(paste("`n`", msg))
-  tibble::tibble(x1 = 5.25, x2 = 1.5, n = n64_single) |> grim_map_total_n(2, items_averaged = 1) |> expect_error(paste("`n`", msg))
+  5.25 |> grim(n64_single, 2, items_averaged = 1, data_type = "integer")                                              |> expect_error(paste("`n`", msg))
+  5.25 |> grim_explain(n64_single, 2, items_averaged = 1, data_type = "integer")                                      |> expect_error(paste("`n`", msg))
+  tibble::tibble(x = c(5.25, 2.5), n = n64) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")      |> expect_error(paste("`n`", msg))
+  tibble::tibble(x1 = 5.25, x2 = 1.5, n = n64_single) |> grim_map_total_n(2, items_averaged = 1, data_type = "integer") |> expect_error(paste("`n`", msg))
   tibble::tibble(a = n64, b = 1:2, total = 3:4) |> add_up_to_map(summands = c(a, b))           |> expect_error(paste("`a`", msg))
   list(n64) |> add_up_to(58)                                                                   |> expect_error(paste("`summands`", msg))
   # A column that is not tested, such as an ID, is none of the test's business:
-  tibble::tibble(x = c(5.25, 2.5), n = c(28, 30), id = n64) |> grim_map(digits_x = 2, items_averaged = 1) |> _$consistency |> expect_equal(c(TRUE, TRUE))
+  tibble::tibble(x = c(5.25, 2.5), n = c(28, 30), id = n64) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> _$consistency |> expect_equal(c(TRUE, TRUE))
 })
 
 test_that("`tibble::num()` columns are tested as plain numbers", {
   # `as.character()` and `as.integer()` failed on them:
   expected <- c(FALSE, TRUE)
-  tibble::tibble(x = tibble::num(c(5.19, 3.20), digits = 2), n = c(28, 30)) |> grim_map_seq(2, items_averaged = 1) |> nrow() |> expect_identical(20L)
-  tibble::tibble(x = c(5.19, 3.20), n = tibble::num(c(28, 30)))             |> grim_map(2, items_averaged = 1)     |> _$consistency |> expect_equal(expected)
-  tibble::tibble(x1 = 5.19, x2 = 3.2, n = tibble::num(50))                  |> grim_map_total_n(2, items_averaged = 1) |> nrow() |> expect_gt(0L)
+  tibble::tibble(x = tibble::num(c(5.19, 3.20), digits = 2), n = c(28, 30)) |> grim_map_seq(2, items_averaged = 1, data_type = "integer") |> nrow() |> expect_identical(20L)
+  tibble::tibble(x = c(5.19, 3.20), n = tibble::num(c(28, 30)))             |> grim_map(2, items_averaged = 1, data_type = "integer")     |> _$consistency |> expect_equal(expected)
+  tibble::tibble(x1 = 5.19, x2 = 3.2, n = tibble::num(50))                  |> grim_map_total_n(2, items_averaged = 1, data_type = "integer") |> nrow() |> expect_gt(0L)
 })

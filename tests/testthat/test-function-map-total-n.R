@@ -133,17 +133,17 @@ test_that("the output carries a test-specific class", {
   # generic `"scrutiny_map_total_n"`, so it was the one tier whose output could
   # not be dispatched on by test:
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_s3_class("scrutiny_grim_map_total_n")
   tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L) |>
-    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+    grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
     expect_s3_class("scrutiny_grimmer_map_total_n")
   tibble::tibble(x1 = 0.30, x2 = 0.28, sd1 = 0.17, sd2 = 0.10, n = 70L) |>
     debit_map_total_n(digits_x = 2, digits_sd = 2) |>
     expect_s3_class("scrutiny_debit_map_total_n")
   # The generic class that `audit_total_n()` dispatches on is still there:
   tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_s3_class("scrutiny_map_total_n")
 })
 
@@ -209,13 +209,13 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
   # Passing it positionally now works, as it does for the other two tiers:
   df <- tibble::tibble(x1 = 4.52, x2 = 5.23, n = 40L)
   df |>
-    grim_map_total_n(2, dispersion = 0:1, items_averaged = 1) |>
-    expect_identical(grim_map_total_n(df, digits_x = 2, items_averaged = 1, dispersion = 0:1))
+    grim_map_total_n(2, dispersion = 0:1, items_averaged = 1, data_type = "integer") |>
+    expect_identical(grim_map_total_n(df, digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1))
 
   # ...and omitting it still gives the bespoke message, not a generic one:
-  df |> grim_map_total_n() |> expect_error("Need to specify `digits_x`")
+  df |> grim_map_total_n(data_type = "integer") |> expect_error("Need to specify `digits_x`")
   tibble::tibble(x1 = 4.52, x2 = 5.23, sd1 = 1.36, sd2 = 1.19, n = 40L) |>
-    grimmer_map_total_n() |>
+    grimmer_map_total_n(data_type = "integer") |>
     expect_error("Need to specify `digits_x`")
 })
 
@@ -223,40 +223,40 @@ test_that("`digits_*` is a real formal of the total-n mappers", {
 test_that("a missing total `n` is reported as such, not as a decimal number", {
   list(x1 = 4.52, x2 = 5.23, n = NA) |> 
     tibble::new_tibble(nrow = 1L) |> 
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("values that are not")
 })
 
 
 # The basic and seq tiers already said so; this one failed in base R:
 test_that("a string or factor total `n` is a type error", {
-  tibble::tibble(x1 = 3.47, x2 = 4.5, n = "41")      |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("It is a string")
-  tibble::tibble(x1 = 3.47, x2 = 4.5, n = factor(41)) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("It is a factor")
+  tibble::tibble(x1 = 3.47, x2 = 4.5, n = "41")      |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("It is a string")
+  tibble::tibble(x1 = 3.47, x2 = 4.5, n = factor(41)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("It is a factor")
 })
 
 
 test_that("A total below 2 and 0-row `data` get their own errors", {
   tibble::tibble(x1 = 3.43, x2 = 3.51, n = 1) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("at least 2")
   tibble::tibble(x1 = numeric(), x2 = numeric(), n = numeric()) |>
-    grim_map_total_n(digits_x = 2, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("at least one row")
 })
 
 
 test_that("total-n mappers take a single helper value, carry other columns, and report dropped cases", {
   df <- tibble::tibble(x1 = c(5.19, 3.2), x2 = c(4.1, 2.2), n = c(40, 100), id = c("a", "b"))
-  df |> grim_map_total_n(digits_x = 2, items_averaged = c(1, 2)) |> expect_error("single value")
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0) |> dplyr::pull(id) |> expect_equal(c("a", "a", "b", "b"))
-  df |> dplyr::mutate(dir = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("would be overwritten")
-  df |> dplyr::mutate(x = 5.21) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_error("`x` would be overwritten")
-  df |> dplyr::mutate(sd1 = 1, sd2 = 1, sd = 9) |> grimmer_map_total_n(digits_x = 2, digits_sd = 0, items_averaged = 1) |> expect_error("`sd` would be overwritten")
-  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_max = 30) |> expect_warning("no pair of group sizes")
-  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = c("a", "b")) |> expect_error("`constant` would be overwritten")
-  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1) |> expect_no_error()
-  df |> dplyr::mutate(grp = "z") |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(grp = c("a", "b"))) |> expect_error("`grp` would be overwritten")
-  df |> dplyr::mutate(constant2 = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, constant = list(c("a", "b"), c("c", "d"))) |> expect_error("`constant2` would be overwritten")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = c(1, 2), data_type = "integer") |> expect_error("single value")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0) |> dplyr::pull(id) |> expect_equal(c("a", "a", "b", "b"))
+  df |> dplyr::mutate(dir = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("would be overwritten")
+  df |> dplyr::mutate(x = 5.21) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("`x` would be overwritten")
+  df |> dplyr::mutate(sd1 = 1, sd2 = 1, sd = 9) |> grimmer_map_total_n(digits_x = 2, digits_sd = 0, items_averaged = 1, data_type = "integer") |> expect_error("`sd` would be overwritten")
+  df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", n_max = 30) |> expect_warning("no pair of group sizes")
+  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = c("a", "b")) |> expect_error("`constant` would be overwritten")
+  df |> dplyr::mutate(constant = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_no_error()
+  df |> dplyr::mutate(grp = "z") |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(grp = c("a", "b"))) |> expect_error("`grp` would be overwritten")
+  df |> dplyr::mutate(constant2 = 1) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", constant = list(c("a", "b"), c("c", "d"))) |> expect_error("`constant2` would be overwritten")
 })
 
 
@@ -264,8 +264,8 @@ test_that("total-n mappers take a single helper value, carry other columns, and 
 # longer lined up and the proto function failed:
 test_that("a grouped `data` is tested like an ungrouped one", {
   df <- tibble::tibble(x1 = c(5.19, 3.3), x2 = c(4.5, 2.2), n = c(40, 21), items_averaged = 1, g = c("a", "b"))
-  plain   <- df |> grim_map_total_n(digits_x = c(2, 1))
-  grouped <- df |> dplyr::group_by(g) |> grim_map_total_n(digits_x = c(2, 1))
+  plain   <- df |> grim_map_total_n(digits_x = c(2, 1), data_type = "integer")
+  grouped <- df |> dplyr::group_by(g) |> grim_map_total_n(digits_x = c(2, 1), data_type = "integer")
   grouped |> dplyr::ungroup() |> unclass_scr() |> expect_equal(unclass_scr(plain))
   grouped |> is_map_total_n_df() |> expect_true()
 })
@@ -277,40 +277,40 @@ test_that("GRIMMER and DEBIT total-n mappers test a group of 1 only where it has
   # `sd_meaning`, as `out_min` does in the seq tier:
   df_grimmer <- tibble::tibble(x1 = 5.2, x2 = 4.25, sd1 = 1.3, sd2 = 1.4, n = 8)
   df_debit   <- tibble::tibble(x1 = 0.5, x2 = 0.25, sd1 = 0.58, sd2 = 0.5, n = 8)
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1)                          |> _$n |> min() |> expect_equal(2L)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")                          |> _$n |> min() |> expect_equal(2L)
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2)                                                |> _$n |> min() |> expect_equal(2L)
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "se")       |> _$n |> min() |> expect_equal(2L)
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop")   |> _$n |> min() |> expect_equal(1L)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "se")       |> _$n |> min() |> expect_equal(2L)
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop")   |> _$n |> min() |> expect_equal(1L)
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_sample_or_pop")               |> _$n |> min() |> expect_equal(1L)
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "sd_pop", n_min = 3)              |> _$n |> min() |> expect_equal(3L)
 
   # A `NULL` stands for the default with a constant one, too; it went through
   # to `disperse_total()`, which then dispersed down to a group of 0:
-  tibble::tibble(x1 = 5.2, x2 = 4.25, n = 8) |> grim_map_total_n(digits_x = 2, items_averaged = 1, n_min = NULL) |> _$n |> min() |> expect_equal(1L)
+  tibble::tibble(x1 = 5.2, x2 = 4.25, n = 8) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", n_min = NULL) |> _$n |> min() |> expect_equal(1L)
 
   # An invalid enum gets the mapper's error, not one from `n_min_fn()`:
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be")
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = NULL)              |> expect_error("`sd_meaning` must be")
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = c("se", "sd_pop")) |> expect_error("`sd_meaning` must be")
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = NULL)              |> expect_error("`sd_meaning` must be")
   df_debit   |> debit_map_total_n(digits_x = 2, digits_sd = 2, sd_meaning = "nope")                                  |> expect_error("`sd_meaning` must be")
 
   # An enum given as its whole default set is its first value here, too:
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |> unclass_scr())
-  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = SD_MEANINGS) |> unclass_scr() |> expect_equal(df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> unclass_scr())
+  df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = SD_MEANINGS) |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample")
 
   # The resolved value is recorded, and it counts as the default:
-  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, sd_meaning = "sd_pop") |> scrutiny_meta()
+  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop") |> scrutiny_meta()
   meta[meta$setting == "n_min", c("value", "default")] |> expect_equal(tibble::tibble(value = "1", default = TRUE))
-  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, n_min = 1) |> scrutiny_meta()
+  meta <- df_grimmer |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", n_min = 1) |> scrutiny_meta()
   meta[meta$setting == "n_min", c("value", "default")] |> expect_equal(tibble::tibble(value = "1", default = FALSE))
 })
 
 
 test_that("`constant` values stay with their groups in both directions", {
   # In the "back" direction, they used to stay with the group positions:
-  out <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1, constant = c("ctrl", "treat"))
+  out <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1, constant = c("ctrl", "treat"))
   out$constant[out$x == 3.43] |> unique() |> expect_equal("ctrl")
   out$constant[out$x == 5.28] |> unique() |> expect_equal("treat")
-  out_list <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, dispersion = 0:1, constant = list(group = c("ctrl", "treat")))
+  out_list <- tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1, constant = list(group = c("ctrl", "treat")))
   out_list$group[out_list$x == 5.28] |> unique() |> expect_equal("treat")
 })
 
@@ -335,7 +335,7 @@ test_that("sequence and total-n mappers take the settings of their basic mapper 
 })
 
 test_that("a promoted setting reaches the test only if it was given", {
-  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, rounding = "up")
+  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up")
   out |> scrutiny_args() |> _$rounding |> expect_equal("up")
 
   total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
@@ -346,11 +346,11 @@ test_that("a promoted setting reaches the test only if it was given", {
 
 test_that("an error names the row of `data`, not of the scenarios", {
   tibble::tibble(x1 = c(3.8, 4.5, 3.1), x2 = c(3.7, 4.56, 2.1), n = c(30, 40, 20)) |>
-    grim_map_total_n(digits_x = 1, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer") |>
     expect_error("In row 2 of `data`", fixed = TRUE)
   # The first scenario is tested on its own, before all others:
   tibble::tibble(x1 = c(4.5, 3.8), x2 = c(4.56, 3.7), n = c(40, 30)) |>
-    grim_map_total_n(digits_x = 1, items_averaged = 1) |>
+    grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer") |>
     expect_error("In row 1 of `data`", fixed = TRUE)
 })
 

@@ -25,16 +25,16 @@ msg_error <- function(expr) {
 
 test_that("a missing `digits_*` argument names the function that was called", {
   # Not aligning pipes here because the lengths are too different
-  4.11       |> grim(40, items_averaged = 1) |> msg_error() |> expect_match("`grim(", fixed = TRUE)
-  df_grim    |> grim_map()                   |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
-  df_grimmer |> grimmer_map()                |> msg_error() |> expect_match("`grimmer_map(", fixed = TRUE)
+  4.11       |> grim(40, items_averaged = 1, data_type = "integer") |> msg_error() |> expect_match("`grim(", fixed = TRUE)
+  df_grim    |> grim_map(data_type = "integer")                   |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
+  df_grimmer |> grimmer_map(data_type = "integer")                |> msg_error() |> expect_match("`grimmer_map(", fixed = TRUE)
   0.35       |> debit(0.18, 20)              |> msg_error() |> expect_match("`debit(", fixed = TRUE)
   df_debit   |> debit_map()                  |> msg_error() |> expect_match("`debit_map(", fixed = TRUE)
 
   # `Vectorize()`, purrr, and the function factories put frames of varying
   # depth between the test function and the check that throws:
   df_grim |>
-    grim_map_seq(dispersion = 1:2, items_averaged = 1) |>
+    grim_map_seq(dispersion = 1:2, items_averaged = 1, data_type = "integer") |>
     msg_error() |>
     expect_match("`grim_map_seq(", fixed = TRUE)
   df_debit |>
@@ -42,7 +42,7 @@ test_that("a missing `digits_*` argument names the function that was called", {
     msg_error() |>
     expect_match("`debit_map_seq(", fixed = TRUE)
   tibble::tibble(x1 = 4.52, x2 = 4.19, n = 40) |>
-    grim_map_total_n() |>
+    grim_map_total_n(data_type = "integer") |>
     msg_error() |>
     expect_match("`grim_map_total_n(", fixed = TRUE)
 })
@@ -50,7 +50,7 @@ test_that("a missing `digits_*` argument names the function that was called", {
 
 test_that("a test function is named even if called in an argument or `lapply()`", {
   # R evaluates `grim_map()` lazily within `grim_plot_grid()` here (#93):
-  df_grim       |> grim_map() |> grim_plot_grid() |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
+  df_grim       |> grim_map(data_type = "integer") |> grim_plot_grid() |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
   list(df_grim) |> lapply(grim_map)          |> msg_error() |> expect_match("`grim_map(", fixed = TRUE)
 })
 
@@ -58,7 +58,7 @@ test_that("a test function is named even if called in an argument or `lapply()`"
 test_that("a missing `digits_*` argument gives the intended error", {
   # Not an internal error such as "cannot coerce type 'closure'":
   for (msg in list(
-    df_grim |> grim_map_seq(dispersion = 1:2, items_averaged = 1) |> msg_error(),
+    df_grim |> grim_map_seq(dispersion = 1:2, items_averaged = 1, data_type = "integer") |> msg_error(),
     df_debit |> debit_map_seq(dispersion = 1:2) |> msg_error()
   )) {
     msg |> expect_match("Need to specify `digits_", fixed = TRUE)
@@ -68,37 +68,37 @@ test_that("a missing `digits_*` argument gives the intended error", {
   # A namespace-qualified call has a call head that is itself a call, which used
   # to make the name resolve to a length-3 vector:
   df_grim |>
-    scrutiny::grim_map() |>
+    scrutiny::grim_map(data_type = "integer") |>
     msg_error() |>
     expect_match("Need to specify `digits_x", fixed = TRUE)
 })
 
 
 test_that("mapper examples build a data frame, basic ones do not", {
-  df_grim |> grim_map() |> msg_error() |> expect_match("tibble::tibble(", fixed = TRUE)
-  4.11 |> grim(40, items_averaged = 1) |> msg_error() |> expect_no_match("tibble::tibble(", fixed = TRUE)
+  df_grim |> grim_map(data_type = "integer") |> msg_error() |> expect_match("tibble::tibble(", fixed = TRUE)
+  4.11 |> grim(40, items_averaged = 1, data_type = "integer") |> msg_error() |> expect_no_match("tibble::tibble(", fixed = TRUE)
 })
 
 
 test_that("GRIMMER and DEBIT examples include `sd` and `digits_sd`", {
-  msg <- df_grimmer |> grimmer_map() |> msg_error()
+  msg <- df_grimmer |> grimmer_map(data_type = "integer") |> msg_error()
   msg |> expect_match("sd = 0.62", fixed = TRUE)
   msg |> expect_match("digits_sd = 2", fixed = TRUE)
 
   # GRIM has no `sd` argument, so its example must not mention one:
-  df_grim |> grim_map() |> msg_error() |> expect_no_match("digits_sd", fixed = TRUE)
+  df_grim |> grim_map(data_type = "integer") |> msg_error() |> expect_no_match("digits_sd", fixed = TRUE)
 })
 
 
 test_that("string `x` is rejected with a deprecation message", {
   tibble::tibble(x = "4.11", n = 40) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     msg_error() |>
     expect_match("scrutiny::grim_map()", fixed = TRUE)
   # The name comes from the outermost test function, not the `grim_map()` that
   # a sequence mapper calls internally:
   tibble::tibble(x = "4.11", n = 40) |>
-    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1:2) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 1:2) |>
     msg_error() |>
     expect_match("scrutiny::grim_map_seq()", fixed = TRUE)
 })
@@ -106,24 +106,24 @@ test_that("string `x` is rejected with a deprecation message", {
 
 test_that("`digits_*` below the decimal places of `x` is an error", {
   4.111 |>
-    grim(40, digits_x = 2, items_averaged = 1) |>
+    grim(40, digits_x = 2, items_averaged = 1, data_type = "integer") |>
     msg_error() |>
     expect_match("More decimal places than specified digits", fixed = TRUE)
   tibble::tibble(x = 4.111, n = 40) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     msg_error() |>
     expect_match("More decimal places than specified digits", fixed = TRUE)
 })
 
 
 test_that("an infinite `digits_*` value is rejected clearly", {
-  5.19 |> grim(28, Inf, items_averaged = 1)            |> expect_error("must be a single whole number")
-  5.19 |> grimmer(1.2, 28, 2, Inf, items_averaged = 1) |> expect_error("must be a single whole number")
+  5.19 |> grim(28, Inf, items_averaged = 1, data_type = "integer")            |> expect_error("must be a single whole number")
+  5.19 |> grimmer(1.2, 28, 2, Inf, items_averaged = 1, data_type = "integer") |> expect_error("must be a single whole number")
 })
 
 test_that("the missing-`digits_sd` example is a working call", {
   5.19 |>
-    grimmer(1.2, 28, digits_x = 2, items_averaged = 1) |>
+    grimmer(1.2, 28, digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("digits_sd = 2, digits_x = 2", fixed = TRUE) |>
     suppressMessages()
 })

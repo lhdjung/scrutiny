@@ -2,8 +2,8 @@ test_that("`grim_binomial()` leaves undecidable cases out", {
   # A row with an `NA` verdict has an `NA` probability, and one such row used
   # to make the p-value `NA` for the whole table:
   df <- tibble::tibble(x = c(5.19, 5.19, 5.20), n = c(28L, NA, 30L))
-  out_all       <- df        |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial()
-  out_decidable <- df[-2L, ] |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial()
+  out_all       <- df        |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_binomial()
+  out_decidable <- df[-2L, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_binomial()
   out_all |> expect_equal(out_decidable)
   out_all$parameter |> expect_equal(2L)
 })
@@ -12,7 +12,7 @@ test_that("`grim_binomial()` leaves undecidable cases out", {
 # No probabilities are left once every row is undecidable.
 test_that("the binomial functions reject empty input instead of crashing", {
   tibble::tibble(x = c(1.23, 1.24), n = c(NA, NA)) |>
-    grim_map(digits_x = 2, items_averaged = 1) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     grim_binomial() |>
     expect_error("No value sets to test")
   0.5 |>
@@ -25,7 +25,7 @@ test_that("the binomial functions reject empty input instead of crashing", {
 
 
 test_that("`grim_binomial()` returns the exact interval, one-sided like the test", {
-  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1)
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   k <- sum(data$consistency)
   n <- nrow(data)
   for (alternative in c("greater", "less", "two.sided")) {
@@ -57,7 +57,7 @@ test_that("`grim_binomial_power()` checks its probabilities and `k`", {
 test_that("p-values agree with the exact binomial and keep their precision", {
   # Every row consistent with a null probability of 0.5, so `P(X >= k) = 0.5^k`:
   for (k in c(10L, 60L, 100L)) {
-    tibble::tibble(x = rep(5.18, k), n = 50) |> grim_map(digits_x = 2, items_averaged = 1) |> grim_binomial() |> _$p.value |> expect_equal(0.5^k)
+    tibble::tibble(x = rep(5.18, k), n = 50) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_binomial() |> _$p.value |> expect_equal(0.5^k)
   }
   # Unequal probabilities, against every one of the 2^10 outcomes:
   set.seed(42)
@@ -87,9 +87,9 @@ test_that("a p-value equal to `alpha` rejects in `grim_binomial_power()`", {
 test_that("`grim_binomial()` rejects sequence and total-n output", {
   # Their rows are hypothetical value sets, inconsistent by construction, so a
   # p-value over them used to be returned without a word:
-  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1) |> grim_binomial() |> expect_error("hypothetical")
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_binomial() |> expect_error("hypothetical")
   tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |>
-    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1) |>
+    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, data_type = "integer") |>
     grim_binomial() |>
     expect_error("hypothetical")
   pigs1 |> grim_binomial() |> expect_error("output of `grim_map()`", fixed = TRUE)
@@ -97,7 +97,7 @@ test_that("`grim_binomial()` rejects sequence and total-n output", {
 
 
 test_that("`grim_binomial()` names the class of other mapper output", {
-  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |> grim_binomial() |> expect_error("scrutiny_grimmer_map")
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> grim_binomial() |> expect_error("scrutiny_grimmer_map")
 })
 
 test_that("`poibin_p_values()` matches a direct convolution", {

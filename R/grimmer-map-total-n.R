@@ -77,11 +77,22 @@
 #'   2.97, 4.42, 0.43, 1.65, 65
 #' )
 #'
-#' grimmer_map_total_n(df, digits_x = 2, digits_sd = 2, items_averaged = 1)
+#' grimmer_map_total_n(
+#'   df,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
 #' # `hits_total` counts the splits in which both groups are consistent:
 #' df |>
-#'   grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+#'   grimmer_map_total_n(
+#'     digits_x = 2,
+#'     digits_sd = 2,
+#'     items_averaged = 1,
+#'     data_type = "integer"
+#'   ) |>
 #'   audit_total_n()
 #'
 #' # More steps away from the even split tend to find more hits:
@@ -90,6 +101,7 @@
 #'     digits_x = 2,
 #'     digits_sd = 2,
 #'     items_averaged = 1,
+#'     data_type = "integer",
 #'     dispersion = 0:10
 #'   ) |>
 #'   audit_total_n()

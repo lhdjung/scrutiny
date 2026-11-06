@@ -25,7 +25,8 @@
 #'   n = 35,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #'
 #' grimmer_explain(
@@ -34,7 +35,8 @@
 #'   n = 31,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 grimmer_explain <- function(
   x,
@@ -43,6 +45,7 @@ grimmer_explain <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -80,6 +83,7 @@ grimmer_explain <- function(
     digits_x = digits_x,
     digits_sd = digits_sd,
     items_averaged = items_averaged,
+    data_type = data_type,
     show_reason = TRUE,
     rounding = rounding,
     threshold = threshold,
@@ -87,6 +91,30 @@ grimmer_explain <- function(
     sd_meaning = sd_meaning
   )
   consistency <- result[[1L]]
+
+  if (!identical(data_type, "integer")) {
+    explain_integer <- function() {
+      grimmer_explain(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      )
+    }
+    return(explain_data_type(
+      data_type,
+      consistency,
+      explain_integer,
+      "mean and SD"
+    ))
+  }
 
   # `grimmer_scalar()` has checked `sd_meaning`, and the arguments are known not
   # to be missing:
@@ -99,6 +127,7 @@ grimmer_explain <- function(
         digits_x = digits_x,
         digits_sd = digits_sd,
         items_averaged = items_averaged,
+        data_type = "integer",
         rounding = rounding,
         threshold = threshold,
         symmetric = symmetric,
@@ -210,6 +239,7 @@ grimmer_explain <- function(
     n = n,
     digits_x = digits_x,
     items_averaged = items_averaged,
+    data_type = "integer",
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric

@@ -50,7 +50,7 @@ it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{au
 
 \examples{
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   audit()
 
 pigs4 |>
@@ -59,7 +59,7 @@ pigs4 |>
 
 # Summaries by group:
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::mutate(study = rep(c("A", "B", "C"), each = 4)) |>
   audit(.by = study)
 }

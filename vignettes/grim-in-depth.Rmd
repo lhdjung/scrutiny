@@ -33,7 +33,7 @@ With `show_rec = TRUE`, the output includes the numbers on which the test result
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1, show_rec = TRUE) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE) |>
   dplyr::select(4:10) # output cut down for printing
 ```
 
@@ -112,7 +112,7 @@ grim_grid(digits = 2) |>
 An inconsistency may come from a small error in reporting or computing. `grim_map_seq()` varies `x` and `n` a few steps up and down, one at a time, and tests each resulting value set:
 
 ```{r}
-out_seq1 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1)
+out_seq1 <- grim_map_seq(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
 out_seq1
 ```
 
@@ -137,6 +137,7 @@ out_seq2 <- grim_map_seq(
   pigs1,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   dispersion = 1:10
 )
 audit_seq(out_seq2)
@@ -157,6 +158,7 @@ out_seq1_only_n <- grim_map_seq(
   pigs1,
   digits_x = 2,
   items_averaged = 1,
+  data_type = "integer",
   var = "n"
 )
 grim_plot_grid(out_seq1_only_n)
@@ -171,7 +173,7 @@ The study they examined reported means of 4.71 and 5.3 for a total of 40 partici
 ```{r}
 df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
 
-df_tested <- grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1)
+df_tested <- grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1, data_type = "integer")
 df_tested
 
 audit_total_n(df_tested)
@@ -225,7 +227,7 @@ Correctly reported means are always consistent, so a study's rate of inconsisten
 
 ```{r}
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   grim_binomial()
 ```
 
@@ -245,7 +247,7 @@ codes <- c(
 )
 
 pigs1 |>
-  grim_map(digits_x = 2, items_averaged = 1) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   dplyr::mutate(study = codes) |>
   grim_plot_rates(study)
 ```

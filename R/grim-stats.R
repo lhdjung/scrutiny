@@ -23,6 +23,9 @@
 #' @param items_averaged Integer. As in [`grim()`]. Like `x`, `n`, and
 #'   `digits_x`, it is recycled under the tidyverse rules: all four must have
 #'   the same length, or length 1.
+#' @param data_type String. As in [`grim()`], and recycled like `x`. Default
+#'   is `"integer"`, since these functions describe the test on whole numbers.
+#'   For `"continuous"`, they return 0, which is how [`grim_map()`] uses them.
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
 #'   adds 2 to the decimal count, as in [`grim()`].
 #' @param rounding,threshold The rounding method and, for the `"*_from"`
@@ -83,6 +86,7 @@ grim_exp_incon <- function(
   n,
   digits_x,
   items_averaged,
+  data_type = "integer",
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
@@ -94,13 +98,14 @@ grim_exp_incon <- function(
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
 
   out <- grim_total(
-    x,
-    n,
-    digits_x,
-    items_averaged,
-    x_meaning,
-    rounding,
-    threshold
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items_averaged = items_averaged,
+    data_type = data_type,
+    x_meaning = x_meaning,
+    rounding = rounding,
+    threshold = threshold
   )
 
   if (x_meaning == "percentage") {
@@ -120,6 +125,7 @@ grim_total <- function(
   n,
   digits_x,
   items_averaged,
+  data_type = "integer",
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5
@@ -141,6 +147,11 @@ grim_total <- function(
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  data_type_bad <- data_type[!is.na(data_type) & !data_type %in% DATA_TYPES]
+  if (length(data_type_bad) > 0L) {
+    data_type <- data_type_bad[[1L]]
+    arg_match_in_export(data_type, DATA_TYPES)
+  }
   if (!is.numeric(x) && !all(is.na(x))) {
     check_type(x, c("double", "integer"))
   }
@@ -170,13 +181,15 @@ grim_total <- function(
     x = x,
     n = n,
     digits_x = digits_x,
-    items_averaged = items_averaged
+    items_averaged = items_averaged,
+    data_type = data_type
   )
   length_out <- recycle_length_common(lengths(vals), names(vals))
   x <- rep_len(x, length_out)
   n <- rep_len(n, length_out)
   digits_x <- rep_len(digits_x, length_out)
   items_averaged <- rep_len(items_averaged, length_out)
+  data_type <- rep_len(data_type, length_out)
 
   # Between two whole numbers, there are `10^digits_x` values that could be
   # reported, such as 0.00, 0.01, ..., 0.99 with two decimal places. The means
@@ -304,9 +317,9 @@ grim_total <- function(
 
   n_multiples <- pmax(multiple_last - multiple_first + 1, 0)
 
-  # A double, not an integer: from `digits_x = 10` on (8 with `x_meaning =
-  # "percentage"`), the count can exceed `.Machine$integer.max`, and the type should not
-  # depend on the values. Doubles are exact for whole numbers up to 2^53; a
+  # A double, not an integer: from `digits_x = 10` on (8 for percentages), the
+  # count can exceed `.Machine$integer.max`, and the type should not depend on
+  # the values. Doubles are exact for whole numbers up to 2^53; a
   # count beyond is the nearest double, as documented.
   #
   # If the possible means lie closer together than the rounding interval is
@@ -318,6 +331,11 @@ grim_total <- function(
   )
 
   n_incon[!decidable] <- NA_real_
+
+  # Continuous data can have any mean, and a missing `data_type` might be
+  # continuous, as in `test_data_type()`:
+  n_incon[data_type %in% "continuous"] <- 0
+  n_incon[is.na(data_type) & !n_incon %in% 0] <- NA_real_
   n_incon
 }
 

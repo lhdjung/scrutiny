@@ -13,6 +13,7 @@ grimmer_map(
   n = NULL,
   ...,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -34,7 +35,7 @@ these values, if they differ from the defaults.}
 \item{...}{These dots must be empty. Every argument after them must be
 named in full.}
 
-\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
+\item{items_averaged, data_type}{As in \code{\link[=grim_map]{grim_map()}}, for \code{x} and \code{sd}.}
 
 \item{rounding, threshold, symmetric, sd_meaning}{Passed on to
 \code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
@@ -44,11 +45,13 @@ A tibble with these columns:
 \itemize{
 \item \code{x}, \code{sd}, \code{n}: the inputs.
 \item \code{items_averaged}: the number of items averaged into each score.
+\item \code{data_type}: the kind of data, as given.
 \item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
 \item \code{consistency}: GRIMMER consistency of \code{x}, \code{sd}, \code{n}, and \code{items_averaged}.
 \code{NA} for a case that cannot be decided, such as one with a missing value.
-\item \code{reason}: \code{"Passed all"} if consistent; otherwise the test that failed, or
-why the case cannot be decided.
+\item \code{reason}: \code{"Passed all"} if consistent, or \code{"Continuous data"} if the
+test does not apply; otherwise the test that failed, or why the case
+cannot be decided.
 \item Any other columns from \code{data}.
 }
 
@@ -102,16 +105,31 @@ pigs5
 # The `consistency` column shows whether the values to its left are
 # GRIMMER-consistent. If they aren't, the `reason` column gives the reason:
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1)
+  grimmer_map(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer"
+  )
 
 # Get summaries with `audit()`:
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer"
+  ) |>
   audit()
 
 # Explain the results in plain words:
 pigs5 |>
-  grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1) |>
+  grimmer_map(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer"
+  ) |>
   explain_print(1:2)
 }
 \references{

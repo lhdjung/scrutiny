@@ -108,11 +108,11 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
 
   # The real mappers do have them, and must keep their columns:
   pigs1 |>
-    grim_map_seq(digits_x = 2, items_averaged = 1, dispersion = 1) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 1) |>
     colnames() |>
     expect_contains("digits_x")
   pigs5 |>
-    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, dispersion = 1) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", dispersion = 1) |>
     colnames() |>
     expect_contains(c("digits_x", "digits_sd"))
 })
@@ -170,7 +170,7 @@ test_that("`audit_seq()` works from a foreign caller", {
   # is called via `scrutiny::audit_seq()`:
   foreign <- new.env(parent = baseenv())
   assign("audit_seq", audit_seq, envir = foreign)
-  out_seq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out_seq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   assign("out", out_seq, envir = foreign)
 
   expected <- out_seq |> audit_seq()
@@ -179,13 +179,13 @@ test_that("`audit_seq()` works from a foreign caller", {
 
 
 test_that("`audit_seq()` errors informatively if the attribute is lost", {
-  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   attr(out, "scrutiny") <- NULL
   out |> audit_seq() |> expect_error("lost the settings")
 
   # The mapper's name is not needed, so a class nobody can resolve is no
   # problem:
-  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1)
+  out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   class(out)[class(out) == "scrutiny_grim_map"] <- "scrutiny_nonexistent_map"
   out |> audit_seq() |> expect_no_error()
 })

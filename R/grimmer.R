@@ -226,6 +226,7 @@ grimmer_scalar <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   show_reason = FALSE,
   rounding = "up_or_down",
   threshold = 5,
@@ -253,9 +254,37 @@ grimmer_scalar <- function(
     check_type(items_averaged, c("double", "integer"))
   }
 
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+
   scale <- rounding_scale(rounding, threshold, symmetric)
   check_newly_numeric(x, digits_x, scale = scale)
   check_newly_numeric(sd, digits_sd, scale = scale)
+
+  if (!identical(data_type, "integer")) {
+    return(test_data_type(
+      data_type,
+      test_integer = function() {
+        grimmer_scalar(
+          x = x,
+          sd = sd,
+          n = n,
+          digits_x = digits_x,
+          digits_sd = digits_sd,
+          items_averaged = items_averaged,
+          data_type = "integer",
+          show_reason = show_reason,
+          rounding = rounding,
+          threshold = threshold,
+          symmetric = symmetric,
+          sd_meaning = sd_meaning
+        )
+      },
+      pass = if (show_reason) list(TRUE, "Continuous data") else TRUE,
+      missing = if (show_reason) list(NA, "Missing value") else NA
+    ))
+  }
 
   # `arg_match_in_export()` returns at once for a valid string or the default,
   # which matters here: this runs once per row. `SD_MEANINGS` is the default:
@@ -270,6 +299,7 @@ grimmer_scalar <- function(
         digits_x = digits_x,
         digits_sd = digits_sd,
         items_averaged = items_averaged,
+        data_type = "integer",
         show_reason = show_reason,
         rounding = rounding,
         threshold = threshold,
@@ -354,6 +384,7 @@ grimmer_scalar <- function(
       n = n,
       digits_x = digits_x,
       items_averaged = items_averaged,
+      data_type = "integer",
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
@@ -585,9 +616,9 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   The function is vectorized, but [`grimmer_map()`] is more convenient for
 #'   testing many cases.
 #'
-#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, and `items_averaged` are
-#'   vectorized and recycled to a common length by the tidyverse rules. All
-#'   other arguments must have length 1.
+#' @details `x`, `sd`, `n`, `digits_x`, `digits_sd`, `items_averaged`, and
+#'   `data_type` are vectorized and recycled to a common length by the
+#'   tidyverse rules. All other arguments must have length 1.
 #'
 #'   The implementation follows Allard's (2018) Analytic-GRIMMER algorithm, as
 #'   does `rsprite2::GRIMMER_test()`, with a stricter first test: the sum of
@@ -621,6 +652,9 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
+#' @param data_type String. As in [`grim()`]: `"integer"`,
+#'   `"quasi-integer"`, or `"continuous"`, the last of which can have any mean
+#'   and SD. No default.
 #' @param sd_meaning String. What `sd` really is. `"sd_sample"` (the
 #'   default; see *Defaults* in [`grimmer()`]) is the sample SD, which
 #'   divides by `n - 1`, as in R, SPSS, Stata, or Excel's `STDEV.S`.
@@ -704,7 +738,7 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   n = 35,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1, data_type = "integer"
 #' )
 #'
 #' # However, mean and SD are consistent with a
@@ -715,7 +749,7 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   n = 31,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1, data_type = "integer"
 #' )
 #'
 #' # For a scale composed of two items:
@@ -725,7 +759,7 @@ combine_sd_sample_or_pop <- function(sample, population, n) {
 #'   n = 63,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 2
+#'   items_averaged = 2, data_type = "integer"
 #' )
 
 # The signature mirrors `grimmer_scalar()`'s minus `show_reason`; see
@@ -737,6 +771,7 @@ grimmer <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
@@ -744,6 +779,14 @@ grimmer <- function(
 ) {
   map_value_sets(
     fn = grimmer_scalar,
-    along = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged")
+    along = c(
+      "x",
+      "sd",
+      "n",
+      "digits_x",
+      "digits_sd",
+      "items_averaged",
+      "data_type"
+    )
   )
 }

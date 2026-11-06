@@ -82,6 +82,7 @@ meta_seq <- function(
       "x",
       "n",
       "items_averaged",
+      "data_type",
       "digits_x"
     )],
     rows_dispersed = count_rows_by(
