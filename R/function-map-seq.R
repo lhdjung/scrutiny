@@ -457,6 +457,17 @@ function_map_seq <- function(
         seq_len(match(name_key_result, colnames(data)) - 1L)
       ]
 
+      # The columns that the output has, whatever is dispersed: the input to
+      # the test, i.e. everything left of the key result column, and the
+      # columns `fn()` added. Other columns of `data` play no role in the test
+      # and are dropped, as the re-tests drop them:
+      cols_data <- colnames(data)
+      is_tested <- seq_along(cols_data) <= match(name_key_result, cols_data)
+      is_result <- !cols_data %in% cols_input
+      is_kept <- (is_tested | is_result) &
+        !cols_data %in% c("diff_var", "case", "var")
+      template <- data[0L, is_kept]
+
       # Like `dplyr::filter(data, !consistency)`, but much faster. `which()`
       # drops the `NA` of an undecidable case, which has no values to disperse;
       # with `include_consistent`, too, where `seq_disperse()` would fail on
@@ -581,16 +592,8 @@ function_map_seq <- function(
           }
         ))
         # Still with the usual columns, classes, and attribute, so that
-        # `audit_seq()` etc. accept it. The same columns as the re-tests
-        # return: the input to the test, i.e. everything left of the key
-        # result column, and the columns `fn()` added. Other columns of `data`
-        # play no role in the test and are dropped, as the re-tests drop them:
-        cols_data <- colnames(data)
-        is_tested <- seq_along(cols_data) <= match(name_key_result, cols_data)
-        is_result <- !cols_data %in% cols_input
-        is_kept <- (is_tested | is_result) &
-          !cols_data %in% c("diff_var", "case", "var")
-        out <- data[0L, is_kept] |>
+        # `audit_seq()` etc. accept it:
+        out <- template |>
           tibble::add_column(diff_var = integer(0L), case = integer(0L)) |>
           list()
         var <- character(0L)
@@ -601,6 +604,15 @@ function_map_seq <- function(
       var <- rep(var, nrow_out)
 
       `!!!`(code_bind_cols)
+
+      # The same columns in the same order for every call. A variable with no
+      # dispersed rows was tested on no rows, which leaves out the columns
+      # unpacked from the results, such as `reason`, and binding takes the
+      # order of the first piece:
+      for (col in setdiff(colnames(template), colnames(out))) {
+        out[[col]] <- vctrs::vec_init(template[[col]], nrow(out))
+      }
+      out <- out[union(colnames(template), colnames(out))]
 
       # A `digits_*` column per `digits_*` argument given, for
       # `grim_plot_grid()` and the like. Counting decimal places in the numeric
