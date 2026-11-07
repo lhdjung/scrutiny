@@ -122,4 +122,10 @@ test_that("a total beyond the integer range stays as it is", {
     expect_no_warning()
   out$n |> expect_equal(6e9)
   out$hits_total |> expect_type("integer")
+  # Group sizes within the integer range, but not their sum:
+  out <- tibble::tibble(x1 = 5.19, x2 = 4.2, n = 3e9) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    audit_total_n() |>
+    expect_no_warning()
+  out$n |> expect_equal(3e9)
 })

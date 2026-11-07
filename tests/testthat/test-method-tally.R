@@ -149,4 +149,6 @@ test_that("the tally columns are found after `select()` and `relocate()`", {
   tally |> dplyr::relocate(dplyr::ends_with("_n")) |> audit() |> expect_equal(expected)
 
   tally |> dplyr::select(snout, snout_n) |> audit() |> dplyr::pull(term) |> expect_equal(c("snout_n", ".total"))
+  # Nor is an integer column of the user's a tally:
+  tally |> dplyr::mutate(row = dplyr::row_number()) |> audit() |> expect_equal(expected)
 })

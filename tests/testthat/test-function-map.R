@@ -1171,4 +1171,8 @@ test_that("factor columns from `read.csv(stringsAsFactors = TRUE)` get their own
   data.frame(x = c("5.19", "5.18"), n = 28, stringsAsFactors = TRUE) |>
     grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("must be numeric, not a factor")
+  # Also in a total-n mapper, which splits rows into strings:
+  data.frame(x1 = "5.19", x2 = 4.2, n = 40, stringsAsFactors = TRUE) |>
+    grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    expect_error("`x1` must be numeric, not a factor")
 })

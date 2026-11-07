@@ -91,4 +91,8 @@ test_that("row names are not selected as summands", {
     add_up_to_map(summands = !total)
   out$consistency |> expect_equal(c(TRUE, FALSE))
   out$rowname |> expect_equal(c("r1", "r2"))
+  # Nor do they shift positions:
+  d <- data.frame(a = c(1, 2), b = c(3, 4), total = c(4, 7), row.names = c("r1", "r2"))
+  d |> add_up_to_map(summands = 1:2) |> _$consistency |> expect_equal(c(TRUE, FALSE))
+  d |> add_up_to_map(summands = -3)  |> _$consistency |> expect_equal(c(TRUE, FALSE))
 })

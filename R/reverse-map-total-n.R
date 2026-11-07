@@ -53,7 +53,8 @@ reverse_map_total_n <- function(data) {
   # steps:
   first <- seq(1L, by = 2L, length.out = nrow(data) %/% 2L)
   second <- first + 1L
-  sums <- data$n[first] + data$n[second]
+  # As a double, since two group sizes in the integer range may sum beyond it:
+  sums <- as.double(data$n[first]) + data$n[second]
   pairs_broken <-
     nrow(data) %% 2L != 0L ||
     any(
@@ -97,7 +98,8 @@ reverse_map_total_n <- function(data) {
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]
 
-  n <- data1$n + data2$n
+  # As a double, as above, but an integer again where it fits:
+  n <- as_integer_if_lossless(as.double(data1$n) + data2$n)
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")

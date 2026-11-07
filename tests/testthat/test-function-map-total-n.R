@@ -380,4 +380,6 @@ test_that("`n_min` below 1 is an error", {
   df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = -3) |> expect_error("must be at least 1")
   df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = 0)  |> expect_error("must be at least 1")
   df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = 1)  |> nrow() |> expect_gt(0)
+  # A whole number within the tolerance is that number:
+  df |> grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", n_min = 1 - 1e-12) |> nrow() |> expect_gt(0)
 })

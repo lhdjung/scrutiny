@@ -496,6 +496,20 @@ check_not_integer64 <- function(x, name = NULL) {
 }
 
 
+# A factor is no string that was meant as a number, just a column that
+# `read.csv(stringsAsFactors = TRUE)` made one, and its codes are not its
+# values:
+check_not_factor <- function(x, name) {
+  if (is.factor(x)) {
+    abort_in_export(
+      "`{name}` must be numeric, not a factor.",
+      "i" = "Convert it with `as.numeric(as.character({name}))`, or read \\
+      the data with `stringsAsFactors = FALSE`."
+    )
+  }
+}
+
+
 #' Coerce a whole-number column to integer, but only if that is lossless
 #'
 #' @description Mappers store the `ARGS_WHOLE` columns, such as `n`, and the
@@ -660,16 +674,7 @@ check_newly_numeric <- function(
   name_x <- deparse(substitute(x))
   name_fn <- paste0("scrutiny::", caller_name)
 
-  # A factor is no string that was meant as a number, just a column that
-  # `read.csv(stringsAsFactors = TRUE)` made one, and its codes are not its
-  # values:
-  if (is.factor(x)) {
-    abort_in_export(
-      "`{name_x}` must be numeric, not a factor.",
-      "i" = "Convert it with `as.numeric(as.character({name_x}))`, or read \\
-      the data with `stringsAsFactors = FALSE`."
-    )
-  }
+  check_not_factor(x, name_x)
 
   if (!is.numeric(x)) {
     msg_what <- if (caller_is_mapper) {

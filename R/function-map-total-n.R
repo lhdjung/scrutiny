@@ -432,6 +432,8 @@ function_map_total_n <- function(
       # A group of no members has no mean to test, and one of fewer makes no
       # sense; `disperse_total()` itself would split into them:
       check_limit_n(n_min, "n_min")
+      # As `disperse_total()` reads it, so that `1 - 1e-12` counts as 1:
+      n_min <- round_whole(n_min)
       if (n_min < 1) {
         abort_in_export(
           "`n_min` must be at least 1.",
@@ -532,6 +534,12 @@ function_map_total_n <- function(
 
       # `check_mapper_input_colnames()` would look for the wrong key columns:
       check_consistency_not_in_colnames(data, name_test, name_key_result)
+
+      # Each row is split into strings below, which would hide a factor from
+      # the basic mapper's check:
+      for (col in intersect(reported_reduplicated, colnames(data))) {
+        check_not_factor(data[[col]], col)
+      }
 
       if (!any(colnames(data) == "n")) {
         abort_in_export(

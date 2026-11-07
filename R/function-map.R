@@ -392,11 +392,12 @@ function_map <- function(
 
   # `data` before its key columns are renamed and moved to the front: the
   # selection may name a key column as the user knows it, as in
-  # `summands = !sum, total = sum`, and positions count as in `data` as given.
+  # `summands = !sum, total = sum`, and positions count as in `data` as given,
+  # without the `rowname` column that `as_tibble_input()` puts first.
   code_variadic_given <- if (is.null(.reported_variadic)) {
     list()
   } else {
-    list(rlang::expr(data_given <- data))
+    list(rlang::expr(data_given <- data[setdiff(colnames(data), cols_added)]))
   }
 
   code_variadic <- if (is.null(.reported_variadic)) {
