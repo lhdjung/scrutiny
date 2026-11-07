@@ -710,9 +710,20 @@ drop_continuous <- function(data, test, ...) {
 #' @keywords internal
 #' @export
 
-grim_plot <- function(..., digits = NULL, raster_color = "grey75") {
+grim_plot <- function(
+  ...,
+  digits = lifecycle::deprecated(),
+  raster_color = lifecycle::deprecated()
+) {
   lifecycle::deprecate_warn("1.0.0", "grim_plot()", "grim_plot_grid()")
-  grim_plot_grid(..., digits_x = digits, color_raster = raster_color)
+  args <- list(...)
+  if (lifecycle::is_present(digits)) {
+    args$digits_x <- digits
+  }
+  if (lifecycle::is_present(raster_color)) {
+    args$color_raster <- raster_color
+  }
+  do.call(grim_plot_grid, args)
 }
 
 

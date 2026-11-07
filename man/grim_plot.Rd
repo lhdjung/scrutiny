@@ -4,7 +4,11 @@
 \alias{grim_plot}
 \title{Deprecated name of \code{grim_plot_grid()}}
 \usage{
-grim_plot(..., digits = NULL, raster_color = "grey75")
+grim_plot(
+  ...,
+  digits = lifecycle::deprecated(),
+  raster_color = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{...}{Passed on to \code{\link[=grim_plot_grid]{grim_plot_grid()}}.}

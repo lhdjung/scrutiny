@@ -300,7 +300,13 @@ test_that("`grim_plot_grid()` doesn't overflow the integer range", {
 
 test_that("`grim_plot()` is a deprecated alias of `grim_plot_grid()`", {
   rlang::local_options(lifecycle_verbosity = "warning")
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot(digits = 2) |> expect_warning(class = "lifecycle_warning_deprecated")
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  data |> grim_plot(digits = 2) |> expect_warning(class = "lifecycle_warning_deprecated")
+  # Old and new argument names both reach `grim_plot_grid()`:
+  rlang::local_options(lifecycle_verbosity = "quiet")
+  expected <- data |> grim_plot_grid(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L)
+  data |> grim_plot(digits = 2, raster_color = "red")   |> ggplot2::layer_data(1L) |> expect_equal(expected)
+  data |> grim_plot(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L) |> expect_equal(expected)
 })
 
 test_that("the flags must be `TRUE` or `FALSE`", {
