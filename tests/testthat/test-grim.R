@@ -452,6 +452,9 @@ test_that("values whose rounding bounds a double cannot hold are refused, not te
   # The product with `n` has its own limit:
   grim(5.19, 1e13, 2, 1, data_type = "integer")   |> expect_error("too large for an exact test")
   grim(5.19, 1e9, 2, 1e4, data_type = "integer")  |> expect_error("too large for an exact test")
+  # Written the same way under any `scipen`, as `grim_explain()` sets it:
+  grim(5.19, 1e14, 2, 1, data_type = "integer")         |> expect_error("about 5.2e17")
+  grim_explain(5.19, 1e14, 2, 1, data_type = "integer") |> expect_error("about 5.2e17")
   grim(5.19, 1e12, 2, 1, data_type = "integer")   |> expect_true()
   debit(0.5, 0.5, 1e14, 2, 2, data_type = "integer") |> expect_error("too large for an exact test")
   # The bounds lie up to 10 units beyond `x * 10^(digits_x + 1)`, so their

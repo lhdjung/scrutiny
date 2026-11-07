@@ -443,11 +443,17 @@ check_sum_range_exact <- function(
       msg_what <- "counts"
       msg_formula <- "`(percentage * 10^(digits_percentage + 1) + 10) * n`"
     }
+    # Written like 9.007e15, whatever `options(scipen)` says:
+    product <- sub(
+      "e\\+?0*",
+      "e",
+      format(product, digits = 4L, scientific = TRUE)
+    )
     abort_in_export(
       "`{arg}` times the sample size is too large for an exact test.",
       "x" = "The {msg_what} that `{arg}` admits are compared as whole numbers, \\
       which is exact only below 2^53, about 9.007e15, and {msg_formula} is \\
-      about {format(product, digits = 4L)}.",
+      about {product}.",
       "i" = if (hint_items) "`items_averaged` multiplies into `n` here.",
       "i" = if (scale > 1) msg_threshold_scale(scale)
     )

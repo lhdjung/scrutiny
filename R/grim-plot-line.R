@@ -22,6 +22,9 @@ plot_comb <- function(
   color_verdict,
   color_attainable
 ) {
+  # Plus zero, which turns a negative zero, as from `round(-0.001, 2)`, into
+  # the zero it would otherwise be labeled "-0.00" as:
+  reported <- reported + 0
   span <- diff(range(values))
 
   # The panel's ranges are fixed rather than left to the scales, so that a value

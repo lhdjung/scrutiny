@@ -330,6 +330,10 @@ test_that("zero is not labeled as negative", {
   grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1, data_type = "integer") |> labels() |> expect_no_match("-0.00")
   grim_plot_line(x = 0.01, n = 31, digits_x = 2, items_averaged = 1, data_type = "integer")  |> labels() |> expect_no_match("-0.00")
   grim_plot_line(x = -0.02, n = 30, digits_x = 2, items_averaged = 1, data_type = "integer") |> labels() |> expect_contains("0.00")
+  # Nor the marker, at a negative zero as `round()` leaves it:
+  texts <- function(grob) if (inherits(grob, "text")) grob$label else unlist(lapply(grob$children, texts))
+  marker <- function(plot) plot$layers[[4L]]$geom_params$grob |> texts()
+  round(-0.001, 2) |> grim_plot_line(5, digits_x = 2, items_averaged = 1, data_type = "integer") |> marker() |> expect_equal(c(verdict = "0.00\nconsistent"))
 })
 
 
