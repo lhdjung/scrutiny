@@ -537,7 +537,7 @@ function_map_total_n <- function(
 
       # Each row is split into strings below, which would hide a factor from
       # the basic mapper's check:
-      for (col in intersect(reported_reduplicated, colnames(data))) {
+      for (col in intersect(c(reported_reduplicated, "n"), colnames(data))) {
         check_not_factor(data[[col]], col)
       }
 

@@ -503,7 +503,7 @@ check_not_factor <- function(x, name) {
   if (is.factor(x)) {
     abort_in_export(
       "`{name}` must be numeric, not a factor.",
-      "i" = "Convert it with `as.numeric(as.character({name}))`, or read \\
+      "i" = "Convert the factor with `as.numeric(as.character())`, or read \\
       the data with `stringsAsFactors = FALSE`."
     )
   }
