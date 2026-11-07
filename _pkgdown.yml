@@ -85,6 +85,8 @@ reference:
   - debit_map_seq
   - debit_map_total_n
   - debit_plot
+  - debit_plot_line
+  - debit_values
   - sd_binary_0_n
 - subtitle: Percentages and sums
   desc: Test reported percentages against their counts, and subgroup sizes against

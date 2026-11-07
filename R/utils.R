@@ -270,6 +270,8 @@ check_values_size <- function(size, what, values) {
   hint <- if (what == "pairs") {
     "Their number grows with {.arg n}, {.arg items_averaged}, and {.arg sd}, \\
     and shrinks with {.arg digits_x} and {.arg digits_sd}."
+  } else if (what == "samples") {
+    "Their number grows with {.arg n} and shrinks with {.arg digits_x}."
   } else {
     "Their number grows with {.arg n} and {.arg items_averaged}, and shrinks \\
     with {.arg digits_x}."

@@ -104,7 +104,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `percentage_of()`, `percentage_of_map()`, and `percentage_of_map_seq()` check whether a reported percentage matches a count out of a total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a total; `add_up_to_map()` selects any number of columns with tidyselect. `percentage_of_map()` and `add_up_to_map()` have `audit()` methods.
 
-- `grim_plot_line()` and `grimmer_plot_line()` visualize the test of a single value set. Among all means or SDs within a range that could be reported with the given number of decimal places, they draw a square for each value that is consistent with the reported sample size, leave the others out, and indicate the reported mean or SD value. Squares are labeled with their values if there is space. By default, `zoom = "close"` shows the reported value and the nearest attainable one; `zoom = "medium"` widens to the nearest attainable one on either side, and `zoom = "wide"` shows a whole unit, which is 0% to 100% for a percentage.
+- `grim_plot_line()`, `grimmer_plot_line()`, and `debit_plot_line()` visualize the test of a single value set. Among all means or SDs within a range that could be reported with the given number of decimal places, they draw a square for each value that is consistent with the reported sample size, leave the others out, and indicate the reported mean or SD value. Squares are labeled with their values if there is space. By default, `zoom = "close"` shows the reported value and the nearest attainable one; `zoom = "medium"` widens to the nearest attainable one on either side, and `zoom = "wide"` shows a whole unit, which is 0% to 100% for a percentage.
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
@@ -112,7 +112,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument for data without a recorded one.
 
-- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
+- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test.
 

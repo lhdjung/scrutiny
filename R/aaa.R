@@ -90,8 +90,8 @@ COMB_ZOOMS <- c("close", "medium", "wide")
 # it pads to; see `write_out_decimal()`:
 WRITTEN_OUT_MAX <- 100000L
 
-# The columns of `grim_values()` and `grimmer_values()` output, for the
-# zero-row case; see `bind_cases()`:
+# The columns of `grim_values()`, `grimmer_values()`, and `debit_values()`
+# output, for the zero-row case; see `bind_cases()`:
 PTYPE_GRIM_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
@@ -105,6 +105,13 @@ PTYPE_GRIMMER_VALUES <- tibble::tibble(
   n = double(),
   sum = double(),
   sum_squares = double()
+)
+PTYPE_DEBIT_VALUES <- tibble::tibble(
+  case = integer(),
+  x = double(),
+  sd = double(),
+  n = double(),
+  sum = double()
 )
 
 

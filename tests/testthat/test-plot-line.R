@@ -351,3 +351,27 @@ test_that("`data_type` is required and must be `\"integer\"`", {
   5.23 |> grimmer_plot_line(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1)                           |> expect_error("Need to specify `data_type`")
   5.23 |> grimmer_plot_line(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "continuous") |> expect_error("only applies to whole numbers")
 })
+
+
+test_that("`debit_plot_line()` draws the SDs that `debit()` admits", {
+  p <- 0.35 |> debit_plot_line(0.49, 20, 2, 2, "integer")
+  p |> expect_s3_class("ggplot")
+  p |> squares() |> expect_equal(0.49)
+  # Each SD in the window is a square exactly if `debit()` admits it:
+  wide <- 0.35 |> debit_plot_line(0.41, 20, 2, 2, "integer", zoom = "wide") |> squares()
+  admitted <- seq(0, 1, by = 0.01) |> call_on(\(sd) sd[debit(0.35, sd, 20, 2, 2, "integer")])
+  wide |> expect_equal(admitted)
+  0.35 |> debit_plot_line(0.41, 20, 2, 2, "integer", sd_meaning = "sd_pop", zoom = "wide") |> squares() |> expect_equal(0.48)
+  0.5  |> debit_plot_line(0.5, 300, 1, 1, "integer", formula = "mean_n")                    |> squares() |> expect_equal(0.5)
+})
+
+test_that("`debit_plot_line()` checks its own arguments", {
+  0.35 |> debit_plot_line(0.49, 20, 2)                                     |> expect_error("digits_sd")
+  0.35 |> debit_plot_line(0.49, 20, 2, 2)                                  |> expect_error("Need to specify `data_type`")
+  0.35 |> debit_plot_line(0.49, 20, 2, 2, "continuous")                    |> expect_error("only applies to whole numbers")
+  0.35 |> debit_plot_line(0.49, 20, 2, 2, NA)                              |> expect_error("can't be `NA`")
+  0.35 |> debit_plot_line(0.49, 1, 2, 2, "integer")                        |> expect_error("at least 2")
+  0.35 |> debit_plot_line(0.49, 1, 2, 2, "integer", sd_meaning = "sd_pop") |> expect_s3_class("ggplot")
+  1.35 |> debit_plot_line(0.49, 20, 2, 2, "integer")                       |> expect_error()
+  c(0.35, 0.4) |> debit_plot_line(0.49, 20, 2, 2, "integer")               |> expect_error("length 1")
+})
