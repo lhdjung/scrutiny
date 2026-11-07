@@ -258,36 +258,37 @@ grim_plot_grid <- function(
     cli::cli_warn(c(
       "!" = "Dropping {n_undecided} undecidable value set{?s} \\
       from the plot.",
-      "i" = "Their `consistency` is `NA`, and a tile is colored by its \\
-      consistency, so they cannot be drawn.",
-      "i" = "The remaining {nrow(data) - n_undecided} value set{?s} \\
-      {?is/are} plotted."
+      "i" = "{cli::qty(n_undecided)}{?Its/Their} `consistency` {?value is/values \\
+      are} `NA`, and a tile is colored by its consistency, so {?it/they} \\
+      cannot be drawn."
     ))
     data <- data[!is.na(data$consistency), ]
   }
 
-  # A value set can be inconsistent with its mean or decimal places missing, as
-  # in GRIMMER if no mean goes with the SD. It has no place on the grid, and
-  # the comparison of decimal places below would fail on it:
+  # A value set can be decided with its mean, decimal places, or size
+  # missing, as in GRIMMER if no mean goes with the SD, or in GRIM if a mean
+  # passes with any `n`. It has no place on the grid, and the comparison of
+  # decimal places below would fail on it:
   if (show_data) {
-    is_placeless <- is.na(data$x)
-    if (is.null(digits) && "digits_x" %in% colnames(data)) {
-      is_placeless <- is_placeless | is.na(data$digits_x)
+    cols_place <- intersect(c("x", "n", "items_averaged"), colnames(data))
+    if (is.null(digits)) {
+      cols_place <- intersect(c(cols_place, "digits_x"), colnames(data))
     }
+    is_placeless <- Reduce(`|`, lapply(data[cols_place], is.na))
     n_placeless <- sum(is_placeless)
     if (n_placeless == nrow(data)) {
       abort_in_export(
-        "No value set in `data` has a mean and its decimal places.",
-        "x" = "`x` or `digits_x` is missing in all {nrow(data)} row{?s}.",
+        "No value set in `data` has a place on the grid.",
+        "x" = "{.or {.code {cols_place}}} is missing in each of the \\
+        {nrow(data)} row{?s}.",
         "i" = "Set `show_data = FALSE` for the background raster on its own."
       )
     }
     if (n_placeless > 0L) {
       cli::cli_warn(c(
-        "!" = "Dropping {n_placeless} value set{?s} without a mean or its \\
-        decimal places from the plot.",
-        "i" = "`x` or `digits_x` is missing there, so they have no place on \\
-        the grid."
+        "!" = "Dropping {n_placeless} value set{?s} without a place on the \\
+        grid from the plot.",
+        "i" = "{.or {.code {cols_place}}} is missing there."
       ))
       data <- data[!is_placeless, ]
     }

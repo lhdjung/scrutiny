@@ -336,14 +336,25 @@ test_that("an inconsistent value set without a mean or its decimal places is dro
   df <- tibble::tibble(x = c(5.23, 5.2), sd = c(2.55, 0.03), n = c(35, 40))
   out <- df |> grimmer_map(digits_x = c(2, NA), digits_sd = 2, items_averaged = 1, data_type = "integer")
   out$consistency |> expect_equal(c(FALSE, FALSE))
-  out |> grim_plot_grid()                       |> expect_warning("Dropping 1 value set without a mean") |> suppressMessages()
-  out |> grim_plot_grid(split_by_digits = TRUE) |> expect_warning("Dropping 1 value set without a mean") |> suppressMessages()
+  out |> grim_plot_grid()                       |> expect_warning("Dropping 1 value set without a place") |> suppressMessages()
+  out |> grim_plot_grid(split_by_digits = TRUE) |> expect_warning("Dropping 1 value set without a place") |> suppressMessages()
 
   out <- dplyr::mutate(df, x = c(5.23, NA)) |>
     grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
-  plot <- out |> grim_plot_grid() |> expect_warning("Dropping 1 value set without a mean") |> suppressMessages()
+  plot <- out |> grim_plot_grid() |> expect_warning("Dropping 1 value set without a place") |> suppressMessages()
 
-  out[2L, ] |> grim_plot_grid() |> expect_error("No value set in `data` has a mean") |> suppressMessages()
+  out[2L, ] |> grim_plot_grid() |> expect_error("No value set in `data` has a place") |> suppressMessages()
+})
+
+
+test_that("a value set decided with `n` or `items_averaged` missing is dropped", {
+  # It was left to ggplot2 to remove, with a vague message:
+  out <- tibble::tibble(x = c(5, 5.19, 5.5), n = c(NA, 28, 30), items_averaged = c(1, 1, NA)) |>
+    grim_map(digits_x = 2, data_type = "integer")
+  out$consistency |> expect_equal(c(TRUE, FALSE, TRUE))
+  expect_warning(plot <- grim_plot_grid(out), "Dropping 2 value sets without a place")
+  plot |> ggplot2::layer_data(2L) |> nrow() |> expect_equal(1L)
+  out[-2L, ] |> grim_plot_grid() |> expect_error("`items_averaged`, or `digits_x` is missing")
 })
 
 
