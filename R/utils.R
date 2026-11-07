@@ -285,10 +285,16 @@ check_values_size <- function(size, what, values) {
     digits = 15L
   )
   value_set <- paste0("`", names(values), " = ", values, "`", collapse = ", ")
+  # `debit_values()` counts the numbers of ones before the SD narrows them down:
+  msg_size <- if (what == "samples") {
+    "has more than {limit} numbers of ones whose mean would be reported as \\
+    {.arg x}, which are listed before {.arg sd} narrows them down."
+  } else {
+    "admits more than {limit} {what}, and the output has one row for each."
+  }
   abort_in_export(
     "Too many achievable {what} for {.fn {name_last_export()}}.",
-    "x" = "The value set with {value_set} admits more than {limit} {what}, \\
-    and the output has one row for each.",
+    "x" = paste("The value set with {value_set}", msg_size),
     "i" = hint
   )
 }

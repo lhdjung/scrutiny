@@ -51,6 +51,8 @@ test_that("`debit_values()` handles missing values and bad input", {
   0.35 |> debit_values(0.49, 20, 2, 2, "integer", sd_meaning = "sd_sample_or_pop") |> expect_error("debit_values")
   0.35 |> debit_values(0.49, 20, 2, 2, "integer", formula = "mean_n")             |> expect_error("can't be \"mean_n\"", fixed = TRUE)
   0.35 |> debit_values(0.49, 20, 2, 2, "integer", formula = "exactly")            |> expect_error("formula")
+  # The numbers of ones are counted before the SD narrows them down:
+  0.5  |> debit_values(0.4999, 1e7, 1, 4, "integer")                              |> expect_error("before `sd` narrows them down", fixed = TRUE)
   0.35 |> debit_values(0.49, 20, 2, 2, "integer", formula = "exact")              |> expect_equal(debit_values(0.35, 0.49, 20, 2, 2, "integer"))
   1.35 |> debit_values(0.49, 20, 2, 2, "integer")    |> expect_error()
   numeric(0) |> debit_values(numeric(0), numeric(0), 2, 2, "integer") |> expect_equal(PTYPE_DEBIT_VALUES)
