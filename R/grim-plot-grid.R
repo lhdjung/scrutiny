@@ -673,10 +673,12 @@ drop_continuous <- function(data, test, ...) {
     return(data)
   }
   n_continuous <- sum(is_continuous)
+  # DEBIT's whole numbers are 0 and 1:
+  numbers <- if (test == "DEBIT") "binary data (0 and 1)" else "whole numbers"
   if (n_continuous == nrow(data)) {
     abort_in_export(
       "All value sets in `data` are continuous data.",
-      "i" = "{test} only applies to whole numbers, so there is nothing to \\
+      "i" = "{test} only applies to {numbers}, so there is nothing to \\
       draw.",
       ...
     )
@@ -684,7 +686,7 @@ drop_continuous <- function(data, test, ...) {
   cli::cli_warn(c(
     "!" = "Dropping {n_continuous} value set{?s} of continuous data from the \\
     plot.",
-    "i" = "{test} only applies to whole numbers."
+    "i" = "{test} only applies to {numbers}."
   ))
   data[!is_continuous, ]
 }

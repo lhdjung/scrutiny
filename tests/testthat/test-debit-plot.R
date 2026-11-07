@@ -237,3 +237,12 @@ test_that("a dropped `data_type` column is named as such", {
     debit_plot() |>
     expect_error("lacks columns that `debit_plot\\(\\)` needs")
 })
+
+
+test_that("dropped continuous rows are named as not binary", {
+  # The warning said that DEBIT only applies to whole numbers:
+  tibble::tibble(x = c(0.35, 0.4), sd = c(0.48, 0.49), n = 20, data_type = c("integer", "continuous")) |>
+    debit_map(digits_x = 2, digits_sd = 2) |>
+    debit_plot() |>
+    expect_warning("only applies to binary data")
+})
