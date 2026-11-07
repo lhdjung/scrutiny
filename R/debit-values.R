@@ -11,12 +11,24 @@ debit_values_scalar <- function(
   digits_sd,
   data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
 ) {
   # The same data give a different SD under each premise:
   sd_meaning <- check_sd_meaning_single(sd_meaning)
+  # Only actual samples have values to list:
+  formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
+  if (formula == "mean_n") {
+    abort_in_export(
+      "{.arg formula} can't be {.val mean_n} here.",
+      "x" = "It takes the mean as anything that would be reported as `x`, so \\
+      there is no finite list of values.",
+      "i" = "Use {.val exact}, the default, for the samples of `n` binary \\
+      values."
+    )
+  }
   # `"continuous"` is an error; a missing `data_type` is an error in
   # `debit_scalar()`, after the checks for the arguments before it:
   if (!missing(data_type)) {
@@ -31,7 +43,7 @@ debit_values_scalar <- function(
     digits_sd = digits_sd,
     data_type = data_type,
     sd_meaning = sd_meaning,
-    formula = "exact",
+    formula = formula,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric
@@ -113,8 +125,7 @@ debit_values_tibble <- function(ones, n, sd_meaning) {
 #'   of the values.
 #'
 #' @details The values are those of actual samples, so they follow `debit()`'s
-#'   default `formula = "exact"`. Under `"mean_n"`, the mean may be anything
-#'   that would be reported as `x`, so there are no values to list.
+#'   default `formula = "exact"`.
 #'
 #'   More than a million numbers of ones whose mean would be reported as `x`
 #'   is an error, since they are listed before the SD narrows them down. That
@@ -126,6 +137,9 @@ debit_values_tibble <- function(ones, n, sd_meaning) {
 #'   assumption. `"continuous"` is an error: such data can have any value that
 #'   would be reported as the one given, so there are none to list. Under
 #'   `NA`, a value set is undecidable unless no data can have it.
+#' @param formula String. As in [`debit()`], but only `"exact"`, the default,
+#'   is allowed: `"mean_n"` takes the mean as anything that would be reported
+#'   as `x`, so there are no values to list.
 #' @param sd_meaning String. As in [`debit()`], but `"sd_sample_or_pop"` is
 #'   not allowed: the same data have a different SD under each premise, so
 #'   call `debit_values()` once for each. Under `"se"`, the `sd` column holds
@@ -185,6 +199,7 @@ debit_values <- function(
   digits_sd,
   data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE

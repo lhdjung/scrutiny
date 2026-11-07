@@ -12,6 +12,7 @@ debit_values(
   digits_sd,
   data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
@@ -39,6 +40,10 @@ not allowed: the same data have a different SD under each premise, so
 call \code{debit_values()} once for each. Under \code{"se"}, the \code{sd} column holds
 the standard error.}
 
+\item{formula}{String. As in \code{\link[=debit]{debit()}}, but only \code{"exact"}, the default,
+is allowed: \code{"mean_n"} takes the mean as anything that would be reported
+as \code{x}, so there are no values to list.}
+
 \item{rounding}{String. The rounding method assumed to have produced \code{x}
 and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} for the others.}
 
@@ -64,8 +69,7 @@ of the values.
 }
 \details{
 The values are those of actual samples, so they follow \code{debit()}'s
-default \code{formula = "exact"}. Under \code{"mean_n"}, the mean may be anything
-that would be reported as \code{x}, so there are no values to list.
+default \code{formula = "exact"}.
 
 More than a million numbers of ones whose mean would be reported as \code{x}
 is an error, since they are listed before the SD narrows them down. That
