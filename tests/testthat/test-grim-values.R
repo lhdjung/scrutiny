@@ -173,7 +173,8 @@ test_that("type mistakes are errors, as in `grim()`, not undecidable value sets"
 
 
 test_that("`data_type` is required, and continuous data are an error", {
-  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1)                            |> expect_error("only applies to whole numbers")
+  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1)                            |> expect_error("`grim_values()` only applies", fixed = TRUE)
+  5.19 |> grim(28, digits_x = 2, items_averaged = 1)                                   |> expect_error("no data at all can have", fixed = TRUE)
   5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1)                           |> expect_error("Need to specify `data_type`")
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, data_type = "continuous")  |> expect_error("`grim_values()` only applies", fixed = TRUE)
   5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "continuous") |> expect_error("`grim_closest()` only applies", fixed = TRUE)

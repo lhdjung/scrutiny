@@ -45,7 +45,7 @@ test_that("`debit_values()` handles missing values and bad input", {
   out$case |> expect_equal(1:2)
   out$x[2] |> expect_na()
   0.35 |> debit_values(0.49, 20, 2, 2, NA) |> _$x |> expect_na()
-  0.35 |> debit_values(0.49, 20, 2, 2)               |> expect_error("only applies to whole numbers")
+  0.35 |> debit_values(0.49, 20, 2, 2)               |> expect_error("`debit_values()` only applies", fixed = TRUE)
   0.35 |> debit_values(0.49, 20, 2, 2, "continuous") |> expect_error("`debit_values()` only applies", fixed = TRUE)
   0.35 |> debit_values(0.49, 20, 2)                  |> expect_error("digits_sd")
   0.35 |> debit_values(0.49, 20, 2, 2, "integer", sd_meaning = "sd_sample_or_pop") |> expect_error("debit_values")

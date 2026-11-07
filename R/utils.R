@@ -870,11 +870,14 @@ error_data_type_missing <- function() {
   }
   # The functions that list or draw the values whole numbers can have, such as
   # `grim_values()`; see `check_data_type_whole()`:
+  # Plain strings: cli doesn't interpolate the text it splices in.
   msg_continuous <- if (grepl("_values$|_closest$|_plot_line$", name_fn)) {
-    "`{name_fn}()` only applies to whole numbers."
+    paste0("`", name_fn, "()` only applies to whole numbers.")
   } else {
-    "The test does not apply, so the result is `TRUE` unless no data at all \\
-    can have the value set."
+    paste(
+      "The test does not apply, so the result is `TRUE` unless no data at all",
+      "can have the value set."
+    )
   }
 
   abort_in_export(
