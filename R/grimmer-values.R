@@ -93,14 +93,7 @@ grimmer_values_scalar <- function(
   # Only those within reach of the SD can, as in `grimmer_scalar()`. Each has
   # a pair at least, so they are counted before any is allocated: a mean with
   # many decimal places and a large `items_averaged` admits millions.
-  abort_too_large <- function() {
-    abort_in_export(
-      "The sums of squares are too large to list.",
-      "x" = "They reach 2^53, about 9e15, beyond which a double skips whole \\
-      numbers.",
-      "i" = "`grimmer()` tests this value set exactly all the same."
-    )
-  }
+  abort_too_large <- abort_sum_squares_too_large
   # A sum of squares is at least the sum of squared deviations, so all of them
   # are too large if its lower bound is. Checked before the sums are tried:
   if (sd_bounds$term_lower$approx >= 2^53 * (1 + 2^-40)) {
@@ -232,6 +225,311 @@ grimmer_values_tibble <- function(
   )
 }
 
+# `grimmer_values()` and `grimmer_closest()` show sums of squares as doubles,
+# which skip whole numbers from `2^53` on:
+abort_sum_squares_too_large <- function() {
+  abort_in_export(
+    "The sums of squares are too large to list.",
+    "x" = "They reach 2^53, about 9e15, beyond which a double skips whole \\
+    numbers.",
+    "i" = "`grimmer()` tests this value set exactly all the same."
+  )
+}
+
+
+# `grimmer_closest()`: of the pairs that whole numbers can have, the one whose
+# SD is closest to `sd`. Like `grim_closest()`, it keeps a consistent value set
+# to the pairs that would be reported as `x` and `sd`. Otherwise, it takes
+# those whose mean would be reported as `x` or, if there are none, whose sum
+# gives the mean that `grim_closest()` returns. Sums with the same remainder
+# modulo `n` have the same SDs (see `grimmer_candidate()`), so each remainder
+# is tried once, with its sum closest to `x`. Ties go to the mean closer to
+# `x`, then to the smaller sum.
+grimmer_closest_scalar <- function(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  items_averaged,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
+  if (!missing(data_type)) {
+    check_data_type_whole(data_type)
+  }
+
+  consistency <- grimmer_scalar(
+    x = x,
+    sd = sd,
+    n = n,
+    digits_x = digits_x,
+    digits_sd = digits_sd,
+    items_averaged = items_averaged,
+    data_type = data_type,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric,
+    sd_meaning = sd_meaning
+  )
+
+  n_dev <- sd_denominator(as.numeric(n), sd_meaning)
+
+  # The pair depends on every value, so a missing one leaves it open even
+  # where the verdict is forced:
+  is_known <- !anyNA(list(
+    x,
+    sd,
+    n,
+    digits_x,
+    digits_sd,
+    items_averaged,
+    data_type
+  ))
+  if (is.na(consistency) || !is_known) {
+    return(grimmer_values_tibble(
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      n,
+      items_averaged,
+      n_dev
+    ))
+  }
+
+  n <- as.numeric(n)
+  n_items <- n * items_averaged
+  sum_target <- x * n_items
+  sums <- roundwork::sum_range(
+    x_num = x,
+    n_items = n_items,
+    digits = digits_x,
+    rounding = rounding,
+    threshold = threshold,
+    symmetric = symmetric
+  )
+
+  if (consistency) {
+    sd_bounds <- grimmer_sd_bounds(
+      sd = sd,
+      n = n,
+      items_averaged = items_averaged,
+      digits_sd = digits_sd,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric,
+      sd_meaning = sd_meaning
+    )
+    if (sd_bounds$term_lower$approx >= 2^53 * (1 + 2^-40)) {
+      abort_sum_squares_too_large()
+    }
+    remainders <- sums |>
+      grimmer_sums_reachable(n, sd_bounds) |>
+      sums_from_bounds()
+    candidates <- sums_closest_by_remainder(remainders, sums, n, sum_target)
+  } else if (sums[[1L]] > sums[[2L]]) {
+    # No mean would be reported as `x`. Of the two sums around it, the one
+    # whose mean `grim_closest()` returns:
+    sd_bounds <- NULL
+    candidates <- c(sums[[2L]], sums[[1L]])
+    # Compared as means, as there, so that a tie goes the same way:
+    candidates <- candidates[which.min(abs(candidates / n_items - x))]
+  } else {
+    sd_bounds <- NULL
+    remainders <- if (sums[[2L]] - sums[[1L]] + 1 >= n) {
+      seq_len(n) - 1
+    } else {
+      seq(sums[[1L]], sums[[2L]])
+    }
+    candidates <- sums_closest_by_remainder(remainders, sums, n, sum_target)
+  }
+
+  r <- candidates %% n
+  # The sum of squared deviations that `sd` stands for, plus `r^2 / n`, is the
+  # shifted sum of squares to come closest to. A negative SD comes closest to
+  # 0:
+  deviations_target <- n_dev * (max(sd, 0) * items_averaged)^2
+  targets <- deviations_target + r^2 / n
+  if (max(targets) >= 2^52) {
+    abort_sum_squares_too_large()
+  }
+
+  # The shifted sums of squares that the SD admits, if it is to be kept to
+  # them, else all from the minimum `r` on:
+  if (is.null(sd_bounds)) {
+    lower <- r
+    upper <- rep(Inf, length(r))
+  } else {
+    ranges <- vapply(
+      candidates,
+      function(s) {
+        candidate <- grimmer_candidate(
+          s = s,
+          n = n,
+          items_averaged = items_averaged,
+          sd_bounds = sd_bounds
+        )
+        if (!candidate$pass_test3) {
+          return(c(NA_real_, NA_real_))
+        }
+        if (is_big(candidate$range$upper)) {
+          abort_sum_squares_too_large()
+        }
+        c(candidate$lower, candidate$range$upper)
+      },
+      numeric(2L)
+    )
+    lower <- ranges[1L, ]
+    upper <- ranges[2L, ]
+  }
+
+  squares <- if (n >= 5) {
+    closest_square_parity(r, n, targets, lower, upper)
+  } else {
+    vapply(
+      seq_along(r),
+      function(i) {
+        closest_square_few(r[i], n, targets[i], lower[i], upper[i])
+      },
+      numeric(1L)
+    )
+  }
+
+  keep <- !is.na(squares)
+  if (!any(keep)) {
+    cli::cli_abort(
+      "Internal error: `grimmer_closest()` disagrees with `grimmer()`.",
+      .internal = TRUE
+    )
+  }
+  candidates <- candidates[keep]
+  r <- r[keep]
+  squares <- squares[keep]
+
+  deviations <- squares - r^2 / n
+  distance_sd <- abs(sqrt(deviations) - sqrt(deviations_target))
+  best <- order(distance_sd, abs(candidates - sum_target), candidates)[1L]
+
+  s <- candidates[best]
+  shift <- (s %/% n) * (s + r[best])
+  sum_squares <- squares[best] + shift
+  if (abs(shift) >= 2^53 || abs(sum_squares) >= 2^53) {
+    abort_sum_squares_too_large()
+  }
+
+  grimmer_values_tibble(
+    s,
+    sum_squares,
+    deviations[best],
+    n,
+    items_averaged,
+    n_dev
+  )
+}
+
+
+# For each remainder modulo `n` among `remainders`, the sum with it that lies
+# from `sums[1]` to `sums[2]` and is closest to `target`.
+sums_closest_by_remainder <- function(remainders, sums, n, target) {
+  r <- unique(remainders %% n)
+  below <- floor(target) - ((floor(target) - r) %% n)
+  above <- below + n
+  closest <- ifelse(target - below <= above - target, below, above)
+  least <- sums[[1L]] + ((r - sums[[1L]]) %% n)
+  greatest <- sums[[2L]] - ((sums[[2L]] - r) %% n)
+  pmin(pmax(closest, least), greatest)
+}
+
+
+# Of the shifted sums of squares from `lower` to `upper` with the parity of
+# `r`, the one closest to `target` in terms of the SD, for each remainder `r`
+# at once; `NA` where there is none. From five whole numbers on, these are all
+# the sums of squares that the numbers can have, from the minimum `r` on.
+closest_square_parity <- function(r, n, target, lower, upper) {
+  below <- floor(pmin(target, upper))
+  below <- below - (below - r) %% 2
+  above <- ceiling(pmax(target, lower))
+  above <- above + (above - r) %% 2
+  below[below < lower] <- NA
+  above[above > upper] <- NA
+  closest_by_sd(below, above, r, n, target)
+}
+
+
+# The same for fewer than five numbers, one remainder at a time, which can only
+# have some of these; see `sum_squares_attainable()`. One number has only the
+# minimum, which is 0 after the shift.
+closest_square_few <- function(r, n, target, lower, upper) {
+  if (n == 1) {
+    return(if (lower <= 0 && 0 <= upper) 0 else NA_real_)
+  }
+  below <- square_attainable_below(r, n, lower, floor(min(target, upper)))
+  above <- square_attainable_above(r, n, ceiling(max(target, lower)), upper)
+  closest_by_sd(below, above, r, n, target)
+}
+
+
+# Of two sums of squares around `target`, either of them `NA`, the one whose
+# SD is closer to the SD at `target`. The SD grows with the root of the sum of
+# squared deviations, which is the shifted sum of squares minus `r^2 / n`:
+closest_by_sd <- function(below, above, r, n, target) {
+  root_target <- sqrt(target - r^2 / n)
+  distance_below <- abs(sqrt(below - r^2 / n) - root_target)
+  distance_above <- abs(sqrt(above - r^2 / n) - root_target)
+  is_below <- !is.na(below) & (is.na(above) | distance_below <= distance_above)
+  ifelse(is_below, below, above)
+}
+
+
+# The least sum of squares from `lower` to `upper` that `n` from 2 to 4 whole
+# numbers with the sum `r` can have, searched in windows that double in size,
+# since `upper` may be infinite; or `NA`.
+square_attainable_above <- function(r, n, lower, upper) {
+  lower <- max(lower, r)
+  width <- 64
+  while (lower <= upper) {
+    end <- min(lower + width, upper)
+    check_grimmer_attainable_exact(end, n)
+    found <- sum_squares_attainable(r, n, lower, end)
+    if (!is.na(found)) {
+      return(found)
+    }
+    lower <- end + 1
+    width <- 2 * width
+  }
+  NA_real_
+}
+
+
+# The greatest sum of squares from `lower` to `upper`, as above:
+square_attainable_below <- function(r, n, lower, upper) {
+  lower <- max(lower, r)
+  width <- 64
+  while (upper >= lower) {
+    start <- max(upper - width, lower)
+    check_grimmer_attainable_exact(upper, n)
+    first <- sum_squares_attainable(r, n, start, upper)
+    if (!is.na(first)) {
+      # A window of `width + 1` numbers has at most that many:
+      all <- sum_squares_attainable_all(
+        r,
+        n,
+        first,
+        upper,
+        count_max = width + 1
+      )
+      return(max(all))
+    }
+    upper <- start - 1
+    width <- 2 * width
+  }
+  NA_real_
+}
+
 
 #' Achievable means and SDs behind a reported pair
 #'
@@ -241,6 +539,13 @@ grimmer_values_tibble <- function(
 #'   `n` integers can have and that would be reported as `x` and `sd`. It
 #'   is the counterpart of [`grim_values()`] for [`grimmer()`], which is `TRUE`
 #'   exactly if there is at least one such pair.
+#'
+#'   `grimmer_closest()` returns the single achievable pair whose SD is
+#'   closest to `sd`, like [`grim_closest()`] for means. If `x` and `sd` are
+#'   consistent, it is one of the pairs that `grimmer_values()` returns.
+#'   Otherwise, it is closest among the pairs whose mean would be reported as
+#'   `x`, or, if there are none, whose mean is the one `grim_closest()`
+#'   returns.
 #'
 #'   Each pair comes with the whole-number sum and sum of squares behind it.
 #'   Statistics computed from several groups, such as a t-value, can be
@@ -261,6 +566,10 @@ grimmer_values_tibble <- function(
 #'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
+#'   In `grimmer_closest()`, pairs whose SDs are equally close go by the mean
+#'   closer to `x`. A negative `sd` is closest to the least SD there is. The
+#'   number of pairs doesn't matter there, so it has no such limit.
+#'
 #' @inheritParams grimmer
 #' @param data_type String. `"integer"` if the values are whole numbers,
 #'   as in [`grimmer()`]. There is no default, so that every call states
@@ -279,7 +588,12 @@ grimmer_values_tibble <- function(
 #'   that cannot be decided has one row of `NA` but for `n`, as in
 #'   [`grimmer()`].
 #'
-#' @seealso [`grimmer()`], [`grimmer_map()`], and [`grim_values()`].
+#'   `grimmer_closest()` returns the same columns with exactly one row per
+#'   value set: of `NA` but for `n` if a value is missing or the value set
+#'   cannot be decided.
+#'
+#' @seealso [`grimmer()`], [`grimmer_map()`], [`grim_values()`], and
+#'   [`grimmer_plot_line()`].
 #'
 #' @include grimmer.R
 #'
@@ -319,6 +633,17 @@ grimmer_values_tibble <- function(
 #'   items_averaged = 1,
 #'   data_type = "integer"
 #' )
+#'
+#' # ...but there is a pair close to it:
+#' grimmer_closest(
+#'   x = 5.23,
+#'   sd = 2.55,
+#'   n = 35,
+#'   digits_x = 2,
+#'   digits_sd = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 
 # The signature mirrors `grimmer_values_scalar()`'s; see `map_value_sets()`.
 grimmer_values <- function(
@@ -336,6 +661,38 @@ grimmer_values <- function(
 ) {
   map_value_sets(
     fn = grimmer_values_scalar,
+    along = c(
+      "x",
+      "sd",
+      "n",
+      "digits_x",
+      "digits_sd",
+      "items_averaged",
+      "data_type"
+    ),
+    type = "list"
+  ) |>
+    bind_cases(PTYPE_GRIMMER_VALUES)
+}
+
+
+#' @rdname grimmer_values
+#' @export
+grimmer_closest <- function(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  items_averaged,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  map_value_sets(
+    fn = grimmer_closest_scalar,
     along = c(
       "x",
       "sd",

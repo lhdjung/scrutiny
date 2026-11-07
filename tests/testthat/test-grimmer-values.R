@@ -259,3 +259,66 @@ test_that("`data_type` is required, and continuous data are an error", {
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = NA) |> _$x   |> expect_na()
   5.23 |> grimmer_values(-1, 31, digits_x = 2, digits_sd = 0, items_averaged = 1, data_type = NA)   |> nrow() |> expect_equal(0L)
 })
+
+
+test_that("`grimmer_closest()` returns the pair whose SD is closest to `sd`", {
+  # Consistent: the closest of the pairs that `grimmer_values()` lists:
+  values <- 5.3 |> grimmer_values(0.7, 30, 1, 1, 1, "integer")
+  out    <- 5.3 |> grimmer_closest(0.7, 30, 1, 1, 1, "integer")
+  out |> nrow() |> expect_equal(1L)
+  out |> names() |> expect_equal(names(values))
+  out$sum_squares |> expect_in(values$sum_squares)
+  abs(out$sd - 0.7) |> expect_equal(min(abs(values$sd - 0.7)))
+  # Inconsistent: 4, 5, 5, 7 have a mean of 5.25 and an SD of 1.258, closer to
+  # 1.11 than the 0.957 of 4, 5, 6, 6:
+  5.21 |> grimmer_closest(1.11, 4, 2, 2, 1, "integer") |> expect_equal(tibble::tibble(case = 1L, x = 5.25, sd = sqrt(4.75 / 3), n = 4, sum = 21, sum_squares = 115))
+  # A negative SD is closest to the least SD there is:
+  5.23 |> grimmer_closest(-1, 35, 2, 2, 1, "integer") |> _$sd |> expect_equal(sqrt(8 * 27 / 35 / 34))
+  # A single value has an SD of 0 only:
+  5 |> grimmer_closest(0.3, 1, 0, 1, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(0)
+})
+
+
+test_that("`grimmer_closest()` agrees with a brute-force search", {
+  multisets <- function(n, values) {
+    combos <- utils::combn(length(values) + n - 1, n)
+    matrix(values[combos - (0:(n - 1))], n)
+  }
+  set.seed(sweep_seed())
+  for (n in 2:5) {
+    # Means from 2 to 7 with an SD of at most 3 lie within these values:
+    samples <- multisets(n, -6:15)
+    sums <- colSums(samples)
+    squares <- colSums(samples^2)
+    for (i in 1:40) {
+      x <- round(runif(1, 2, 7), 2)
+      for (sd_meaning in c("sd_sample", "sd_pop", "se")) {
+        sd <- round(runif(1, 0, 3) / if (sd_meaning == "se") sqrt(n) else 1, 2)
+        sds <- sqrt(pmax(squares - sums^2 / n, 0) / sd_denominator(n, sd_meaning))
+        range <- roundwork::sum_range(x, n, 2, "up_or_down", 5, FALSE)
+        in_x <- sums >= range[1] & sums <= range[2]
+        if (!any(in_x)) {
+          in_x <- abs(sums / n - grim_closest(x, n, 2, 1, "integer")) < 1e-9
+        }
+        consistent <- grimmer(x, sd, n, 2, 2, 1, "integer", sd_meaning = sd_meaning)
+        pool <- if (consistent) in_x & abs(sds - sd) <= 0.005 + 1e-12 else in_x
+        out <- grimmer_closest(x, sd, n, 2, 2, 1, "integer", sd_meaning = sd_meaning)
+        abs(out$sd - sd) |> expect_equal(min(abs(sds[pool] - sd)), info = paste(x, sd, n, sd_meaning))
+      }
+    }
+  }
+})
+
+
+test_that("`grimmer_closest()` handles missing values and bad input", {
+  out <- c(5.23, NA) |> grimmer_closest(2.55, 35, 2, 2, 1, "integer")
+  out$case |> expect_equal(1:2)
+  out$x[2] |> expect_na()
+  out$n    |> expect_equal(c(35, 35))
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, NA) |> _$x |> expect_na()
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1)               |> expect_error("only applies to whole numbers")
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, "continuous") |> expect_error("`grimmer_closest()` only applies", fixed = TRUE)
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, "integer", sd_meaning = "sd_sample_or_pop") |> expect_error("grimmer_closest")
+  # Fast with a large `n`, where every remainder is tried:
+  3.51 |> grimmer_closest(9.99, 1e5, 2, 2, 1, "integer") |> nrow() |> expect_equal(1L)
+})

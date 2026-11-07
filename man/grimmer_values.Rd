@@ -2,9 +2,24 @@
 % Please edit documentation in R/grimmer-values.R
 \name{grimmer_values}
 \alias{grimmer_values}
+\alias{grimmer_closest}
 \title{Achievable means and SDs behind a reported pair}
 \usage{
 grimmer_values(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  items_averaged,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+)
+
+grimmer_closest(
   x,
   sd,
   n,
@@ -73,6 +88,10 @@ values, \code{n} the reported sample size, and \code{sum} and \code{sum_squares}
 whole numbers behind them. An inconsistent value set has no rows, and one
 that cannot be decided has one row of \code{NA} but for \code{n}, as in
 \code{\link[=grimmer]{grimmer()}}.
+
+\code{grimmer_closest()} returns the same columns with exactly one row per
+value set: of \code{NA} but for \code{n} if a value is missing or the value set
+cannot be decided.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -81,6 +100,13 @@ that cannot be decided has one row of \code{NA} but for \code{n}, as in
 \code{n} integers can have and that would be reported as \code{x} and \code{sd}. It
 is the counterpart of \code{\link[=grim_values]{grim_values()}} for \code{\link[=grimmer]{grimmer()}}, which is \code{TRUE}
 exactly if there is at least one such pair.
+
+\code{grimmer_closest()} returns the single achievable pair whose SD is
+closest to \code{sd}, like \code{\link[=grim_closest]{grim_closest()}} for means. If \code{x} and \code{sd} are
+consistent, it is one of the pairs that \code{grimmer_values()} returns.
+Otherwise, it is closest among the pairs whose mean would be reported as
+\code{x}, or, if there are none, whose mean is the one \code{grim_closest()}
+returns.
 
 Each pair comes with the whole-number sum and sum of squares behind it.
 Statistics computed from several groups, such as a t-value, can be
@@ -101,6 +127,10 @@ of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
 
 Under \code{rounding = "even"}, the pairs include ties that \code{\link[base:Round]{base::round()}}
 may round away from \code{x} or \code{sd}, as in \code{\link[=grim_values]{grim_values()}}.
+
+In \code{grimmer_closest()}, pairs whose SDs are equally close go by the mean
+closer to \code{x}. A negative \code{sd} is closest to the least SD there is. The
+number of pairs doesn't matter there, so it has no such limit.
 }
 \examples{
 # A mean of 5.23 and an SD of 2.55 are consistent with a sample size of 31,
@@ -136,7 +166,19 @@ grimmer_values(
   items_averaged = 1,
   data_type = "integer"
 )
+
+# ...but there is a pair close to it:
+grimmer_closest(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 }
 \seealso{
-\code{\link[=grimmer]{grimmer()}}, \code{\link[=grimmer_map]{grimmer_map()}}, and \code{\link[=grim_values]{grim_values()}}.
+\code{\link[=grimmer]{grimmer()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=grim_values]{grim_values()}}, and
+\code{\link[=grimmer_plot_line]{grimmer_plot_line()}}.
 }
