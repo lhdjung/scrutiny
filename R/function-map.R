@@ -48,8 +48,9 @@
 #'   argument. See [`manage_helper_col()`].
 #' @param .col_names Optionally, names of the columns that a list returned by
 #'   `.fn` unpacks into, as with `show_rec = TRUE`. The first name must be
-#'   `.name_key_result`. If `data` has no rows, only the key result column is
-#'   created.
+#'   `.name_key_result`. If `data` has no rows, the columns are those that
+#'   `.fn` returns for a row of missing values, or, if it fails on one, only
+#'   the key result column.
 #' @param .cols_derived Optionally, a named list of vectorized functions that
 #'   compute further columns from the same input, such as
 #'   `list(exp_incon = grim_exp_incon)`. Each is called once, with the whole
@@ -289,6 +290,9 @@ function_map <- function(
     "cols_added",
     "data_given",
     "index_variadic",
+    "index_given",
+    "index",
+    "cols_renamed",
     "enum_defaults",
     "enum_vals",
     "args_vals",
@@ -694,15 +698,25 @@ function_map <- function(
           check_fn_result(`!!`(fn_name))
       } else {
         # No row to test, but a required argument that is missing must still
-        # be reported by `fn()`, so test a row of missing values if one is
-        # missing:
+        # be reported by `fn()`, so test a row of missing values. Otherwise,
+        # its result gives the output the columns it has with rows, if `fn()`
+        # takes missing values:
+        row_na <- lapply(cols_tested, function(x) x[NA_integer_])
+        test_row_na <- function() {
+          do.call(fn, c(row_na, args_const_vals, args_fixed, list(...)))
+        }
         args_missing <- setdiff(
           args_required,
           c(names(args_vals), args_helper_given)
         )
-        if (length(args_missing) > 0L) {
-          row_na <- lapply(cols_tested, function(x) x[NA_integer_])
-          do.call(fn, c(row_na, args_const_vals, args_fixed, list(...)))
+        result_na <- if (length(args_missing) > 0L) {
+          test_row_na()
+          NULL
+        } else {
+          tryCatch(
+            write_result_cols(list(test_row_na()), col_names, `!!`(fn_name)),
+            error = function(cnd) NULL
+          )
         }
       }
 
@@ -736,6 +750,9 @@ function_map <- function(
       cols_by_row <- cols_tested[intersect(args_by_row, names(cols_tested))]
 
       cols_result <- write_result_cols(results, col_names, `!!`(fn_name))
+      if (nrow(data) == 0L && is.list(result_na)) {
+        cols_result <- lapply(result_na, function(col) col[0L])
+      }
 
       # Derived columns, such as `exp_incon` in `grim_map()`. Each function only gets the
       # arguments it has formals for, so it needs to know nothing about the

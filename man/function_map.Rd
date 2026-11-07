@@ -63,8 +63,9 @@ argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
 
 \item{.col_names}{Optionally, names of the columns that a list returned by
 \code{.fn} unpacks into, as with \code{show_rec = TRUE}. The first name must be
-\code{.name_key_result}. If \code{data} has no rows, only the key result column is
-created.}
+\code{.name_key_result}. If \code{data} has no rows, the columns are those that
+\code{.fn} returns for a row of missing values, or, if it fails on one, only
+the key result column.}
 
 \item{.cols_derived}{Optionally, a named list of vectorized functions that
 compute further columns from the same input, such as

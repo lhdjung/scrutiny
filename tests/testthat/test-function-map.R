@@ -923,7 +923,7 @@ test_that("`.col_names` may start with a custom `.name_key_result`", {
   df <- tibble::tibble(y = 16:18, n = 3:5)
   df      |> map_verdict()                |> colnames() |> expect_equal(c("y", "n", "verdict"))
   df      |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict", "third"))
-  df[0, ] |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict"))
+  df[0, ] |> map_verdict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "verdict", "third"))
   fn |>
     function_map(.reported = c("y", "n"), .name_test = "T", .name_key_result = "verdict", .col_names = c("consistency", "third")) |>
     expect_error("must start with `.name_key_result`")
@@ -1175,4 +1175,16 @@ test_that("factor columns from `read.csv(stringsAsFactors = TRUE)` get their own
   data.frame(x1 = "5.19", x2 = 4.2, n = 40, stringsAsFactors = TRUE) |>
     grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_error("`x1` must be numeric, not a factor")
+})
+
+
+test_that("0-row output has the columns of output with rows", {
+  # Only the key result column was created, as no result showed the others:
+  grimmer_map(pigs5[0, ], digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")   |> colnames() |> expect_equal(colnames(grimmer_map(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")))
+  grim_map(pigs1[0, ], digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE)      |> colnames() |> expect_equal(colnames(grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE)))
+  debit_map(pigs3[0, ], digits_x = 3, digits_sd = 3, data_type = "integer", show_rec = TRUE)          |> colnames() |> expect_equal(colnames(debit_map(pigs3, digits_x = 3, digits_sd = 3, data_type = "integer", show_rec = TRUE)))
+  # A test that fails on missing values still gives the key result column:
+  fn <- function(y, n, show_rec = FALSE) if (anyNA(c(y, n))) stop("no NA") else if (show_rec) list(y > n, y) else y > n
+  map_strict <- function_map(.fn = fn, .reported = c("y", "n"), .name_test = "T", .col_names = c("consistency", "y_rec"))
+  tibble::tibble(y = 1:2, n = 0:1)[0, ] |> map_strict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "consistency"))
 })
