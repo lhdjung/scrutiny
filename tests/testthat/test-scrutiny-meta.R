@@ -1,9 +1,9 @@
 test_that("`scrutiny_meta()` returns the recorded settings, or `NULL`", {
   out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up")
   out |> scrutiny_meta() |> expect_equal(tibble::tibble(
-    setting = c("x_meaning", "show_rec", "rounding", "threshold", "symmetric"),
-    value = c("'mean'", "FALSE", "'up'", "5", "FALSE"),
-    default = c(TRUE, TRUE, FALSE, TRUE, TRUE),
+    setting = c("x_meaning", "rounding", "threshold", "symmetric", "show_rec"),
+    value = c("'mean'", "'up'", "5", "FALSE", "FALSE"),
+    default = c(TRUE, FALSE, TRUE, TRUE, TRUE),
     added_by = "grim_map"
   ))
   out |> scrutiny_args() |> _$rounding |> expect_equal("up")

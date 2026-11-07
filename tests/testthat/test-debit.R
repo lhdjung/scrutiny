@@ -249,7 +249,7 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples", {
       expected <- paste(round(grid$x * 100), round(grid$sd * 100)) %in% real
 
       exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, data_type = "integer")
-      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding, data_type = "integer")
+      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, formula = "mean_n", rounding = rounding, data_type = "integer")
 
       exact |> expect_equal(expected)
       # The difference only ever turns `TRUE` into `FALSE`:
@@ -338,10 +338,10 @@ test_that("`formula = \"exact\"` passes exactly the real binary samples (full)",
           expected <- paste(round(grid$x * 10^digits_x), round(grid$sd * 10^digits_sd)) %in% real
 
           exact <- grid$x |>
-            debit(grid$sd, n, digits_x, digits_sd, "exact", rounding, 4, symmetric, data_type = "integer")
+            debit(grid$sd, n, digits_x, digits_sd, formula = "exact", rounding = rounding, threshold = 4, symmetric = symmetric, data_type = "integer")
 
           mean_n <- grid$x |>
-            debit(grid$sd, n, digits_x, digits_sd, "mean_n", rounding, 4, symmetric, data_type = "integer")
+            debit(grid$sd, n, digits_x, digits_sd, formula = "mean_n", rounding = rounding, threshold = 4, symmetric = symmetric, data_type = "integer")
 
           label <- paste0(
             "rounding = ", rounding, ", symmetric = ", symmetric, ", n = ", n,
@@ -382,10 +382,10 @@ test_that("`formula = \"mean_n\"` accepts SDs no binary sample has", {
 # One 1 in four values has a mean and an SE of exactly 0.25. `"mean_n"` used to
 # round that SE to 0.2 only, where the bounds of `"even"` admit 0.3 as well:
 test_that("`formula = \"mean_n\"` takes ties both ways under rounding to even", {
-  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "even", sd_meaning = "se", data_type = "integer")         |> expect_true()
-  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "ties_even", sd_meaning = "se", data_type = "integer")    |> expect_true()
-  1   |> debit(1, 14, 0, 0, "mean_n", "ties_even", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
-  0.2 |> debit(0.3, 4, 1, 1, "exact", "even", sd_meaning = "se", data_type = "integer")          |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, formula = "mean_n", rounding = "even", sd_meaning = "se", data_type = "integer")         |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, formula = "mean_n", rounding = "ties_even", sd_meaning = "se", data_type = "integer")    |> expect_true()
+  1   |> debit(1, 14, 0, 0, formula = "mean_n", rounding = "ties_even", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, formula = "exact", rounding = "even", sd_meaning = "se", data_type = "integer")          |> expect_true()
 })
 
 test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
@@ -549,20 +549,20 @@ test_that("`formula = \"mean_n\"` does not attain the SD at an excluded bound of
   # `x = 0.03` under ceiling: mean above 0.02, so the population SD at n = 10
   # is above 0.14 and ceilings to 0.15. The SD at 0.02 itself, 0.14, is not
   # attained:
-  0.03 |> debit(0.14, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
-  0.03 |> debit(0.15, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.03 |> debit(0.14, 10, 2, 2, formula = "mean_n", rounding = "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.03 |> debit(0.15, 10, 2, 2, formula = "mean_n", rounding = "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
   # Under `"up"`, 0.02 is included and so is its SD:
-  0.02 |> debit(0.14, 10, 2, 2, "mean_n", "up", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.02 |> debit(0.14, 10, 2, 2, formula = "mean_n", rounding = "up", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
   # An SD of 0.00 under ceiling needs an SD of exactly 0, i.e., a mean of
   # exactly 0 or 1, which `x = 0.01` excludes:
-  0.01 |> debit(0, 10, 2, 2, "mean_n", "ceiling", data_type = "integer") |> expect_false()
-  0.00 |> debit(0, 10, 2, 2, "mean_n", "ceiling", data_type = "integer") |> expect_true()
+  0.01 |> debit(0, 10, 2, 2, formula = "mean_n", rounding = "ceiling", data_type = "integer") |> expect_false()
+  0.00 |> debit(0, 10, 2, 2, formula = "mean_n", rounding = "ceiling", data_type = "integer") |> expect_true()
   # Under floor, means just below 1 have SDs that floor to 0.00:
-  0.9 |> debit(0, 20, 1, 2, "mean_n", "floor", data_type = "integer") |> expect_true()
+  0.9 |> debit(0, 20, 1, 2, formula = "mean_n", rounding = "floor", data_type = "integer") |> expect_true()
   # A mean of 1/2 inside the range attains the largest SD, even if neither
   # bound does:
-  0.5 |> debit(0.5, 200, 1, 1, "mean_n", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
-  0.5 |> debit(0.5, 200, 1, 1, "mean_n", "trunc", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.5 |> debit(0.5, 200, 1, 1, formula = "mean_n", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.5 |> debit(0.5, 200, 1, 1, formula = "mean_n", rounding = "trunc", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
 })
 
 test_that("an integer `n` beyond 46340 doesn't overflow under `\"sd_pop\"`", {
@@ -580,14 +580,14 @@ test_that("a large `n` is tested exactly", {
   0.2  |> debit(0.4,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
   # Under `"mean_n"`, the spread at a mean of 0.1 is 0.09, whose SD of 0.3 is
   # beyond the floor range of 0.2:
-  0.1  |> debit(0.2,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
-  0.1  |> debit(0.3,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.1  |> debit(0.2,  1035000,   7, 1, formula = "mean_n", rounding = "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.1  |> debit(0.3,  1035000,   7, 1, formula = "mean_n", rounding = "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
   # An SE, whose `n_dev` is `n * (n - 1)`:
   0.35 |> debit(0.0015, 1e5, 2, 4, sd_meaning = "se", data_type = "integer") |> expect_true()
   0.35 |> debit(0.0016, 1e5, 2, 4, sd_meaning = "se", data_type = "integer") |> expect_false()
   debit_explain(0.2, 0.3, 264143000, 1, 1, rounding = "floor", sd_meaning = "sd_pop", data_type = "integer")$consistency |> expect_false()
   # Products beyond 2^53 with four decimal places, compared exactly:
-  0.9216 |> debit(0.2688, 625, 4, 4, "mean_n", "floor", data_type = "integer") |> expect_true()
+  0.9216 |> debit(0.2688, 625, 4, 4, formula = "mean_n", rounding = "floor", data_type = "integer") |> expect_true()
   0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
 })
 

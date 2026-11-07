@@ -14,10 +14,10 @@ grim_map_total_n(
   items_averaged,
   data_type,
   x_meaning = c("mean", "percentage"),
-  show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
+  show_rec = FALSE,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
@@ -59,12 +59,12 @@ its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\
 read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
 them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
+\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}, whose
+section \emph{Defaults} explains the defaults.}
+
 \item{show_rec}{Logical. If \code{TRUE}, the reconstructed numbers are returned
 as columns; see \emph{Reconstructed numbers} in \code{\link[=grim_map]{grim_map()}}. Default is
 \code{FALSE}.}
-
-\item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}, whose
-section \emph{Defaults} explains the defaults.}
 
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}

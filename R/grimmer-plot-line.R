@@ -56,14 +56,14 @@ grimmer_plot_line <- function(
   digits_x,
   digits_sd,
   items_averaged,
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
-  color_attainable = "grey75"
+  color_attainable = "grey75",
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
 ) {
   if (missing(digits_x)) {
     error_digits_missing(x)

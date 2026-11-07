@@ -10,10 +10,10 @@ grimmer_values_scalar <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 ) {
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
 
@@ -321,10 +321,10 @@ grimmer_values <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 ) {
   map_value_sets(
     fn = grimmer_values_scalar,

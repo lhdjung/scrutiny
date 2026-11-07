@@ -544,12 +544,8 @@ grim_plot_line <- function(
   zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
-  color_attainable = "grey75",
-  percent = deprecated()
+  color_attainable = "grey75"
 ) {
-  if (lifecycle::is_present(percent)) {
-    stop_percent("grim_plot_line")
-  }
   if (missing(digits_x)) {
     error_digits_missing(x)
   }

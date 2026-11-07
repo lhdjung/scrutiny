@@ -16,8 +16,7 @@ grim_plot_line(
   zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
-  color_attainable = "grey75",
-  percent = deprecated()
+  color_attainable = "grey75"
 )
 }
 \arguments{
@@ -37,9 +36,6 @@ the squares, and the square at the reported value if it is consistent.
 \item{color_attainable}{String. Color of the squares for attainable values
 that were not reported, as of the consistent cells of \code{\link[=grim_plot_grid]{grim_plot_grid()}}'s
 raster.}
-
-\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
-use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 A ggplot object.

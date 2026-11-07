@@ -12,10 +12,10 @@ grimmer_explain(
   digits_sd,
   items_averaged,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -40,6 +40,15 @@ the latter of which can have any mean
 and SD, though no negative SD, and a single value only an SD of 0. No
 default.}
 
+\item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
+default; see \emph{Defaults} in \code{\link[=grimmer]{grimmer()}}) is the sample SD, which
+divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S}.
+\code{"sd_pop"} is the population SD, which divides by \code{n}, as in NumPy's
+\code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
+accepts a value set that is consistent as one or the other. \code{"se"} is the
+standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
+if it were an SD. See \emph{SD meaning}.}
+
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
 \emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
@@ -59,15 +68,6 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
-
-\item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
-default; see \emph{Defaults} in \code{\link[=grimmer]{grimmer()}}) is the sample SD, which
-divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S}.
-\code{"sd_pop"} is the population SD, which divides by \code{n}, as in NumPy's
-\code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
-accepts a value set that is consistent as one or the other. \code{"se"} is the
-standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
-if it were an SD. See \emph{SD meaning}.}
 }
 \value{
 An object of class \code{scrutiny_explain}: a list with the result as

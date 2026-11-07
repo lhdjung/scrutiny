@@ -29,10 +29,10 @@ settings_tbl <- function(values, default, added_by) {
 # The settings of `grim_map()` under the defaults:
 grim_args_default <- list(
   x_meaning = "mean",
-  show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  show_rec = FALSE
 )
 grim_settings_default <- settings_tbl(grim_args_default, TRUE, "grim_map")
 

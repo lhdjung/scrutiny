@@ -356,12 +356,8 @@ grim_values <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  percent = deprecated()
+  symmetric = FALSE
 ) {
-  if (lifecycle::is_present(percent)) {
-    stop_percent("grim_values")
-  }
   map_value_sets(
     fn = grim_values_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),
@@ -381,12 +377,8 @@ grim_closest <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  percent = deprecated()
+  symmetric = FALSE
 ) {
-  if (lifecycle::is_present(percent)) {
-    stop_percent("grim_closest")
-  }
   map_value_sets(
     fn = grim_closest_scalar,
     along = c("x", "n", "digits_x", "items_averaged"),

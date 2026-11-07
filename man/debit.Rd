@@ -11,11 +11,11 @@ debit(
   digits_x,
   digits_sd,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -36,6 +36,12 @@ and SD from 0 to 1, so the result is \code{TRUE}, unless the SD is the
 population SD of a single value, which is 0. Values outside of 0 to 1 are
 an error for either data type.}
 
+\item{sd_meaning}{String. What \code{sd} really is: the sample SD,
+\code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
+\code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
+\code{\link[=grimmer]{grimmer()}}, whose sections \emph{Defaults} and \emph{SD meaning} say why the
+sample SD is the default and when to choose another.}
+
 \item{formula}{String. \code{"exact"} (the default) only considers means that
 \code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is
 the default because no other mean is possible.
@@ -49,12 +55,6 @@ to 0.22.}
 and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} for the others.}
 
 \item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
-
-\item{sd_meaning}{String. What \code{sd} really is: the sample SD,
-\code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
-\code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
-\code{\link[=grimmer]{grimmer()}}, whose sections \emph{Defaults} and \emph{SD meaning} say why the
-sample SD is the default and when to choose another.}
 }
 \value{
 Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if not,

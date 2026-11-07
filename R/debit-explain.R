@@ -44,11 +44,11 @@ debit_explain <- function(
   digits_x,
   digits_sd,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 ) {
   formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)

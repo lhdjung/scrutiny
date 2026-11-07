@@ -57,12 +57,8 @@ grim_explain <- function(
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  percent = deprecated()
+  symmetric = FALSE
 ) {
-  if (lifecycle::is_present(percent)) {
-    stop_percent("grim_explain")
-  }
   check_length(x, 1L)
   check_length(n, 1L)
   if (missing(items_averaged)) {

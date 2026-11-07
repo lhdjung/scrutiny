@@ -46,10 +46,10 @@ grimmer_explain <- function(
   digits_sd,
   items_averaged,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 ) {
   check_length(x, 1L)
   check_length(sd, 1L)

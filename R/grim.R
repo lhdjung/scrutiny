@@ -6,10 +6,10 @@ grim_scalar <- function(
   items_averaged,
   data_type,
   x_meaning = c("mean", "percentage"),
-  show_rec = FALSE,
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  show_rec = FALSE
 ) {
   is_percentage <- arg_match_in_export(x_meaning, X_MEANINGS) == "percentage"
   check_flag(show_rec)

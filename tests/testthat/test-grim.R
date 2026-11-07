@@ -345,7 +345,6 @@ test_that("`x_meaning` must be a single valid string", {
   1.4   |> grim(20, digits_x = 1, items_averaged = 1, data_type = "integer", percent = TRUE)          |> expect_error("x_meaning = \"percentage\"", fixed = TRUE)
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", percent = TRUE)        |> expect_error("x_meaning = \"percentage\"", fixed = TRUE)
   pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", percent = TRUE)    |> expect_error("`grim_map_seq()`", fixed = TRUE)
-  1.4   |> grim_values(20, digits_x = 1, items_averaged = 1, percent = TRUE)                       |> expect_error("x_meaning", fixed = TRUE)
   1.4   |> grim_exp_incon(20, digits_x = 1, items_averaged = 1, data_type = "integer", percent = TRUE) |> expect_error("x_meaning", fixed = TRUE)
 })
 

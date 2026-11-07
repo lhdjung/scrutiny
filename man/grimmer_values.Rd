@@ -11,10 +11,10 @@ grimmer_values(
   digits_x,
   digits_sd,
   items_averaged,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 )
 }
 \arguments{
@@ -33,6 +33,11 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
+
+\item{sd_meaning}{String. As in \code{\link[=grimmer]{grimmer()}}, but \code{"sd_sample_or_pop"} is
+not allowed: the same sum of squares gives a different SD under each
+premise, so call \code{grimmer_values()} once for each. Under \code{"se"}, the \code{sd}
+column holds the standard error.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -53,11 +58,6 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
-
-\item{sd_meaning}{String. As in \code{\link[=grimmer]{grimmer()}}, but \code{"sd_sample_or_pop"} is
-not allowed: the same sum of squares gives a different SD under each
-premise, so call \code{grimmer_values()} once for each. Under \code{"se"}, the \code{sd}
-column holds the standard error.}
 }
 \value{
 A tibble with one row per achievable pair. \code{case} is the index of

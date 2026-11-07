@@ -676,11 +676,11 @@ debit_scalar <- function(
   digits_x,
   digits_sd,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   show_rec = FALSE
 ) {
   # `arg_match_in_export()` returns at once for a valid string or the default,
@@ -1053,11 +1053,11 @@ debit <- function(
   digits_x,
   digits_sd,
   data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  symmetric = FALSE
 ) {
   map_value_sets(
     fn = debit_scalar,
