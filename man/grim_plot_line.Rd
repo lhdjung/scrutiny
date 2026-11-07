@@ -68,7 +68,10 @@ and the strip would shrink to specks.
 
 With \code{zoom = "medium"}, the row widens until the nearest attainable value
 other than \code{x} is in view on either side, whether \code{x} is consistent or
-not, which shows how far apart the attainable values are.
+not, which shows how far apart the attainable values are. Again, it
+widens no farther than the row with \code{zoom = "wide"}. Both settings test
+at most 20,000 values, and warn if they stop short of an attainable value
+for that reason.
 
 Each attainable value is labeled below its square unless the squares are
 too close together for that, as they mostly are with \code{zoom = "wide"}. Then

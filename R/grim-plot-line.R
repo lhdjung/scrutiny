@@ -332,11 +332,17 @@ comb_window <- function(
     return(list(values = values, possible = test(values)))
   }
 
+  # The search may go as far as the full window is wide, but test no more than
+  # `COMB_TEETH_MAX` values. A side cut short by a limit leaves the other side
+  # more of them:
   step <- 10^-digits
-  steps_max <- min(
-    max(ceiling((upper - lower) / step), 1),
-    (COMB_TEETH_MAX - 1) %/% 2
-  )
+  steps_window <- max(ceiling((upper - lower) / step), 1)
+  room_near <- min(round(
+    c(reported - limits[1L], limits[2L] - reported) / step
+  ))
+  budget <- COMB_TEETH_MAX - 1
+  steps_fit <- if (2 * room_near >= budget) budget %/% 2 else budget - room_near
+  steps_max <- min(steps_window, steps_fit)
   steps <- min(COMB_ZOOM_STEPS, steps_max)
   is_medium <- zoom == "medium"
 
@@ -371,15 +377,24 @@ comb_window <- function(
   # The search ends after `COMB_TEETH_MAX` values even if the full window is
   # wider, which may be before the nearest attainable value, as for a mean of
   # three values with five decimal places. An empty row would look as if
-  # there were none:
-  steps_window <- max(ceiling((upper - lower) / step), 1)
-  if (!any(possible) && steps_max < steps_window) {
+  # there were none, and a row without a neighbor under `"medium"` as if
+  # there were none on that side:
+  is_short <- if (is_medium) {
+    !(seen_left && seen_right)
+  } else {
+    !any(possible)
+  }
+  if (is_short && steps_max < steps_window) {
+    what <- if (any(possible)) {
+      "No other attainable value is close enough to draw on both sides."
+    } else {
+      "No attainable value is close enough to draw."
+    }
     cli::cli_warn(c(
-      "No attainable value is close enough to draw.",
-      "i" = "None is within \\
-      {format(steps, big.mark = ',', scientific = FALSE)} values of the \\
-      reported `{name}`, which is as far as the plot looks. There may be \\
-      some beyond."
+      what,
+      "i" = "The plot looks up to {format(steps, big.mark = ',', \\
+      scientific = FALSE)} values away from the reported `{name}`, as far as \\
+      it can. There may be some beyond."
     ))
   }
 
@@ -490,7 +505,10 @@ check_comb_value <- function(value, digits, name) {
 #'
 #'   With `zoom = "medium"`, the row widens until the nearest attainable value
 #'   other than `x` is in view on either side, whether `x` is consistent or
-#'   not, which shows how far apart the attainable values are.
+#'   not, which shows how far apart the attainable values are. Again, it
+#'   widens no farther than the row with `zoom = "wide"`. Both settings test
+#'   at most 20,000 values, and warn if they stop short of an attainable value
+#'   for that reason.
 #'
 #'   Each attainable value is labeled below its square unless the squares are
 #'   too close together for that, as they mostly are with `zoom = "wide"`. Then

@@ -341,6 +341,15 @@ test_that("a row without any attainable value in reach says so", {
   # Not if the whole window was searched, as for a mean that fails GRIM, which
   # no SD goes with:
   grimmer_plot_line(x = 5.19, sd = 0.4, n = 28, digits_x = 2, digits_sd = 1, items_averaged = 1, data_type = "integer") |> expect_no_warning()
+  # Under `"medium"`, a side without a neighbor is short, too:
+  grim_plot_line(x = 5.33333, n = 3, digits_x = 5, items_averaged = 1, data_type = "integer", zoom = "medium") |> expect_warning("on both sides")
+})
+
+
+test_that("`zoom = \"medium\"` searches as far as a side cut short allows", {
+  # The search stopped at 9,999 values per side, short of 100% here, although
+  # nothing lies below 0%:
+  0 |> grim_plot_line(1, 2, 1, x_meaning = "percentage", zoom = "medium", data_type = "integer") |> squares() |> expect_equal(c(0, 100))
 })
 
 
