@@ -7,10 +7,10 @@
 split_by_parens(
   data,
   cols = everything(),
-  check_sep = TRUE,
+  check_delim = TRUE,
   keep = FALSE,
   transform = FALSE,
-  sep = "parens",
+  delim = "parens",
   end1 = "x",
   end2 = "sd"
 )
@@ -20,10 +20,10 @@ split_by_parens(
 
 \item{cols}{Columns to split, selected with
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-Default is \code{everything()}, restricted by \code{check_sep}.}
+Default is \code{everything()}, restricted by \code{check_delim}.}
 
-\item{check_sep}{Logical. If \code{TRUE} (the default), columns whose non-\code{NA}
-values do not all contain the separators are skipped.}
+\item{check_delim}{Logical. If \code{TRUE} (the default), columns whose non-\code{NA}
+values do not all contain the delimiters are skipped.}
 
 \item{keep}{Logical. Should the original columns be kept? Default is
 \code{FALSE}.}
@@ -32,8 +32,9 @@ values do not all contain the separators are skipped.}
 format, with one column per part and an \code{.origin} column naming the
 source? Default is \code{FALSE}.}
 
-\item{sep}{String. \code{"parens"} (the default), \code{"brackets"}, or \code{"braces"},
-or a length-2 vector of custom separators, matched literally.}
+\item{delim}{String. The pair of delimiters around the second part:
+\code{"parens"} (the default), \code{"brackets"}, or \code{"braces"}, or two custom
+strings, matched literally.}
 
 \item{end1, end2}{Strings. Suffixes of the two columns that a split column
 produces. Defaults are \code{"x"} and \code{"sd"}.}
@@ -46,7 +47,7 @@ An ungrouped data frame, a tibble if \code{data} is one or if
 Summary statistics are often reported like \code{"2.65 (0.27)"}.
 \code{split_by_parens()} splits such columns into the part before the
 parentheses and the part inside them. By default, it splits every column
-that contains the separators. Set \code{transform} to \code{TRUE} to pivot the
+that contains the delimiters. Set \code{transform} to \code{TRUE} to pivot the
 result into a longer format.
 }
 \examples{
@@ -73,7 +74,7 @@ df1 |>
 df1 |>
   split_by_parens(end1 = "beta", end2 = "se")
 
-# Other separators:
+# Other delimiters:
 df2 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 [0.21]",    "0.19 [0.13]",
@@ -81,7 +82,7 @@ df2 <- tibble::tribble(
 )
 
 df2 |>
-  split_by_parens(sep = "brackets")
+  split_by_parens(delim = "brackets")
 
 df3 <- tibble::tribble(
   ~drone,           ~selfpilot,
@@ -90,13 +91,13 @@ df3 <- tibble::tribble(
 )
 
 df3 |>
-  split_by_parens(sep = c("<", ">"))
+  split_by_parens(delim = c("<", ">"))
 }
 \seealso{
 \itemize{
 \item \code{\link[=before_parens]{before_parens()}} and \code{\link[=inside_parens]{inside_parens()}} for the two parts of a
 string vector.
 \item \code{\link[tidyr:separate_wider_delim]{tidyr::separate_wider_delim()}}, which is more general but does not
-recognize closing separators.
+recognize closing delimiters.
 }
 }

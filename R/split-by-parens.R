@@ -3,22 +3,23 @@
 #' @description Summary statistics are often reported like `"2.65 (0.27)"`.
 #'   `split_by_parens()` splits such columns into the part before the
 #'   parentheses and the part inside them. By default, it splits every column
-#'   that contains the separators. Set `transform` to `TRUE` to pivot the
+#'   that contains the delimiters. Set `transform` to `TRUE` to pivot the
 #'   result into a longer format.
 #'
 #' @param data Data frame.
 #' @param cols Columns to split, selected with
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
-#'   Default is `everything()`, restricted by `check_sep`.
-#' @param check_sep Logical. If `TRUE` (the default), columns whose non-`NA`
-#'   values do not all contain the separators are skipped.
+#'   Default is `everything()`, restricted by `check_delim`.
+#' @param check_delim Logical. If `TRUE` (the default), columns whose non-`NA`
+#'   values do not all contain the delimiters are skipped.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer
 #'   format, with one column per part and an `.origin` column naming the
 #'   source? Default is `FALSE`.
-#' @param sep String. `"parens"` (the default), `"brackets"`, or `"braces"`,
-#'   or a length-2 vector of custom separators, matched literally.
+#' @param delim String. The pair of delimiters around the second part:
+#'   `"parens"` (the default), `"brackets"`, or `"braces"`, or two custom
+#'   strings, matched literally.
 #' @param end1,end2 Strings. Suffixes of the two columns that a split column
 #'   produces. Defaults are `"x"` and `"sd"`.
 #'
@@ -31,7 +32,7 @@
 #'  - [`before_parens()`] and [`inside_parens()`] for the two parts of a
 #'  string vector.
 #'  - [`tidyr::separate_wider_delim()`], which is more general but does not
-#'  recognize closing separators.
+#'  recognize closing delimiters.
 #'
 #' @export
 #'
@@ -59,7 +60,7 @@
 #' df1 |>
 #'   split_by_parens(end1 = "beta", end2 = "se")
 #'
-#' # Other separators:
+#' # Other delimiters:
 #' df2 <- tibble::tribble(
 #'   ~drone,           ~selfpilot,
 #'   "0.09 [0.21]",    "0.19 [0.13]",
@@ -67,7 +68,7 @@
 #' )
 #'
 #' df2 |>
-#'   split_by_parens(sep = "brackets")
+#'   split_by_parens(delim = "brackets")
 #'
 #' df3 <- tibble::tribble(
 #'   ~drone,           ~selfpilot,
@@ -76,25 +77,25 @@
 #' )
 #'
 #' df3 |>
-#'   split_by_parens(sep = c("<", ">"))
+#'   split_by_parens(delim = c("<", ">"))
 
 split_by_parens <- function(
   data,
   cols = everything(),
-  check_sep = TRUE,
+  check_delim = TRUE,
   keep = FALSE,
   transform = FALSE,
-  sep = "parens",
+  delim = "parens",
   end1 = "x",
   end2 = "sd"
 ) {
-  check_flag(check_sep)
+  check_flag(check_delim)
   check_flag(keep)
   check_flag(transform)
   check_string(end1)
   check_string(end2)
-  # `sep` goes through the dots of `dplyr::across()`, so evaluate it now:
-  force(sep)
+  # `delim` goes through the dots of `dplyr::across()`, so evaluate it now:
+  force(delim)
   data <- as_data_frame_input(data, "`before_parens()` or `inside_parens()`")
   check_unique_names(data, "data")
 
@@ -102,31 +103,31 @@ split_by_parens <- function(
   # re-add the grouping columns, and `across()` would run per group:
   data <- dplyr::ungroup(data)
 
-  # A column qualifies if every non-missing value has an opening `sep` element
+  # A column qualifies if every non-missing value has an opening `delim` element
   # followed by a closing one. With no rows, a character column qualifies, so
   # that the output has the same shape as for any other data:
   data_is_empty <- nrow(data) == 0L
-  names_of_cols_with_seps <- data |>
+  names_of_cols_with_delims <- data |>
     dplyr::select(
       function(x) {
         if (data_is_empty) {
           return(is.character(x))
         }
         x <- x[!is.na(x)]
-        seps <- translate_length1_sep_keywords(sep)
+        delims <- translate_delim_keywords(delim)
         after_open <- stringr::str_split_fixed(
           x,
-          stringr::fixed(seps[1L]),
+          stringr::fixed(delims[1L]),
           n = 2L
         )[, 2L]
         length(x) > 0L &&
-          all(stringr::str_detect(after_open, stringr::fixed(seps[2L])))
+          all(stringr::str_detect(after_open, stringr::fixed(delims[2L])))
       }
     ) |>
     colnames()
 
-  if (check_sep) {
-    selection2 <- rlang::expr(all_of(names_of_cols_with_seps))
+  if (check_delim) {
+    selection2 <- rlang::expr(all_of(names_of_cols_with_delims))
   } else {
     selection2 <- rlang::expr(dplyr::everything())
   }
@@ -172,11 +173,11 @@ split_by_parens <- function(
   }
 
   # Defined out here: dplyr inlines functions written inside `across()`, which
-  # then look up `sep` among the columns of `data` first, such as one of
+  # then look up `delim` among the columns of `data` first, such as one of
   # September's values next to `aug` and `oct`:
   split_fns <- list(
-    function(x) before_parens(string = x, sep = sep),
-    function(x) inside_parens(string = x, sep = sep)
+    function(x) before_parens(string = x, delim = delim),
+    function(x) inside_parens(string = x, delim = delim)
   )
 
   out <- data |>
@@ -208,8 +209,8 @@ split_by_parens <- function(
       dplyr::select(!all_of(names_original))
   }
 
-  # Warn about selected columns without the `sep` elements: depending on
-  # `check_sep`, they were either skipped or split in a way likely not
+  # Warn about selected columns without the `delim` elements: depending on
+  # `check_delim`, they were either skipped or split in a way likely not
   # intended. Only the columns that `cols` selected are worth a warning, as in
   # `decimal_places_df()`:
   names_selected <- names(tidyselect::eval_select(
@@ -219,13 +220,13 @@ split_by_parens <- function(
   ))
 
   names_wrong_cols <-
-    names_selected[!names_selected %in% names_of_cols_with_seps]
+    names_selected[!names_selected %in% names_of_cols_with_delims]
 
   if (length(names_wrong_cols) > 0L) {
-    msg_reason <- sep |>
-      message_sep_if_cols_excluded() |>
-      call_on(\(x) paste0("contain the `sep` elements, ", x))
-    if (check_sep) {
+    msg_reason <- delim |>
+      message_delim_if_cols_excluded() |>
+      call_on(\(x) paste0("contain the `delim` elements, ", x))
+    if (check_delim) {
       msg_exclusion <- paste0(c("was", "were"), " not split")
     } else {
       msg_exclusion <- "couldn't be split"

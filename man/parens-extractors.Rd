@@ -6,26 +6,27 @@
 \alias{inside_parens}
 \title{Extract substrings from before and inside parentheses}
 \usage{
-before_parens(string, sep = "parens")
+before_parens(string, delim = "parens")
 
-inside_parens(string, sep = "parens")
+inside_parens(string, delim = "parens")
 }
 \arguments{
 \item{string}{String vector.}
 
-\item{sep}{String. \code{"parens"} (the default), \code{"brackets"}, or \code{"braces"},
-or a length-2 vector of custom separators, matched literally.}
+\item{delim}{String. The pair of delimiters around the second part:
+\code{"parens"} (the default), \code{"brackets"}, or \code{"braces"}, or two custom
+strings, matched literally.}
 }
 \value{
 String vector as long as \code{string}, with surrounding whitespace
-removed. If a string has no opening separator, \code{before_parens()} returns
+removed. If a string has no opening delimiter, \code{before_parens()} returns
 all of it and \code{inside_parens()} returns \code{NA}, as it does for empty
-separators.
+delimiters.
 }
 \description{
 \code{before_parens()} and \code{inside_parens()} extract the part of a
 string before or inside parentheses, brackets, braces, or custom
-separators. \code{\link[=split_by_parens]{split_by_parens()}} does the same for the columns of a data
+delimiters. \code{\link[=split_by_parens]{split_by_parens()}} does the same for the columns of a data
 frame.
 }
 \examples{

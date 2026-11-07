@@ -50,8 +50,8 @@ pigs_braces <- pigs |>
     dplyr::across(everything(), function(x) stringr::str_replace(x, "\\)", "}"))
   )
 
-pigs_brackets_tested <- pigs_brackets |> split_by_parens(sep = "brackets") # fmt: skip
-pigs_braces_tested   <- pigs_braces   |> split_by_parens(sep = "braces") # fmt: skip
+pigs_brackets_tested <- pigs_brackets |> split_by_parens(delim = "brackets") # fmt: skip
+pigs_braces_tested   <- pigs_braces   |> split_by_parens(delim = "braces") # fmt: skip
 
 test_that("The function works with square brackets as with parentheses", {
   pigs_tested[1] |> expect_equal(pigs_brackets_tested[1])
@@ -89,15 +89,15 @@ test_that("using the dots, `...`, is an error", {
 
 pigs_wider <- pigs |> dplyr::mutate(letters = letters[1:4])
 
-test_that("non-`sep` columns are handled correctly with `check_sep = TRUE` (the default)", {
+test_that("non-`delim` columns are handled correctly with `check_delim = TRUE` (the default)", {
   pigs_wider |> split_by_parens() |> ncol() |> expect_equal(5L) |> expect_warning()
 })
 
-test_that("non-`sep` columns are handled correctly with `check_sep = FALSE", {
-  pigs_wider |> split_by_parens(check_sep = FALSE) |> ncol() |> expect_equal(6L) |> expect_warning()
+test_that("non-`delim` columns are handled correctly with `check_delim = FALSE", {
+  pigs_wider |> split_by_parens(check_delim = FALSE) |> ncol() |> expect_equal(6L) |> expect_warning()
 })
 
-test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
+test_that("uneven delimiters, `NA`s, and column names ending on `end2` work", {
   tibble::tibble(a = c("1.2 (0.3) (n = 5)", "4.5 (0.6)"), b = c("1 (2)", NA)) |>
     split_by_parens() |>
     expect_equal(tibble::tibble(
@@ -115,14 +115,14 @@ test_that("uneven separators, `NA`s, and column names ending on `end2` work", {
 })
 
 
-# The legacy spellings of `sep`, such as `"("`, used to leave the warning
-# unfinished: "It doesn't contain the `sep` elements, ."
-test_that("the warning names the separators for every spelling of `sep`", {
+# The legacy spellings of `delim`, such as `"("`, used to leave the warning
+# unfinished: "It doesn't contain the `delim` elements, ."
+test_that("the warning names the delimiters for every spelling of `delim`", {
   data <- tibble::tibble(a = c("1 (2)", "3 (4)"), b = c("x", "y"))
-  for (sep in list("parens", "(", "\\(")) {
-    data |> split_by_parens(sep = sep) |> expect_warning("i.e., parentheses")
+  for (delim in list("parens", "(", "\\(")) {
+    data |> split_by_parens(delim = delim) |> expect_warning("i.e., parentheses")
   }
-  data |> split_by_parens(sep = c("<", ">")) |> expect_warning('"<" and ">"')
+  data |> split_by_parens(delim = c("<", ">")) |> expect_warning('"<" and ">"')
 })
 
 
@@ -141,12 +141,12 @@ test_that("`end1` and `end2` must be single strings", {
 })
 
 
-# On 0 rows, `check_sep = TRUE` warned and returned the input unsplit, while
-# `check_sep = FALSE` split it, and warned that it couldn't:
+# On 0 rows, `check_delim = TRUE` warned and returned the input unsplit, while
+# `check_delim = FALSE` split it, and warned that it couldn't:
 test_that("0-row character columns are split either way, without a warning", {
   empty <- tibble::tibble(a = character(0))
   empty |> split_by_parens()                  |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
-  empty |> split_by_parens(check_sep = FALSE) |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
+  empty |> split_by_parens(check_delim = FALSE) |> colnames() |> expect_equal(c("a_x", "a_sd")) |> expect_no_warning()
 })
 
 
@@ -174,16 +174,16 @@ test_that("`transform = TRUE` keeps the columns in their order", {
 test_that("the flags of `split_by_parens()` must be flags", {
   df <- tibble::tibble(a = "1.2 (3.4)")
   df |> split_by_parens(keep = NA)        |> expect_error("`keep` must be `TRUE` or `FALSE`")
-  df |> split_by_parens(check_sep = "no") |> expect_error("`check_sep` must be `TRUE` or `FALSE`")
+  df |> split_by_parens(check_delim = "no") |> expect_error("`check_delim` must be `TRUE` or `FALSE`")
   df |> split_by_parens(transform = 1)    |> expect_error("`transform` must be `TRUE` or `FALSE`")
 })
 
-test_that("a column named `sep` is split, not taken for the argument", {
-  df <- tibble::tibble(aug = c("0.09 (0.21)", "0.19 (0.28)"), sep = c("0.19 (0.13)", "0.53 (0.10)"))
+test_that("a column named `delim` is split, not taken for the argument", {
+  df <- tibble::tibble(aug = c("0.09 (0.21)", "0.19 (0.28)"), delim = c("0.19 (0.13)", "0.53 (0.10)"))
   out <- df |> split_by_parens()
-  out |> colnames() |> expect_equal(c("aug_x", "aug_sd", "sep_x", "sep_sd"))
+  out |> colnames() |> expect_equal(c("aug_x", "aug_sd", "delim_x", "delim_sd"))
   out$aug_sd        |> expect_equal(c("0.21", "0.28"))
-  out$sep_x         |> expect_equal(c("0.19", "0.53"))
+  out$delim_x       |> expect_equal(c("0.19", "0.53"))
 })
 
 test_that("the `*_df()` functions name the vector function for a vector", {

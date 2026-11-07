@@ -1,53 +1,53 @@
 # Helpers (not exported) --------------------------------------------------
 
-check_length_parens_sep <- function(sep) {
-  if (!any(length(sep) == c(1L, 2L))) {
+check_parens_delim <- function(delim) {
+  if (!any(length(delim) == c(1L, 2L))) {
     abort_in_export(
-      "!" = "`sep` must have length 1 or 2.",
-      "x" = "It has length {length(sep)}: {wrap_in_backticks(sep)}."
+      "!" = "`delim` must have length 1 or 2.",
+      "x" = "It has length {length(delim)}: {wrap_in_backticks(delim)}."
     )
   }
   # A missing value would fail in stringr, and an empty string matches nothing:
-  if (!is.character(sep) || anyNA(sep) || !all(nzchar(sep))) {
+  if (!is.character(delim) || anyNA(delim) || !all(nzchar(delim))) {
     abort_in_export(
-      "!" = "`sep` must be a keyword or two strings.",
-      "x" = "It is {wrong_spec_string(sep)}."
+      "!" = "`delim` must be a keyword or two strings.",
+      "x" = "It is {wrong_spec_string(delim)}."
     )
   }
 }
 
 
-#' Match the `sep` keyword to actual separators
+#' Match the `delim` keyword to actual delimiters
 #'
-#' @description `translate_length1_sep_keywords()` replaces the keywords
+#' @description `translate_delim_keywords()` replaces the keywords
 #'   `"parens"`, `"brackets"`, or `"braces"` with the characters they describe.
-#'   A length-2 `sep` is returned as it is. Anything else is an error.
+#'   A length-2 `delim` is returned as it is. Anything else is an error.
 #'
-#'   The separators are literal characters, not regular expressions: they are
+#'   The delimiters are literal characters, not regular expressions: they are
 #'   matched with `stringr::fixed()`.
 #'
-#' @param sep String (length 1 or 2).
+#' @param delim String (length 1 or 2).
 #'
 #' @return String (length 2).
 #'
 #' @noRd
-translate_length1_sep_keywords <- function(sep) {
-  check_length_parens_sep(sep)
-  if (length(sep) == 2L) {
-    sep
-  } else if (any(sep == c("parens", "(", "\\("))) {
+translate_delim_keywords <- function(delim) {
+  check_parens_delim(delim)
+  if (length(delim) == 2L) {
+    delim
+  } else if (any(delim == c("parens", "(", "\\("))) {
     c("(", ")")
-  } else if (any(sep == c("brackets", "[", "\\["))) {
+  } else if (any(delim == c("brackets", "[", "\\["))) {
     c("[", "]")
-  } else if (any(sep == c("braces", "{", "\\{"))) {
+  } else if (any(delim == c("braces", "{", "\\{"))) {
     c("{", "}")
   } else {
     abort_in_export(
-      "!" = "`sep` must be either \"parens\", \"brackets\", or \\
+      "!" = "`delim` must be either \"parens\", \"brackets\", or \\
         \"braces\"; or \"(\", \"[\", or \"{{\".",
-      "x" = "It was given as {wrap_in_quotes_or_backticks(sep)}.",
-      "i" = "Alternatively, choose two custom separators; e.g., \\
-        `sep = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
+      "x" = "It was given as {wrap_in_quotes_or_backticks(delim)}.",
+      "i" = "Alternatively, choose two custom delimiters; e.g., \\
+        `delim = c(\"<\", \">\")` for strings such as \"2.65 <0.27>\"."
     )
   }
 }
@@ -77,36 +77,36 @@ warn_wrong_columns_selected <- function(
 }
 
 
-message_sep_if_cols_excluded <- function(sep) {
+message_delim_if_cols_excluded <- function(delim) {
   # Translating first also covers spellings such as `"("`:
-  seps <- translate_length1_sep_keywords(sep)
-  name_seps <- switch(
-    paste0(seps, collapse = ""),
+  delims <- translate_delim_keywords(delim)
+  name_delims <- switch(
+    paste0(delims, collapse = ""),
     "()" = "parentheses",
     "[]" = "square brackets",
     "{}" = "curly braces"
   )
-  if (is.null(name_seps)) {
-    msg_seps <- wrap_in_quotes(seps)
-    glue::glue("{msg_seps[1L]} and {msg_seps[2L]}")
+  if (is.null(name_delims)) {
+    msg_delims <- wrap_in_quotes(delims)
+    glue::glue("{msg_delims[1L]} and {msg_delims[2L]}")
   } else {
-    paste0("i.e., ", name_seps)
+    paste0("i.e., ", name_delims)
   }
 }
 
 
-# Split each string at its first opening separator, and the second part at its
-# first closing separator. Returns a character matrix with two columns: the part
-# before the opening separator, and the part between the two. Each string is
-# split on its own, so that one with more or fewer separators can't shift parts
-# into another string's row. A string without an opening separator has `""` as
+# Split each string at its first opening delimiter, and the second part at its
+# first closing delimiter. Returns a character matrix with two columns: the part
+# before the opening delimiter, and the part between the two. Each string is
+# split on its own, so that one with more or fewer delimiters can't shift parts
+# into another string's row. A string without an opening delimiter has `""` as
 # its second part, and a missing one has `NA` as its first.
-proto_split_parens <- function(string, sep = "parens") {
-  sep <- translate_length1_sep_keywords(sep)
-  out <- stringr::str_split_fixed(string, stringr::fixed(sep[1L]), n = 2L)
+proto_split_parens <- function(string, delim = "parens") {
+  delim <- translate_delim_keywords(delim)
+  out <- stringr::str_split_fixed(string, stringr::fixed(delim[1L]), n = 2L)
   out[, 2L] <- stringr::str_split_fixed(
     out[, 2L],
-    stringr::fixed(sep[2L]),
+    stringr::fixed(delim[2L]),
     n = 2L
   )[, 1L]
   out
@@ -119,19 +119,20 @@ proto_split_parens <- function(string, sep = "parens") {
 #'
 #' @description `before_parens()` and `inside_parens()` extract the part of a
 #'   string before or inside parentheses, brackets, braces, or custom
-#'   separators. [`split_by_parens()`] does the same for the columns of a data
+#'   delimiters. [`split_by_parens()`] does the same for the columns of a data
 #'   frame.
 #'
 #' @param string String vector.
-#' @param sep String. `"parens"` (the default), `"brackets"`, or `"braces"`,
-#'   or a length-2 vector of custom separators, matched literally.
+#' @param delim String. The pair of delimiters around the second part:
+#'   `"parens"` (the default), `"brackets"`, or `"braces"`, or two custom
+#'   strings, matched literally.
 #'
 #' @export
 #'
 #' @return String vector as long as `string`, with surrounding whitespace
-#'   removed. If a string has no opening separator, `before_parens()` returns
+#'   removed. If a string has no opening delimiter, `before_parens()` returns
 #'   all of it and `inside_parens()` returns `NA`, as it does for empty
-#'   separators.
+#'   delimiters.
 #'
 #' @name parens-extractors
 #'
@@ -145,16 +146,16 @@ proto_split_parens <- function(string, sep = "parens") {
 #' before_parens(string = x)
 #' inside_parens(string = x)
 
-before_parens <- function(string, sep = "parens") {
-  stringr::str_trim(proto_split_parens(string, sep)[, 1L])
+before_parens <- function(string, delim = "parens") {
+  stringr::str_trim(proto_split_parens(string, delim)[, 1L])
 }
 
 
 #' @rdname parens-extractors
 #' @export
 
-inside_parens <- function(string, sep = "parens") {
-  out <- stringr::str_trim(proto_split_parens(string, sep)[, 2L])
+inside_parens <- function(string, delim = "parens") {
+  out <- stringr::str_trim(proto_split_parens(string, delim)[, 2L])
   out[out == ""] <- NA
   out
 }

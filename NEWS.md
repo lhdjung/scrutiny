@@ -74,6 +74,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - The `sd_binary_*()` functions take `sd_meaning`, as in `debit()`, and return the population SD under `"sd_pop"` and the standard error under `"se"`. `sd_binary_mean_n()` takes the mean as `x` instead of `mean`, as the tests do.
 
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()` and `restore_zeros()`. `split_by_parens()`'s `check_sep` is now `check_delim`.
+
 - S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
 
 - `function_map()`, `function_map_seq()`, and `function_map_total_n()` take the function to map as `.fn` instead of `.fun`.
