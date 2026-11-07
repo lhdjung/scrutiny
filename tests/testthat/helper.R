@@ -195,6 +195,9 @@ error_message_full <- function(err) {
 #'
 #' @noRd
 sweep_seed <- function(fixed) {
+  # Forced here so that a missing seed fails under `devtools::test()` too, not
+  # only in `R CMD check`:
+  force(fixed)
   replay <- Sys.getenv("SCRUTINY_SEED")
   if (nzchar(replay)) {
     return(as.integer(replay))

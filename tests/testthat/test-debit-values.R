@@ -11,7 +11,7 @@ test_that("`debit_values()` returns the achievable means and SDs", {
 
 
 test_that("`debit_values()` lists exactly the samples that `debit()` admits", {
-  set.seed(sweep_seed())
+  set.seed(sweep_seed(711L))
   for (i in 1:300) {
     n <- sample(2:60, 1)
     x <- round(runif(1), 2)

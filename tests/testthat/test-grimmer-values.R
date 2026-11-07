@@ -284,7 +284,7 @@ test_that("`grimmer_closest()` agrees with a brute-force search", {
     combos <- utils::combn(length(values) + n - 1, n)
     matrix(values[combos - (0:(n - 1))], n)
   }
-  set.seed(sweep_seed())
+  set.seed(sweep_seed(84L))
   for (n in 2:5) {
     # Means from 2 to 7 with an SD of at most 3 lie within these values:
     samples <- multisets(n, -6:15)
