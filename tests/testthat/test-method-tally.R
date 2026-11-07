@@ -160,3 +160,9 @@ test_that("the tally columns are found with any `colname_end`", {
   pigs4 |> duplicate_tally(colname_end = "count") |> audit() |> expect_equal(expected)
   pigs4 |> duplicate_tally() |> dplyr::rename(count = snout_n, x = tail_n, y = wings_n) |> audit() |> expect_error("No tally columns")
 })
+
+
+test_that("grouped tally output is not called mapper output", {
+  # The `"scrutiny"` attribute that records `colname_end` made it look like one:
+  pigs4 |> duplicate_tally() |> dplyr::group_by(snout_n) |> audit() |> expect_error("no method") |> conditionMessage() |> expect_no_match("mapper output")
+})

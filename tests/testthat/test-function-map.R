@@ -1190,5 +1190,15 @@ test_that("0-row output has the columns of output with rows", {
   # A test that fails on missing values still gives the key result column:
   fn <- function(y, n, show_rec = FALSE) if (anyNA(c(y, n))) stop("no NA") else if (show_rec) list(y > n, y) else y > n
   map_strict <- function_map(.fn = fn, .reported = c("y", "n"), .name_test = "T", .col_names = c("consistency", "y_rec"))
-  tibble::tibble(y = 1:2, n = 0:1)[0, ] |> map_strict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "consistency"))
+  tibble::tibble(y = 1:2, n = 0:1)[0, ] |> map_strict(show_rec = TRUE) |> colnames() |> expect_equal(c("y", "n", "consistency"))  # What it says about missing values is not passed on:
+  fn_loud <- function(x, n) { if (is.na(x)) { warning("x is NA"); message("x is NA") }; TRUE }
+  map_loud <- function_map(.fn = fn_loud, .reported = c("x", "n"), .name_test = "T")
+  tibble::tibble(x = numeric(), n = integer()) |> map_loud() |> expect_silent()
+})
+
+
+test_that("only a variadic mapper reserves the names of the variadic code", {
+  # `index` became a reserved name for every mapper:
+  function_map(.fn = function(index, n) TRUE, .reported = c("index", "n"), .name_test = "T") |> expect_no_error()
+  function_map(.fn = function(x, n, index = 1) TRUE, .reported = c("x", "n"), .name_test = "T") |> expect_no_error()
 })

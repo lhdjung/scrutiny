@@ -286,13 +286,6 @@ function_map <- function(
     "add_class",
     "cols_variadic",
     "names_variadic",
-    "quo_variadic",
-    "cols_added",
-    "data_given",
-    "index_variadic",
-    "index_given",
-    "index",
-    "cols_renamed",
     "enum_defaults",
     "enum_vals",
     "args_vals",
@@ -300,7 +293,19 @@ function_map <- function(
     "col_variadic",
     "arg_given",
     "vals",
-    "arg"
+    "arg",
+    # Only the variadic part of the body assigns these:
+    if (!is.null(.reported_variadic)) {
+      c(
+        "quo_variadic",
+        "cols_added",
+        "data_given",
+        "index_variadic",
+        "index_given",
+        "index",
+        "cols_renamed"
+      )
+    }
   )
   check_reported_reserved(
     c(.reported, .reported_variadic),
@@ -723,8 +728,19 @@ function_map <- function(
           test_row_na()
           NULL
         } else {
+          # Only the shape is used, so what `fn()` says about missing values
+          # is not passed on, except a once-per-session deprecation warning,
+          # which would be lost for good (see the first-row test above):
           tryCatch(
-            write_result_cols(list(test_row_na()), col_names, `!!`(fn_name)),
+            withCallingHandlers(
+              write_result_cols(list(test_row_na()), col_names, `!!`(fn_name)),
+              warning = function(cnd) {
+                if (!inherits(cnd, "lifecycle_warning_deprecated")) {
+                  tryInvokeRestart("muffleWarning")
+                }
+              },
+              message = function(cnd) tryInvokeRestart("muffleMessage")
+            ),
             error = function(cnd) NULL
           )
         }

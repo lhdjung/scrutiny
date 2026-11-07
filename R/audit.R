@@ -138,7 +138,7 @@ audit.default <- function(data, ...) {
 hint_grouped <- function(data, alternative) {
   if (
     inherits(data, "grouped_df") &&
-      !is.null(attr(data, "scrutiny", exact = TRUE))
+      !is.null(attr(data, "scrutiny", exact = TRUE)$settings)
   ) {
     paste0(
       "`dplyr::group_by()` removed the class of the mapper output. ",

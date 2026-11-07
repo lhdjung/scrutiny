@@ -58,7 +58,8 @@ register_bind_methods <- function(class) {
 # value`. Columns may be replaced, as by `mutate()`, so `x[j] <- value`, with
 # one index, passes:
 subassign_scrutiny <- function(x, i, j, ..., value) {
-  is_rows <- nargs() == 4L && !missing(i)
+  # `drop = FALSE` comes in the dots:
+  is_rows <- nargs() - ...length() == 4L && !missing(i)
   if (is_rows && inherits(value, ls(bind_classes)) && nrow(value) > 0L) {
     check_same_mapper_call(
       x,
@@ -146,6 +147,10 @@ cast_adds_no_rows <- function(call) {
     return(FALSE)
   }
   fn <- rlang::frame_call(call)[[1L]]
+  # Called as `vctrs::vec_assign()`:
+  if (is.call(fn) && identical(fn[[1L]], quote(`::`))) {
+    fn <- fn[[3L]]
+  }
   is.symbol(fn) &&
     as.character(fn) %in%
       c(

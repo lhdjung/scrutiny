@@ -197,6 +197,7 @@ test_that("rows of another call's output can't replace rows", {
   other <- grim_map(out[1:2], digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up")
 
   expect_error(out[1L, ] <- other[2L, ], "different mapper calls")
+  expect_error(out[1L, , drop = FALSE] <- other[2L, ], "different mapper calls")
   out |> dplyr::rows_update(other[1L, ], by = c("x", "n")) |> expect_error("different mapper calls")
 
   # Rows of the same output and plain values still do:
@@ -205,6 +206,7 @@ test_that("rows of another call's output can't replace rows", {
   copy$x |> expect_equal(c(5.18, 5.18))
   copy[2L, "x"] <- 5.17
   copy[2L, ] <- tibble::as_tibble(out[1L, ])
+  vctrs::vec_assign(out, 1L, tibble::as_tibble(out[2L, ]))$x |> expect_equal(c(5.18, 5.18))
   copy$x |> expect_equal(c(5.18, 5.19))
   # So do columns, as from `mutate()`:
   copy["consistency"] <- other["consistency"]
