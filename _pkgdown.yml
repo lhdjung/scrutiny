@@ -90,9 +90,9 @@ reference:
   desc: Test reported percentages against their counts, and subgroup sizes against
     their totals
 - contents:
-  - is_percentage_of
-  - is_percentage_of_map
-  - is_percentage_of_map_seq
+  - percentage_of
+  - percentage_of_map
+  - percentage_of_map_seq
   - add_up_to
   - add_up_to_map
 - title: Duplicate detection

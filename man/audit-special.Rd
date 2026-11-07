@@ -30,7 +30,7 @@ output, so it can be used instead.
    \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"scrutiny_grim_map_seq"} \cr
    \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"scrutiny_grimmer_map_seq"} \cr
    \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"scrutiny_debit_map_seq"} \cr
-   \code{\link[=is_percentage_of_map_seq]{is_percentage_of_map_seq()}} \tab \code{"scrutiny_is_percentage_of_map_seq"} \cr
+   \code{\link[=percentage_of_map_seq]{percentage_of_map_seq()}} \tab \code{"scrutiny_percentage_of_map_seq"} \cr
 }
 }
 

@@ -36,7 +36,7 @@ it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{au
    \code{\link[=grim_map]{grim_map()}} \tab \code{"scrutiny_grim_map"} \cr
    \code{\link[=grimmer_map]{grimmer_map()}} \tab \code{"scrutiny_grimmer_map"} \cr
    \code{\link[=debit_map]{debit_map()}} \tab \code{"scrutiny_debit_map"} \cr
-   \code{\link[=is_percentage_of_map]{is_percentage_of_map()}} \tab \code{"scrutiny_is_percentage_of_map"} \cr
+   \code{\link[=percentage_of_map]{percentage_of_map()}} \tab \code{"scrutiny_percentage_of_map"} \cr
    \code{\link[=add_up_to_map]{add_up_to_map()}} \tab \code{"scrutiny_add_up_to_map"} \cr
    \verb{*_map_seq()} functions \tab \code{"scrutiny_map_seq"} \cr
    \verb{*_map_total_n()} functions \tab \code{"scrutiny_map_total_n"} \cr

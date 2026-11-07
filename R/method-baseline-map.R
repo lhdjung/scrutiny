@@ -1,6 +1,6 @@
 #' @include audit-cols-minimal.R
 #' @export
-audit.scrutiny_is_percentage_of_map <- function(data, ...) {
+audit.scrutiny_percentage_of_map <- function(data, ...) {
   audit_cols_minimal(data)
 }
 

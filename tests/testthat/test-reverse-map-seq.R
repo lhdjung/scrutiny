@@ -94,8 +94,8 @@ test_that("a variable clipped to nothing in every case keeps its `audit_seq()` c
 test_that("a variable without a `digits_*` column is recovered when its dispersion skips steps", {
   df <- tibble::tibble(absolute = 40, percentage = 35, n = 120)
   for (dispersion in list(1, c(2, 4, 6))) {
-    df |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> reverse_map_seq() |> _$absolute |> expect_equal(40)
-    df |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> audit_seq()       |> nrow()     |> expect_equal(1L)
+    df |> percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> reverse_map_seq() |> _$absolute |> expect_equal(40)
+    df |> percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = dispersion) |> audit_seq()       |> nrow()     |> expect_equal(1L)
   }
 })
 
@@ -123,7 +123,7 @@ test_that("the tested columns are found wherever they were moved", {
 })
 
 test_that("a whole-number variable other than `n` is recovered from a single dispersed value", {
-  out <- tibble::tibble(absolute = 0, percentage = 5, n = 20) |> is_percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = 1)
+  out <- tibble::tibble(absolute = 0, percentage = 5, n = 20) |> percentage_of_map_seq(digits_percentage = 0, var = "absolute", dispersion = 1)
   out |> nrow() |> expect_equal(1L)
   out |> reverse_map_seq() |> expect_equal(tibble::tibble(absolute = 0L, percentage = 5, n = 20L))
   out |> audit_seq() |> _$hits_absolute |> expect_equal(1L)

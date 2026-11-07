@@ -23,7 +23,7 @@
 #'   | [`grim_map()`]                 | `"scrutiny_grim_map"`               |
 #'   | [`grimmer_map()`]              | `"scrutiny_grimmer_map"`            |
 #'   | [`debit_map()`]                | `"scrutiny_debit_map"`              |
-#'   | [`is_percentage_of_map()`]     | `"scrutiny_is_percentage_of_map"`   |
+#'   | [`percentage_of_map()`]        | `"scrutiny_percentage_of_map"`      |
 #'   | [`add_up_to_map()`]            | `"scrutiny_add_up_to_map"`          |
 #'   | `*_map_seq()` functions        | `"scrutiny_map_seq"`                |
 #'   | `*_map_total_n()` functions    | `"scrutiny_map_total_n"`            |
@@ -169,7 +169,7 @@ hint_grouped <- function(data, alternative) {
 #'   | [`grim_map_seq()`]           | `"scrutiny_grim_map_seq"`        |
 #'   | [`grimmer_map_seq()`]        | `"scrutiny_grimmer_map_seq"`     |
 #'   | [`debit_map_seq()`]          | `"scrutiny_debit_map_seq"`       |
-#'   | [`is_percentage_of_map_seq()`] | `"scrutiny_is_percentage_of_map_seq"` |
+#'   | [`percentage_of_map_seq()`]  | `"scrutiny_percentage_of_map_seq"` |
 #'
 #' @section Before `audit_total_n()`:
 #'   | \strong{Function}            | \strong{Class}                   |

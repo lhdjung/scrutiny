@@ -458,7 +458,7 @@ test_that("values whose rounding bounds a double cannot hold are refused, not te
   # products with `n` pass 2^53 first. These were TRUE, and should be FALSE:
   30023997515803.3 |> grim(3, 1, 1, rounding = "down_from", threshold = 3, data_type = "integer")            |> expect_error("too large for an exact test")
   30023997515803.3 |> grimmer(0.6, 3, 1, 1, 1, rounding = "down_from", threshold = 3, data_type = "integer") |> expect_error("too large for an exact test")
-  9007200730       |> is_percentage_of(1, 900630009999, 3, rounding = "down_from", threshold = 1) |> expect_error("too large for an exact test")
+  9007200730       |> percentage_of(1, 900630009999, 3, rounding = "down_from", threshold = 1) |> expect_error("too large for an exact test")
   # Even `x = 0` has bounds, so a huge `n` is refused. This was FALSE:
   0 |> grimmer(0, 201, 0, 15, items_averaged = 1e14 + 6, data_type = "integer") |> expect_error("too large for an exact test")
   # `grim_values()` and `grim_closest()` are refused like `grim()`:

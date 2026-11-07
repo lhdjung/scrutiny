@@ -798,7 +798,7 @@ error_digits_missing <- function(x) {
     NULL
   }
 
-  # `is_percentage_of()` has its own key arguments and never took strings:
+  # `percentage_of()` has its own key arguments and never took strings:
   is_percentage <- name_x == "percentage"
   args_example <- paste0(part_x, part_sd, ", n = 29")
   if (is_percentage) {

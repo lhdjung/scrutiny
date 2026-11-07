@@ -463,7 +463,6 @@ check_comb_value <- function(value, digits, name) {
 #'   [`grim_plot_grid()`] shows many results at once; this function explains
 #'   one. [`grim_values()`] returns the attainable values as numbers.
 #'
-#' @inheritParams grim
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.

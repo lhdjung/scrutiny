@@ -15,7 +15,7 @@
 #'   `dispersion`.
 #'
 #'   Printed output of [`grim_map()`], [`grimmer_map()`], [`debit_map()`], or
-#'   [`is_percentage_of_map()`], including sequence and total-n output, has a
+#'   [`percentage_of_map()`], including sequence and total-n output, has a
 #'   header line that names the settings that are not at their defaults, as in
 #'   `# GRIM: rounding = "up"`.
 #'
@@ -141,6 +141,6 @@ tbl_sum.scrutiny_debit_map <- function(x, ...) {
 }
 
 #' @exportS3Method pillar::tbl_sum
-tbl_sum.scrutiny_is_percentage_of_map <- function(x, ...) {
+tbl_sum.scrutiny_percentage_of_map <- function(x, ...) {
   header_settings(NextMethod(), x, "Percentage")
 }

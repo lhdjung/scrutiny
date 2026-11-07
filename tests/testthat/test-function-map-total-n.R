@@ -322,7 +322,7 @@ test_that("sequence and total-n mappers take the settings of their basic mapper 
     list(grim_map,             grim_map_seq),
     list(grimmer_map,          grimmer_map_seq),
     list(debit_map,            debit_map_seq),
-    list(is_percentage_of_map, is_percentage_of_map_seq),
+    list(percentage_of_map, percentage_of_map_seq),
     list(grim_map,             grim_map_total_n),
     list(grimmer_map,          grimmer_map_total_n),
     list(debit_map,            debit_map_total_n)

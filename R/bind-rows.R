@@ -77,7 +77,7 @@ subassign_scrutiny <- function(x, i, j, ..., value) {
 .onLoad <- function(libname, pkgname) {
   classes <- c(
     vapply(
-      c("GRIM", "GRIMMER", "DEBIT", "is_percentage_of", "add_up_to"),
+      c("GRIM", "GRIMMER", "DEBIT", "percentage_of", "add_up_to"),
       class_name_test,
       character(1L),
       suffix = "_map"

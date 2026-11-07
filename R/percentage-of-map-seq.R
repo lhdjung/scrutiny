@@ -2,14 +2,14 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `is_percentage_of_map_seq()` varies the reported counts,
+#'   `percentage_of_map_seq()` varies the reported counts,
 #'   percentages, and totals a few steps up and down and applies
-#'   [`is_percentage_of()`] to each resulting value set. This shows whether a
+#'   [`percentage_of()`] to each resulting value set. This shows whether a
 #'   small error in one of them could explain an inconsistency.
 #'
 #'   Call [`audit_seq()`] on the output for summary statistics.
 #'
-#' @param data A data frame that [`is_percentage_of_map()`] could take.
+#' @param data A data frame that [`percentage_of_map()`] could take.
 #' @param var String. The variables to disperse. Default is
 #'   `c("absolute", "percentage", "n")`.
 #' @param out_min,out_max Limits on the dispersed values. Both default to
@@ -18,14 +18,14 @@
 #'   removes the limit.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
-#' @inheritParams is_percentage_of_map
+#' @inheritParams percentage_of_map
 #' @inheritParams grim_map_seq
 #'
-#' @return A tibble with the columns of [`is_percentage_of_map()`] output plus
+#' @return A tibble with the columns of [`percentage_of_map()`] output plus
 #'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`]. As there, the
 #'   other columns of `data` are dropped.
 #'
-#' @include is-percentage-of-map.R function-map-seq.R
+#' @include percentage-of-map.R function-map-seq.R
 #'
 #' @export
 #'
@@ -37,11 +37,11 @@
 #' )
 #'
 #' df |>
-#'   is_percentage_of_map_seq(digits_percentage = 0) |>
+#'   percentage_of_map_seq(digits_percentage = 0) |>
 #'   audit_seq()
-is_percentage_of_map_seq <- function_map_seq(
-  .fn = is_percentage_of_map,
+percentage_of_map_seq <- function_map_seq(
+  .fn = percentage_of_map,
   .reported = c("absolute", "percentage", "n"),
-  .name_test = "is_percentage_of",
+  .name_test = "percentage_of",
   .var_bounds = list(absolute = c(0, NA), percentage = c(0, NA), n = c(1, NA))
 )

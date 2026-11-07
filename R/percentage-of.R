@@ -1,5 +1,5 @@
-# Single-case function behind `is_percentage_of()` and `is_percentage_of_map()`.
-is_percentage_of_scalar <- function(
+# Single-case function behind `percentage_of()` and `percentage_of_map()`.
+percentage_of_scalar <- function(
   absolute,
   percentage,
   n,
@@ -54,7 +54,7 @@ is_percentage_of_scalar <- function(
   if (is.na(digits_percentage)) {
     test_digits <- function(digits) {
       tryCatch(
-        is_percentage_of_scalar(
+        percentage_of_scalar(
           absolute = absolute,
           percentage = percentage,
           n = n,
@@ -124,7 +124,7 @@ is_percentage_of_scalar <- function(
 }
 
 
-# `is_percentage_of_scalar()` with `n` missing. A count of 0 has a share of 0
+# `percentage_of_scalar()` with `n` missing. A count of 0 has a share of 0
 # out of any `n`, so it is consistent with every `n` or with none. Any other
 # count is a share of `absolute / n`, which is within the rounding bounds
 # `lower / denom` to `upper / denom` exactly for an `n` from
@@ -189,7 +189,7 @@ percentage_of_any_n <- function(
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `is_percentage_of()` checks whether `percentage` is what
+#'   `percentage_of()` checks whether `percentage` is what
 #'   `absolute` out of `n` would have been reported as, given the number of
 #'   decimal places and the rounding method.
 #'
@@ -197,7 +197,7 @@ percentage_of_any_n <- function(
 #'   whether some count out of `n` produces the percentage. Here, the count is
 #'   reported too.
 #'
-#'   The function is vectorized, but [`is_percentage_of_map()`] is more
+#'   The function is vectorized, but [`percentage_of_map()`] is more
 #'   convenient for testing many cases.
 #'
 #' @details The test runs in exact integer arithmetic. `absolute`,
@@ -208,7 +208,7 @@ percentage_of_any_n <- function(
 #'   values cannot all be correct as reported, not why. The cause is often
 #'   trivial: the percentage may be based on another denominator than `n`,
 #'   such as the number of valid responses, or on an unconventional rounding
-#'   method. [`is_percentage_of_map_seq()`] with `var = "n"` shows which nearby
+#'   method. [`percentage_of_map_seq()`] with `var = "n"` shows which nearby
 #'   denominators would make the percentage consistent.
 #'
 #' @param absolute Integer. The reported count.
@@ -239,10 +239,10 @@ percentage_of_any_n <- function(
 #' @examples
 #' # 40 out of 120 is 33.33...%, so it can be
 #' # reported as 33 or 33.3, but not as 34:
-#' is_percentage_of(40, 33, 120, digits_percentage = 0)
-#' is_percentage_of(40, 33.3, 120, digits_percentage = 1)
-#' is_percentage_of(40, 34, 120, digits_percentage = 0)
-is_percentage_of <- function(
+#' percentage_of(40, 33, 120, digits_percentage = 0)
+#' percentage_of(40, 33.3, 120, digits_percentage = 1)
+#' percentage_of(40, 34, 120, digits_percentage = 0)
+percentage_of <- function(
   absolute,
   percentage,
   n,
@@ -252,7 +252,7 @@ is_percentage_of <- function(
   symmetric = FALSE
 ) {
   map_value_sets(
-    fn = is_percentage_of_scalar,
+    fn = percentage_of_scalar,
     along = c("absolute", "percentage", "n", "digits_percentage")
   )
 }

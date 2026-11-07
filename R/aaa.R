@@ -17,7 +17,7 @@
 WHOLE_NUMBER_TOLERANCE <- .Machine$double.eps^0.5
 
 
-# The arguments of the tests that are whole numbers, `is_percentage_of()`'s
+# The arguments of the tests that are whole numbers, `percentage_of()`'s
 # among them. `round_whole()` rounds them where the tolerance accepts them, so
 # that `100 * 0.29` is tested as 29, the number it is shown as, not as
 # 28.999999999999996 (see `is_whole_number()`). Mappers return these columns as

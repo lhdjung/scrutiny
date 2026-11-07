@@ -2,11 +2,11 @@
 #'
 #' @description `r lifecycle::badge("experimental")`
 #'
-#'   `is_percentage_of_map()` applies [`is_percentage_of()`] to
+#'   `percentage_of_map()` applies [`percentage_of()`] to
 #'   every row of a data frame with counts, percentages, and totals.
 #'
 #'   Call [`audit()`] on the output for summary statistics. See
-#'   [`is_percentage_of()`] for causes of inconsistencies.
+#'   [`percentage_of()`] for causes of inconsistencies.
 #'
 #' @param data Data frame with columns `absolute`, `percentage`, and `n`. Any
 #'   other columns are returned alongside the results.
@@ -22,10 +22,10 @@
 #'
 #' @return A tibble with the columns `absolute`, `percentage`, `n`,
 #'   `digits_percentage`, `consistency`, and any other columns from `data`. It
-#'   has the class `scrutiny_is_percentage_of_map`, which is recognized by
+#'   has the class `scrutiny_percentage_of_map`, which is recognized by
 #'   [`audit()`].
 #'
-#' @include is-percentage-of.R function-map.R
+#' @include percentage-of.R function-map.R
 #'
 #' @export
 #'
@@ -37,10 +37,10 @@
 #' )
 #'
 #' df |>
-#'   is_percentage_of_map(digits_percentage = 0)
-is_percentage_of_map <- function_map(
-  .fn = is_percentage_of_scalar,
+#'   percentage_of_map(digits_percentage = 0)
+percentage_of_map <- function_map(
+  .fn = percentage_of_scalar,
   .reported = c("absolute", "percentage", "n"),
-  .name_test = "is_percentage_of",
+  .name_test = "percentage_of",
   .args_by_row = "digits_percentage"
 )

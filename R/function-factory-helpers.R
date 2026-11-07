@@ -670,7 +670,7 @@ absorb_key_args <- function(data, reported, key_cols_call = NULL) {
 
 
 # The key arguments come before the dots, so R matches them partially:
-# `is_percentage_of_map(percent = TRUE)` reads as `percentage = TRUE`, and the
+# `percentage_of_map(percent = TRUE)` reads as `percentage = TRUE`, and the
 # error would then blame `percentage`, which the user never named.
 check_key_args_abbreviated <- function(reported, names_formals, call) {
   names_call <- names(call)

@@ -306,7 +306,6 @@ grim_closest_scalar <- function(
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, as in
 #'   [`grim()`].
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
-#' @inheritParams grim
 #'
 #' @return
 #' - For `grim_values()`, a tibble with one row per achievable mean. `case` is
