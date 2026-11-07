@@ -706,7 +706,7 @@ drop_continuous <- function(data, test, ...) {
 #' @export
 
 grim_plot <- function(...) {
-  lifecycle::deprecate_soft("1.0.0", "grim_plot()", "grim_plot_grid()")
+  lifecycle::deprecate_warn("1.0.0", "grim_plot()", "grim_plot_grid()")
   grim_plot_grid(...)
 }
 
