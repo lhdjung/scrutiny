@@ -599,3 +599,11 @@ test_that("a missing `n`, `items_averaged`, or `x` that can't change the verdict
   grimmer_explain(3.2, 0.2, NA, 1, 1, 1, "integer")     |> text() |> expect_match("at least about 0.3571.*Inconsistent")
   debit_explain(0.7, 0.4, NA, 1, 1, "integer", sd_meaning = "se") |> text() |> expect_match("shrinks as n grows.*Inconsistent")
 })
+
+
+test_that("an item count the test can't take is named even if `n` is missing", {
+  text <- function(explanation) format(explanation) |> paste(collapse = " ")
+  grim_explain(5.19, NA, 2, 0, "integer")             |> text() |> expect_match("number of items to be a positive integer")
+  grim_explain(5.19, 0, 2, NA, "integer")             |> text() |> expect_match("needs n to be a positive integer")
+  grimmer_explain(5.19, 1, NA, 2, 0, 0, "integer")    |> text() |> expect_match("number of items to be a positive integer")
+})

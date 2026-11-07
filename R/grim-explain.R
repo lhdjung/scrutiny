@@ -813,10 +813,12 @@ explain_digits_most <- function(explanation, missing) {
 # at `n = 1` under `"sd_sample_or_pop"`, a missing `x` is not why the sample SD
 # is undecidable.
 explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
-  if (
-    !anyNA(c(n, items_averaged)) &&
-      !is_decidable_n_items(n, items_averaged, min_n)
-  ) {
+  # Each of the two counts on its own, so that one the test can't take is
+  # named even if the other is missing:
+  items_bad <- !is.na(items_averaged) &&
+    !is_decidable_n_items(1, items_averaged)
+  n_bad <- !is.na(n) && !is_decidable_n_items(n, min_n = min_n)
+  if (items_bad || n_bad) {
     return(explain_n_items(n, items_averaged, min_n))
   }
 
@@ -844,7 +846,7 @@ explain_undecidable <- function(values, n, items_averaged = 1, min_n = 1) {
 
 
 explain_n_items <- function(n, items_averaged, min_n) {
-  if (is_decidable_n_items(n, min_n = min_n)) {
+  if (is.na(n) || is_decidable_n_items(n, min_n = min_n)) {
     paste0(
       "The test needs the number of items to be a positive integer, but ",
       "it is ",
