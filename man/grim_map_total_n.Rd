@@ -102,10 +102,10 @@ hypothetical splits of the total: it starts from an even split, moves one
 participant at a time from one group to the other, and GRIM-tests both
 means against both group sizes, in both pairings.
 
-Call \code{\link[=audit_total_n]{audit_total_n()}} on the output for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
-\section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
- \code{audit_total_n()} on
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on
 \code{grim_map_total_n()} output returns a tibble with one row per case and
 these columns:
 \itemize{
@@ -124,7 +124,7 @@ be decided.
 A count is \code{NA} if it depends on a split that could not be decided, or on
 rows removed from the output, as by \code{filter()}.
 
-Call \code{\link[=audit]{audit()}} on \code{audit_total_n()} output to summarize these columns
+Call \code{audit()} again on that summary to summarize these columns
 further.
 }
 
@@ -140,7 +140,7 @@ grim_map_total_n(df, digits_x = 2, items_averaged = 1, data_type = "integer")
 # `hits_total` counts the splits in which both means are consistent:
 df |>
   grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-  audit_total_n()
+  audit()
 
 # More steps away from the even split tend to find more hits:
 df |>
@@ -150,7 +150,7 @@ df |>
     data_type = "integer",
     dispersion = 0:10
   ) |>
-  audit_total_n()
+  audit()
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

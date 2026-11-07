@@ -122,7 +122,7 @@ The arc is the DEBIT line: the SD of binary data as a function of their mean, fo
 out_seq1 <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_seq1
 
-audit_seq(out_seq1)
+audit(out_seq1)
 ```
 
 As for GRIM and GRIMMER, the `hits_*` columns count the consistent value sets found, and the `diff_*` columns give the distance to the nearest one in dispersion steps. `include_consistent = TRUE` disperses the consistent value sets as well:
@@ -136,7 +136,7 @@ out_seq2 <- debit_map_seq(
   dispersion = 1:7,
   include_consistent = TRUE
 )
-audit_seq(out_seq2)
+audit(out_seq2)
 ```
 
 `debit_plot()` is not well suited to this output.
@@ -155,7 +155,7 @@ flying_pigs2 <- tibble::tribble(
 out_total_n <- debit_map_total_n(flying_pigs2, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_total_n
 
-audit_total_n(out_total_n)
+audit(out_total_n)
 ```
 
 ## Interpreting results

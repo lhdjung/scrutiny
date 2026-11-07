@@ -5,7 +5,7 @@
 #'   each resulting value set. This shows whether a small error in reporting or
 #'   computing could explain an inconsistency.
 #'
-#'   Call [`audit_seq()`] on the output for summary statistics.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data A data frame that [`grimmer_map()`] could take.
 #' @param digits_x,digits_sd Integer (length 1). The number of decimal places in
@@ -33,7 +33,7 @@
 #'   `diff_var`, `case`, and `var`, as in [`grim_map_seq()`]. As there, the
 #'   other columns of `data` are dropped.
 #'
-#' @section Summaries with [`audit_seq()`]: `audit_seq()` on
+#' @section Summaries with [`audit()`]: `audit()` on
 #'   `grimmer_map_seq()` output returns a tibble with one row per case and
 #'   these columns:
 #'   - `x`, `sd`, and `n`: the reported values, with their `consistency`.
@@ -52,7 +52,7 @@
 #'   consistency is `NA`, on a variable whose reported value is missing, which
 #'   is not dispersed, or on rows removed from the output, as by `filter()`.
 #'
-#'   Call `audit()` on `audit_seq()` output to summarize these columns further.
+#'   Call `audit()` again on that summary to summarize these columns further.
 #'
 #' @include grimmer-map.R
 #'
@@ -74,7 +74,7 @@
 #'
 #' # Case-wise summaries:
 #' out |>
-#'   audit_seq()
+#'   audit()
 
 grimmer_map_seq <- function_map_seq(
   .fn = grimmer_map,

@@ -15,7 +15,7 @@ A tibble with the tested columns, one row per case.
 \description{
 \code{reverse_map_seq()} takes the output of a function made by
 \code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the data frame it was called on.
-\code{\link[=audit_seq]{audit_seq()}} builds on it.
+\code{\link[=audit]{audit()}} builds on it for sequence output.
 }
 \examples{
 pigs1

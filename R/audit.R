@@ -6,7 +6,7 @@
 #'   the documentation of the respective function.
 #'
 #'   On the output of a sequence or total-n mapper, such as [`grim_map_seq()`],
-#'   it calls [`audit_seq()`] or [`audit_total_n()`].
+#'   it returns one row per case; see [audit-special].
 #'
 #' @param data A data frame returned by one of the functions below.
 #' @param ... These dots must be empty.
@@ -30,8 +30,8 @@
 #'   | [`duplicate_count()`]          | `"scrutiny_dup_count"`              |
 #'   | [`duplicate_count_colpair()`]  | `"scrutiny_dup_count_colpair"`      |
 #'   | [`duplicate_tally()`]          | `"scrutiny_dup_tally"`              |
-#'   | [`audit_seq()`]                | `"scrutiny_audit_seq"`              |
-#'   | [`audit_total_n()`]            | `"scrutiny_audit_total_n"`          |
+#'   | `audit()` on seq output        | `"scrutiny_audit_seq"`              |
+#'   | `audit()` on total-n output    | `"scrutiny_audit_total_n"`          |
 #'
 #' @return A tibble with summary statistics.
 #' @export
@@ -150,49 +150,50 @@ hint_grouped <- function(data, alternative) {
 }
 
 
-#' Summarize output of sequence mappers and total-n mappers
+#' Classes of sequence and total-n mapper output
 #'
-#' @description `audit_seq()` summarizes the output of functions made by
-#'   [`function_map_seq()`], such as [`grim_map_seq()`], and `audit_total_n()`
-#'   that of functions made by [`function_map_total_n()`], such as
-#'   [`grim_map_total_n()`]. The columns of each summary are described in the
-#'   documentation of the respective function. [`audit()`] calls them on such
-#'   output, so it can be used instead.
+#' @description [`audit()`] summarizes the output of functions made by
+#'   [`function_map_seq()`], such as [`grim_map_seq()`], and of those made by
+#'   [`function_map_total_n()`], such as [`grim_map_total_n()`], with one row
+#'   per case. The columns of each summary are described in the documentation
+#'   of the respective mapper.
 #'
-#' @param data A data frame returned by one of the functions below.
+#'   Such output carries the generic class `"scrutiny_map_seq"` or
+#'   `"scrutiny_map_total_n"`, which `audit()` dispatches on, and a class for
+#'   the particular mapper, listed below, so that you can write your own S3
+#'   methods for it. The summaries have the class `"scrutiny_audit_seq"` or
+#'   `"scrutiny_audit_total_n"`, which `audit()` summarizes further.
 #'
 #' @name audit-special
 #'
-#' @section Before `audit_seq()`:
-#'   | \strong{Function}            | \strong{Class}                   |
-#'   | ---                          | ---                              |
-#'   | [`grim_map_seq()`]           | `"scrutiny_grim_map_seq"`        |
-#'   | [`grimmer_map_seq()`]        | `"scrutiny_grimmer_map_seq"`     |
-#'   | [`debit_map_seq()`]          | `"scrutiny_debit_map_seq"`       |
+#' @section Sequence mappers:
+#'   | \strong{Function}            | \strong{Class}                     |
+#'   | ---                          | ---                                |
+#'   | [`grim_map_seq()`]           | `"scrutiny_grim_map_seq"`          |
+#'   | [`grimmer_map_seq()`]        | `"scrutiny_grimmer_map_seq"`       |
+#'   | [`debit_map_seq()`]          | `"scrutiny_debit_map_seq"`         |
 #'   | [`percentage_of_map_seq()`]  | `"scrutiny_percentage_of_map_seq"` |
 #'
-#' @section Before `audit_total_n()`:
-#'   | \strong{Function}            | \strong{Class}                   |
-#'   | ---                          | ---                              |
-#'   | [`grim_map_total_n()`]       | `"scrutiny_grim_map_total_n"`    |
-#'   | [`grimmer_map_total_n()`]    | `"scrutiny_grimmer_map_total_n"` |
-#'   | [`debit_map_total_n()`]      | `"scrutiny_debit_map_total_n"`   |
-#'
-#' @return A tibble with summary statistics.
-#'
-#' @include utils.R
-#'
-#' @export
+#' @section Total-n mappers:
+#'   | \strong{Function}            | \strong{Class}                     |
+#'   | ---                          | ---                                |
+#'   | [`grim_map_total_n()`]       | `"scrutiny_grim_map_total_n"`      |
+#'   | [`grimmer_map_total_n()`]    | `"scrutiny_grimmer_map_total_n"`   |
+#'   | [`debit_map_total_n()`]      | `"scrutiny_debit_map_total_n"`     |
 #'
 #' @examples
 #' out <- pigs1 |>
 #'   grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-#'   audit_seq()
+#'   audit()
 #' out
 #'
 #' # `audit()` summarizes the summary:
 #' audit(out)
+NULL
 
+
+# The summaries that `audit()` returns for sequence and total-n mapper output,
+# through `audit.scrutiny_map_seq()` and `audit.scrutiny_map_total_n()`.
 audit_seq <- function(data) {
   if (!inherits(data, "scrutiny_map_seq")) {
     abort_in_export(
@@ -359,9 +360,6 @@ audit_seq <- function(data) {
     add_class("scrutiny_audit_seq")
 }
 
-
-#' @rdname audit-special
-#' @export
 
 audit_total_n <- function(data) {
   if (!inherits(data, "scrutiny_map_total_n")) {

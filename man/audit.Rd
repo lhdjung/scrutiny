@@ -28,7 +28,7 @@ the functions listed below. The columns of each summary are described in
 the documentation of the respective function.
 
 On the output of a sequence or total-n mapper, such as \code{\link[=grim_map_seq]{grim_map_seq()}},
-it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{audit_total_n()}}.
+it returns one row per case; see \link{audit-special}.
 }
 \section{Run before \code{audit()}}{
 \tabular{ll}{
@@ -43,8 +43,8 @@ it calls \code{\link[=audit_seq]{audit_seq()}} or \code{\link[=audit_total_n]{au
    \code{\link[=duplicate_count]{duplicate_count()}} \tab \code{"scrutiny_dup_count"} \cr
    \code{\link[=duplicate_count_colpair]{duplicate_count_colpair()}} \tab \code{"scrutiny_dup_count_colpair"} \cr
    \code{\link[=duplicate_tally]{duplicate_tally()}} \tab \code{"scrutiny_dup_tally"} \cr
-   \code{\link[=audit_seq]{audit_seq()}} \tab \code{"scrutiny_audit_seq"} \cr
-   \code{\link[=audit_total_n]{audit_total_n()}} \tab \code{"scrutiny_audit_total_n"} \cr
+   \code{audit()} on seq output \tab \code{"scrutiny_audit_seq"} \cr
+   \code{audit()} on total-n output \tab \code{"scrutiny_audit_total_n"} \cr
 }
 }
 

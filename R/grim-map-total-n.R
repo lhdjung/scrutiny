@@ -6,7 +6,7 @@
 #'   participant at a time from one group to the other, and GRIM-tests both
 #'   means against both group sizes, in both pairings.
 #'
-#'   Call [`audit_total_n()`] on the output for summary statistics.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data Data frame with numeric columns `x1`, `x2`, and `n`: the two
 #'   group means (or percentages) and the total sample size. Which mean is `x1`
@@ -64,7 +64,7 @@
 #' - The other columns of [`grim_map()`] output, and the other columns of
 #'   `data`.
 #'
-#' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on
+#' @section Summaries with [`audit()`]: `audit()` on
 #'   `grim_map_total_n()` output returns a tibble with one row per case and
 #'   these columns:
 #'  - `x1`, `x2`, and `n`: the reported values.
@@ -81,7 +81,7 @@
 #'  A count is `NA` if it depends on a split that could not be decided, or on
 #'  rows removed from the output, as by `filter()`.
 #'
-#'  Call [`audit()`] on `audit_total_n()` output to summarize these columns
+#'  Call `audit()` again on that summary to summarize these columns
 #'  further.
 #'
 #' @export
@@ -98,7 +98,7 @@
 #' # `hits_total` counts the splits in which both means are consistent:
 #' df |>
 #'   grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-#'   audit_total_n()
+#'   audit()
 #'
 #' # More steps away from the even split tend to find more hits:
 #' df |>
@@ -108,7 +108,7 @@
 #'     data_type = "integer",
 #'     dispersion = 0:10
 #'   ) |>
-#'   audit_total_n()
+#'   audit()
 
 grim_map_total_n <- function_map_total_n(
   .fn = grim_map,

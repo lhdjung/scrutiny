@@ -84,10 +84,10 @@ binary data but only the total sample size, not the group sizes. For two
 groups, \code{debit_map_total_n()} tests hypothetical splits of the total, as
 \code{\link[=grim_map_total_n]{grim_map_total_n()}} does.
 
-Call \code{\link[=audit_total_n]{audit_total_n()}} on the output for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
-\section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
- \code{audit_total_n()} on
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on
 \code{debit_map_total_n()} output returns a tibble with one row per case and
 these columns:
 \itemize{
@@ -118,7 +118,7 @@ debit_map_total_n(df, digits_x = 2, digits_sd = 2, data_type = "integer")
 
 df |>
   debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer") |>
-  audit_total_n()
+  audit()
 }
 \references{
 Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It

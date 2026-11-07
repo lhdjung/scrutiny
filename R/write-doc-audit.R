@@ -94,10 +94,10 @@ write_doc_audit <- function(sample_output, name_test) {
 }
 
 
-#' Documentation template for [`audit_seq()`]
+#' Documentation template for the `audit()` summary of sequence output
 #'
 #' @description `write_doc_audit_seq()` generates the roxygen2 section that
-#'   documents [`audit_seq()`] on the page of a function made by
+#'   documents what `audit()` returns on the page of a function made by
 #'   [`function_map_seq()`]. Paste the output into that function's roxygen2
 #'   block. To keep the list structure when indenting with
 #'   `Ctrl`+`Shift`+`/`, leave empty lines around the pasted text.
@@ -136,7 +136,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
   others <- commas_and(key_args_bt[-1L])
 
   glue::glue(
-    "#' @section Summaries with [`audit_seq()`]: `audit_seq()` on\n",
+    "#' @section Summaries with [`audit()`]: `audit()` on\n",
     "#'   `{tolower(name_test)}_map_seq()` output returns a tibble with one row per case and\n",
     "#'   these columns:\n",
     "#'   - {vars}: the reported values, with their `consistency`.\n",
@@ -159,7 +159,7 @@ write_doc_audit_seq <- function(key_args, name_test) {
     "#'   consistency is `NA`, on a variable whose reported value is missing, which\n",
     "#'   is not dispersed, or on rows removed from the output, as by `filter()`.\n",
     "#'\n",
-    "#'   Call `audit()` on `audit_seq()` output to summarize these columns further.\n",
+    "#'   Call `audit()` again on that summary to summarize these columns further.\n",
     "#'   `na_count` and `na_rate` there count the cases without a consistent value\n",
     "#'   within the `dispersion` range, and those that a missing value leaves\n",
     "#'   unknown.\n"
@@ -167,10 +167,10 @@ write_doc_audit_seq <- function(key_args, name_test) {
 }
 
 
-#' Documentation template for [`audit_total_n()`]
+#' Documentation template for the `audit()` summary of total-n output
 #'
 #' @description `write_doc_audit_total_n()` generates the roxygen2 section that
-#'   documents [`audit_total_n()`] on the page of a function made by
+#'   documents what `audit()` returns on the page of a function made by
 #'   [`function_map_total_n()`]. Paste the output into that function's
 #'   roxygen2 block. To keep the list structure when indenting with
 #'   `Ctrl`+`Shift`+`/`, leave empty lines around the pasted text.
@@ -225,7 +225,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
   key_args_all <- commas_and(append(key_args_num, "`n`"))
 
   glue::glue(
-    "#' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on\n",
+    "#' @section Summaries with [`audit()`]: `audit()` on\n",
     "#'   `{tolower(name_test)}_map_total_n()` output returns a tibble with one row per case and\n",
     "#'   these columns:\n",
     "#'  - {key_args_all}: the reported values.\n",
@@ -242,7 +242,7 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#'  A count is `NA` if it depends on a split that could not be decided, or on\n",
     "#'  rows removed from the output, as by `filter()`.\n",
     "#'\n",
-    "#'  Call `audit()` on `audit_total_n()` output to summarize these columns\n",
+    "#'  Call `audit()` again on that summary to summarize these columns\n",
     "#'  further.\n"
   )
 }

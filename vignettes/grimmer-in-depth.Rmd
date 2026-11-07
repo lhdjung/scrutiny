@@ -77,7 +77,7 @@ pigs5 |>
 out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 out_seq1
 
-audit_seq(out_seq1)
+audit(out_seq1)
 ```
 
 The summary is the same as for GRIM, with `hits_sd` and the `diff_sd*` columns added. More steps typically find more hits:
@@ -91,7 +91,7 @@ out_seq2 <- grimmer_map_seq(
   data_type = "integer",
   dispersion = 1:10
 )
-audit_seq(out_seq2)
+audit(out_seq2)
 ```
 
 `grim_plot_grid()` accepts this output as well, and `var` restricts the dispersion to one variable:
@@ -115,5 +115,5 @@ flying_pigs4 <- tibble::tribble(
 out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 out_total_n
 
-audit_total_n(out_total_n)
+audit(out_total_n)
 ```

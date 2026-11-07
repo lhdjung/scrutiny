@@ -2,7 +2,7 @@
 #'
 #' @description `reverse_map_seq()` takes the output of a function made by
 #'   [`function_map_seq()`] and reconstructs the data frame it was called on.
-#'   [`audit_seq()`] builds on it.
+#'   [`audit()`] builds on it for sequence output.
 #'
 #' @param data Data frame with the `"scrutiny_map_seq"` class.
 #'

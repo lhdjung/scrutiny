@@ -5,7 +5,7 @@
 #'   `grimmer_map_total_n()` tests hypothetical splits of the total, as
 #'   [`grim_map_total_n()`] does.
 #'
-#'   Call [`audit_total_n()`] on the output for summary statistics.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data Data frame with numeric columns `x1`, `x2`, `sd1`, `sd2`, and
 #'   `n`: the two group means, the two group SDs, and the total sample size.
@@ -51,7 +51,7 @@
 #'   `"forth"` only), the other columns of [`grimmer_map()`] output, and the
 #'   other columns of `data`.
 #'
-#' @section Summaries with [`audit_total_n()`]: `audit_total_n()` on
+#' @section Summaries with [`audit()`]: `audit()` on
 #'   `grimmer_map_total_n()` output returns a tibble with one row per case and
 #'   these columns:
 #'  - `x1`, `x2`, `sd1`, `sd2`, and `n`: the reported values.
@@ -93,7 +93,7 @@
 #'     items_averaged = 1,
 #'     data_type = "integer"
 #'   ) |>
-#'   audit_total_n()
+#'   audit()
 #'
 #' # More steps away from the even split tend to find more hits:
 #' df |>
@@ -104,7 +104,7 @@
 #'     data_type = "integer",
 #'     dispersion = 0:10
 #'   ) |>
-#'   audit_total_n()
+#'   audit()
 
 grimmer_map_total_n <- function_map_total_n(
   .fn = grimmer_map,

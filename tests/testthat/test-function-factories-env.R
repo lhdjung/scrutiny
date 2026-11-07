@@ -165,16 +165,16 @@ test_that("`audit_seq()` works on a mapper that nothing can find any more", {
 })
 
 
-test_that("`audit_seq()` works from a foreign caller", {
-  # Standing in for a caller that has no path to scrutiny, as when `audit_seq()`
-  # is called via `scrutiny::audit_seq()`:
+test_that("`audit()` on sequence output works from a foreign caller", {
+  # Standing in for a caller that has no path to scrutiny, as when `audit()` is
+  # called via `scrutiny::audit()`:
   foreign <- new.env(parent = baseenv())
-  assign("audit_seq", audit_seq, envir = foreign)
+  assign("audit", audit, envir = foreign)
   out_seq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   assign("out", out_seq, envir = foreign)
 
-  expected <- out_seq |> audit_seq()
-  quote(audit_seq(out)) |> eval(foreign) |> expect_equal(expected)
+  expected <- out_seq |> audit()
+  quote(audit(out)) |> eval(foreign) |> expect_equal(expected)
 })
 
 

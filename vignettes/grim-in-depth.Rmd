@@ -119,12 +119,12 @@ out_seq1
 
 By default, only inconsistent value sets are dispersed. `case` is the row in the input data, `var` the variable that was varied, and `diff_var` the number of steps from the reported value.
 
-### Summaries with `audit_seq()`
+### Summaries with `audit()`
 
-`audit_seq()` summarizes this output per case. `audit()` calls it on such output, too:
+`audit()` summarizes this output per case:
 
 ```{r}
-audit_seq(out_seq1)
+audit(out_seq1)
 ```
 
 - `x` and `n` are the reported values, and `consistency` their test result.
@@ -141,7 +141,7 @@ out_seq2 <- grim_map_seq(
   data_type = "integer",
   dispersion = 1:10
 )
-audit_seq(out_seq2)
+audit(out_seq2)
 ```
 
 ### Plotting dispersed values
@@ -177,7 +177,7 @@ df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
 df_tested <- grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1, data_type = "integer")
 df_tested
 
-audit_total_n(df_tested)
+audit(df_tested)
 ```
 
 A hit is a split in which both means are consistent with their hypothetical group sizes. The default `dispersion = 0:5` goes five steps away from the even split.

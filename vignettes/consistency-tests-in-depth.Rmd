@@ -44,7 +44,7 @@ These are the levels, with GRIM as the example. If you implement a valid consist
 
 7.  A total-n mapper for studies with two groups that only report the total sample size, such as `grim_map_total_n()`.
 
-8.  Documentation of `audit_seq()` and `audit_total_n()`, which already work with the output of numbers 6 and 7.
+8.  Documentation of what `audit()` returns for the output of numbers 6 and 7, which it already summarizes.
 
 The examples use a mock test called SCHLIM, which has no meaning in itself. A real implementation will usually be more complex than the snippets below.
 
@@ -385,7 +385,7 @@ out_seq <- schlim_map_seq(df1)
 out_seq
 
 # Summarize:
-audit_seq(out_seq)
+audit(out_seq)
 ```
 
 By default, a `*_map_seq()` function only creates sequences around inconsistent value sets, since its purpose is to shed light on inconsistencies. Override this with `include_consistent = TRUE`:
@@ -393,7 +393,7 @@ By default, a `*_map_seq()` function only creates sequences around inconsistent 
 ```{r}
 df1 |>
   schlim_map_seq(include_consistent = TRUE) |>
-  audit_seq()
+  audit()
 ```
 
 To export a function made by `function_map_seq()`, see section 3.
@@ -442,16 +442,16 @@ out_total_n <- schlim_map_total_n(df_groups_schlim)
 out_total_n
 
 # Summarize:
-audit_total_n(out_total_n)
+audit(out_total_n)
 ```
 
 To export such a function from a package, see section 3.
 
-# 8. Documenting `audit_seq()` and `audit_total_n()`
+# 8. Documenting the summaries of sequence and total-n output
 
-`audit_seq()` and `audit_total_n()` summarize the output of sequence and total-n mappers, and `audit()` calls them on such output. They work on the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement.
+`audit()` summarizes the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement.
 
-What remains is to document them for your test. The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit_seq()`* or *Summaries with `audit_total_n()`*.
+What remains is to document the summaries for your test. The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit()`*.
 
 # Wrap-up
 

@@ -62,7 +62,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `debit_map()`'s `show_rec` defaults to `FALSE`, as in `grim_map()`; `debit_plot()` reconstructs the values itself. `debit_map()` output no longer has a `rounding` column. `grimmer_map()` no longer has `show_reason`: the `reason` column is always returned. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
-- `audit()` on sequence or total-n mapper output calls `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_cols_minimal()` lost its `name_test` argument.
+- `audit()` on sequence or total-n mapper output returns the per-case summary of `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_seq()` and `audit_total_n()` are no longer exported, so `audit()`, which also has `.by`, is the one way to summarize mapper output. `audit_cols_minimal()` lost its `name_test` argument.
 
 - Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column, except by the sequence mappers, which drop all columns that play no role in the test; `case` joins them back.
 

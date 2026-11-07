@@ -83,12 +83,12 @@ df |>
 
 The nearest consistent total is two steps away: 25 out of 122 is 20.49%, reported as 20.
 
-`audit_seq()` counts the "hits", the varied value sets that are consistent. `audit()` calls it on this output, too:
+`audit()` counts the "hits", the varied value sets that are consistent:
 
 ```{r}
 df |>
   percentage_of_map_seq(digits_percentage = 0, var = "n") |>
-  audit_seq()
+  audit()
 ```
 
 ## Sums

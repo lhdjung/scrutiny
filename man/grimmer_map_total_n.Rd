@@ -85,10 +85,10 @@ only the total sample size, not the group sizes. For two groups,
 \code{grimmer_map_total_n()} tests hypothetical splits of the total, as
 \code{\link[=grim_map_total_n]{grim_map_total_n()}} does.
 
-Call \code{\link[=audit_total_n]{audit_total_n()}} on the output for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
-\section{Summaries with \code{\link[=audit_total_n]{audit_total_n()}}}{
- \code{audit_total_n()} on
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on
 \code{grimmer_map_total_n()} output returns a tibble with one row per case and
 these columns:
 \itemize{
@@ -131,7 +131,7 @@ df |>
     items_averaged = 1,
     data_type = "integer"
   ) |>
-  audit_total_n()
+  audit()
 
 # More steps away from the even split tend to find more hits:
 df |>
@@ -142,7 +142,7 @@ df |>
     data_type = "integer",
     dispersion = 0:10
   ) |>
-  audit_total_n()
+  audit()
 }
 \references{
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the

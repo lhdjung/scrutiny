@@ -5,7 +5,7 @@
 #'   whether a small error in reporting or computing could explain an
 #'   inconsistency.
 #'
-#'   Call [`audit_seq()`] on the output for summary statistics.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data A data frame that [`grim_map()`] could take.
 #' @param digits_x Integer (length 1). The number of decimal places in `x`,
@@ -37,7 +37,7 @@
 #'   dispersed variable. Other columns of `data`, such as study labels, play no
 #'   role in the test and are dropped; use `case` to join them back.
 #'
-#' @section Summaries with [`audit_seq()`]: `audit_seq()` on `grim_map_seq()`
+#' @section Summaries with [`audit()`]: `audit()` on `grim_map_seq()`
 #'   output returns a tibble with one row per case and these columns:
 #'   - `x` and `n`: the reported values, with their `consistency`.
 #'   - `hits_total`: the number of GRIM-consistent value sets found within the
@@ -55,7 +55,7 @@
 #'   consistency is `NA`, on a variable whose reported value is missing, which
 #'   is not dispersed, or on rows removed from the output, as by `filter()`.
 #'
-#'   Call `audit()` on `audit_seq()` output to summarize these columns further.
+#'   Call `audit()` again on that summary to summarize these columns further.
 #'   `na_count` and `na_rate` there count the cases without a consistent value
 #'   within the `dispersion` range, and those that a missing value leaves
 #'   unknown.
@@ -79,7 +79,7 @@
 #'
 #' # Case-wise summaries:
 #' out |>
-#'   audit_seq()
+#'   audit()
 
 grim_map_seq <- function_map_seq(
   .fn = grim_map,

@@ -7,7 +7,7 @@
 #'   [`percentage_of()`] to each resulting value set. This shows whether a
 #'   small error in one of them could explain an inconsistency.
 #'
-#'   Call [`audit_seq()`] on the output for summary statistics.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data A data frame that [`percentage_of_map()`] could take.
 #' @param var String. The variables to disperse. Default is
@@ -38,7 +38,7 @@
 #'
 #' df |>
 #'   percentage_of_map_seq(digits_percentage = 0) |>
-#'   audit_seq()
+#'   audit()
 percentage_of_map_seq <- function_map_seq(
   .fn = percentage_of_map,
   .reported = c("absolute", "percentage", "n"),

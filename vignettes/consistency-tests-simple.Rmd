@@ -93,12 +93,12 @@ df1 |>
   schlim_map_seq()
 ```
 
-Get summary statistics with `audit_seq()`:
+Get summary statistics with `audit()`:
 
 ```{r}
 df1 |>
   schlim_map_seq() |>
-  audit_seq()
+  audit()
 ```
 
 ## 6. Total-n mapper
@@ -126,10 +126,10 @@ df2 |>
   schlim_map_total_n()
 ```
 
-Get summary statistics with `audit_total_n()`:
+Get summary statistics with `audit()`:
 
 ```{r}
 df2 |>
   schlim_map_total_n() |>
-  audit_total_n()
+  audit()
 ```

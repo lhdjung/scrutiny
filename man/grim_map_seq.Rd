@@ -91,10 +91,10 @@ few steps up and down and GRIM-tests each resulting value set. This shows
 whether a small error in reporting or computing could explain an
 inconsistency.
 
-Call \code{\link[=audit_seq]{audit_seq()}} on the output for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
-\section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
- \code{audit_seq()} on \code{grim_map_seq()}
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on \code{grim_map_seq()}
 output returns a tibble with one row per case and these columns:
 \itemize{
 \item \code{x} and \code{n}: the reported values, with their \code{consistency}.
@@ -114,7 +114,7 @@ A count or distance is \code{NA} if it depends on a dispersed value set whose
 consistency is \code{NA}, on a variable whose reported value is missing, which
 is not dispersed, or on rows removed from the output, as by \code{filter()}.
 
-Call \code{audit()} on \code{audit_seq()} output to summarize these columns further.
+Call \code{audit()} again on that summary to summarize these columns further.
 \code{na_count} and \code{na_rate} there count the cases without a consistent value
 within the \code{dispersion} range, and those that a missing value leaves
 unknown.
@@ -135,5 +135,5 @@ out
 
 # Case-wise summaries:
 out |>
-  audit_seq()
+  audit()
 }

@@ -16,7 +16,7 @@ one row per case.
 \description{
 \code{reverse_map_total_n()} takes the output of a function made by
 \code{\link[=function_map_total_n]{function_map_total_n()}} and reconstructs the data frame it was called
-on. \code{\link[=audit_total_n]{audit_total_n()}} builds on it.
+on. \code{\link[=audit]{audit()}} builds on it for total-n output.
 }
 \examples{
 df <- tibble::tribble(

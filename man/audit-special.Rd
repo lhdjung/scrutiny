@@ -2,29 +2,21 @@
 % Please edit documentation in R/audit.R
 \name{audit-special}
 \alias{audit-special}
-\alias{audit_seq}
-\alias{audit_total_n}
-\title{Summarize output of sequence mappers and total-n mappers}
-\usage{
-audit_seq(data)
-
-audit_total_n(data)
-}
-\arguments{
-\item{data}{A data frame returned by one of the functions below.}
-}
-\value{
-A tibble with summary statistics.
-}
+\title{Classes of sequence and total-n mapper output}
 \description{
-\code{audit_seq()} summarizes the output of functions made by
-\code{\link[=function_map_seq]{function_map_seq()}}, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, and \code{audit_total_n()}
-that of functions made by \code{\link[=function_map_total_n]{function_map_total_n()}}, such as
-\code{\link[=grim_map_total_n]{grim_map_total_n()}}. The columns of each summary are described in the
-documentation of the respective function. \code{\link[=audit]{audit()}} calls them on such
-output, so it can be used instead.
+\code{\link[=audit]{audit()}} summarizes the output of functions made by
+\code{\link[=function_map_seq]{function_map_seq()}}, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, and of those made by
+\code{\link[=function_map_total_n]{function_map_total_n()}}, such as \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with one row
+per case. The columns of each summary are described in the documentation
+of the respective mapper.
+
+Such output carries the generic class \code{"scrutiny_map_seq"} or
+\code{"scrutiny_map_total_n"}, which \code{audit()} dispatches on, and a class for
+the particular mapper, listed below, so that you can write your own S3
+methods for it. The summaries have the class \code{"scrutiny_audit_seq"} or
+\code{"scrutiny_audit_total_n"}, which \code{audit()} summarizes further.
 }
-\section{Before \code{audit_seq()}}{
+\section{Sequence mappers}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
    \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"scrutiny_grim_map_seq"} \cr
@@ -34,7 +26,7 @@ output, so it can be used instead.
 }
 }
 
-\section{Before \code{audit_total_n()}}{
+\section{Total-n mappers}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
    \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"scrutiny_grim_map_total_n"} \cr
@@ -46,7 +38,7 @@ output, so it can be used instead.
 \examples{
 out <- pigs1 |>
   grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-  audit_seq()
+  audit()
 out
 
 # `audit()` summarizes the summary:

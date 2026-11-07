@@ -68,7 +68,7 @@ percentages, and totals a few steps up and down and applies
 \code{\link[=percentage_of]{percentage_of()}} to each resulting value set. This shows whether a
 small error in one of them could explain an inconsistency.
 
-Call \code{\link[=audit_seq]{audit_seq()}} on the output for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
 \examples{
 df <- tibble::tibble(
@@ -79,5 +79,5 @@ df <- tibble::tibble(
 
 df |>
   percentage_of_map_seq(digits_percentage = 0) |>
-  audit_seq()
+  audit()
 }
