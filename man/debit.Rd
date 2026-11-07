@@ -57,15 +57,13 @@ and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} f
 sample SD is the default and when to choose another.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if
-not, and \code{NA} if the case cannot be decided: if \code{n} is not a positive
-whole number, or if a missing value could decide the case either way. It
-is \code{FALSE} with a missing \code{sd} if no number of ones has a mean that would
-be reported as \code{x}, and with a missing \code{x} if no number of ones has an SD
-that would be reported as \code{sd}. A missing decimal count is treated as in
-\code{\link[=grim]{grim()}}. With \code{n} missing, the value set is \code{TRUE} if data that are
-all 0 or all 1 fit, and \code{FALSE} if \code{sd} is outside the SDs that binary
-data with a mean reported as \code{x} can have, whatever their number. A sample SD divides by \code{n - 1}, so under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at least 2.
+Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if not,
+and \code{NA} if the case cannot be decided: if \code{n} is not a positive whole
+number, or if a missing value could decide the case either way. See
+\code{vignette("technical-notes")}, section \emph{Missing values}, on which cases a
+missing value leaves open. A sample SD divides by \code{n - 1}, so under
+\code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at
+least 2.
 }
 \description{
 \code{debit()} checks whether the reported mean and standard

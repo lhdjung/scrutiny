@@ -1020,16 +1020,13 @@ debit_scalar <- function(
 #'
 #' @export
 #'
-#' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if
-#'   not, and `NA` if the case cannot be decided: if `n` is not a positive
-#'   whole number, or if a missing value could decide the case either way. It
-#'   is `FALSE` with a missing `sd` if no number of ones has a mean that would
-#'   be reported as `x`, and with a missing `x` if no number of ones has an SD
-#'   that would be reported as `sd`. A missing decimal count is treated as in
-#'   [`grim()`]. With `n` missing, the value set is `TRUE` if data that are
-#'   all 0 or all 1 fit, and `FALSE` if `sd` is outside the SDs that binary
-#'   data with a mean reported as `x` can have, whatever their number. A sample SD divides by `n - 1`, so under `sd_meaning =
-#'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
+#' @return Logical. `TRUE` if `x`, `sd`, and `n` are consistent, `FALSE` if not,
+#'   and `NA` if the case cannot be decided: if `n` is not a positive whole
+#'   number, or if a missing value could decide the case either way. See
+#'   `vignette("technical-notes")`, section *Missing values*, on which cases a
+#'   missing value leaves open. A sample SD divides by `n - 1`, so under
+#'   `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also be at
+#'   least 2.
 #'
 #' @seealso [`debit_explain()`] to explain a result in plain words, and
 #'   [`debit_map()`] for data frames.

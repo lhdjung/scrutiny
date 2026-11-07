@@ -914,15 +914,11 @@ grimmer_n_missing <- function(
 #' @return Logical. `TRUE` if `x`, `sd`, `n`, and `items_averaged` are
 #'   consistent, `FALSE` if not, and `NA` if the case cannot be decided: if a
 #'   value is infinite, if `n` or `items_averaged` is not a positive whole
-#'   number, or if a missing value could decide the case either way. It is
-#'   `FALSE` with a missing `sd` if `x` fails GRIM, and with a missing `x` if
-#'   no sum of whole numbers admits `sd`. A missing decimal count is treated as
-#'   in [`grim()`]. With `n` or `items_averaged` missing, the value set is
-#'   `TRUE` if data that are all the same value fit, and with `n` missing,
-#'   `FALSE` if `sd` is below the least SD that whole numbers with the mean
-#'   can have, whatever their number (not for an SE, which has none). A
-#'   negative `sd` is `FALSE` whatever is missing. A sample SD divides by `n - 1`, so under `sd_meaning =
-#'   "sd_sample"` (the default) and `"se"`, `n` must also be at least 2.
+#'   number, or if a missing value could decide the case either way. See
+#'   `vignette("technical-notes")`, section *Missing values*, on which cases a
+#'   missing value leaves open. A sample SD divides by `n - 1`, so under
+#'   `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also be at
+#'   least 2.
 #'
 #' @references Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 #'   possibility of standard deviations.

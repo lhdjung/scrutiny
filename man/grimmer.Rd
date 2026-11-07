@@ -74,14 +74,11 @@ if it were an SD. See \emph{SD meaning}.}
 Logical. \code{TRUE} if \code{x}, \code{sd}, \code{n}, and \code{items_averaged} are
 consistent, \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a
 value is infinite, if \code{n} or \code{items_averaged} is not a positive whole
-number, or if a missing value could decide the case either way. It is
-\code{FALSE} with a missing \code{sd} if \code{x} fails GRIM, and with a missing \code{x} if
-no sum of whole numbers admits \code{sd}. A missing decimal count is treated as
-in \code{\link[=grim]{grim()}}. With \code{n} or \code{items_averaged} missing, the value set is
-\code{TRUE} if data that are all the same value fit, and with \code{n} missing,
-\code{FALSE} if \code{sd} is below the least SD that whole numbers with the mean
-can have, whatever their number (not for an SE, which has none). A
-negative \code{sd} is \code{FALSE} whatever is missing. A sample SD divides by \code{n - 1}, so under \code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at least 2.
+number, or if a missing value could decide the case either way. See
+\code{vignette("technical-notes")}, section \emph{Missing values}, on which cases a
+missing value leaves open. A sample SD divides by \code{n - 1}, so under
+\code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at
+least 2.
 }
 \description{
 \code{grimmer()} checks whether a reported mean and standard

@@ -40,7 +40,9 @@ articles:
   - wrangling
 - title: Other
   navbar: Other
-  contents: related
+  contents:
+  - technical-notes
+  - related
 reference:
 - title: Consistency tests
   desc: Check the numerical consistency of summary statistics

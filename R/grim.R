@@ -385,16 +385,10 @@ grim_all_means_pass <- function(
 #'
 #' @return Logical. `TRUE` if `x`, `n`, and `items_averaged` are consistent,
 #'   `FALSE` if not, and `NA` if the case cannot be decided: if a value is
-#'   infinite, if `n` or `items_averaged` is not a positive whole number, or
-#'   if a missing value could decide the case either way.
-#'
-#'   A missing `digits_x` does not if `x` fails with the decimal places it
-#'   shows, which it has at least (`FALSE`), or passes with so many that only
-#'   `x` itself is left (`TRUE`, as `grim(5.2, 5, NA, 1, "integer")`). A
-#'   missing `n` or `items_averaged` does not if `x` passes with 1 in its
-#'   place, since copies of the values have the same mean (`TRUE`), and a
-#'   missing `x` does not if every mean with `digits_x` decimal places passes,
-#'   as from `n * items_averaged = 10^digits_x` on (`TRUE`).
+#'   infinite, if `n` or `items_averaged` is not a positive whole number, or if
+#'   a missing value could decide the case either way. See
+#'   `vignette("technical-notes")`, section *Missing values*, on which cases a
+#'   missing value leaves open.
 #'
 #' @seealso [`grim_explain()`] to explain a result in plain words,
 #'   [`grim_map()`] for data frames, [`grim_values()`] for the means that `n`

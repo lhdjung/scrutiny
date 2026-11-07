@@ -75,16 +75,10 @@ use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 \value{
 Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items_averaged} are consistent,
 \code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
-infinite, if \code{n} or \code{items_averaged} is not a positive whole number, or
-if a missing value could decide the case either way.
-
-A missing \code{digits_x} does not if \code{x} fails with the decimal places it
-shows, which it has at least (\code{FALSE}), or passes with so many that only
-\code{x} itself is left (\code{TRUE}, as \code{grim(5.2, 5, NA, 1, "integer")}). A
-missing \code{n} or \code{items_averaged} does not if \code{x} passes with 1 in its
-place, since copies of the values have the same mean (\code{TRUE}), and a
-missing \code{x} does not if every mean with \code{digits_x} decimal places passes,
-as from \code{n * items_averaged = 10^digits_x} on (\code{TRUE}).
+infinite, if \code{n} or \code{items_averaged} is not a positive whole number, or if
+a missing value could decide the case either way. See
+\code{vignette("technical-notes")}, section \emph{Missing values}, on which cases a
+missing value leaves open.
 }
 \description{
 \code{grim()} checks whether a reported mean of integer data is
