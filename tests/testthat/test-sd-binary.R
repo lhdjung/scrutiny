@@ -87,6 +87,7 @@ test_that("`sd_meaning` gives the population SD and the standard error", {
   1e200 |> sd_binary_groups(3e200, sd_meaning = "se") |> expect_equal(sqrt(0.25 * 0.75 / (4e200 - 1)))
   127 |> sd_binary_groups(153, sd_meaning = "sd_sample_or_pop") |> expect_error("can't be \"sd_sample_or_pop\"", fixed = TRUE)
   127 |> sd_binary_groups(153, sd_meaning = "var")              |> expect_error("sd_meaning")
+  127 |> sd_binary_groups(153, sd_meaning = c("sd_pop", "se"))   |> expect_error("must have length 1")
 })
 
 

@@ -396,6 +396,10 @@ sd_denominator_ratio <- function(n, sd_meaning) {
 # `grimmer_values()`: `"sd_sample_or_pop"` stands for two, which give different
 # values for the same data. Returns `sd_meaning` matched.
 check_sd_meaning_single <- function(sd_meaning) {
+  # Else `arg_match_in_export()` names a valid first value as the culprit:
+  if (!identical(sd_meaning, SD_MEANINGS)) {
+    check_length(sd_meaning, 1L)
+  }
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
   if (sd_meaning == "sd_sample_or_pop") {
     name_fn <- name_last_export()
