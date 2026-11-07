@@ -187,3 +187,23 @@ test_that("`rows_delete()`, `rows_update()`, and `rows_patch()` pass, as they ad
   out |> dplyr::rows_upsert(new, by = c("x", "n")) |> expect_error("Can't combine mapper output")
   out |> dplyr::rows_append(new)                   |> expect_error("Can't combine mapper output")
 })
+
+
+test_that("rows of another call's output can't replace rows", {
+  # Their verdicts would be read under this call's settings. `[<-` assigns
+  # column by column, so it passed the guard, and so did `rows_update()`:
+  out <- tibble::tibble(x = c(5.19, 5.18), n = c(28, 28)) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  other <- grim_map(out[1:2], digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up")
+
+  expect_error(out[1L, ] <- other[2L, ], "different mapper calls")
+  out |> dplyr::rows_update(other[1L, ], by = c("x", "n")) |> expect_error("different mapper calls")
+
+  # Rows of the same output and plain values still do:
+  copy <- out
+  copy[1L, ] <- out[2L, ]
+  copy$x |> expect_equal(c(5.18, 5.18))
+  copy[2L, "x"] <- 5.17
+  copy[2L, ] <- tibble::as_tibble(out[1L, ])
+  copy$x |> expect_equal(c(5.18, 5.19))
+})

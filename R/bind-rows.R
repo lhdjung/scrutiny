@@ -49,6 +49,24 @@ register_bind_methods <- function(class) {
       registerS3method("vec_cast", key, vec_cast_scrutiny, envir = ns)
     }
   }
+  registerS3method("[<-", class, subassign_scrutiny, envir = baseenv())
+}
+
+
+# tibble's `[<-` assigns column by column, so the methods above never see the
+# rows of another call's output that replace rows here:
+subassign_scrutiny <- function(x, i, j, ..., value) {
+  if (inherits(value, ls(bind_classes)) && nrow(value) > 0L) {
+    check_same_mapper_call(
+      x,
+      value,
+      "x",
+      "value",
+      rlang::caller_env(),
+      allow_plain = TRUE
+    )
+  }
+  NextMethod()
 }
 
 
@@ -96,9 +114,19 @@ vec_cast_scrutiny <- function(
   to_arg = "",
   call = rlang::caller_env()
 ) {
-  # `x` is cast to `to`, which comes first, as in `rows_append(to, x)`:
-  if (nrow(x) > 0L && !cast_adds_no_rows(call)) {
-    check_same_mapper_call(to, x, to_arg, x_arg, call)
+  # `x` is cast to `to`, which comes first, as in `rows_append(to, x)`. Values
+  # that replace others in rows that are there may be plain data, as from
+  # `mutate()`, but not another call's output, whose verdicts would be read
+  # under this call's settings:
+  if (nrow(x) > 0L) {
+    check_same_mapper_call(
+      to,
+      x,
+      to_arg,
+      x_arg,
+      call,
+      allow_plain = cast_adds_no_rows(call)
+    )
   }
   vctrs::df_cast(x, to, ..., x_arg = x_arg, to_arg = to_arg, call = call) |>
     restore_scrutiny(to)
@@ -107,8 +135,9 @@ vec_cast_scrutiny <- function(
 
 # `dplyr::rows_delete()`, `rows_update()`, and `rows_patch()` cast their `y`
 # to the mapper output to match its rows, but add none, like `filter()` and
-# `mutate()`, so they pass. `rows_patch()` also casts in `vctrs::vec_assign()`,
-# which replaces values in rows that are there, like `rows_update()`. `call` is the frame of the casting function:
+# `mutate()`, so plain data pass. `rows_patch()` also casts in
+# `vctrs::vec_assign()`, which replaces values in rows that are there, like
+# `rows_update()`. `call` is the frame of the casting function:
 cast_adds_no_rows <- function(call) {
   if (!is.environment(call)) {
     return(FALSE)
