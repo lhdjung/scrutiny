@@ -51,6 +51,12 @@ grimmer_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_a
 
 Through the integers, a statistic computed from several groups, such as a *t*-value, can be compared exactly with its reported value. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
 
+`grimmer_closest()` returns the one pair whose SD is closest to the reported one, like `grim_closest()` for means. For an inconsistent value set, this shows how far off the SD is:
+
+```{r}
+grimmer_closest(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+```
+
 ## A single value set: `grimmer_plot_line()`
 
 `grimmer_plot_line()` draws the test for a single value set, like `grim_plot_line()` does for means; it helps to explain a result. It shows the SDs that could have been reported around the reported one and marks those that a sample with the given mean and size can have:
