@@ -230,6 +230,13 @@ test_that("`explain_print()` doesn't print an `explanation` column of the user's
   data |> explain_print(1)                    |> expect_error("already has an `explanation` column")
 })
 
+test_that("an `explanation` column of scrutiny's own passes at another console width", {
+  data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> explain_map()
+  rlang::local_options(width = 50)
+  data |> explain_print(1)                    |> expect_output("x = 7.22")
+  data |> explain_map()                       |> expect_no_error()
+})
+
 test_that("`explain_map()` and `explain_print()` only take mapper output", {
   pigs1                                       |> explain_map()   |> expect_error("must be the output")
   pigs1                                       |> explain_print() |> expect_error("must be the output")

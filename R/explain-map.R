@@ -38,7 +38,7 @@ explain_map <- function(data) {
 
 #' @export
 explain_map.default <- function(data) {
-  hint <- hint_grouped(data, "explain_map(data)")
+  hint <- hint_grouped(data, paste0(name_last_export(), "(data)"))
   if (is.null(hint)) {
     hint <- "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
     work as well."
@@ -134,11 +134,13 @@ add_explanation_col <- function(
       args = args
     )
 
-  # A column from an earlier call is the same, but any other is the user's:
+  # A column from an earlier call is the same, but any other is the user's.
+  # The lines were wrapped at the console width of that call:
+  squish <- function(text) gsub("\\s+", " ", text)
   if (
     "explanation" %in%
       colnames(data) &&
-      !identical(data$explanation, explanations)
+      !identical(squish(data$explanation), squish(explanations))
   ) {
     abort_in_export(
       "`data` already has an `explanation` column.",
