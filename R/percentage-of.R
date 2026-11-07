@@ -140,9 +140,6 @@ percentage_of_any_n <- function(
   threshold,
   symmetric
 ) {
-  if (is.na(absolute)) {
-    return(NA)
-  }
   bounds <- roundwork::bound_numerators(
     percentage / 100,
     digits + 2L,
@@ -152,6 +149,13 @@ percentage_of_any_n <- function(
   )
   lower <- bounds$lower
   upper <- bounds$upper
+
+  # With the count missing, too, some count and `n` give any share from 0 on,
+  # and others don't; none give a share below 0:
+  if (is.na(absolute)) {
+    below_zero <- upper < 0 || (upper == 0 && !bounds$incl_upper)
+    return(if (below_zero) FALSE else NA)
+  }
 
   if (absolute == 0) {
     above_lower <- lower < 0 || (lower == 0 && bounds$incl_lower)

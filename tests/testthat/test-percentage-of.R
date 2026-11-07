@@ -119,6 +119,9 @@ test_that("a missing `digits_percentage` or `n` that can't change the verdict do
   # Some `n` passes, others fail:
   40       |> percentage_of(33.3, NA, 1)  |> expect_equal(NA)
   NA       |> percentage_of(33.3, NA, 1)  |> expect_equal(NA)
+  # No count gives a negative share, out of any `n`; this was `NA`:
+  NA       |> percentage_of(-5, NA, 0)    |> expect_false()
+  NA       |> percentage_of(0, NA, 0)     |> expect_equal(NA)
 
   # Every `n` that the verdict rules out fails:
   set.seed(sweep_seed(1107L))
