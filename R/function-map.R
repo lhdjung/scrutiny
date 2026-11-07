@@ -427,6 +427,16 @@ function_map <- function(
           names(index) <- names(index_given)
           cols_renamed <- which(!colnames(data) %in% colnames(data_given))
           names(cols_renamed) <- colnames(data)[cols_renamed]
+          # Such a column has a role in the test, so it is an error; the
+          # message names it as the user knows it:
+          if (anyNA(index)) {
+            check_variadic_cols(
+              index = index_given,
+              data = data_given,
+              spoken_for = setdiff(colnames(data_given), colnames(data)),
+              name = `!!`(.reported_variadic)
+            )
+          }
           c(index[!is.na(index)], if (anyNA(index)) cols_renamed)
         },
         vctrs_error_subscript_oob = function(cnd) {

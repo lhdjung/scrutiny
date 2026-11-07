@@ -71,7 +71,8 @@ test_that("`summands` can name a key column as the user knows it", {
   expected <- d |> add_up_to_map(summands = c(a, b), total = sum)
   d |> add_up_to_map(summands = !sum, total = sum)   |> expect_equal(expected)
   d |> add_up_to_map(summands = !total, total = sum) |> expect_equal(expected)
-  d |> add_up_to_map(summands = c(a, sum), total = sum) |> expect_error("selected `total`")
+  # Named as the user knows it, too; it was called `total`:
+  d |> add_up_to_map(summands = c(a, sum), total = sum) |> expect_error("selected `sum`")
   d |> add_up_to_map(summands = !nope, total = sum)     |> expect_error("Column `nope` doesn't exist")
 })
 
@@ -81,7 +82,7 @@ test_that("positions in `summands` count in `data` as given", {
   expected <- d |> add_up_to_map(summands = c(b, c), total = sum)
   expected$consistency |> expect_true()
   d |> add_up_to_map(summands = 2:3, total = sum)        |> expect_equal(expected)
-  d |> add_up_to_map(summands = last_col(), total = sum) |> expect_error("selected `total`")
+  d |> add_up_to_map(summands = last_col(), total = sum) |> expect_error("selected `sum`")
 })
 
 
