@@ -77,8 +77,8 @@ With \code{zoom = "wide"}, the row runs from the whole number at or below \code{
 the next one up. With \code{items_averaged = 1}, about \code{n} of the values in
 this unit are attainable, or all if \code{n} exceeds \code{10 ^ digits_x}. With
 \code{x_meaning = "percentage"}, the unit is that of the proportion GRIM
-tests, so the row runs from 0\% to 100\%, and \code{n + 1} values are
-attainable. Squares too narrow to be seen as such are drawn as ticks of
+tests, so the row runs from 0\% to 100\%, and about \code{n + 1} values are
+attainable, or all if \code{n} exceeds \code{10 ^ (digits_x + 2)}. Squares too narrow to be seen as such are drawn as ticks of
 the same height.
 
 The strip behind the squares is the range of unrounded means that would
