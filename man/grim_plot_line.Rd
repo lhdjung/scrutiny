@@ -9,6 +9,7 @@ grim_plot_line(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -23,6 +24,11 @@ grim_plot_line(
 \item{x, n, digits_x, items_averaged, x_meaning, rounding, threshold, symmetric}{The
 same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
 length 1.}
+
+\item{data_type}{String. \code{"integer"} if the values are whole numbers,
+as in \code{\link[=grim]{grim()}}. There is no default, so that every call states
+this assumption. \code{"continuous"} and \code{NA} are errors: if the data may
+be continuous, there are no values to draw.}
 
 \item{zoom}{String. How much of the row to show: \code{"close"} (the default)
 shows the values around \code{x}, so that the marker and the strip behind it
@@ -86,10 +92,10 @@ so a square on that edge does not count.
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
 # no square stands where the marker points.
-grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # With `n = 26`, it is:
-grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # The same for a percentage:
 grim_plot_line(
@@ -97,6 +103,7 @@ grim_plot_line(
   n = 40,
   digits_x = 1,
   items_averaged = 1,
+  data_type = "integer",
   x_meaning = "percentage"
 )
 }

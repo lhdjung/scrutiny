@@ -11,6 +11,7 @@ grimmer_values(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
@@ -33,6 +34,12 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
+
+\item{data_type}{String. \code{"integer"} if the values are whole numbers,
+as in \code{\link[=grimmer]{grimmer()}}. There is no default, so that every call states
+this assumption. \code{"continuous"} is an error: such data can have any
+value that would be reported as the one given, so there are none to
+list. Under \code{NA}, a value set is undecidable unless no data can have it.}
 
 \item{sd_meaning}{String. As in \code{\link[=grimmer]{grimmer()}}, but \code{"sd_sample_or_pop"} is
 not allowed: the same sum of squares gives a different SD under each
@@ -104,7 +111,8 @@ grimmer_values(
   n = 31,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 
 # With one decimal place, several pairs round to the same values:
@@ -114,7 +122,8 @@ grimmer_values(
   n = 30,
   digits_x = 1,
   digits_sd = 1,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 
 # None at all if the value set is inconsistent:
@@ -124,7 +133,8 @@ grimmer_values(
   n = 35,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 }
 \seealso{

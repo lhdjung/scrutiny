@@ -4,10 +4,14 @@
 \alias{grim_grid}
 \title{GRIM results on a grid of sample sizes and means}
 \usage{
-grim_grid(digits, rounding = "up_or_down", threshold = 5)
+grim_grid(digits, data_type, rounding = "up_or_down", threshold = 5)
 }
 \arguments{
 \item{digits}{Integer. Number of decimal places, from 1 to 3.}
+
+\item{data_type}{String. \code{"integer"} if the values are whole numbers, as in
+\code{\link[=grim]{grim()}}. Under \code{"continuous"}, every cell is consistent, and under
+\code{NA}, the inconsistent ones are \code{NA}.}
 
 \item{rounding, threshold}{The same as in \code{\link[=grim]{grim()}}.}
 }
@@ -41,9 +45,9 @@ takes about 20 seconds for three decimal places. Four or more would mean a
 grid of 100 million cells, so \code{digits} is at most 3.
 }
 \examples{
-grim_grid(digits = 1)
+grim_grid(digits = 1, data_type = "integer")
 
 # Share of means ruled out per sample size:
-grim_grid(digits = 2) |>
+grim_grid(digits = 2, data_type = "integer") |>
   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 }

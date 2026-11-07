@@ -8,34 +8,44 @@ test_that("cached grids equal computed ones", {
 })
 
 test_that("`grim_grid()` has every cell, marked as `grim()` marks it", {
-  grid <- grim_grid(1, rounding = "even")
+  grid <- grim_grid(1, rounding = "even", data_type = "integer")
   grid |> nrow() |> expect_equal(9 * 10)
   grid$frac |> grim(grid$n, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "even") |> expect_identical(grid$consistency)
 })
 
 test_that("the inconsistent cells of `grim_grid()` are the cached ones", {
-  grid <- grim_grid(2)
+  grid <- grim_grid(2, data_type = "integer")
   grid[!grid$consistency, c("frac", "n")] |> expect_identical(GRIM_GRIDS[["2_up_or_down"]])
 })
 
 test_that("`ties_*` methods and whole-number noise find the cached grid", {
-  1           |> grim_grid("ties_up") |> expect_identical(grim_grid(1, "up"))
-  (2 + 1e-12) |> grim_grid()          |> expect_identical(grim_grid(2))
+  1           |> grim_grid(data_type = "integer", "ties_up") |> expect_identical(grim_grid(1, data_type = "integer", "up"))
+  (2 + 1e-12) |> grim_grid(data_type = "integer")            |> expect_identical(grim_grid(2, data_type = "integer"))
 })
 
 test_that("uncached methods are computed with their `threshold`", {
-  1 |> grim_grid("up_from", threshold = 5) |> expect_identical(grim_grid(1, "up"))
-  1 |> grim_grid_inconsistent("up_from", threshold = 9) |> expect_identical(generate_grim_grid(1, "up_from", 9))
+  1 |> grim_grid(data_type = "integer", "up_from", threshold = 5) |> expect_identical(grim_grid(1, data_type = "integer", "up"))
+  1 |> grim_grid_inconsistent("up_from", threshold = 9)           |> expect_identical(generate_grim_grid(1, "up_from", 9))
+})
+
+test_that("`data_type` is required and decides the cells as in `grim()`", {
+  integer <- grim_grid(1, data_type = "integer")
+  1 |> grim_grid(data_type = "continuous") |> _$consistency |> expect_equal(rep(TRUE, nrow(integer)))
+  1 |> grim_grid(data_type = NA)           |> _$consistency |> expect_equal(ifelse(integer$consistency, TRUE, NA))
+  integer$frac |> grim(integer$n, digits_x = 1, items_averaged = 1, data_type = NA) |> expect_equal(grim_grid(1, data_type = NA)$consistency)
+  1 |> grim_grid()                         |> expect_error("Need to specify `data_type`")
+  1 |> grim_grid(data_type = "discrete")   |> expect_error("data_type")
+  1 |> grim_grid(data_type = factor("integer")) |> expect_error("not a factor")
 })
 
 test_that("invalid input is an error", {
-  grim_grid() |> expect_error("`digits` is missing")
+  grim_grid(data_type = "integer") |> expect_error("`digits` is missing")
   for (digits in list(0, 4, 1.5, NA, Inf, NaN, TRUE, "2")) {
-    digits |> grim_grid() |> expect_error("must be 1, 2, or 3")
+    digits |> grim_grid(data_type = "integer") |> expect_error("must be 1, 2, or 3")
   }
-  NULL    |> grim_grid()                                  |> expect_error("must have length 1")
-  c(1, 2) |> grim_grid()                                  |> expect_error("must have length 1")
-  1       |> grim_grid(rounding = c("up", "down"))        |> expect_error("`rounding` must have length 1")
-  1       |> grim_grid("up_from", threshold = c(5, 6))    |> expect_error("`threshold` must have length 1")
-  1       |> grim_grid(rounding = "nope")                 |> expect_error("rounding")
+  NULL    |> grim_grid(data_type = "integer")                                  |> expect_error("must have length 1")
+  c(1, 2) |> grim_grid(data_type = "integer")                                  |> expect_error("must have length 1")
+  1       |> grim_grid(data_type = "integer", rounding = c("up", "down"))      |> expect_error("`rounding` must have length 1")
+  1       |> grim_grid(data_type = "integer", "up_from", threshold = c(5, 6))  |> expect_error("`threshold` must have length 1")
+  1       |> grim_grid(data_type = "integer", rounding = "nope")               |> expect_error("rounding")
 })

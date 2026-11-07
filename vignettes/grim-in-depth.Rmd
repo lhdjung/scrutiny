@@ -46,15 +46,15 @@ pigs1 |>
 `grim_values()` returns all means that a sample of `n` integers can have and that would be reported as `x`, each with the whole-number sum behind it:
 
 ```{r}
-grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
-grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
-grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1) # inconsistent: none
+grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
+grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1, data_type = "integer")
+grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer") # inconsistent: none
 ```
 
 `grim_closest()` returns the achievable mean nearest to `x`. If `x` is consistent, that is the nearest one that would be reported as `x`:
 
 ```{r}
-grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 Both functions are vectorized. A reported mean may have one achievable mean, several, or none, so `grim_values()` returns one row per achievable mean, and `case` says which value set it belongs to. An inconsistent value set has no rows:
@@ -64,7 +64,8 @@ grim_values(
   x = c(5.19, 5.19, 5.19),
   n = c(32, 300, 28),
   digits_x = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 ```
 
@@ -74,7 +75,7 @@ To line the values up with the data they came from, number its rows as `case` an
 pigs1 |>
   dplyr::mutate(case = dplyr::row_number()) |>
   dplyr::inner_join(
-    grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1),
+    grim_values(pigs1$x, pigs1$n, digits_x = 2, items_averaged = 1, data_type = "integer"),
     by = "case",
     suffix = c("", "_achievable")
   )
@@ -87,13 +88,13 @@ Once `n * items_averaged` is at least `10^digits_x`, every mean is achievable an
 `grim_plot_line()` draws the test for one value set, which helps to explain a result. Of all means that could have been reported with `digits_x` decimal places, it draws a square for each one that a sample of size `n` can have and leaves the others out. The reported value is marked above the row, and the strip behind the squares is the range of unrounded means that would have been reported as `x`. The value set is consistent if a square stands within the strip:
 
 ```{r, fig.width=7, fig.height=2}
-grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 With `n = 26`, the same mean is consistent:
 
 ```{r, fig.width=7, fig.height=2}
-grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
 `grimmer_plot_line()` is the same figure over standard deviations; see `vignette("grimmer-in-depth")`.
@@ -103,7 +104,7 @@ grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
 `grim_grid()` returns the grid behind the raster of `grim_plot_grid()` as a tibble, with GRIM's result for every cell. It is useful for studying GRIM itself, e.g., the share of means it rules out at each sample size:
 
 ```{r}
-grim_grid(digits = 2) |>
+grim_grid(digits = 2, data_type = "integer") |>
   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 ```
 

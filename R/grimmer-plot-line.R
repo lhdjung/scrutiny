@@ -15,6 +15,10 @@
 #' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning
 #'   The same as in [`grimmer()`], but `x`, `sd`, `n`, and `items_averaged`
 #'   must have length 1.
+#' @param data_type String. `"integer"` if the values are whole numbers,
+#'   as in [`grimmer()`]. There is no default, so that every call states
+#'   this assumption. `"continuous"` and `NA` are errors: if the data may
+#'   be continuous, there are no values to draw.
 #' @inheritParams grim_plot_line
 #'
 #' @details By default, the row shows the SDs around `sd`, as in
@@ -38,7 +42,8 @@
 #'   n = 35,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #' grimmer_plot_line(
 #'   x = 5.23,
@@ -46,7 +51,8 @@
 #'   n = 31,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 
 grimmer_plot_line <- function(
@@ -56,14 +62,15 @@ grimmer_plot_line <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
   zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
-  color_attainable = "grey75",
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE
+  color_attainable = "grey75"
 ) {
   if (missing(digits_x)) {
     error_digits_missing(x)
@@ -78,6 +85,10 @@ grimmer_plot_line <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+  check_data_type_whole(data_type, allow_na = FALSE)
   # As in the test itself: a string is a mistake, not an undecidable value:
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))

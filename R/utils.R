@@ -842,15 +842,55 @@ error_data_type_missing <- function() {
   msg_column <- if (grepl("_map", name_fn)) {
     " or give `data` a `data_type` column"
   }
+  # The functions that list or draw the values whole numbers can have, such as
+  # `grim_values()`; see `check_data_type_whole()`:
+  msg_continuous <- if (grepl("_values$|_closest$|_plot_line$", name_fn)) {
+    "`{name_fn}()` only applies to whole numbers."
+  } else {
+    "The test does not apply, so the result is `TRUE` unless no data at all \\
+    can have the value set."
+  }
 
   abort_in_export(
     "Need to specify `data_type`{msg_column}.",
     "*" = "{.val integer}: the values are whole numbers, such as answers on a \\
     rating scale or counts.",
     "*" = "{.val continuous}: the values are not whole numbers, such as \\
-    reaction times. The test does not apply, so the result is `TRUE` \\
-    unless no data at all can have the value set."
+    reaction times. {msg_continuous}"
   )
+}
+
+
+# `data_type` in the functions that list or draw the values that whole numbers
+# can have, such as `grim_values()`. Continuous data have no such values, so
+# `"continuous"` is an error, but the argument is required all the same, so
+# that every call states what it assumes. Returns `TRUE` for `"integer"` and
+# `FALSE` for `NA`, which leaves the value set undecidable, unless `allow_na`
+# is `FALSE`, as for a plot, which then has nothing to draw.
+check_data_type_whole <- function(data_type, allow_na = TRUE) {
+  check_length(data_type, 1L)
+  if (is.factor(data_type)) {
+    error_data_type_factor()
+  }
+  if (is.na(data_type)) {
+    if (allow_na) {
+      return(FALSE)
+    }
+    abort_in_export(
+      "`data_type` can't be `NA` here.",
+      "i" = "If the data may be continuous, there are no values to draw."
+    )
+  }
+  if (arg_match_in_export(data_type, DATA_TYPES) == "continuous") {
+    name_fn <- name_last_export()
+    abort_in_export(
+      "`{name_fn}()` only applies to whole numbers.",
+      "x" = "`data_type` is {.val continuous}.",
+      "i" = "Continuous data can have any value that would be reported as \\
+      the one given, so there are no values to list or draw."
+    )
+  }
+  TRUE
 }
 
 

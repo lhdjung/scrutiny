@@ -286,11 +286,11 @@ test_that("a missing `items_averaged` is a bespoke error everywhere", {
 
   5.19 |> grim(28, 2, data_type = "integer")                         |> expect_error("Need to specify `items_averaged`")
   5.19 |> grimmer(1.2, 28, 2, 1, data_type = "integer")              |> expect_error("Need to specify `items_averaged`")
-  5.19 |> grim_values(28, 2)                  |> expect_error("Need to specify `items_averaged`")
-  5.19 |> grim_closest(28, 2)                 |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_values(28, 2, data_type = "integer")                  |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_closest(28, 2, data_type = "integer")                 |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_exp_incon(28, 2, data_type = "integer")             |> expect_error("Need to specify `items_averaged`")
   5.19 |> grim_explain(28, 2, data_type = "integer")                 |> expect_error("Need to specify `items_averaged`")
-  5.19 |> grim_plot_line(28, 2)             |> expect_error("Need to specify `items_averaged`")
+  5.19 |> grim_plot_line(28, 2, data_type = "integer")             |> expect_error("Need to specify `items_averaged`")
   df   |> grim_map(digits_x = 2, data_type = "integer")              |> expect_error("an `items_averaged` column")
   df   |> grim_map_seq(digits_x = 2, data_type = "integer")          |> expect_error("an `items_averaged` column")
   tibble::tibble(x1 = 5.2, x2 = 5.4, n = 40L) |> grim_map_total_n(digits_x = 1, data_type = "integer") |> expect_error("an `items_averaged` column")
@@ -419,10 +419,10 @@ test_that("invalid rounding arguments are errors from the function called", {
     expect_error("`symmetric` must not be")
 
   5.19 |> grim(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)                 |> caller_of() |> expect_equal("grim")
-  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, rounding = 2)          |> caller_of() |> expect_equal("grim_values")
+  5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)          |> caller_of() |> expect_equal("grim_values")
   5.19 |> grim_explain(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)         |> caller_of() |> expect_equal("grim_explain")
   5.19 |> grim_exp_incon(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)     |> caller_of() |> expect_equal("grim_exp_incon")
-  5.19 |> grim_plot_line(28, digits_x = 2, items_averaged = 1, rounding = 2)     |> caller_of() |> expect_equal("grim_plot_line")
+  5.19 |> grim_plot_line(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2)     |> caller_of() |> expect_equal("grim_plot_line")
   tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2) |> caller_of() |> expect_equal("grim_map")
   tibble::tibble(x = 5.19, n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = 2) |> caller_of() |> expect_equal("grim_map_seq")
   # With no rows, there is no first row to fail on:
@@ -462,8 +462,8 @@ test_that("values whose rounding bounds a double cannot hold are refused, not te
   # Even `x = 0` has bounds, so a huge `n` is refused. This was FALSE:
   0 |> grimmer(0, 201, 0, 15, items_averaged = 1e14 + 6, data_type = "integer") |> expect_error("too large for an exact test")
   # `grim_values()` and `grim_closest()` are refused like `grim()`:
-  361272800442.516 |> grim_values(333, 3, 1)  |> expect_error("too large for an exact test")
-  361272800442.516 |> grim_closest(333, 3, 1) |> expect_error("too large for an exact test")
+  361272800442.516 |> grim_values(333, 3, 1, data_type = "integer")  |> expect_error("too large for an exact test")
+  361272800442.516 |> grim_closest(333, 3, 1, data_type = "integer") |> expect_error("too large for an exact test")
 })
 
 test_that("a decimal `threshold` counts toward the digits that must stay exact", {

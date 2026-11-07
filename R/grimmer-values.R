@@ -10,12 +10,18 @@ grimmer_values_scalar <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE
 ) {
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  # `"continuous"` is an error; a missing `data_type` is an error in
+  # `grimmer_scalar()`, after the checks for the arguments before it:
+  if (!missing(data_type)) {
+    check_data_type_whole(data_type)
+  }
 
   # The same sum of squares gives a different SD under each premise, so the
   # values of the two can't be told apart in one table:
@@ -35,7 +41,7 @@ grimmer_values_scalar <- function(
     digits_x = digits_x,
     digits_sd = digits_sd,
     items_averaged = items_averaged,
-    data_type = "integer",
+    data_type = data_type,
     rounding = rounding,
     threshold = threshold,
     symmetric = symmetric,
@@ -45,8 +51,10 @@ grimmer_values_scalar <- function(
   # As a double: `n * (n - 1)` overflows an integer from 46341:
   n_dev <- sd_denominator(as.numeric(n), sd_meaning)
 
-  # One row of `NA` if undecidable, no rows if inconsistent:
-  if (is.na(consistency)) {
+  # One row of `NA` if undecidable, no rows if inconsistent. With `data_type`
+  # missing, a value set that whole numbers can have is undecidable, too:
+  # continuous data have other values.
+  if (is.na(consistency) || (consistency && is.na(data_type))) {
     return(grimmer_values_tibble(
       NA_real_,
       NA_real_,
@@ -263,6 +271,11 @@ grimmer_values_tibble <- function(
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
 #' @inheritParams grimmer
+#' @param data_type String. `"integer"` if the values are whole numbers,
+#'   as in [`grimmer()`]. There is no default, so that every call states
+#'   this assumption. `"continuous"` is an error: such data can have any
+#'   value that would be reported as the one given, so there are none to
+#'   list. Under `NA`, a value set is undecidable unless no data can have it.
 #' @param sd_meaning String. As in [`grimmer()`], but `"sd_sample_or_pop"` is
 #'   not allowed: the same sum of squares gives a different SD under each
 #'   premise, so call `grimmer_values()` once for each. Under `"se"`, the `sd`
@@ -290,7 +303,8 @@ grimmer_values_tibble <- function(
 #'   n = 31,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #'
 #' # With one decimal place, several pairs round to the same values:
@@ -300,7 +314,8 @@ grimmer_values_tibble <- function(
 #'   n = 30,
 #'   digits_x = 1,
 #'   digits_sd = 1,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #'
 #' # None at all if the value set is inconsistent:
@@ -310,7 +325,8 @@ grimmer_values_tibble <- function(
 #'   n = 35,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 
 # The signature mirrors `grimmer_values_scalar()`'s; see `map_value_sets()`.
@@ -321,6 +337,7 @@ grimmer_values <- function(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
   rounding = "up_or_down",
   threshold = 5,
@@ -328,7 +345,15 @@ grimmer_values <- function(
 ) {
   map_value_sets(
     fn = grimmer_values_scalar,
-    along = c("x", "sd", "n", "digits_x", "digits_sd", "items_averaged"),
+    along = c(
+      "x",
+      "sd",
+      "n",
+      "digits_x",
+      "digits_sd",
+      "items_averaged",
+      "data_type"
+    ),
     type = "list"
   ) |>
     bind_cases(PTYPE_GRIMMER_VALUES)

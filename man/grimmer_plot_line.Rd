@@ -11,19 +11,25 @@ grimmer_plot_line(
   digits_x,
   digits_sd,
   items_averaged,
+  data_type,
   sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
   zoom = c("close", "medium", "wide"),
   color_con = "#0047ff",
   color_incon = "#ff2a00",
-  color_attainable = "grey75",
-  rounding = "up_or_down",
-  threshold = 5,
-  symmetric = FALSE
+  color_attainable = "grey75"
 )
 }
 \arguments{
 \item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
 must have length 1.}
+
+\item{data_type}{String. \code{"integer"} if the values are whole numbers,
+as in \code{\link[=grimmer]{grimmer()}}. There is no default, so that every call states
+this assumption. \code{"continuous"} and \code{NA} are errors: if the data may
+be continuous, there are no values to draw.}
 
 \item{zoom}{String. How much of the row to show: \code{"close"} (the default)
 shows the values around \code{x}, so that the marker and the strip behind it
@@ -72,7 +78,8 @@ grimmer_plot_line(
   n = 35,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 grimmer_plot_line(
   x = 5.23,
@@ -80,6 +87,7 @@ grimmer_plot_line(
   n = 31,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 }

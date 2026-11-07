@@ -7,6 +7,7 @@ grim_sums_scalar <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning,
   rounding,
   threshold,
@@ -18,6 +19,10 @@ grim_sums_scalar <- function(
   if (missing(items_averaged)) {
     error_items_missing()
   }
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+  is_integer <- check_data_type_whole(data_type)
 
   # The same type checks as in `grim_scalar()`: a string `n` is a mistake, not
   # an undecidable value set, which `is_decidable_n_items()` would make of it.
@@ -50,6 +55,7 @@ grim_sums_scalar <- function(
   sums <- if (
     !is.finite(x_num) ||
       is.na(digits_x) ||
+      !is_integer ||
       !is_decidable_n_items(n, items_averaged)
   ) {
     c(NA_real_, NA_real_)
@@ -74,6 +80,7 @@ grim_sums_scalar <- function(
     sums = sums,
     n = as.numeric(n),
     n_items = n_items,
+    is_integer = is_integer,
     # Values are returned on the scale of `x`, so that they can be read against
     # it. Internally, a percentage is a decimal number:
     scale = if (is_percentage) 100 else 1
@@ -86,6 +93,7 @@ grim_values_scalar <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -96,6 +104,7 @@ grim_values_scalar <- function(
     n,
     digits_x,
     items_averaged,
+    data_type,
     x_meaning,
     rounding,
     threshold,
@@ -107,6 +116,7 @@ grim_values_scalar <- function(
     # Inconsistent, not undecidable, if `grim()` says so with only `digits_x`
     # missing; see `digits_least()`:
     is_incon <- is.na(digits_x) &&
+      parts$is_integer &&
       isFALSE(grim_scalar(
         x = x,
         n = n,
@@ -157,6 +167,7 @@ grim_closest_scalar <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -167,6 +178,7 @@ grim_closest_scalar <- function(
     n,
     digits_x,
     items_averaged,
+    data_type,
     x_meaning,
     rounding,
     threshold,
@@ -179,7 +191,7 @@ grim_closest_scalar <- function(
     # inconsistent `x` has the same neighbors with the fewest decimal places it
     # can have, and one that is consistent with any is achievable itself; see
     # `digits_least()` and `digits_exact_mean()`.
-    consistency <- if (is.na(digits_x)) {
+    consistency <- if (is.na(digits_x) && parts$is_integer) {
       grim_scalar(
         x = x,
         n = n,
@@ -208,6 +220,7 @@ grim_closest_scalar <- function(
       n = n,
       digits_x = digits_x,
       items_averaged = items_averaged,
+      data_type = data_type,
       x_meaning = x_meaning,
       rounding = rounding,
       threshold = threshold,
@@ -273,7 +286,7 @@ grim_closest_scalar <- function(
 #'   that range are inclusive (see [`roundwork::unround()`]), so the values
 #'   include ties that
 #'   [`base::round()`] may round away from `x`:
-#'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
+#'   `grim_values(1.3, 20, 1, 1, "integer", rounding = "even")` returns 1.25 and 1.35
 #'   along with 1.3.
 #'
 #'   With `items_averaged > 1`, the integers are the respondents' totals
@@ -285,6 +298,11 @@ grim_closest_scalar <- function(
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`].
+#' @param data_type String. `"integer"` if the values are whole numbers,
+#'   as in [`grim()`]. There is no default, so that every call states
+#'   this assumption. `"continuous"` is an error: such data can have any
+#'   value that would be reported as the one given, so there are none to
+#'   list. Under `NA`, a value set is undecidable unless no data can have it.
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, as in
 #'   [`grim()`].
 #' @param rounding,threshold,symmetric The same as in [`grim()`].
@@ -320,16 +338,16 @@ grim_closest_scalar <- function(
 #' @examples
 #' # A mean of 5.19 is consistent with a sample size of 32,
 #' # and there is exactly one way to get there:
-#' grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+#' grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # With a larger sample, several means round to 5.19:
-#' grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
+#' grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # It is not consistent with a sample size of 28...
-#' grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # ...but 5.19 is close to a mean that is achievable:
-#' grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # Both functions are vectorized. In `grim_values()`, `case` is the index of
 #' # the value set, and an inconsistent one has no rows:
@@ -337,13 +355,15 @@ grim_closest_scalar <- function(
 #'   x = c(5.19, 4.2),
 #'   n = c(28, 30),
 #'   digits_x = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #' grim_closest(
 #'   x = c(5.19, 4.2),
 #'   n = c(28, 30),
 #'   digits_x = 2,
-#'   items_averaged = 1
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 
 # The signatures mirror those of the `*_scalar()` functions; see
@@ -353,6 +373,7 @@ grim_values <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -360,7 +381,7 @@ grim_values <- function(
 ) {
   map_value_sets(
     fn = grim_values_scalar,
-    along = c("x", "n", "digits_x", "items_averaged"),
+    along = c("x", "n", "digits_x", "items_averaged", "data_type"),
     type = "list"
   ) |>
     bind_cases(PTYPE_GRIM_VALUES)
@@ -374,6 +395,7 @@ grim_closest <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -381,7 +403,7 @@ grim_closest <- function(
 ) {
   map_value_sets(
     fn = grim_closest_scalar,
-    along = c("x", "n", "digits_x", "items_averaged"),
+    along = c("x", "n", "digits_x", "items_averaged", "data_type"),
     type = "double"
   )
 }

@@ -10,6 +10,7 @@ grim_values(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -21,6 +22,7 @@ grim_closest(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -37,6 +39,12 @@ trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
+
+\item{data_type}{String. \code{"integer"} if the values are whole numbers,
+as in \code{\link[=grim]{grim()}}. There is no default, so that every call states
+this assumption. \code{"continuous"} is an error: such data can have any
+value that would be reported as the one given, so there are none to
+list. Under \code{NA}, a value set is undecidable unless no data can have it.}
 
 \item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, as in
 \code{\link[=grim]{grim()}}.}
@@ -94,7 +102,7 @@ Under \code{rounding = "even"}, or its synonym \code{"ties_even"}, both bounds o
 that range are inclusive (see \code{\link[roundwork:unround]{roundwork::unround()}}), so the values
 include ties that
 \code{\link[base:Round]{base::round()}} may round away from \code{x}:
-\code{grim_values(1.3, 20, 1, 1, rounding = "even")} returns 1.25 and 1.35
+\code{grim_values(1.3, 20, 1, 1, "integer", rounding = "even")} returns 1.25 and 1.35
 along with 1.3.
 
 With \code{items_averaged > 1}, the integers are the respondents' totals
@@ -103,16 +111,16 @@ across the items, so \code{sum} is the sum of the totals.
 \examples{
 # A mean of 5.19 is consistent with a sample size of 32,
 # and there is exactly one way to get there:
-grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # With a larger sample, several means round to 5.19:
-grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # It is not consistent with a sample size of 28...
-grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # ...but 5.19 is close to a mean that is achievable:
-grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # Both functions are vectorized. In `grim_values()`, `case` is the index of
 # the value set, and an inconsistent one has no rows:
@@ -120,13 +128,15 @@ grim_values(
   x = c(5.19, 4.2),
   n = c(28, 30),
   digits_x = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 grim_closest(
   x = c(5.19, 4.2),
   n = c(28, 30),
   digits_x = 2,
-  items_averaged = 1
+  items_averaged = 1,
+  data_type = "integer"
 )
 }
 \references{

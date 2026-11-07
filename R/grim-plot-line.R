@@ -467,6 +467,10 @@ check_comb_value <- function(value, digits, name) {
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
 #'   length 1.
+#' @param data_type String. `"integer"` if the values are whole numbers,
+#'   as in [`grim()`]. There is no default, so that every call states
+#'   this assumption. `"continuous"` and `NA` are errors: if the data may
+#'   be continuous, there are no values to draw.
 #' @param zoom String. How much of the row to show: `"close"` (the default)
 #'   shows the values around `x`, so that the marker and the strip behind it
 #'   stand out, `"medium"` widens this to the nearest attainable value on
@@ -518,10 +522,10 @@ check_comb_value <- function(value, digits, name) {
 #' @examples
 #' # A mean of 5.19 is not consistent with a sample size of 28:
 #' # no square stands where the marker points.
-#' grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#' grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # With `n = 26`, it is:
-#' grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1)
+#' grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "integer")
 #'
 #' # The same for a percentage:
 #' grim_plot_line(
@@ -529,6 +533,7 @@ check_comb_value <- function(value, digits, name) {
 #'   n = 40,
 #'   digits_x = 1,
 #'   items_averaged = 1,
+#'   data_type = "integer",
 #'   x_meaning = "percentage"
 #' )
 
@@ -537,6 +542,7 @@ grim_plot_line <- function(
   n,
   digits_x,
   items_averaged,
+  data_type,
   x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
@@ -555,6 +561,10 @@ grim_plot_line <- function(
     error_items_missing()
   }
   check_length(items_averaged, 1L)
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+  check_data_type_whole(data_type, allow_na = FALSE)
   # As in the test itself: a string is a mistake, not an undecidable value:
   if (!is.numeric(n) && !is.na(n)) {
     check_type(n, c("double", "integer"))

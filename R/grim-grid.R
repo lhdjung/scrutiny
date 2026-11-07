@@ -23,6 +23,9 @@
 #'   grid of 100 million cells, so `digits` is at most 3.
 #'
 #' @param digits Integer. Number of decimal places, from 1 to 3.
+#' @param data_type String. `"integer"` if the values are whole numbers, as in
+#'   [`grim()`]. Under `"continuous"`, every cell is consistent, and under
+#'   `NA`, the inconsistent ones are `NA`.
 #' @param rounding,threshold The same as in [`grim()`].
 #'
 #' @return A tibble with one row per cell of the grid and the columns `frac`
@@ -32,12 +35,17 @@
 #' @export
 #'
 #' @examples
-#' grim_grid(digits = 1)
+#' grim_grid(digits = 1, data_type = "integer")
 #'
 #' # Share of means ruled out per sample size:
-#' grim_grid(digits = 2) |>
+#' grim_grid(digits = 2, data_type = "integer") |>
 #'   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
-grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
+grim_grid <- function(
+  digits,
+  data_type,
+  rounding = "up_or_down",
+  threshold = 5
+) {
   if (missing(digits)) {
     abort_in_export(
       "`digits` is missing.",
@@ -60,6 +68,18 @@ grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
   }
 
   digits <- as.integer(round(digits))
+
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+  check_length(data_type, 1L)
+  if (is.factor(data_type)) {
+    error_data_type_factor()
+  }
+  if (!is.na(data_type)) {
+    data_type <- arg_match_in_export(data_type, DATA_TYPES)
+  }
+
   inconsistent <- grim_grid_inconsistent(digits, rounding, threshold)
 
   # The cells run through `frac` within each `n`, so a cell's row is found from
@@ -68,8 +88,13 @@ grim_grid <- function(digits, rounding = "up_or_down", threshold = 5) {
   grid <- grim_grid_cells(digits)
   rows <- (inconsistent$n - 1L) * (p10 - 1L) + round(inconsistent$frac * p10)
 
+  # Continuous data can have any mean. Not knowing the type leaves open only
+  # the cells that whole numbers can't have, as in `grim()`:
   grid$consistency <- TRUE
-  grid$consistency[rows] <- FALSE
+  if (identical(data_type, "continuous")) {
+    return(grid)
+  }
+  grid$consistency[rows] <- if (is.na(data_type)) NA else FALSE
   grid
 }
 

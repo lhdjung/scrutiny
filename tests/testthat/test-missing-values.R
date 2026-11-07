@@ -58,10 +58,10 @@ test_that("a missing value is `NA` under every rounding method", {
         purrr::pluck("consistency") |>
         expect_equal(c(verdict_first, NA, NA), info = info)
       NA |>
-        grim_values(28, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = symmetric) |>
+        grim_values(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = rounding, symmetric = symmetric) |>
         expect_undecidable()
       NA |>
-        grim_closest(28, digits_x = 2, items_averaged = 1, rounding = rounding, symmetric = symmetric) |>
+        grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = rounding, symmetric = symmetric) |>
         expect_na()
       NA_real_ |>
         roundwork::unround(digits = 2, rounding = rounding, symmetric = symmetric) |>
@@ -151,13 +151,13 @@ test_that("`roundwork::unround()`, `grim_values()`, and `grim_closest()` propaga
   bounds$lower |> expect_equal(c(0.525, NA))
   bounds$upper |> expect_equal(c(0.535, NA))
 
-  values <- c(5.19, NA) |> grim_values(c(32, 32), digits_x = 2, items_averaged = 1)
+  values <- c(5.19, NA) |> grim_values(c(32, 32), digits_x = 2, items_averaged = 1, data_type = "integer")
   values$case |> expect_equal(1:2)
   values$x    |> expect_equal(c(5.1875, NA))
   values$sum  |> expect_equal(c(166, NA))
 
   c(5.19, NA) |>
-    grim_closest(c(28, 28), digits_x = 2, items_averaged = 1) |>
+    grim_closest(c(28, 28), digits_x = 2, items_averaged = 1, data_type = "integer") |>
     expect_equal(c(5.178571, NA), tolerance = 1e-6)
 })
 
@@ -298,8 +298,8 @@ test_that("`grimmer()` names the infinity as its reason", {
 
 test_that("the achievable means behind an infinity are `NA`", {
   # `seq()` used to abort with "'from' must be a finite number":
-  Inf |> grim_values(28, digits_x = 2, items_averaged = 1)  |> expect_undecidable()
-  Inf |> grim_closest(28, digits_x = 2, items_averaged = 1) |> expect_na()
+  Inf |> grim_values(28, digits_x = 2, items_averaged = 1, data_type = "integer")  |> expect_undecidable()
+  Inf |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_na()
 })
 
 
@@ -322,8 +322,8 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   5.2  |> grim(28, digits_x = NA, items_averaged = 1, data_type = "integer")                            |> expect_na()
   3    |> grimmer(1.58, 5, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer")     |> expect_na()
   0.53 |> debit(0.50, 1683, digits_x = NA, digits_sd = 2, data_type = "integer")                        |> expect_na()
-  5.2  |> grim_values(28, digits_x = NA, items_averaged = 1) |> expect_undecidable()
-  5.2  |> grim_closest(28, digits_x = NA, items_averaged = 1)                    |> expect_na()
+  5.2  |> grim_values(28, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_undecidable()
+  5.2  |> grim_closest(28, digits_x = NA, items_averaged = 1, data_type = "integer")                    |> expect_na()
 
   out <- tibble::tibble(x = c(5.19, 5.2), n = 28L) |> grim_map(digits_x = c(2, NA), items_averaged = 1, data_type = "integer")
   out$consistency |> expect_equal(c(FALSE, NA))
@@ -344,8 +344,8 @@ test_that("a value set that is inconsistent with the decimal places it shows is 
   2.5  |> grimmer(1.05, 10, digits_x = 1, digits_sd = NA, items_averaged = 1, data_type = "integer")        |> expect_false()
   2.5  |> grimmer(1.05, 10, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer")       |> expect_false()
   0.35 |> debit(0.11, 20, digits_x = 2, digits_sd = NA, data_type = "integer")                              |> expect_false()
-  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1) |> nrow()                                      |> expect_equal(0L)
-  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1)                                              |> expect_equal(145 / 28)
+  5.19 |> grim_values(28, digits_x = NA, items_averaged = 1, data_type = "integer") |> nrow()                                      |> expect_equal(0L)
+  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1, data_type = "integer")                                              |> expect_equal(145 / 28)
   grimmer_scalar(2.5, 1.05, 10, 1, NA, 1, show_reason = TRUE, data_type = "integer")[[2L]]                  |> expect_equal("GRIMMER inconsistent (test 1)")
 
   # Continuous data: a single value has a population SD of 0, which 0.5 is
@@ -403,8 +403,8 @@ test_that("a value set that is consistent with any number of decimal places is s
   3    |> grimmer(0, 5, digits_x = NA, digits_sd = NA, items_averaged = 1, data_type = "integer")                 |> expect_true()
   3    |> grimmer(1, 3, digits_x = 0, digits_sd = NA, items_averaged = 1, data_type = "integer")                  |> expect_true()
   0.5  |> debit(0.5, 4, digits_x = NA, digits_sd = NA, data_type = "integer", sd_meaning = "sd_pop")              |> expect_true()
-  5.2  |> grim_closest(5, digits_x = NA, items_averaged = 1)                                                      |> expect_equal(5.2)
-  5.2  |> grim_values(5, digits_x = NA, items_averaged = 1) |> expect_undecidable()
+  5.2  |> grim_closest(5, digits_x = NA, items_averaged = 1, data_type = "integer")                                                      |> expect_equal(5.2)
+  5.2  |> grim_values(5, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_undecidable()
   # Not under `"mean_n"`, where no data stand behind the SD:
   0.5  |> debit(0.5, 4, digits_x = NA, digits_sd = NA, data_type = "integer", sd_meaning = "sd_pop", formula = "mean_n") |> expect_na()
   # Consistent with the decimal places shown, but not with all of them:

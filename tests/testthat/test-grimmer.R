@@ -1266,10 +1266,10 @@ test_that("explanations agree with the test under every SD type", {
 })
 
 test_that("`grimmer_plot_line()` takes `sd_meaning`", {
-  4.4 |> grimmer_plot_line(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop") |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_line(0, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")        |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_line(0.5, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop")      |> expect_s3_class("ggplot")
-  4   |> grimmer_plot_line(0, 1, 1, 2, 1)                            |> expect_error("at least 2")
+  4.4 |> grimmer_plot_line(1.62, 5, 1, 2, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")        |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0.5, 1, 1, 2, 1, sd_meaning = "sd_sample_or_pop", data_type = "integer")      |> expect_s3_class("ggplot")
+  4   |> grimmer_plot_line(0, 1, 1, 2, 1, data_type = "integer")                            |> expect_error("at least 2")
 })
 
 
@@ -1314,7 +1314,7 @@ test_that("explanations and the comb plot agree with the test under an SE", {
   explanation |> expect_match("5 * (5 - 1) * SE^2", fixed = TRUE)
   explanation |> expect_match("==> Consistent", fixed = TRUE)
 
-  4.4 |> grimmer_plot_line(0.81, 5, 1, 2, 1, sd_meaning = "se") |> expect_s3_class("ggplot")
+  4.4 |> grimmer_plot_line(0.81, 5, 1, 2, 1, sd_meaning = "se", data_type = "integer") |> expect_s3_class("ggplot")
 })
 
 test_that("sums of squares beyond 2^53 are compared exactly", {
@@ -1350,7 +1350,7 @@ test_that("a large mean is exact as long as the sums of squares are", {
   x <- 200001
   sd_sample <- sqrt(1000^2 * (1 - 1 / 1000) / 999)
   grimmer(x, round(sd_sample, 2), 1000, 2, 2, 1, data_type = "integer") |> expect_true()
-  grimmer_values(x, round(sd_sample, 2), 1000, 2, 2, 1) |> nrow() |> expect_gt(0L)
+  grimmer_values(x, round(sd_sample, 2), 1000, 2, 2, 1, data_type = "integer") |> nrow() |> expect_gt(0L)
   # Random samples of whole numbers around 2e5 pass:
   set.seed(sweep_seed(2026L))
   for (i in 1:20) {
@@ -1368,7 +1368,7 @@ test_that("only the sums that GRIMMER tests count toward its limit", {
 test_that("an integer `n` doesn't overflow in the shift of a large mean", {
   5000.12 |> grimmer(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_no_warning()
   grimmer_explain(5000.12, 10.12, 100L, 2, 2, items_averaged = 1, data_type = "integer")$consistency           |> expect_true()
-  5000.12 |> grimmer_values(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1) |> nrow() |> expect_equal(10)
+  5000.12 |> grimmer_values(10.12, 100L, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> nrow() |> expect_equal(10)
 })
 
 

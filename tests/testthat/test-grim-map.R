@@ -100,7 +100,7 @@ test_that("percentages leave the granules on the scale of `x`", {
   out$rec_x_lower |> expect_equal(c(68, 84))
   out$rec_x_upper |> expect_equal(c(72, 84))
   84 |>
-    grim_values(25, digits_x = 0, items_averaged = 1, x_meaning = "percentage") |>
+    grim_values(25, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |>
     purrr::pluck("x") |>
     expect_equal(84)
 

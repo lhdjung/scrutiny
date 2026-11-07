@@ -154,8 +154,5 @@ test_that("the example call in the error runs as it is", {
   df_grim    |> grim_map_seq()                        |> example_call() |> runs()
   df_grimmer |> grimmer_map_seq()                     |> example_call() |> runs()
   df_debit   |> debit_map_seq()                       |> example_call() |> runs()
-
-  # Functions without `data_type` don't get it:
-  5.19 |> grim_values(28, items_averaged = 1) |> example_call() |> expect_no_match("data_type")
-  5.19 |> grim_values(28, items_averaged = 1) |> example_call() |> runs()
+  5.19       |> grim_values(28, items_averaged = 1)   |> example_call() |> runs()
 })
