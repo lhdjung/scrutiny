@@ -31,6 +31,11 @@
 explain_print <- function(data, ...) {
   data <- as_tibble_input(data)
 
+  # `dplyr::slice()` drops the record of a grouped tibble, so `explain_map()`
+  # would no longer say that grouping is the cause. It sees no rows here,
+  # which costs nothing:
+  explain_map(data[0L, ])
+
   # `dplyr::slice()` without any rows given returns none, not all:
   rows <- if (...length() == 0L) data else dplyr::slice(data, ...)
 

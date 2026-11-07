@@ -429,3 +429,13 @@ test_that("explanations write a point as the decimal mark under any `OutDec`", {
   grimmer_explain(5.19, 1.32, 28, 2, 2, 1, "integer")         |> format() |> paste(collapse = " ") |> expect_no_match("[0-9],[0-9]")
   debit_explain(0.35, 0.48, 20, 2, 2, "integer")              |> format() |> paste(collapse = " ") |> expect_no_match("[0-9],[0-9]")
 })
+
+
+test_that("`explain_print()` and `explain_map()` say what is wrong with the data", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  # `slice()` dropped the record of the grouped tibble, and with it the hint:
+  out |> dplyr::group_by(n > 30) |> explain_print(1) |> expect_error("group_by\\(\\)` removed the class")
+  # A dropped helper column asked for an argument that `explain_map()` lacks:
+  out |> dplyr::select(-items_averaged) |> explain_map() |> expect_error("Missing: `items_averaged`")
+  out |> dplyr::select(-data_type)      |> explain_map() |> expect_error("Missing: `data_type`")
+})

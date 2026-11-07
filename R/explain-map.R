@@ -101,7 +101,9 @@ add_explanation_col <- function(
   cols_key,
   cols_helper = character()
 ) {
-  check_cols_needed(data, c(cols_key, "consistency"))
+  # The helpers of GRIM, GRIMMER, and DEBIT have no defaults, so their output
+  # always has these columns, and the test needs them back:
+  check_cols_needed(data, c(cols_key, cols_helper, "consistency"))
 
   args <- scrutiny_args(data)
   if (is.null(args)) {
@@ -115,7 +117,7 @@ add_explanation_col <- function(
   # The ones that `fn` can take: not `show_rec`, say.
   args <- args[intersect(names(args), names(formals(fn)))]
 
-  cols <- c(cols_key, intersect(cols_helper, colnames(data)))
+  cols <- c(cols_key, cols_helper)
 
   # Plain vectors rather than the tibble, whose `[` is slow to call per row:
   columns <- as.list(data[cols])
