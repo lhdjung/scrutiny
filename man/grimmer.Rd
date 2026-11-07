@@ -116,8 +116,9 @@ decides exactly whether a mean and SD are possible within the bounds.
 \code{n} and \code{items_averaged} as in \code{\link[=grim]{grim()}}. Within these limits,
 \code{grimmer()} decides value sets of any size exactly, but refuses some it
 would take too long to decide, none of which occur in practice: for \code{n}
-from 2 to 4, an SD from about 6e5 (\code{n = 4}) to 1e6 (\code{n = 2}) on, or an SE
-from about 3e5 to 7e5 on (each divided by \code{items_averaged}); and a value
+from 2 to 4, a sample SD from about 6e5 (\code{n = 4}) to 1e6 (\code{n = 2}) on, a
+population SD from about 5e5 to 7e5 on, or an SE from about 3e5 to 7e5 on
+(each divided by \code{items_averaged}); and a value
 set that leaves more than a million candidate sums to test, which takes an
 \code{n} of more than a million.
 }

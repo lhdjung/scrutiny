@@ -66,8 +66,8 @@ use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
 Double. \code{grim_exp_incon()} and \code{grim_total()} return \code{NA} if \code{x}
-is missing or infinite, or if \code{n} or \code{items_averaged} is missing or not a
-positive whole number. These include every case that \code{\link[=grim]{grim()}} cannot
+is missing or infinite, if \code{digits_x} is missing, or if \code{n} or
+\code{items_averaged} is missing or not a positive whole number. These include every case that \code{\link[=grim]{grim()}} cannot
 decide, and some that it can: a mean may pass whatever \code{n} is, but how
 many fail depends on it. They are never
 negative. A count above 2^53, which only \code{digits_x} of 14 or more with

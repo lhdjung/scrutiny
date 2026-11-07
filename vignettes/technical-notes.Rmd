@@ -40,7 +40,7 @@ A few cases are still `NA` although every value would give the same result:
 
 - GRIMMER with `n` or `items_averaged` missing is only `TRUE` if data that are all the same value fit, and only `FALSE` if the SD is negative or, with `items_averaged` known, below the smallest that whole numbers with the mean can have. An SE is never below such a floor.
 - DEBIT with `n` missing tries each `n` up to 1,000 for a sample SD or SE that is too large for a population SD, and is `NA` if that is not enough.
-- GRIMMER and DEBIT with `sd` missing are never `TRUE`.
+- GRIMMER and DEBIT with `x` or `sd` missing are never `TRUE`.
 - A missing `digits_*` value is never `TRUE` if settling it takes more decimal places than exact arithmetic allows (see below), as for a large `n`, nor under DEBIT's `formula = "mean_n"`.
 - GRIM with `x` missing is undecided for some `n` if `digits_x` is 4 or more, or 2 or more for a percentage.
 
@@ -77,7 +77,7 @@ GRIM's products stay below that for any realistic value set. Beyond it, GRIM ref
 grim(x = 5.19, n = 1e14, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
-GRIMMER and DEBIT square their values, which takes them past 2^53 sooner. They compare such products exactly with Dekker's algorithm, which splits each into a double and the remainder, and past that, they compute with whole numbers of any size. So they decide value sets of any size exactly, apart from a few refusals of sizes that would take too long and that no study reports, such as an SD of more than a million for two values:
+GRIMMER and DEBIT square their values, which takes them past 2^53 sooner. They compare such products exactly with Dekker's algorithm, which splits each into a double and the remainder, and past that, they compute with whole numbers of any size. So they decide value sets of any size exactly, apart from a few refusals of sizes that would take too long and that no study reports, such as a sample SD of more than about 1.05 million (2^20) for two values:
 
 ```{r, error = TRUE}
 grimmer(x = 1, sd = 1.1e6, n = 2, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer")

@@ -42,8 +42,8 @@
 #' @seealso [`grim()`] and [`grim_map()`].
 #'
 #' @return Double. `grim_exp_incon()` and `grim_total()` return `NA` if `x`
-#'   is missing or infinite, or if `n` or `items_averaged` is missing or not a
-#'   positive whole number. These include every case that [`grim()`] cannot
+#'   is missing or infinite, if `digits_x` is missing, or if `n` or
+#'   `items_averaged` is missing or not a positive whole number. These include every case that [`grim()`] cannot
 #'   decide, and some that it can: a mean may pass whatever `n` is, but how
 #'   many fail depends on it. They are never
 #'   negative. A count above 2^53, which only `digits_x` of 14 or more with
