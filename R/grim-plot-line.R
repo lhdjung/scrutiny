@@ -58,8 +58,14 @@ plot_comb <- function(
   # decimal place, where the label would be a rounded 0.2:
   breaks_reportable <- function(limits) {
     # In whole steps; rounded, as the division leaves floating-point noise:
-    units <- pretty(round(range(values) / step))
-    units <- units[units == round(units)]
+    # `pretty()` may go beyond the values, but no tick should:
+    range_units <- round(range(values) / step)
+    units <- pretty(range_units)
+    units <- units[
+      units == round(units) &
+        units >= range_units[1L] &
+        units <= range_units[2L]
+    ]
     index <- vapply(
       units * step,
       function(value) which.min(abs(values - value)),

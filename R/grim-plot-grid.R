@@ -510,7 +510,8 @@ grim_plot_grid <- function(
             "!" = "The raster is the one for positive means.",
             "x" = "`data` has {sum(is_negative)} negative mean{?s}, which \\
             `rounding = \"{rounding}\"` rounds the other way, so the \\
-            raster behind {?it/them} can disagree with the tile.",
+            raster behind {cli::qty(sum(is_negative))}{?it/them} can \\
+            disagree with the tile{?s}.",
             "i" = "Plot negative and positive means separately."
           ))
         }

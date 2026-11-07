@@ -311,12 +311,16 @@ test_that("ticks without a label per square are at values that can be reported",
     ticks$breaks |> expect_equal(round(ticks$breaks, digits))
     ticks$labels |> anyDuplicated() |> expect_equal(0L)
     ticks$labels |> sub(pattern = "%", replacement = "") |> as.numeric() |> expect_equal(ticks$breaks)
+    # Evenly spaced, without a tick at each end a fraction of a step away:
+    ticks$breaks |> stats::na.omit() |> diff() |> range() |> diff() |> expect_equal(0, tolerance = 1e-8)
   }
 
   grimmer_plot_line(x = 5.19, sd = 1, n = 28, digits_x = 2, digits_sd = 0, items_averaged = 1)                  |> expect_ticks_reportable(0)
   grimmer_plot_line(x = 5.19, sd = 0.4, n = 28, digits_x = 2, digits_sd = 1, items_averaged = 1, zoom = "wide") |> expect_ticks_reportable(1)
   grimmer_plot_line(x = 5.19, sd = 0, n = 28, digits_x = 2, digits_sd = 2, items_averaged = 1)                  |> expect_ticks_reportable(2)
   grim_plot_line(x = 2150.5, n = 40, digits_x = 1, items_averaged = 1, zoom = "wide")                           |> expect_ticks_reportable(1)
+  grim_plot_line(x = 5.27, n = 300, digits_x = 2, items_averaged = 1)                                          |> expect_ticks_reportable(2)
+  grimmer_plot_line(x = 5.27, sd = 1.31, n = 300, digits_x = 2, digits_sd = 2, items_averaged = 1)               |> expect_ticks_reportable(2)
 })
 
 test_that("zero is not labeled as negative", {
