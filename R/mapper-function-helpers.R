@@ -210,24 +210,24 @@ check_cols_needed <- function(data, cols, ...) {
 #'   manually*.
 #'
 #' @param data The mapper's input data frame.
-#' @param var_arg The mapper argument named like the helper column.
+#' @param arg The mapper argument named like the helper column.
 #' @param default The default of that argument. Leave it out if the argument
 #'   has none, like `items_averaged`: `data` is then returned unchanged if the
 #'   argument is missing, and the test function reports that.
-#' @param affix Logical. If `data` has no such column, should one be added
-#'   from `var_arg`? Default is `TRUE`.
+#' @param add_col Logical. If `data` has no such column, should one be added
+#'   from `arg`? Default is `TRUE`.
 #'
 #' @return `data`, possibly with the helper column added.
 #'
 #' @export
 
-manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
-  var_name <- deparse(substitute(var_arg))
-  check_flag(affix)
+manage_helper_col <- function(data, arg, default, add_col = TRUE) {
+  var_name <- deparse(substitute(arg))
+  check_flag(add_col)
 
   # Without a default, a missing argument is for the test function to report:
   has_default <- !missing(default)
-  if (!has_default && missing(var_arg)) {
+  if (!has_default && missing(arg)) {
     return(data)
   }
 
@@ -236,18 +236,18 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
     # `about_equal()` because `identical()` is too strict for numbers. An
     # argument that agrees with the column, as when a mapper's output is tested
     # again, is no contradiction, and the column is kept:
-    arg_given <- !has_default || !about_equal(var_arg, default)
+    arg_given <- !has_default || !about_equal(arg, default)
     # Only a single value or one per row can agree; `rep_len()` would cut
     # off or recycle any other length into agreement:
-    col_agrees <- length(var_arg) %in%
+    col_agrees <- length(arg) %in%
       c(1L, nrow(data)) &&
-      isTRUE(about_equal(data[[var_name]], rep_len(var_arg, nrow(data))))
+      isTRUE(about_equal(data[[var_name]], rep_len(arg, nrow(data))))
     if (arg_given && !col_agrees) {
       data_name <- deparse(substitute(data))
       data_name <- wrap_in_backticks(data_name)
       var_name_as_arg <- wrap_in_backticks(var_name)
       var_name <- wrap_in_quotes(var_name)
-      var_arg <- wrap_in_quotes_or_backticks(var_arg)
+      arg <- wrap_in_quotes_or_backticks(arg)
       fn_name <- name_last_export_code()
       msg_default <- if (has_default) {
         paste0(" (default: ", wrap_in_quotes_or_backticks(default), ")")
@@ -255,23 +255,23 @@ manage_helper_col <- function(data, var_arg, default, affix = TRUE) {
       abort_in_export(
         "Column {var_name} already in {data_name}.",
         "x" = "The {var_name_as_arg} argument in {fn_name} \\
-        was specified as {var_arg}{msg_default}.",
+        was specified as {arg}{msg_default}.",
         "x" = "This conflicts with the {var_name} column in {data_name}."
       )
     }
-  } else if (affix && !is.null(var_arg)) {
+  } else if (add_col && !is.null(arg)) {
     # One value for every row, or one per row; `mutate()` would reject any
     # other length with an error about its own argument. `NULL` adds no column,
     # as in `mutate()`, and the test function says if it needs one:
-    if (!length(var_arg) %in% c(1L, nrow(data))) {
+    if (!length(arg) %in% c(1L, nrow(data))) {
       abort_in_export(
         "`{var_name}` must have length 1 or the number of rows in `data`.",
-        "x" = "It has length {length(var_arg)}, but `data` has \\
+        "x" = "It has length {length(arg)}, but `data` has \\
         {nrow(data)} row{?s}."
       )
     }
     # `[[<-` on a data frame doesn't recycle a single value to zero rows:
-    data[[var_name]] <- rep_len(var_arg, nrow(data))
+    data[[var_name]] <- rep_len(arg, nrow(data))
   }
 
   data

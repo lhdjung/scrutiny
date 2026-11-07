@@ -1,10 +1,10 @@
 test_that("`manage_helper_col()` takes the helper from the column or the argument", {
   mapper <- function(data, items = 1) manage_helper_col(data, items, 1)
-  mapper_no_affix <- function(data, items = 1) manage_helper_col(data, items, 1, affix = FALSE)
+  mapper_no_col <- function(data, items = 1) manage_helper_col(data, items, 1, add_col = FALSE)
 
   tibble::tibble(x = 5.19)            |> mapper(items = 2)          |> expect_equal(tibble::tibble(x = 5.19, items = 2))
   tibble::tibble(x = 5.19)            |> mapper()                   |> expect_equal(tibble::tibble(x = 5.19, items = 1))
-  tibble::tibble(x = 5.19)            |> mapper_no_affix(items = 2) |> expect_equal(tibble::tibble(x = 5.19))
+  tibble::tibble(x = 5.19)            |> mapper_no_col(items = 2)   |> expect_equal(tibble::tibble(x = 5.19))
   tibble::tibble(x = 5.19, items = 3) |> mapper()                   |> expect_equal(tibble::tibble(x = 5.19, items = 3))
   tibble::tibble(x = 5.19, items = 3) |> mapper(items = 2)          |> expect_error("already in")
 })

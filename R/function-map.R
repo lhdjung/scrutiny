@@ -477,14 +477,14 @@ function_map <- function(
         return(rlang::expr(
           data <- scrutiny::manage_helper_col(
             data = data,
-            var_arg = `!!`(as.name(name))
+            arg = `!!`(as.name(name))
           )
         ))
       }
       rlang::expr(
         data <- scrutiny::manage_helper_col(
           data = data,
-          var_arg = `!!`(as.name(name)),
+          arg = `!!`(as.name(name)),
           default = `!!`(formals_promoted[[name]])
         )
       )

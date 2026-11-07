@@ -4,19 +4,19 @@
 \alias{manage_helper_col}
 \title{Manage a helper column}
 \usage{
-manage_helper_col(data, var_arg, default, affix = TRUE)
+manage_helper_col(data, arg, default, add_col = TRUE)
 }
 \arguments{
 \item{data}{The mapper's input data frame.}
 
-\item{var_arg}{The mapper argument named like the helper column.}
+\item{arg}{The mapper argument named like the helper column.}
 
 \item{default}{The default of that argument. Leave it out if the argument
 has none, like \code{items_averaged}: \code{data} is then returned unchanged if the
 argument is missing, and the test function reports that.}
 
-\item{affix}{Logical. If \code{data} has no such column, should one be added
-from \code{var_arg}? Default is \code{TRUE}.}
+\item{add_col}{Logical. If \code{data} has no such column, should one be added
+from \code{arg}? Default is \code{TRUE}.}
 }
 \value{
 \code{data}, possibly with the helper column added.
