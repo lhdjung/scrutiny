@@ -800,6 +800,11 @@ function_map_total_n <- function(
 
   # --- End of the manufactured function, `fn_out()` ---
 
+  # The body is spliced from code blocks that keep their source references if
+  # the package is installed with `R_KEEP_PKG_SOURCE=yes`. These no longer
+  # match the statements, which crashed `codetools` in `R CMD check`:
+  fn_out <- utils::removeSource(fn_out)
+
   # Keep the enclosure of `fn_out()` small:
   rm(name_fn)
 
