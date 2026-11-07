@@ -42,10 +42,19 @@ grimmer_values_scalar <- function(
   # As a double: `n * (n - 1)` overflows an integer from 46341:
   n_dev <- sd_denominator(as.numeric(n), sd_meaning)
 
-  # One row of `NA` if undecidable, no rows if inconsistent. With `data_type`
-  # missing, a value set that whole numbers can have is undecidable, too:
-  # continuous data have other values.
-  if (is.na(consistency) || (consistency && is.na(data_type))) {
+  # One row of `NA` if undecidable, no rows if inconsistent. A consistent
+  # value set with a missing value is forced to be consistent, but which
+  # samples it stands for is still open:
+  is_known <- !anyNA(list(
+    x,
+    sd,
+    n,
+    digits_x,
+    digits_sd,
+    items_averaged,
+    data_type
+  ))
+  if (is.na(consistency) || (consistency && !is_known)) {
     return(grimmer_values_tibble(
       NA_real_,
       NA_real_,

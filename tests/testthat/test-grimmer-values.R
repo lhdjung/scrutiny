@@ -137,6 +137,13 @@ test_that("undecidable cases give one row of `NA`", {
 })
 
 
+test_that("a missing value that forces `TRUE` still leaves the pairs open", {
+  5 |> grimmer_values(2, 29, digits_x = 1,  digits_sd = NA, items_averaged = 1,  data_type = "integer") |> expect_undecidable()
+  5 |> grimmer_values(3, 27, digits_x = NA, digits_sd = 0,  items_averaged = 1,  data_type = "integer") |> expect_undecidable()
+  5 |> grimmer_values(0, 10, digits_x = 0,  digits_sd = 0,  items_averaged = NA, data_type = "integer") |> expect_undecidable()
+})
+
+
 test_that("`digits_*` and `items_averaged` are required, with the bespoke errors", {
   5.23 |> grimmer_values(2.55, 31, digits_sd = 2, items_averaged = 1, data_type = "integer") |> suppressMessages() |> expect_error("digits_x")
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, items_averaged = 1, data_type = "integer")  |> suppressMessages() |> expect_error("digits_sd")
