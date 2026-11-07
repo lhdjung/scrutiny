@@ -2,18 +2,19 @@
 #' @export
 
 audit.scrutiny_dup_tally <- function(data, ...) {
-  # The tally columns are integer ones named with the suffix of the
-  # `duplicate_tally()` call. Not every second column: `select()` and
-  # `relocate()` keep the class, and `mutate()` may add other integer columns.
-  colname_end <- attr(data, "scrutiny", exact = TRUE)$colname_end
-  suffix <- paste0("_", if (is.null(colname_end)) "n" else colname_end)
+  # The tally columns are the integer ones that the `duplicate_tally()` call
+  # named. Not every second column, nor every one with the suffix: `select()`
+  # and `relocate()` keep the class, and `mutate()` may add other integer
+  # columns, such as `extra_n`.
+  cols_tally <- attr(data, "scrutiny", exact = TRUE)$cols_tally
   is_tally_col <- vapply(data, is.integer, logical(1L)) &
-    endsWith(colnames(data), suffix)
+    colnames(data) %in% cols_tally
   if (!any(is_tally_col)) {
     abort_in_export(
       "No tally columns found in `data`.",
-      "x" = "Tally columns are integer columns whose names end in \\
-      {.val {suffix}}, as {.fn duplicate_tally} names them."
+      "x" = "Tally columns are the integer columns that \\
+      {.fn duplicate_tally} added, such as {.val {cols_tally[1L]}}, under \\
+      the names it gave them."
     )
   }
   data_dup <- data[is_tally_col]

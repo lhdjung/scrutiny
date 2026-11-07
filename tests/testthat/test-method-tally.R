@@ -151,6 +151,7 @@ test_that("the tally columns are found after `select()` and `relocate()`", {
   tally |> dplyr::select(snout, snout_n) |> audit() |> dplyr::pull(term) |> expect_equal(c("snout_n", ".total"))
   # Nor is an integer column of the user's a tally:
   tally |> dplyr::mutate(row = dplyr::row_number()) |> audit() |> expect_equal(expected)
+  tally |> dplyr::mutate(extra_n = 1L)               |> audit() |> expect_equal(expected)
 })
 
 
@@ -163,6 +164,8 @@ test_that("the tally columns are found with any `colname_end`", {
 
 
 test_that("grouped tally output is not called mapper output", {
-  # The `"scrutiny"` attribute that records `colname_end` made it look like one:
+  # The `"scrutiny"` attribute that records the tally columns made it look like
+  # one, but grouping is still the cause:
   pigs4 |> duplicate_tally() |> dplyr::group_by(snout_n) |> audit() |> expect_error("no method") |> conditionMessage() |> expect_no_match("mapper output")
+  pigs4 |> duplicate_tally() |> dplyr::group_by(snout_n) |> audit() |> expect_error("removed the class of the `duplicate_tally()` output", fixed = TRUE)
 })

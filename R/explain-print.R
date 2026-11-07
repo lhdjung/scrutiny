@@ -29,12 +29,13 @@
 #'   dplyr::filter(!consistency) |>
 #'   explain_print()
 explain_print <- function(data, ...) {
-  data <- as_tibble_input(data)
-
   # `dplyr::slice()` drops the record of a grouped tibble, so `explain_map()`
   # would no longer say that grouping is the cause. It sees no rows here,
-  # which costs nothing:
-  explain_map(data[0L, ])
+  # which costs nothing, and the class that `data` was given with:
+  if (is.data.frame(data)) {
+    explain_map(data[0L, , drop = FALSE])
+  }
+  data <- as_tibble_input(data)
 
   # `dplyr::slice()` without any rows given returns none, not all:
   rows <- if (...length() == 0L) data else dplyr::slice(data, ...)

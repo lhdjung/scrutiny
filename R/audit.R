@@ -120,6 +120,13 @@ audit_by <- function(data, by) {
 #' @export
 audit.default <- function(data, ...) {
   hint <- hint_grouped(data, "audit(data, .by = study)")
+  # The same for `duplicate_tally()` output, which records its tally columns:
+  is_tally_grouped <- inherits(data, "grouped_df") &&
+    !is.null(attr(data, "scrutiny", exact = TRUE)$cols_tally)
+  if (is.null(hint) && is_tally_grouped) {
+    hint <- "`dplyr::group_by()` removed the class of the `duplicate_tally()` \\
+    output. Use the output from before grouping."
+  }
   if (is.null(hint)) {
     hint <- "See `?audit` for the functions whose output it summarizes."
   }
