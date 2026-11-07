@@ -447,12 +447,13 @@ function_map_total_n <- function(
       for (arg_helper in names(helper_vals)) {
         vals_helper <- helper_vals[[arg_helper]]
         if (!is.null(vals_helper) && length(vals_helper) != 1L) {
+          article <- if (grepl("^[aeiou]", arg_helper)) "an" else "a"
           abort_in_export(
             "`{arg_helper}` must be a single value here.",
             "x" = "It has length {length(vals_helper)}.",
             "i" = "Total-n mappers test hypothetical group sizes, so one \\
             value applies to both groups. For values that differ by row, \\
-            give `data` an `{arg_helper}` column."
+            give `data` {article} `{arg_helper}` column."
           )
         }
       }

@@ -210,6 +210,9 @@ grim_total <- function(
 
   # As in `grim()`, a string is a mistake, but missing values are undecidable:
   x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  if (is.factor(data_type)) {
+    error_data_type_factor()
+  }
   data_type_bad <- data_type[
     !is.na(data_type) & !(is.character(data_type) & data_type %in% DATA_TYPES)
   ]

@@ -660,6 +660,17 @@ check_newly_numeric <- function(
   name_x <- deparse(substitute(x))
   name_fn <- paste0("scrutiny::", caller_name)
 
+  # A factor is no string that was meant as a number, just a column that
+  # `read.csv(stringsAsFactors = TRUE)` made one, and its codes are not its
+  # values:
+  if (is.factor(x)) {
+    abort_in_export(
+      "`{name_x}` must be numeric, not a factor.",
+      "i" = "Convert it with `as.numeric(as.character({name_x}))`, or read \\
+      the data with `stringsAsFactors = FALSE`."
+    )
+  }
+
   if (!is.numeric(x)) {
     msg_what <- if (caller_is_mapper) {
       I(paste0("Using string `", name_x, "` columns in `", name_fn, "()`"))
@@ -882,6 +893,17 @@ digits_exact_sd <- function(sd, digits, n, items_averaged, sd_meaning) {
 }
 
 
+# A factor `data_type`, as from a column that `read.csv(stringsAsFactors =
+# TRUE)` made one, is refused with a way out rather than rlang's type error:
+error_data_type_factor <- function() {
+  abort_in_export(
+    "`data_type` must be a character vector, not a factor.",
+    "i" = "Convert it with `as.character()`, or read the data with \\
+    `stringsAsFactors = FALSE`."
+  )
+}
+
+
 # What the tests return for data that are not plainly whole numbers.
 # `test_integer` is a function that runs the test as if they were,
 # `continuous` is the result for continuous data, from `verdict_continuous()`,
@@ -889,6 +911,9 @@ digits_exact_sd <- function(sd, digits, n, items_averaged, sd_meaning) {
 # either, so it is `NA` unless both agree.
 test_data_type <- function(data_type, test_integer, continuous, missing) {
   check_length(data_type, 1L)
+  if (is.factor(data_type)) {
+    error_data_type_factor()
+  }
   if (is.na(data_type)) {
     out <- test_integer()
     agree <- identical(out[[1L]], continuous[[1L]])

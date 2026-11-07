@@ -1160,3 +1160,15 @@ test_that("a `NULL` helper argument adds no column", {
   tibble::tibble(x = 5.19, n = 28) |> grim_map(digits_x = 2, items_averaged = NULL, data_type = "integer") |> expect_error("Need to specify `items_averaged`")
   tibble::tibble(x1 = 3.43, x2 = 5.28, n = 90) |> grim_map_total_n(digits_x = 2, items_averaged = NULL, data_type = "integer") |> expect_error("Need to specify `items_averaged`")
 })
+
+
+test_that("factor columns from `read.csv(stringsAsFactors = TRUE)` get their own errors", {
+  # A factor `data_type` failed with rlang's generic type error:
+  data.frame(x = c(5.19, 5.18), n = 28, data_type = c("integer", "continuous"), stringsAsFactors = TRUE) |>
+    grim_map(digits_x = 2, items_averaged = 1) |>
+    expect_error("Convert it with `as.character\\(\\)`")
+  # A factor `x` got the message about defunct string columns:
+  data.frame(x = c("5.19", "5.18"), n = 28, stringsAsFactors = TRUE) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    expect_error("must be numeric, not a factor")
+})
