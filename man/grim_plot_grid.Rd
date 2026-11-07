@@ -44,8 +44,9 @@ trailing zeros. For percentages, give the number of decimal places as
 reported; 2 are added.}
 
 \item{rounding, threshold}{The same as in \code{\link[=grim]{grim()}}, for the raster. Only
-used if \code{show_data} is \code{FALSE}: otherwise, the raster follows the
-settings of the mapper call. Defaults are \code{"up_or_down"} and \code{5}.}
+used if \code{show_data} is \code{FALSE} or if the record of the mapper call was
+removed from \code{data}: otherwise, the raster follows the settings of that
+call. Defaults are \code{"up_or_down"} and \code{5}.}
 
 \item{tile_size}{Numeric. Size of the tiles for value sets. Default is
 \code{1.5}.}

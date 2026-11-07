@@ -37,7 +37,8 @@ lose trailing zeros when converted: \code{2.0} becomes \code{"2"}.
 \section{Summaries with \code{\link[=audit]{audit()}}}{
  \code{audit()} on \code{duplicate_tally()} output
 returns summary statistics for each tally column, with a \code{.total} row
-across all of them.
+across all of them. It finds these columns by the names that
+\code{duplicate_tally()} gave them, so a renamed one is left out.
 }
 
 \examples{

@@ -24,7 +24,8 @@
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `duplicate_tally()` output
 #'   returns summary statistics for each tally column, with a `.total` row
-#'   across all of them.
+#'   across all of them. It finds these columns by the names that
+#'   `duplicate_tally()` gave them, so a renamed one is left out.
 #'
 #' @seealso
 #'  - [`duplicate_count()`] for a frequency table.

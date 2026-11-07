@@ -62,8 +62,9 @@
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
 #' @param rounding,threshold The same as in [`grim()`], for the raster. Only
-#'   used if `show_data` is `FALSE`: otherwise, the raster follows the
-#'   settings of the mapper call. Defaults are `"up_or_down"` and `5`.
+#'   used if `show_data` is `FALSE` or if the record of the mapper call was
+#'   removed from `data`: otherwise, the raster follows the settings of that
+#'   call. Defaults are `"up_or_down"` and `5`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.

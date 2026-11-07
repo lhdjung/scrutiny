@@ -34,7 +34,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `"anti_trunc"` no longer moves a value that already has the required number of decimal places: 8.42 rounded to two decimal places is 8.42, not 8.43, as with Excel's `ROUNDUP()`. A mean of `0.00` is therefore consistent under `"anti_trunc"`; it used to be `FALSE`.
 
-- DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. The new `formula` argument selects `"exact"`, the default, or `"mean_n"`, the old behavior. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
+- DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. `formula` gains `"exact"`, the new default; `"mean_n"` is the old behavior. `"0_n"`, `"1_n"`, and `"groups"`, which always failed, were removed. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
 
 - GRIM, GRIMMER, and DEBIT return `NA` for every case that cannot be decided: an infinite value, an `n` or `items_averaged` that is not a positive whole number, or a missing value that could decide the case either way. A missing value that could not is no obstacle: `grimmer()` with a missing `sd` is `FALSE` if `x` fails GRIM, and with a missing `x` if no sum of whole numbers admits `sd`; `debit()` likewise. A missing `digits_*` value gives `FALSE` if the value set fails with the decimal places the values show, and `TRUE` if it passes with so many that only these values pass: `grim(5.2, 5, NA, 1, "integer")` is `TRUE`. A missing `n` gives `TRUE` if data that are all the same value fit, and `FALSE` if no data of any size fit: `grimmer(3.2, 0.2, NA, 1, 1, 1, "integer")` is `FALSE`, since whole numbers with a mean of about 3.2 have an SD of at least 0.36. `percentage_of()` follows the same rule. A few cases are still `NA`; see `vignette("technical-notes")`. GRIMMER and DEBIT also need `n >= 2`, since a sample SD divides by `n - 1`, unless `sd_meaning = "sd_pop"`. Such cases used to cause an error or return an arbitrary `TRUE` or `FALSE`. The renamed version of `grim_probability()`, `grim_exp_incon()` returns `NA` for them too.
 
@@ -110,7 +110,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own, or behind mapper output that lost the record of its call.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
 
@@ -172,7 +172,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD".
 
-- `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `audit()` finds its tally columns by type; it took every second column, so a selection or reordering summarized the wrong ones. `duplicate_count()` is linear rather than quadratic for named input, uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`. A list-column or a matrix column is an error.
+- `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `audit()` finds its tally columns by the names `duplicate_tally()` gave them; it took every second column, so a selection or reordering summarized the wrong ones. `duplicate_count()` is linear rather than quadratic for named input, uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`. A list-column or a matrix column is an error.
 
 - `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector with `NA`s only if the answer depends on the missing values (any one or two values are linear), and test strings and factors by their numeric values. Anything other than a numeric, character, or factor vector is an error, such as a list, a data frame, or a logical vector with values other than `NA`. `tolerance = 0` no longer makes every comparison fail, and the tolerance is never finer than the rounding error of arithmetic on the values, so `seq_disperse()` output around values of 1e8 and more tests as linear and dispersed. A missing string counts as a missing number, as does the string `"NA"`.
 
@@ -211,6 +211,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 - `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
 
 - `grim_probability()` is deprecated in favor of `grim_exp_incon()`.
+
+- `audit_seq()` and `audit_total_n()` are deprecated in favor of `audit()`, which returns the same summaries.
 
 ### Removed
 
