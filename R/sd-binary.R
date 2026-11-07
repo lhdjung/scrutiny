@@ -1,6 +1,6 @@
 #' Standard deviation of binary data
 #'
-#' @description Compute the sample SD of binary data (0 and 1 values) from
+#' @description Compute the SD of binary data (0 and 1 values) from
 #'   different inputs:
 #'
 #' - `sd_binary_groups()` from the counts of 0s and 1s.
@@ -8,17 +8,20 @@
 #' - `sd_binary_1_n()` from the count of 1s and the total.
 #' - `sd_binary_mean_n()` from the mean and the total.
 #'
-#' These are the SDs that [`debit()`] tests under its default
-#' `sd_meaning = "sd_sample"`.
+#' These are the SDs that [`debit()`] tests under the same `sd_meaning`.
 #'
 #' @param group_0 Integer. Count of 0s.
 #' @param group_1 Integer. Count of 1s.
 #' @param n Integer. Total sample size.
-#' @param mean Numeric. Mean of the data.
+#' @param x Numeric. Mean of the data, i.e., the share of 1s.
+#' @param sd_meaning String. What to compute: the sample SD, `"sd_sample"`
+#'   (the default); the population SD, `"sd_pop"`; or the standard error of
+#'   the mean, `"se"`, as in [`debit()`]. `"sd_sample_or_pop"` is an error
+#'   here, since it stands for two premises with different values.
 #'
-#' @return Numeric. Sample standard deviation; `NA` where `n` is below 2,
-#'   since the sample SD divides by `n - 1`, and where `n` or a count is not a
-#'   whole number.
+#' @return Numeric. The SD or standard error; `NA` where `n` or a count is not
+#'   a whole number, and where `n` is below 2 under `"sd_sample"` and
+#'   `"se"`, which divide by `n - 1`.
 #'
 #' @export
 #'
@@ -34,13 +37,22 @@
 #' sd_binary_1_n(group_1 = 153, n = 280)
 #'
 #' # From the mean, given enough decimal places:
-#' sd_binary_mean_n(mean = 0.5464286, n = 280)
+#' sd_binary_mean_n(x = 0.5464286, n = 280)
+#'
+#' # The population SD and the standard error:
+#' sd_binary_groups(group_0 = 127, group_1 = 153, sd_meaning = "sd_pop")
+#' sd_binary_groups(group_0 = 127, group_1 = 153, sd_meaning = "se")
 
 # From both groups --------------------------------------------------------
 
 #' @rdname sd-binary
 
-sd_binary_groups <- function(group_0, group_1) {
+sd_binary_groups <- function(
+  group_0,
+  group_1,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+) {
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
   check_binary_args(list(group_0 = group_0, group_1 = group_1))
   # As doubles, since the product of two integer counts overflows from 46,341.
   # Below, each count is divided by `n` first, as `n^2` overflows from 1e154:
@@ -49,7 +61,12 @@ sd_binary_groups <- function(group_0, group_1) {
   check_binary_count(group_0)
   check_binary_count(group_1)
   n <- group_0 + group_1
-  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0, group_1))
+  sd_binary_spread(
+    n,
+    (group_0 / n) * (group_1 / n),
+    sd_meaning,
+    list(group_0, group_1)
+  )
 }
 
 
@@ -58,13 +75,18 @@ sd_binary_groups <- function(group_0, group_1) {
 #' @rdname sd-binary
 #' @export
 
-sd_binary_0_n <- function(group_0, n) {
+sd_binary_0_n <- function(
+  group_0,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+) {
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
   check_binary_args(list(group_0 = group_0, n = n))
   group_0 <- round_whole(as.numeric(group_0))
   n <- round_whole(n)
   check_binary_count(group_0, n)
   group_1 <- n - group_0
-  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0))
+  sd_binary_spread(n, (group_0 / n) * (group_1 / n), sd_meaning, list(group_0))
 }
 
 
@@ -73,13 +95,18 @@ sd_binary_0_n <- function(group_0, n) {
 #' @rdname sd-binary
 #' @export
 
-sd_binary_1_n <- function(group_1, n) {
+sd_binary_1_n <- function(
+  group_1,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+) {
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
   check_binary_args(list(group_1 = group_1, n = n))
   group_1 <- round_whole(as.numeric(group_1))
   n <- round_whole(n)
   check_binary_count(group_1, n)
   group_0 <- n - group_1
-  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_1))
+  sd_binary_spread(n, (group_0 / n) * (group_1 / n), sd_meaning, list(group_1))
 }
 
 
@@ -88,29 +115,35 @@ sd_binary_1_n <- function(group_1, n) {
 #' @rdname sd-binary
 #' @export
 
-sd_binary_mean_n <- function(mean, n) {
-  check_binary_args(list(mean = mean, n = n))
+sd_binary_mean_n <- function(
+  x,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+) {
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
+  check_binary_args(list(x = x, n = n))
   n <- round_whole(n)
-  if (any(mean < 0 | mean > 1, na.rm = TRUE)) {
+  if (any(x < 0 | x > 1, na.rm = TRUE)) {
     abort_in_export(
-      "`mean` must be between 0 and 1.",
-      "x" = "It includes {wrap_in_quotes_or_backticks(mean[which(mean < 0 | mean > 1)])}."
+      "`x` must be between 0 and 1.",
+      "x" = "It includes {wrap_in_quotes_or_backticks(x[which(x < 0 | x > 1)])}."
     )
   }
-  sd_binary_sample(n, mean * (1 - mean))
+  sd_binary_spread(n, x * (1 - x), sd_meaning)
 }
 
 
-# The sample SD from the population variance. With `n` below 2 there is no
-# sample SD; the formula would give `Inf` or `NaN`, so the warning is
-# suppressed and the result set to `NA`. So is a fractional or infinite `n` or
-# count, which describes no data set, as elsewhere in scrutiny, and any `NaN`:
-sd_binary_sample <- function(n, variance, counts = list()) {
-  out <- suppressWarnings(sqrt((n / (n - 1)) * variance))
+# The value under `sd_meaning` from the population variance. With `n` below
+# `sd_min_n()`, there is none; the formula would give `Inf` or `NaN`, so the
+# warning is suppressed and the result set to `NA`. So is a fractional or
+# infinite `n` or count, which describes no data set, as elsewhere in scrutiny,
+# and any `NaN`:
+sd_binary_spread <- function(n, variance, sd_meaning, counts = list()) {
+  out <- suppressWarnings(sqrt(sd_denominator_ratio(n, sd_meaning) * variance))
   # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
   # `rep_len()` recycles `n` along `variance`, as the formula does:
   length_out <- length(out)
-  undefined <- rep_len(n, length_out) < 2
+  undefined <- rep_len(n, length_out) < sd_min_n(sd_meaning)
   for (count in c(list(n), counts)) {
     undefined <- undefined | !is_whole_number(rep_len(count, length_out))
   }

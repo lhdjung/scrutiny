@@ -307,8 +307,9 @@ test_that("every `sd_meaning` and `formula` default spells out its constant", {
   }
   # `sd_meaning` in the scalar, vectorized, and explain functions of GRIMMER and
   # DEBIT, `grimmer_plot_line()`, `grimmer_values()` and its scalar function,
-  # and all six mappers; `formula` in DEBIT's three functions and three mappers:
-  n_checked |> expect_equal(21L)
+  # the four `sd_binary_*()` functions, and all six mappers; `formula` in
+  # DEBIT's three functions and three mappers:
+  n_checked |> expect_equal(25L)
 })
 
 test_that("roundwork accepts every value in `ROUNDING_METHODS`", {
@@ -392,4 +393,12 @@ test_that("`tibble::num()` columns are tested as plain numbers", {
   tibble::tibble(x = tibble::num(c(5.19, 3.20), digits = 2), n = c(28, 30)) |> grim_map_seq(2, items_averaged = 1, data_type = "integer") |> nrow() |> expect_identical(20L)
   tibble::tibble(x = c(5.19, 3.20), n = tibble::num(c(28, 30)))             |> grim_map(2, items_averaged = 1, data_type = "integer")     |> _$consistency |> expect_equal(expected)
   tibble::tibble(x1 = 5.19, x2 = 3.2, n = tibble::num(50))                  |> grim_map_total_n(2, items_averaged = 1, data_type = "integer") |> nrow() |> expect_gt(0L)
+})
+
+
+test_that("`sd_denominator_ratio()` agrees with `sd_denominator()`", {
+  n <- c(2, 3, 10, 281, 1e6, 2^53)
+  for (sd_meaning in setdiff(SD_MEANINGS, "sd_sample_or_pop")) {
+    (n * 0 + sd_denominator_ratio(n, sd_meaning)) |> expect_equal(n / sd_denominator(n, sd_meaning))
+  }
 })

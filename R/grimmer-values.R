@@ -16,22 +16,13 @@ grimmer_values_scalar <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
-  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  # The same sum of squares gives a different SD under each premise, so the
+  # values of the two can't be told apart in one table:
+  sd_meaning <- check_sd_meaning_single(sd_meaning)
   # `"continuous"` is an error; a missing `data_type` is an error in
   # `grimmer_scalar()`, after the checks for the arguments before it:
   if (!missing(data_type)) {
     check_data_type_whole(data_type)
-  }
-
-  # The same sum of squares gives a different SD under each premise, so the
-  # values of the two can't be told apart in one table:
-  if (sd_meaning == "sd_sample_or_pop") {
-    abort_in_export(
-      "{.arg sd_meaning} can't be {.val sd_sample_or_pop} here.",
-      "x" = "It stands for two premises, and each has its own values.",
-      "i" = "Call {.fn grimmer_values} with {.val sd_sample} and with \\
-      {.val sd_pop} instead."
-    )
   }
 
   consistency <- grimmer_scalar(

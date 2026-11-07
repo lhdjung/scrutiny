@@ -8,30 +8,51 @@
 \alias{sd_binary_mean_n}
 \title{Standard deviation of binary data}
 \usage{
-sd_binary_groups(group_0, group_1)
+sd_binary_groups(
+  group_0,
+  group_1,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+)
 
-sd_binary_0_n(group_0, n)
+sd_binary_0_n(
+  group_0,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+)
 
-sd_binary_1_n(group_1, n)
+sd_binary_1_n(
+  group_1,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+)
 
-sd_binary_mean_n(mean, n)
+sd_binary_mean_n(
+  x,
+  n,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+)
 }
 \arguments{
 \item{group_0}{Integer. Count of 0s.}
 
 \item{group_1}{Integer. Count of 1s.}
 
+\item{sd_meaning}{String. What to compute: the sample SD, \code{"sd_sample"}
+(the default); the population SD, \code{"sd_pop"}; or the standard error of
+the mean, \code{"se"}, as in \code{\link[=debit]{debit()}}. \code{"sd_sample_or_pop"} is an error
+here, since it stands for two premises with different values.}
+
 \item{n}{Integer. Total sample size.}
 
-\item{mean}{Numeric. Mean of the data.}
+\item{x}{Numeric. Mean of the data, i.e., the share of 1s.}
 }
 \value{
-Numeric. Sample standard deviation; \code{NA} where \code{n} is below 2,
-since the sample SD divides by \code{n - 1}, and where \code{n} or a count is not a
-whole number.
+Numeric. The SD or standard error; \code{NA} where \code{n} or a count is not
+a whole number, and where \code{n} is below 2 under \code{"sd_sample"} and
+\code{"se"}, which divide by \code{n - 1}.
 }
 \description{
-Compute the sample SD of binary data (0 and 1 values) from
+Compute the SD of binary data (0 and 1 values) from
 different inputs:
 \itemize{
 \item \code{sd_binary_groups()} from the counts of 0s and 1s.
@@ -40,8 +61,7 @@ different inputs:
 \item \code{sd_binary_mean_n()} from the mean and the total.
 }
 
-These are the SDs that \code{\link[=debit]{debit()}} tests under its default
-\code{sd_meaning = "sd_sample"}.
+These are the SDs that \code{\link[=debit]{debit()}} tests under the same \code{sd_meaning}.
 }
 \examples{
 # 127 values are 0 and 153 are 1, so n = 280:
@@ -50,7 +70,11 @@ sd_binary_0_n(group_0 = 127, n = 280)
 sd_binary_1_n(group_1 = 153, n = 280)
 
 # From the mean, given enough decimal places:
-sd_binary_mean_n(mean = 0.5464286, n = 280)
+sd_binary_mean_n(x = 0.5464286, n = 280)
+
+# The population SD and the standard error:
+sd_binary_groups(group_0 = 127, group_1 = 153, sd_meaning = "sd_pop")
+sd_binary_groups(group_0 = 127, group_1 = 153, sd_meaning = "se")
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A

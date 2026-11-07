@@ -28,13 +28,13 @@ test_that("a near-whole `n` is the whole number it is", {
 test_that("input of the wrong type or length is an error", {
   # These failed in base R or recycled with only a base warning:
   "1"     |> sd_binary_1_n(3)       |> expect_error("`group_1` must be one of these types")
-  "0.5"   |> sd_binary_mean_n(3)    |> expect_error("`mean` must be one of these types")
+  "0.5"   |> sd_binary_mean_n(3)    |> expect_error("`x` must be one of these types")
   c(1, 2, 3) |> sd_binary_0_n(c(5, 6)) |> expect_error("Can't recycle")
   # A negative `n` is named as the culprit, not the count:
   1       |> sd_binary_1_n(-3)      |> expect_error("`n` must not be negative")
   NA      |> sd_binary_1_n(5)       |> expect_na()
   # A character `NA` used to reach the arithmetic:
-  NA_character_ |> sd_binary_mean_n(5) |> expect_error("`mean` must be one of these types")
+  NA_character_ |> sd_binary_mean_n(5) |> expect_error("`x` must be one of these types")
   NA_character_ |> sd_binary_0_n(5)    |> expect_error("`group_0` must be one of these types")
 })
 
@@ -70,4 +70,30 @@ test_that("an infinite or `NaN` count, `n`, or mean is `NA`, not `NaN`", {
   NaN |> sd_binary_mean_n(10)  |> is.nan() |> expect_false()
   NaN |> sd_binary_0_n(10)     |> is.nan() |> expect_false()
   c(Inf, 5) |> sd_binary_groups(10) |> is.na() |> expect_equal(c(TRUE, FALSE))
+})
+
+
+test_that("`sd_meaning` gives the population SD and the standard error", {
+  sample <- sd_binary_groups(127, 153)
+  127 |> sd_binary_groups(153, sd_meaning = "sd_pop") |> expect_equal(sample * sqrt(279 / 280))
+  127 |> sd_binary_groups(153, sd_meaning = "se")     |> expect_equal(sample / sqrt(280))
+  127 |> sd_binary_0_n(280, sd_meaning = "se")        |> expect_equal(sample / sqrt(280))
+  153 |> sd_binary_1_n(280, sd_meaning = "sd_pop")    |> expect_equal(sample * sqrt(279 / 280))
+  (153 / 280) |> sd_binary_mean_n(280, sd_meaning = "se") |> expect_equal(sample / sqrt(280))
+  # A population SD needs one value only; the others need two:
+  1 |> sd_binary_1_n(1, sd_meaning = "sd_pop") |> expect_equal(0)
+  1 |> sd_binary_1_n(1, sd_meaning = "se")     |> expect_na()
+  # Huge counts as above, where `n * (n - 1)` would overflow:
+  1e200 |> sd_binary_groups(3e200, sd_meaning = "se") |> expect_equal(sqrt(0.25 * 0.75 / (4e200 - 1)))
+  127 |> sd_binary_groups(153, sd_meaning = "sd_sample_or_pop") |> expect_error("can't be \"sd_sample_or_pop\"", fixed = TRUE)
+  127 |> sd_binary_groups(153, sd_meaning = "var")              |> expect_error("sd_meaning")
+})
+
+
+test_that("`debit()` accepts the SDs computed under each `sd_meaning`", {
+  for (sd_meaning in c("sd_sample", "sd_pop", "se")) {
+    k <- 0:40
+    sd <- k |> sd_binary_1_n(40, sd_meaning = sd_meaning) |> round(3)
+    (k / 40) |> round(3) |> debit(sd, 40, 3, 3, "integer", sd_meaning = sd_meaning) |> all() |> expect_true()
+  }
 })

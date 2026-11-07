@@ -383,6 +383,30 @@ sd_min_n <- function(sd_meaning) {
   if (sd_meaning %in% c("sd_pop", "sd_sample_or_pop")) 1 else 2
 }
 
+# `n / sd_denominator(n, sd_meaning)`, the factor from the population variance
+# to the square of the reported value. Written out because `n * (n - 1)`
+# overflows for an SE from `n` around 1e154; a test requires it to agree.
+sd_denominator_ratio <- function(n, sd_meaning) {
+  switch(sd_meaning, sd_pop = 1, se = 1 / (n - 1), n / (n - 1))
+}
+
+# For functions that return values under one premise, such as
+# `grimmer_values()`: `"sd_sample_or_pop"` stands for two, which give different
+# values for the same data. Returns `sd_meaning` matched.
+check_sd_meaning_single <- function(sd_meaning) {
+  sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
+  if (sd_meaning == "sd_sample_or_pop") {
+    name_fn <- name_last_export()
+    abort_in_export(
+      "{.arg sd_meaning} can't be {.val sd_sample_or_pop} here.",
+      "x" = "It stands for two premises, and each has its own values.",
+      "i" = "Call {.fn {name_fn}} with {.val sd_sample} and with \\
+      {.val sd_pop} instead."
+    )
+  }
+  sd_meaning
+}
+
 
 # `roundwork::sum_range()` multiplies the numerators of the rounding bounds by
 # `n_items` and compares the products as whole numbers. That is exact only below
