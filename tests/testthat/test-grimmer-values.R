@@ -279,6 +279,20 @@ test_that("`grimmer_closest()` returns the pair whose SD is closest to `sd`", {
 })
 
 
+test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as documented", {
+  # Consistent, with some remainders failing test 3, for fewer than five values:
+  5   |> grimmer_closest(1,   4, 0, 1, 1, "integer") |> _$sd  |> expect_equal(1)
+  4.3 |> grimmer_closest(0.2, 4, 1, 1, 3, "integer") |> nrow() |> expect_equal(1L)
+  # Mirror remainders have the same SD, so the mean closer to `x` wins:
+  5.7 |> grimmer_closest(0.6, 47, 1, 1, 3, "integer") |> _$sum |> expect_equal(800)
+  # With means equally close, too, the smaller sum wins:
+  5.5 |> grimmer_closest(0.6, 35, 1, 1, 1, "integer") |> _$sum |> expect_equal(191)
+  1.1 |> grimmer_closest(1.38, 55, 1, 2, 3, "integer") |> _$sum |> expect_equal(174)
+  # SDs of 0 and 0.4 are equally close to 0.2:
+  4   |> grimmer_closest(0.2, 5, 0, 2, 1, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(20)
+})
+
+
 test_that("`grimmer_closest()` agrees with a brute-force search", {
   multisets <- function(n, values) {
     combos <- utils::combn(length(values) + n - 1, n)

@@ -383,8 +383,13 @@ grimmer_closest_scalar <- function(
       },
       numeric(2L)
     )
-    lower <- ranges[1L, ]
-    upper <- ranges[2L, ]
+    # Remainders whose sums fail test 3 have no range:
+    has_range <- !is.na(ranges[1L, ])
+    candidates <- candidates[has_range]
+    r <- r[has_range]
+    targets <- targets[has_range]
+    lower <- ranges[1L, has_range]
+    upper <- ranges[2L, has_range]
   }
 
   squares <- if (n >= 5) {
@@ -410,9 +415,20 @@ grimmer_closest_scalar <- function(
   r <- r[keep]
   squares <- squares[keep]
 
-  deviations <- squares - r^2 / n
+  # Not `squares - r^2 / n`: remainders `r` and `n - r` often have the same
+  # deviations, and only this form keeps them equal, so that a tie goes by the
+  # sum as documented:
+  deviations <- (n * squares - r^2) / n
   distance_sd <- abs(sqrt(deviations) - sqrt(deviations_target))
-  best <- order(distance_sd, abs(candidates - sum_target), candidates)[1L]
+  # In units of the last decimal place of `x`, so that two means equally far
+  # from it tie exactly, rather than by the noise in `x * n_items`:
+  scale <- 10^digits_x
+  distance_sum <- abs(candidates * scale - round(x * scale) * n_items)
+  # Two SDs on either side of `sd` can be equally close, which the roots don't
+  # show exactly; such ties go by the sum, too:
+  tolerance <- 1e-9 * max(1, sqrt(deviations_target))
+  tied <- which(distance_sd <= min(distance_sd) + tolerance)
+  best <- tied[order(distance_sum[tied], candidates[tied])[1L]]
 
   s <- candidates[best]
   shift <- (s %/% n) * (s + r[best])
@@ -567,8 +583,9 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
 #'   In `grimmer_closest()`, pairs whose SDs are equally close go by the mean
-#'   closer to `x`. A negative `sd` is closest to the least SD there is. The
-#'   number of pairs doesn't matter there, so it has no such limit.
+#'   closer to `x`, then by the smaller sum. A negative `sd` is closest to the
+#'   least SD there is. The number of pairs doesn't matter there, so it has no
+#'   such limit.
 #'
 #' @inheritParams grimmer
 #' @param data_type String. `"integer"` if the values are whole numbers,

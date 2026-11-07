@@ -129,8 +129,9 @@ Under \code{rounding = "even"}, the pairs include ties that \code{\link[base:Rou
 may round away from \code{x} or \code{sd}, as in \code{\link[=grim_values]{grim_values()}}.
 
 In \code{grimmer_closest()}, pairs whose SDs are equally close go by the mean
-closer to \code{x}. A negative \code{sd} is closest to the least SD there is. The
-number of pairs doesn't matter there, so it has no such limit.
+closer to \code{x}, then by the smaller sum. A negative \code{sd} is closest to the
+least SD there is. The number of pairs doesn't matter there, so it has no
+such limit.
 }
 \examples{
 # A mean of 5.23 and an SD of 2.55 are consistent with a sample size of 31,
