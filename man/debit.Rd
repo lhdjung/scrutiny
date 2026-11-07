@@ -8,57 +8,97 @@ debit(
   x,
   sd,
   n,
-  formula = "mean_n",
+  digits_x,
+  digits_sd,
+  data_type,
+  formula = c("exact", "mean_n"),
   rounding = "up_or_down",
   threshold = 5,
-  symmetric = FALSE
+  symmetric = FALSE,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
 )
 }
 \arguments{
-\item{x}{String. Mean of a binary distribution.}
+\item{x}{Numeric. The reported mean of the binary data, between 0 and 1.}
 
-\item{sd}{String. Sample standard deviation of a binary distribution.}
+\item{sd}{Numeric. The reported standard deviation, between 0 and 1.}
 
-\item{n}{Integer. Total sample size.}
+\item{n}{Integer. The reported sample size.}
 
-\item{formula}{String. Formula used to compute the SD of the binary
-distribution. Currently, only the default, \code{"mean_n"}, is supported.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}).}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the SD values to which \code{sd} will be compared. Default is
-\code{"up_or_down"} (from 5). See \code{vignette("rounding-options")}.}
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+No default. For DEBIT, \code{"integer"} means the binary
+values 0 and 1 that the test assumes. Continuous data can have any mean
+and SD from 0 to 1, so the result is \code{TRUE}, unless the SD is the
+population SD of a single value, which is 0. Values outside of 0 to 1 are
+an error for either data type.}
 
-\item{threshold}{Integer. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise
-irrelevant. Default is \code{5}.}
+\item{formula}{String. \code{"exact"} (the default) only considers means that
+\code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is
+the default because no other mean is possible.
+\code{"mean_n"} treats the mean as continuous, as in Heathers and Brown
+(2019), and accepts some SDs that no binary sample of size \code{n} can have:
+\code{debit(0.05, 0.21, 20, 2, 2, "integer")} is \code{TRUE} under \code{"mean_n"},
+although a mean of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds
+to 0.22.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}
+and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} for the others.}
+
+\item{threshold, symmetric}{The same as in \code{\link[=grim]{grim()}}.}
+
+\item{sd_meaning}{String. What \code{sd} really is: the sample SD,
+\code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
+\code{"sd_sample_or_pop"}; or the standard error of the mean, \code{"se"}. As in
+\code{\link[=grimmer]{grimmer()}}, whose sections \emph{Defaults} and \emph{SD meaning} say why the
+sample SD is the default and when to choose another.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are mutually consistent,
-\code{FALSE} if not.
+Logical. \code{TRUE} if \code{x}, \code{sd}, and \code{n} are consistent, \code{FALSE} if not,
+and \code{NA} if the case cannot be decided: if \code{n} is not a positive whole
+number, or if a missing value could decide the case either way. See
+\code{vignette("technical-notes")}, section \emph{Missing values}, on which cases a
+missing value leaves open. A sample SD divides by \code{n - 1}, so under
+\code{sd_meaning = "sd_sample"} (the default) and \code{"se"}, \code{n} must also be at
+least 2.
 }
 \description{
-\code{debit()} tests summaries of binary data for consistency: If the
-mean and the sample standard deviation of binary data are given, are they
-consistent with the reported sample size?
+\code{debit()} checks whether the reported mean and standard
+deviation of binary data are consistent with the reported sample size.
+With \code{k} ones among \code{n} values, the mean is \code{k / n} and the SD follows
+from \code{k} and \code{n}; the test asks whether any \code{k} produces both reported
+numbers at their decimal places.
 
-The function is vectorized, but it is recommended to use \code{\link[=debit_map]{debit_map()}}
-for testing multiple cases.
+The function is vectorized, but \code{\link[=debit_map]{debit_map()}} is more convenient for
+testing many cases.
+}
+\details{
+\code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd}, and \code{data_type} are
+vectorized and recycled to a common length by the tidyverse rules. All
+other arguments must have length 1.
+
+\code{x} and \code{sd} are limited to about 15 significant digits, and \code{x} with \code{n}
+as in \code{\link[=grim]{grim()}}. Within these limits, \code{debit()} decides value sets of
+any size exactly. With \code{x} missing, \code{n} must be below 2^52, about 4.5e15.
 }
 \examples{
-# Check single cases of binary
-# summary data:
-debit(x = "0.36", sd = "0.11", n = 20)
+debit(
+  x = 0.36,
+  sd = 0.11,
+  n = 20,
+  digits_x = 2,
+  digits_sd = 2,
+  data_type = "integer"
+)
 }
 \references{
 Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{\link[=debit_map]{debit_map()}} applies \code{debit()} to any number of cases at once.
+\code{\link[=debit_explain]{debit_explain()}} to explain a result in plain words, and
+\code{\link[=debit_map]{debit_map()}} for data frames.
 }

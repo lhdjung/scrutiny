@@ -2,38 +2,36 @@
 % Please edit documentation in R/mapper-function-helpers.R
 \name{manage_helper_col}
 \alias{manage_helper_col}
-\title{Helper column operations}
+\title{Manage a helper column}
 \usage{
 manage_helper_col(data, var_arg, default, affix = TRUE)
 }
 \arguments{
-\item{data}{The data frame that is the mapper function's first argument.}
+\item{data}{The mapper's input data frame.}
 
-\item{var_arg}{The argument to the mapper function that has the same name as
-the helper column you want to manage.}
+\item{var_arg}{The mapper argument named like the helper column.}
 
-\item{default}{The default for the argument that was specified in \code{var_arg}.}
+\item{default}{The default of that argument. Leave it out if the argument
+has none, like \code{items_averaged}: \code{data} is then returned unchanged if the
+argument is missing, and the test function reports that.}
 
-\item{affix}{Logical (length 1). If \code{data} doesn't include the helper column
-already, should \code{var_arg} be added to \code{data}, bearing its proper name?
-Default is \code{TRUE}.}
+\item{affix}{Logical. If \code{data} has no such column, should one be added
+from \code{var_arg}? Default is \code{TRUE}.}
 }
 \value{
-\code{data}, possibly modified (see \code{affix} argument).
+\code{data}, possibly with the helper column added.
 }
 \description{
-If your consistency test mapper function supports helper
-columns, call \code{manage_helper_col()} internally; once for every such column.
-It will check whether a helper column is compatible with its eponymous
-argument, i.e., if the argument was not specified by the user but has its
-default value.
+A helper column is a column of a mapper's input that is not
+itself tested but enters the test, such as \code{items_averaged} in
+\code{\link[=grim_map]{grim_map()}}. It can be given either as a column of \code{data} or as an
+argument of the same name. \code{manage_helper_col()} checks that the two
+don't disagree if both are given and, by default, adds the argument's
+value to \code{data} as a column if \code{data} has none.
 
-By default (\code{affix = TRUE}), the function will add the column to the
-mapper's input data frame. It returns the input data frame, so reassign its
-output to that variable.
-
-All of this only works in mapper functions that were "handwritten" using
-\verb{function()}, as opposed to those produced by \code{function_map()}. See
+Mappers made by \code{\link[=function_map]{function_map()}} call it for every \code{.cols_helper}
+argument. Call it yourself in a handwritten mapper, once per helper
+column, and reassign the result to \code{data}. See
 \code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
 manually}.
 }

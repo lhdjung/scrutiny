@@ -1,7 +1,8 @@
 #' @keywords internal
+#' @importFrom rlang .data :=
+#' @importFrom lifecycle deprecated
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom lifecycle deprecated
 ## usethis namespace: end
 NULL

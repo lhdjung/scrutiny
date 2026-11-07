@@ -1,19 +1,633 @@
+# The exhaustive DEBIT oracle further below takes a few minutes, so it only runs
+# if the `SCRUTINY_FULL_ORACLE` environment variable is `"true"`, as in the
+# weekly workflow in .github/workflows/full-oracle.yaml.
+run_full_debit_oracle <- identical(Sys.getenv("SCRUTINY_FULL_ORACLE"), "true")
 
-# x <- rnorm(1000, 0.5, 0.08) %>% censor(0, 1) %>% as.character()
-# sd <- runif(1000, 0.1, 0.4) %>% as.character()
-# n <- rnorm(1000, 1000, 200) %>% censor(100, 1900)
+
+# x <- rnorm(1000, 0.5, 0.08) |> censor(0, 1) |> as.character()
+# sd <- runif(1000, 0.1, 0.4) |> as.character()
+# n <- rnorm(1000, 1000, 200) |> censor(100, 1900)
 #
 #
-# x <- seq_endpoint("0.01", 1) %>% rep(10)
-# sd <- rnorm(100, 0.15, 0.05) %>% round(2) %>% restore_zeros(width = 2)
+# x <- 0.01 |> seq(1, by = 0.01) |> round(2) |> rep(10)
+# sd <- rnorm(100, 0.15, 0.05) |> round(2) |> restore_zeros(width = 2)
 #
 # out <- purrr::pmap_lgl(list(x, sd, n), debit)
 
-
-
-out <- purrr::pmap_lgl(pigs3, debit)
+out <- pigs3 |>
+  purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_expected <- c(TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, TRUE)
 
 test_that("bla", {
-  out %>% expect_equal(out_expected)
+  out |> expect_equal(out_expected)
+})
+
+
+# DEBIT used to know only eight rounding methods because its bounds came from
+# the pre-1.0.0 `unround()`, which had its own, shorter list -- even though
+# `debit_map()`'s documentation said that `rounding` is passed on to `debit()`
+# just like everywhere else.
+test_that("`debit()` accepts every rounding method that `grim()` accepts", {
+  for (r in ROUNDING_METHODS) {
+    0.53 |>
+      debit(
+        sd = 0.50,
+        n = 1683,
+        digits_x = 2,
+        digits_sd = 2,
+        data_type = "integer",
+        rounding = r,
+        threshold = 6
+      ) |>
+      expect_type("logical")
+  }
+})
+
+
+test_that("`threshold` only affects the `*_from` rounding methods", {
+  # `round_up()` and `round_down()` round from a fixed 5, so the bounds that
+  # `debit()` reconstructs for them must not move with `threshold`. Before DEBIT
+  # went through the shared bounds machinery, they did.
+  for (r in c("up_or_down", "up", "down")) {
+    out_5 <- pigs3 |> purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2, data_type = "integer", rounding = r, threshold = 5)
+    out_9 <- pigs3 |> purrr::pmap_lgl(debit, digits_x = 2, digits_sd = 2, data_type = "integer", rounding = r, threshold = 9)
+    out_5 |> expect_equal(out_9)
+  }
+})
+
+
+test_that("`symmetric` is taken into account", {
+  # `debit_scalar()` reconstructs the bounds under the same assumption that it
+  # re-rounds with. It used to unround asymmetrically and re-round
+  # symmetrically, because the old `unround()` had no `symmetric` argument.
+  0.53 |>
+    debit(
+      sd = 0.50,
+      n = 1683,
+      digits_x = 2,
+      digits_sd = 2,
+      data_type = "integer",
+      rounding = "up",
+      symmetric = TRUE
+    ) |>
+    expect_type("logical")
+})
+
+
+test_that("`show_rec` returns the reconstructed values", {
+  out_rec <- debit_scalar(
+    x = 0.53,
+    sd = 0.50,
+    n = 1683,
+    digits_x = 2,
+    digits_sd = 2,
+    data_type = "integer",
+    show_rec = TRUE
+  )
+
+  out_rec |> expect_type("list")
+  out_rec |> expect_length(9L)
+  out_rec[[1L]] |> expect_true()
+  # `sd_lower`, `sd_upper`, `x_lower`, and `x_upper`:
+  out_rec[[2L]] |> expect_equal(0.495)
+  out_rec[[4L]] |> expect_equal(0.505)
+  out_rec[[6L]] |> expect_equal(0.525)
+  out_rec[[7L]] |> expect_equal(0.535)
+  # `sum_lower` and `sum_upper`, the numbers of ones whose mean is reported as
+  # 0.53: 884 / 1683 is 0.5252525, and 900 / 1683 is 0.5347594.
+  out_rec[[8L]] |> expect_equal(884)
+  out_rec[[9L]] |> expect_equal(900)
+})
+
+
+test_that("`debit()` returns `NA` where the bounds are undefined", {
+  # A missing value has no bounds to derive. (This used to be tested with
+  # `rounding = "anti_trunc"` at a mean of zero, which had no bounds either
+  # until `anti_trunc()` stopped sending zero away from zero.)
+  NA |> debit(sd = 0.50, n = 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
+
+  0.30 |> debit(sd = NA, n = 1683, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_na()
+})
+
+
+test_that("`debit()` still checks the range of its inputs", {
+  1.5 |> debit(sd = 0.5, n = 100, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error()
+  0.5 |> debit(sd = 1.5, n = 100, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_error()
+})
+
+
+# Boundary means ----------------------------------------------------------
+
+# A mean of binary data cannot lie outside of 0 and 1, but its rounding bounds
+# can. `sd_binary_mean_n()` returns `NaN` for such a bound, which used to make
+# the verdict undecidable for a mean reported as 0.00 or 1.00 -- even though
+# both are perfectly consistent: every value is 0, or every value is 1, and the
+# SD is 0 either way.
+
+test_that("DEBIT decides means of exactly 0 and 1", {
+  0 |> debit(sd = 0, n = 50, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_true()
+  1 |> debit(sd = 0, n = 50, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_true()
+  0 |> debit(sd = 0, n = 5, digits_x = 3, digits_sd = 3, data_type = "integer")  |> expect_true()
+  1 |> debit(sd = 0, n = 5, digits_x = 3, digits_sd = 3, data_type = "integer")  |> expect_true()
+})
+
+
+test_that("DEBIT still rejects impossible SDs at those means", {
+  0 |> debit(sd = 0.5, n = 50, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_false()
+  1 |> debit(sd = 0.5, n = 50, digits_x = 2, digits_sd = 2, data_type = "integer") |> expect_false()
+})
+
+
+test_that("`debit_map()` reports no negative SD bound and no mean out of range", {
+  out <- tibble::tibble(x = c(0, 1), sd = c(0, 0), n = c(50L, 50L)) |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
+  out$sd_lower |> call_on(\(x) x >= 0) |> all() |> expect_true()
+  out$x_lower  |> call_on(\(x) x >= 0) |> all() |> expect_true()
+  out$x_upper  |> call_on(\(x) x <= 1) |> all() |> expect_true()
+})
+
+
+# A brute-force oracle. Every split of `n` observations into zeros and ones is a
+# real binary sample, so the mean and SD it produces -- rounded the way a paper
+# would report them -- must be accepted by DEBIT. This is the direction that can
+# be checked exhaustively: DEBIT's conditions are necessary, not sufficient, so
+# a `TRUE` verdict does not imply that a sample exists, but a `FALSE` one for a
+# sample that does exist is an outright error. It is what caught the means of
+# exactly 0 and 1, where the SD is undefined at the rounding bounds.
+
+test_that("DEBIT never rejects a real binary sample", {
+  n_checked <- 0L
+
+  for (n in c(5L, 8L, 20L, 37L)) {
+    for (digits in 2:3) {
+      # `k` ones and `n - k` zeros, for every `k`:
+      k <- 0:n
+      means <- (k / n) |> roundwork::reround(digits, "up_or_down")
+      sds   <- (n - k) |> sd_binary_0_n(n = n) |> roundwork::reround(digits, "up_or_down")
+
+      # `reround()` with a compound method returns both variants per input,
+      # interleaved, and either is a way the value could have been reported:
+      for (i in seq_along(k)) {
+        pair <- c(2L * i - 1L, 2L * i)
+        for (x in unique(means[pair])) {
+          for (sd in unique(sds[pair])) {
+            if (is.na(sd)) {
+              next
+            }
+            n_checked <- n_checked + 1L
+            x |>
+              debit(sd = sd, n = n, digits_x = digits, digits_sd = digits, data_type = "integer") |>
+              isTRUE() |>
+              expect_true(
+                label = paste0(
+                  "x = ", x, ", sd = ", sd, ", n = ", n, ", digits = ", digits,
+                  " comes from ", k[i], " ones and ", n - k[i], " zeros, so DEBIT"
+                )
+              )
+          }
+        }
+      }
+    }
+  }
+
+  # Guard against the loops silently collapsing to nothing (152 as written):
+  n_checked |> expect_gt(100L)
+})
+
+
+# The reconstructed SD is not monotonic in the mean: `sd_binary_mean_n()` is a
+# downward parabola peaking at a mean of 0.5. DEBIT used to evaluate it only at
+# the two bounds of the mean's rounding interval and reason from there to every
+# mean in between, which is an intermediate-value argument that monotonicity
+# would be needed for. An interval containing 0.5 reaches SDs above both of its
+# endpoints, and every one of them was invisible to the test.
+
+test_that("DEBIT accepts real binary data with a mean reported as 0.50", {
+  # 50 ones and 50 zeros: mean 0.5, SD 0.5025189, i.e. 0.503 at three decimal
+  # places. There is nothing wrong with this data set.
+  0.50 |> debit(sd = 0.503, n = 100, digits_x = 2, digits_sd = 3, data_type = "integer") |> expect_true()
+})
+
+test_that("DEBIT accepts every real binary data set reported as a mean of 0.50", {
+  # Enumerate the actual data sets: `k` ones out of `n`, keeping those whose
+  # mean would have been reported as 0.50 at two decimal places.
+  cases <- 10:250 |>
+    purrr::map(function(n) {
+      k <- 0:n
+      k <- k[abs((k / n) - 0.5) <= 0.005]
+      sd_true <- sd_binary_mean_n(k / n, n)
+      sd_rep <- c(roundwork::round_up(sd_true, 3L), roundwork::round_down(sd_true, 3L))
+      tibble::tibble(n = n, sd_rep = sd_rep)
+    }) |>
+    purrr::list_rbind() |>
+    dplyr::distinct()
+
+  out <- list(cases$sd_rep, cases$n) |> purrr::pmap_lgl(function(sd_rep, n) {
+    debit(x = 0.50, sd = sd_rep, n = n, digits_x = 2, digits_sd = 3, data_type = "integer")
+  })
+
+  out |> all() |> expect_true()
+})
+
+# `"exact"` only considers means of the form `k / n`. The test above shows that
+# it passes every real binary sample; this one shows the converse, that it
+# passes nothing else, by listing every reportable pair of mean and SD.
+
+test_that("`formula = \"exact\"` passes exactly the real binary samples", {
+  grid <- tidyr::expand_grid(x = 0:100 / 100, sd = 0:55 / 100)
+
+  for (rounding in c("up_or_down", "up", "even", "ceiling")) {
+    for (n in c(7L, 20L)) {
+      real <- 0:n |>
+        purrr::map(function(k) {
+          tidyr::expand_grid(
+            x = (k / n) |> roundwork::reround(2, rounding),
+            sd = (k / n) |> sd_binary_mean_n(n) |> roundwork::reround(2, rounding)
+          )
+        }) |>
+        purrr::list_rbind()
+      real <- paste(round(real$x * 100), round(real$sd * 100))
+      expected <- paste(round(grid$x * 100), round(grid$sd * 100)) %in% real
+
+      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, data_type = "integer")
+      mean_n <- grid$x |> debit(grid$sd, n, 2, 2, "mean_n", rounding, data_type = "integer")
+
+      exact |> expect_equal(expected)
+      # The difference only ever turns `TRUE` into `FALSE`:
+      (exact & !mean_n) |> any() |> expect_false()
+    }
+  }
+})
+
+
+# The full oracle: the test above for every rounding method, with and without
+# `symmetric`, for more sample sizes and decimal places. `"even"` needs care in
+# the oracle itself. `base::round()` decides a tie by the binary representation
+# of the number, so `round(0.95, 1)` is 0.9, but scrutiny takes both neighbors
+# of an exact tie to be possible (see `rounding_offsets()`). The oracle must do
+# the same, so it detects exact ties in whole-number arithmetic. `twice` is
+# twice the value in units of the last decimal place: an odd whole number
+# exactly at a tie.
+
+oracle_round <- function(value, twice, is_tie, digits, rounding, symmetric) {
+  if (is_tie && rounding %in% c("even", "ties_even")) {
+    c(twice - 1, twice + 1) / 2 / 10^digits
+  } else {
+    roundwork::reround(
+      value,
+      digits,
+      rounding,
+      threshold = 4,
+      symmetric = symmetric
+    )
+  }
+}
+
+# Every value that the mean of `k` ones among `n` values could be reported as:
+oracle_means <- function(k, n, digits, rounding, symmetric) {
+  twice_times_n <- 2 * k * 10^digits
+  twice <- twice_times_n %/% n
+  is_tie <- twice_times_n %% n == 0 && twice %% 2 == 1
+  oracle_round(k / n, twice, is_tie, digits, rounding, symmetric)
+}
+
+# ...and the same for their SD, whose square is `k * (n - k) / (n * (n - 1))`:
+oracle_sds <- function(k, n, digits, rounding, symmetric) {
+  sd <- sd_binary_1_n(k, n)
+  twice <- round(2 * sd * 10^digits)
+  is_tie <- twice %% 2 == 1 &&
+    twice^2 * n * (n - 1) == 4 * k * (n - k) * 10^(2 * digits)
+  oracle_round(sd, twice, is_tie, digits, rounding, symmetric)
+}
+
+specs <- tibble::tibble(
+  rounding = c(
+    ROUNDING_METHODS,
+    "up_or_down",
+    "up",
+    "down",
+    "up_from",
+    "down_from",
+    "up_from_or_down_from"
+  ),
+  symmetric = rep(c(FALSE, TRUE), c(length(ROUNDING_METHODS), 6L))
+)
+
+test_that("`formula = \"exact\"` passes exactly the real binary samples (full)", {
+  skip_if_not(run_full_debit_oracle, "set `SCRUTINY_FULL_ORACLE=true` to run")
+  for (i in seq_len(nrow(specs))) {
+    rounding <- specs$rounding[i]
+    symmetric <- specs$symmetric[i]
+
+    for (n in c(2L, 3L, 9L, 13L, 40L, 101L, 333L)) {
+      for (digits_x in 1:2) {
+        for (digits_sd in 1:2) {
+          real <- 0:n |>
+            purrr::map(function(k) {
+              tidyr::expand_grid(
+                x  = oracle_means(k, n, digits_x,  rounding, symmetric),
+                sd = oracle_sds(  k, n, digits_sd, rounding, symmetric)
+              )
+            }) |>
+            purrr::list_rbind()
+          real <- paste(round(real$x * 10^digits_x), round(real$sd * 10^digits_sd))
+
+          grid <- tidyr::expand_grid(
+            x  = 0:10^digits_x / 10^digits_x,
+            sd = 0:(0.75 * 10^digits_sd) / 10^digits_sd
+          )
+          expected <- paste(round(grid$x * 10^digits_x), round(grid$sd * 10^digits_sd)) %in% real
+
+          exact <- grid$x |>
+            debit(grid$sd, n, digits_x, digits_sd, "exact", rounding, 4, symmetric, data_type = "integer")
+
+          mean_n <- grid$x |>
+            debit(grid$sd, n, digits_x, digits_sd, "mean_n", rounding, 4, symmetric, data_type = "integer")
+
+          label <- paste0(
+            "rounding = ", rounding, ", symmetric = ", symmetric, ", n = ", n,
+            ", digits_x = ", digits_x, ", digits_sd = ", digits_sd
+          )
+          exact |> expect_equal(expected, label = label)
+          # The difference only ever turns `TRUE` into `FALSE`:
+          (exact & !mean_n) |> any() |> expect_false(label = label)
+        }
+      }
+    }
+  }
+})
+
+# Two branches of `binary_sd_attainable()` that the grid above doesn't reach.
+# The full oracle does, but it only runs on request.
+
+test_that("`formula = \"exact\"` folds a range of `k` around `n / 2` fully", {
+  # 22 ones in 40: a mean of 0.55, reported as 0.5 when rounding up from 6, and
+  # an SD of 0.50383. Folded onto the lower half, `k = 22` is `j = 18`, which is
+  # below the least `k`, 19, so the range of `j` has to start at `n - 22`:
+  0.5 |> debit(0.504, 40, 1, 3, rounding = "up_from", threshold = 6, data_type = "integer") |> expect_true()
+})
+
+test_that("`formula = \"exact\"` excludes an SD exactly on an exclusive bound", {
+  # Three ones in nine have an SD of exactly 0.5, which `"floor"` reports as
+  # 0.5, not 0.4 -- the upper bound of 0.4 is exclusive:
+  0.33 |> debit(0.4, 9, 2, 1, rounding = "floor", data_type = "integer") |> expect_false()
+  0.33 |> debit(0.5, 9, 2, 1, rounding = "floor", data_type = "integer") |> expect_true()
+})
+
+test_that("`formula = \"mean_n\"` accepts SDs no binary sample has", {
+  0.05 |> debit(0.21, 20, 2, 2, data_type = "integer")                     |> expect_false()
+  0.05 |> debit(0.21, 20, 2, 2, formula = "mean_n", data_type = "integer") |> expect_true()
+  0.05 |> debit(0.22, 20, 2, 2, data_type = "integer")                     |> expect_true()
+})
+
+# One 1 in four values has a mean and an SE of exactly 0.25. `"mean_n"` used to
+# round that SE to 0.2 only, where the bounds of `"even"` admit 0.3 as well:
+test_that("`formula = \"mean_n\"` takes ties both ways under rounding to even", {
+  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "even", sd_meaning = "se", data_type = "integer")         |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, "mean_n", "ties_even", sd_meaning = "se", data_type = "integer")    |> expect_true()
+  1   |> debit(1, 14, 0, 0, "mean_n", "ties_even", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.2 |> debit(0.3, 4, 1, 1, "exact", "even", sd_meaning = "se", data_type = "integer")          |> expect_true()
+})
+
+test_that("`formula` other than \"exact\" or \"mean_n\" is an error", {
+  0.35 |>
+    debit(0.48, 100, digits_x = 2, digits_sd = 2, data_type = "integer", formula = "0_n") |>
+    expect_error("must be one of")
+})
+
+
+# SD type (#95) -----------------------------------------------------------
+
+# 3 ones among 10 values have a mean of 0.30, a sample SD of 0.483, and a
+# population SD of 0.458.
+
+test_that("`sd_meaning` decides which SD a value set is consistent with", {
+  0.30 |> debit(0.46, 10, 2, 2, data_type = "integer")                         |> expect_false()
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "sd_sample_or_pop", data_type = "integer")     |> expect_true()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "sd_sample_or_pop", data_type = "integer")     |> expect_true()
+})
+
+test_that("`sd_meaning` is checked with `rlang::arg_match()`", {
+  0.30 |> debit(0.46, 10, 2, 2, sd_meaning = "pop", data_type = "integer") |> expect_error("must be one of")
+  error <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "Sample") |>
+    expect_error("must be one of")
+  error$call[[1L]] |> expect_equal(quote(debit_map))
+})
+
+test_that("`formula = \"exact\"` passes exactly the real binary samples under every SD type", {
+  grid <- tidyr::expand_grid(x = 0:100 / 100, sd = 0:75 / 100)
+  key <- paste(round(grid$x * 100), round(grid$sd * 100))
+
+  real <- function(n, rounding, sd_meaning) {
+    k <- 0:n
+    n_dev <- if (sd_meaning == "sd_pop") n else n - 1
+    # An SE is the sample SD divided by `sqrt(n)`:
+    divisor <- if (sd_meaning == "se") sqrt(n) else 1
+    pairs <- k |>
+      purrr::map(function(k) {
+        tidyr::expand_grid(
+          x = (k / n) |> roundwork::reround(2, rounding),
+          sd = (sqrt(k * (n - k) / (n * n_dev)) / divisor) |> roundwork::reround(2, rounding)
+        )
+      }) |>
+      purrr::list_rbind()
+    key %in% paste(round(pairs$x * 100), round(pairs$sd * 100))
+  }
+
+  # `sd_meaning` only changes the SD's denominator, not the rounding, so two
+  # methods suffice: the default and `"even"`, which takes ties both ways. The
+  # test above covers the others, and how `"mean_n"` relates to `"exact"`.
+  for (rounding in c("up_or_down", "even")) {
+    for (n in c(1L, 2L, 7L, 20L)) {
+      info <- paste0("rounding = ", rounding, ", n = ", n)
+      is_population <- real(n, rounding, "sd_pop")
+      # A single value has no sample SD:
+      is_sample <- if (n == 1L) FALSE else real(n, rounding, "sd_sample")
+
+      exact  <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "sd_pop", data_type = "integer")
+      either <- grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "sd_sample_or_pop", data_type = "integer")
+
+      exact  |> expect_equal(is_population, info = info)
+      either |> expect_equal(is_sample | is_population, info = info)
+
+      if (n > 1L) {
+        grid$x |> debit(grid$sd, n, 2, 2, rounding = rounding, sd_meaning = "se", data_type = "integer") |> expect_equal(real(n, rounding, "se"), info = paste(info, "(SE)"))
+      }
+    }
+  }
+})
+
+test_that("`sd_meaning` reaches the sequence and total-n mappers", {
+  df <- tibble::tibble(x = 0.30, sd = 0.46, n = 10)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer")                         |> nrow() |> expect_gt(0L)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_pop") |> expect_warning("No inconsistent cases")
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_pop") |> suppressWarnings() |> nrow() |> expect_equal(0L)
+
+  seq_either <- df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
+  seq_either |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
+  seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
+
+  # Groups of 10 and 10 fit only as population SDs:
+  total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.46, sd2 = 0.46, n = 20)
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                         |> _$both_consistent |> any() |> expect_false()
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_pop") |> _$both_consistent |> any() |> expect_true()
+})
+
+test_that("the sequence mapper disperses `n` down to 1 only for a population SD", {
+  df <- tibble::tibble(x = 0.5, sd = 0.5, n = 3)
+  seq_n <- function(sd_meaning) {
+    df |> debit_map_seq(digits_x = 1, digits_sd = 1, data_type = "integer", sd_meaning = sd_meaning, var = "n", include_consistent = TRUE) |> _$n |> min()
+  }
+  "sd_sample"     |> seq_n() |> expect_equal(2L)
+  "sd_pop" |> seq_n() |> expect_equal(1L)
+})
+
+test_that("explanations agree with the test under every SD type", {
+  grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5, 1), sd = c(0, 0.46, 0.48, 0.5), n = c(1, 2, 10))
+  for (sd_meaning in c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")) {
+    verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_meaning = sd_meaning, data_type = "integer")
+    explained <- grid |>
+      purrr::pmap_lgl(function(x, sd, n) {
+        explanation <- x |> debit_explain(sd, n, 2, 2, sd_meaning = sd_meaning, data_type = "integer")
+        explanation$consistency
+      })
+    explained |> expect_equal(verdict, info = sd_meaning)
+  }
+
+  out <- tibble::tibble(x = 0.30, sd = 0.46, n = 10) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_sample_or_pop") |>
+    explain_map()
+  out$explanation |> expect_match("sd_meaning = \"sd_sample_or_pop\"", fixed = TRUE)
+  out$explanation |> expect_match("the population SD is", fixed = TRUE)
+  out$explanation |> expect_match("==> Consistent", fixed = TRUE)
+})
+
+
+# SE (#95) ----------------------------------------------------------------
+
+# 3 ones among 10 values have a sample SD of 0.483, whose SE is 0.153.
+
+test_that("`sd_meaning = \"se\"` tests `sd` as an SE", {
+  0.30 |> debit(0.15, 10, 2, 2, data_type = "integer")                                        |> expect_false()
+  0.30 |> debit(0.15, 10, 2, 2, sd_meaning = "se", data_type = "integer")                     |> expect_true()
+  0.30 |> debit(0.15, 10, 2, 2, formula = "mean_n", sd_meaning = "se", data_type = "integer") |> expect_true()
+  0.30 |> debit(0.48, 10, 2, 2, sd_meaning = "se", data_type = "integer")                     |> expect_false()
+  # An SE needs a sample SD:
+  1    |> debit(0, 1, 2, 2, sd_meaning = "se", data_type = "integer")                         |> expect_na()
+})
+
+test_that("`sd_meaning = \"se\"` reaches every mapper and the explanations", {
+  df <- tibble::tibble(x = 0.30, sd = 0.15, n = 10)
+  out <- df |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "se")
+  out$consistency |> expect_true()
+  out |> scrutiny_args() |> _$sd_meaning |> expect_equal("se")
+
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer")                    |> nrow() |> expect_gt(0L)
+  df |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "se") |> expect_warning("No inconsistent cases")
+
+  total <- tibble::tibble(x1 = 0.30, x2 = 0.30, sd1 = 0.15, sd2 = 0.15, n = 20)
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                    |> _$both_consistent |> any() |> expect_false()
+  total |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "se") |> _$both_consistent |> any() |> expect_true()
+
+  grid <- tidyr::expand_grid(x = c(0, 0.3, 0.5), sd = c(0, 0.14, 0.15, 0.5), n = c(1, 2, 10))
+  verdict <- grid$x |> debit(grid$sd, grid$n, 2, 2, sd_meaning = "se", data_type = "integer")
+  explained <- grid |>
+    purrr::pmap_lgl(function(x, sd, n) {
+      explanation <- x |> debit_explain(sd, n, 2, 2, sd_meaning = "se", data_type = "integer")
+      explanation$consistency
+    })
+  explained |> expect_equal(verdict)
+
+  explanation <- out |> explain_map() |> _$explanation
+  explanation |> expect_match("the SE, the SD divided by sqrt(10), is", fixed = TRUE)
+  explanation |> expect_match("==> Consistent", fixed = TRUE)
+})
+
+test_that("`formula = \"mean_n\"` does not attain the SD at an excluded bound of the mean", {
+  # `x = 0.03` under ceiling: mean above 0.02, so the population SD at n = 10
+  # is above 0.14 and ceilings to 0.15. The SD at 0.02 itself, 0.14, is not
+  # attained:
+  0.03 |> debit(0.14, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.03 |> debit(0.15, 10, 2, 2, "mean_n", "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  # Under `"up"`, 0.02 is included and so is its SD:
+  0.02 |> debit(0.14, 10, 2, 2, "mean_n", "up", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  # An SD of 0.00 under ceiling needs an SD of exactly 0, i.e., a mean of
+  # exactly 0 or 1, which `x = 0.01` excludes:
+  0.01 |> debit(0, 10, 2, 2, "mean_n", "ceiling", data_type = "integer") |> expect_false()
+  0.00 |> debit(0, 10, 2, 2, "mean_n", "ceiling", data_type = "integer") |> expect_true()
+  # Under floor, means just below 1 have SDs that floor to 0.00:
+  0.9 |> debit(0, 20, 1, 2, "mean_n", "floor", data_type = "integer") |> expect_true()
+  # A mean of 1/2 inside the range attains the largest SD, even if neither
+  # bound does:
+  0.5 |> debit(0.5, 200, 1, 1, "mean_n", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  0.5 |> debit(0.5, 200, 1, 1, "mean_n", "trunc", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+})
+
+test_that("an integer `n` beyond 46340 doesn't overflow under `\"sd_pop\"`", {
+  0.5 |> debit(0.5, 50000L, digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_pop")           |> expect_true()
+  NA  |> debit(0.5, 50000L, digits_x = 2, digits_sd = 2, data_type = "integer", sd_meaning = "sd_sample_or_pop") |> expect_na()
+  debit_explain(0.5, 0.5, 50000L, 2, 2, sd_meaning = "sd_pop", data_type = "integer")$consistency |> expect_true()
+})
+
+test_that("a large `n` is tested exactly", {
+  # k = 5399457 ones have the population SD 0.14 exactly, at the upper bound
+  # that `"ceiling"` includes:
+  0.98 |> debit(0.14, 5509650,   2, 2, rounding = "ceiling", sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  # The two ranges touch only at an SD of 0.4, which `"floor"` excludes:
+  0.2  |> debit(0.3,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.2  |> debit(0.4,  264143000, 1, 1, rounding = "floor",   sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  # Under `"mean_n"`, the spread at a mean of 0.1 is 0.09, whose SD of 0.3 is
+  # beyond the floor range of 0.2:
+  0.1  |> debit(0.2,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+  0.1  |> debit(0.3,  1035000,   7, 1, "mean_n", "floor",    sd_meaning = "sd_pop", data_type = "integer") |> expect_true()
+  # An SE, whose `n_dev` is `n * (n - 1)`:
+  0.35 |> debit(0.0015, 1e5, 2, 4, sd_meaning = "se", data_type = "integer") |> expect_true()
+  0.35 |> debit(0.0016, 1e5, 2, 4, sd_meaning = "se", data_type = "integer") |> expect_false()
+  debit_explain(0.2, 0.3, 264143000, 1, 1, rounding = "floor", sd_meaning = "sd_pop", data_type = "integer")$consistency |> expect_false()
+  # Products beyond 2^53 with four decimal places, compared exactly:
+  0.9216 |> debit(0.2688, 625, 4, 4, "mean_n", "floor", data_type = "integer") |> expect_true()
+  0.9216 |> debit(0.2687, 625, 4, 4, rounding = "up", sd_meaning = "sd_pop", data_type = "integer") |> expect_false()
+})
+
+test_that("an `n` beyond exact arithmetic is an error, not a wrong verdict or a hang", {
+  0  |> debit(0.2, 1e20, 2, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_error("`n` is too large")
+  NA |> debit(0.3, 1e18, 2, 1, sd_meaning = "sd_pop", data_type = "integer") |> expect_error("`n` is too large")
+  NA |> grimmer(0.5, 2^53 + 2, 1, 1, 1, data_type = "integer")                |> expect_error("`n` is too large")
+})
+
+test_that("`formula = \"mean_n\"` is exact with `digits_x = 15`", {
+  # `10^16 - lower` is beyond 2^53 and odd, so a double would round it:
+  x  <- c(0.051274316068421, 0.005965150648999, 0.073856388835611, 0.032662407549849, 0.080178459855802)
+  sd <- c(0.231321824820205, 0.077383953227377, 0.286499471546682, 0.181934399876087, 0.303623686557375)
+  x |> debit(sd, c(11, 102, 6, 22, 5), 15, 15, formula = "mean_n", data_type = "integer") |> expect_equal(c(TRUE, TRUE, TRUE, TRUE, FALSE))
+})
+
+test_that("the error about too large a sum doesn't mention `items_averaged`", {
+  message <- tryCatch(debit(0.5, 0.5, 1e15, 1, 1, data_type = "integer"), error = conditionMessage)
+  message |> expect_match("too large for an exact test")
+  message |> grepl(pattern = "items_averaged") |> expect_false()
+})
+
+
+test_that("`data_type` decides whether DEBIT applies", {
+  # Seven 1s among 20 values have a mean of 0.35 and an SD of 0.49, not 0.18:
+  0.35 |> debit(c(0.18, 0.49), 20, 2, 2, "integer")    |> expect_equal(c(FALSE, TRUE))
+  0.35 |> debit(c(0.18, 0.49), 20, 2, 2, "continuous") |> expect_equal(c(TRUE, TRUE))
+  0.35 |> debit(c(0.18, 0.49), 20, 2, 2, NA)           |> expect_equal(c(NA, TRUE))
+  0.35 |> debit(0.18, 20, 2, 2) |> expect_error("Need to specify `data_type`")
+  out <- tibble::tibble(x = 0.35, sd = 0.18, n = 20, data_type = c("integer", "continuous", NA)) |>
+    debit_map(digits_x = 2, digits_sd = 2, show_rec = TRUE)
+  out$data_type   |> expect_equal(c("integer", "continuous", NA))
+  out$consistency |> expect_equal(c(FALSE, TRUE, NA))
+  out[1:2, ] |> debit_plot() |> expect_warning("Dropping 1 value set of continuous data")
+})
+
+test_that("continuous data pass only value sets that some data can have", {
+  types <- c("integer", "continuous", NA)
+  # A single value has a population SD of 0, and no sample SD:
+  1 |> debit(c(0.5, 0), 1, 1, 1, "continuous", sd_meaning = "sd_pop") |> expect_equal(c(FALSE, TRUE))
+  1 |> debit(0.5, 1, 1, 1, types, sd_meaning = "sd_pop")               |> expect_equal(c(FALSE, FALSE, FALSE))
+  0.5 |> debit(0.5, c(1, 0), 1, 1, "continuous")                       |> expect_equal(c(NA, NA))
 })

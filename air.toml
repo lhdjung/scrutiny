@@ -1,0 +1,4 @@
+[format]
+skip = [
+    "test_that"
+]

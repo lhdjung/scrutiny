@@ -7,89 +7,156 @@
 grim(
   x,
   n,
-  items = 1,
-  percent = FALSE,
-  show_rec = FALSE,
+  digits_x,
+  items_averaged,
+  data_type,
+  x_meaning = c("mean", "percentage"),
   rounding = "up_or_down",
   threshold = 5,
   symmetric = FALSE,
-  tolerance = .Machine$double.eps^0.5
+  percent = deprecated()
 )
 }
 \arguments{
-\item{x}{String. The reported mean or percentage value.}
+\item{x}{Numeric. The reported mean or percentage.}
 
 \item{n}{Integer. The reported sample size.}
 
-\item{items}{Numeric. The number of items composing \code{x}. Default is 1, the
-most common case.}
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default, since a numeric value does not
+keep them (\code{1.40} is \code{1.4}).}
 
-\item{percent}{Logical. Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This
-will convert it to a decimal number and adjust the decimal count (i.e.,
-increase it by 2). Default is \code{FALSE}.}
+\item{items_averaged}{Integer. The number of items averaged into each
+respondent's score: 1 for a single item or the percentage of participants
+with some answer, 4 for the mean of a four-item scale, 10 for the average
+percent correct on a ten-question test. Not the number of scale points.
+No default.}
 
-\item{show_rec}{Logical. For internal use only. If set to \code{TRUE}, the output
-is a matrix that also contains intermediary values from GRIM-testing. Don't
-specify this manually; instead, use \code{show_rec} in \code{\link[=grim_map]{grim_map()}}. Default
-is \code{FALSE}.}
+\item{data_type}{String. The kind of data that \code{x} summarizes. No default.
+\itemize{
+\item \code{"integer"}: whole numbers, such as answers on a rating scale, counts,
+or yes/no answers for a percentage.
+\item \code{"continuous"}: anything else, such as body mass index or a visual
+analogue scale. The test does not apply, and the result is \code{TRUE}
+unless the value set describes no data, as with \code{n = 0}, which is \code{NA}
+as it is for whole numbers.
+}
 
-\item{rounding}{String. Rounding method or methods to be used for
-reconstructing the values to which \code{x} will be compared. Default is
-\code{"up_or_down"} (from 5).}
+If it is \code{NA}, the result is the one for whole numbers if it is the same
+for continuous data, and \code{NA} otherwise.}
 
-\item{threshold}{Numeric. If \code{rounding} is set to \code{"up_from"}, \code{"down_from"},
-or \code{"up_from_or_down_from"}, set \code{threshold} to the number from which the
-reconstructed values should then be rounded up or down. Otherwise, this
-argument plays no role. Default is \code{5}.}
+\item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
+\code{"percentage"}. A percentage is divided by 100 and tested with two more
+decimal places, as the proportion it is. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
-\item{symmetric}{Logical. Set \code{symmetric} to \code{TRUE} if the rounding of
-negative numbers with \code{"up"}, \code{"down"}, \code{"up_from"}, or \code{"down_from"}
-should mirror that of positive numbers so that their absolute values are
-always equal. Default is \code{FALSE}.}
+\item{rounding}{String. The rounding method assumed to have produced \code{x}.
+Default is \code{"up_or_down"}, which accepts either direction; see
+\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
+\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
+\code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
+\code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
+and \code{"ties_even"}. See
+\code{vignette("rounding-options", package = "roundwork")}.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between \code{x} and the
-possible mean or percentage values. Default is circa 0.000000015
-(1.490116e-08), as in \code{\link[dplyr:near]{dplyr::near()}}.}
+\item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
+\code{"up_from_or_down_from"}, the point within a step at which rounding
+switches direction, in tenths of a step. Default is \code{5}. Ignored
+otherwise.}
+
+\item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
+their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"ties_*"} rounding method, which already fixes the direction; see
+\code{\link[roundwork:reround]{roundwork::reround()}}.}
+
+\item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
+use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
 }
 \value{
-Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items} are mutually consistent,
-\code{FALSE} if not.
+Logical. \code{TRUE} if \code{x}, \code{n}, and \code{items_averaged} are consistent,
+\code{FALSE} if not, and \code{NA} if the case cannot be decided: if a value is
+infinite, if \code{n} or \code{items_averaged} is not a positive whole number, or if
+a missing value could decide the case either way. See
+\code{vignette("technical-notes")}, section \emph{Missing values}, on which cases a
+missing value leaves open.
 }
 \description{
-\code{grim()} checks if a reported mean value of integer data is
-mathematically consistent with the reported sample size and the number of
-items that compose the mean value.
+\code{grim()} checks whether a reported mean of integer data is
+consistent with the reported sample size and the number of items that
+compose the mean. The mean of \code{n * items_averaged} integers is a whole
+number divided by \code{n * items_averaged}, so only certain values are
+possible; the test asks whether any of them would have been reported as
+\code{x}.
 
-Set \code{percent} to \code{TRUE} if \code{x} is a percentage. This will convert \code{x} to a
-decimal number and adjust the decimal count accordingly.
+Set \code{x_meaning} to \code{"percentage"} if \code{x} is a percentage. It is then
+divided by 100 and tested with two more decimal places.
 
-The function is vectorized, but it is recommended to use \code{\link[=grim_map]{grim_map()}} for
-testing multiple cases.
+The function is vectorized, but \code{\link[=grim_map]{grim_map()}} is more convenient for
+testing many cases.
 }
 \details{
-The \code{x} values need to be strings because only strings retain
-trailing zeros, which are as important for the GRIM test as any other
-decimal digits.
+\code{items_averaged} must be specified because a mean over several
+items is a mean of more values, which changes the test. A default of 1
+would let multi-item scales pass unnoticed. \code{data_type} must be specified
+because GRIM only applies to whole numbers. A default of \code{"integer"}
+would let the test flag means of continuous data, which can take any
+value.
 
-Use \code{\link[=restore_zeros]{restore_zeros()}} on numeric values (or values that were numeric
-values at some point) to easily supply the trailing zeros they might once
-have had. See documentation there.
+\code{x}, \code{n}, \code{digits_x}, \code{items_averaged}, and \code{data_type} are vectorized
+and recycled to a common length by the tidyverse rules: an argument has
+length 1 or the length of the longest. All other arguments must have length 1.
 
-Browse the source code in the grim.R file. \code{grim()} is a vectorized version
-of the internal \code{grim_scalar()} function found there.
+Numbers beyond the precision of a double are an error rather than a
+guess. \code{x} with its \code{digits_x} may have about 15 significant digits:
+\code{x * 10^(digits_x + 1)} must be below 2^52, about 4.5e15, and
+\code{(x * 10^(digits_x + 1) + 10) * n * items_averaged} below 2^53, about
+9e15. A \code{threshold} with decimal places raises the power of ten.
 }
+\section{Defaults}{
+ The defaults are meant to flag a value set only if it is
+inconsistent under every usual convention:
+\itemize{
+\item \code{rounding = "up_or_down"}: Reports rarely say how they rounded, and the
+common methods only disagree on ties. SPSS and Excel round a 5 away from
+zero, while R's \code{round()} and Python's \code{round()} round it to an even
+digit. The default accepts a tie rounded either way, so a value set that
+fails is inconsistent under all of them. Choose another method only if
+you know which one was used. \code{threshold} and \code{symmetric} do not affect
+it.
+\item \code{x_meaning = "mean"}: GRIM was devised for means, and most values that
+it is applied to are means. A percentage needs to be marked as one, since
+the same number, such as 71, can be either.
+}
+}
+
 \examples{
 # A mean of 5.19 is not consistent with a sample size of 28:
-grim(x = "5.19", n = 28)    # `x` in quotes!
+grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # However, it is consistent with a sample size of 32:
-grim(x = "5.19", n = 32)
+grim(x = 5.19, n = 32, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 # For a scale composed of two items:
-grim(x = "2.84", n = 16, items = 2)
+grim(x = 2.84, n = 16, digits_x = 2, items_averaged = 2, data_type = "integer")
 
 # With percentages instead of means -- here, 71\%:
-grim(x = "71", n = 43, percent = TRUE)
+grim(
+  x = 71,
+  n = 43,
+  digits_x = 0,
+  items_averaged = 1,
+  data_type = "integer",
+  x_meaning = "percentage"
+)
+
+# Means of continuous data, such as reaction times, can take any value:
+grim(
+  x = 5.19,
+  n = 28,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "continuous"
+)
 }
 \references{
 Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
@@ -98,5 +165,8 @@ Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369
 https://journals.sagepub.com/doi/10.1177/1948550616673876
 }
 \seealso{
-\code{\link[=grim_map]{grim_map()}} applies \code{grim()} to any number of cases at once.
+\code{\link[=grim_explain]{grim_explain()}} to explain a result in plain words,
+\code{\link[=grim_map]{grim_map()}} for data frames, \code{\link[=grim_values]{grim_values()}} for the means that \code{n}
+integers can produce, and \code{\link[=grim_exp_incon]{grim_exp_incon()}} for how informative the
+test is in a given case.
 }

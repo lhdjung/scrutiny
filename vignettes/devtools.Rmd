@@ -15,36 +15,32 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, message=FALSE}
+```{r setup, include = FALSE}
 library(scrutiny)
 ```
 
-The implementation of error detection techniques in scrutiny rests on a foundation of specialized helper functions. Some of these are exported because they might be helpful in error detection more broadly, or perhaps even in other contexts.
-
-This vignette provides an overview of scrutiny's miscellaneous infrastructure for implementing error detection techniques. For more specific articles, see `vignette("rounding-in-depth")` or `vignette("consistency-tests-simple")`.
+scrutiny exports the helper functions on which its error detection techniques are built, since they may be useful for implementing other techniques. This vignette gives an overview. For rounding, see the [roundwork](https://lhdjung.github.io/roundwork/) package, which scrutiny builds on; for the consistency test infrastructure, see `vignette("consistency-tests-in-depth")`.
 
 ## Count decimal places
 
-Large parts of the package ultimately rest on either of two functions that simply count decimal places. These are digits after a number's decimal point or some other separator. Both functions also take strings.
-
-`decimal_places()` is vectorized:
+`seq_disperse()` and `restore_zeros()` are based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
 
 ```{r}
 decimal_places("2.80")
 
 decimal_places(c(55.1, 6.493, 8))
 
-vec1 <- iris %>% 
-  dplyr::slice(1:10) %>% 
+vec1 <- iris |>
+  dplyr::slice(1:10) |>
   dplyr::pull(Sepal.Length)
 
 vec1
 
-vec1 %>% 
+vec1 |>
   decimal_places()
 ```
 
-Using strings (that are coercible to numeric) is recommended in an error detection context because trailing zeros can be crucial here. Numeric values drop trailing zeros, whereas strings preserve them:
+Numeric values drop trailing zeros, whereas strings preserve them. This is why the consistency tests take the number of decimal places as an argument rather than counting it:
 
 ```{r}
 decimal_places(7.200)
@@ -52,98 +48,29 @@ decimal_places(7.200)
 decimal_places("7.200")
 ```
 
-`decimal_places_scalar()` is faster than `decimal_places()` but only takes a single number or string. This makes it suitable as a helper within other single-case functions.
-
-## Restore trailing zeros
-
-When dealing with numbers that used to have trailing zeros but lost them from being registered as numeric, call `restore_zeros()` to format them correctly. This can be relevant within functions that create vectors where trailing zeros matter, such as the `seq_*()` functions presented in the next section.
-
-Suppose all of the following numbers originally had one decimal place, but some no longer do:
-
-```{r}
-vec2 <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
-
-vec2 %>% 
-  decimal_places()
-```
-
-Now, get them back with `restore_zeros()`:
-
-```{r}
-vec2 %>% 
-  restore_zeros()
-
-vec2 %>% 
-  restore_zeros() %>% 
-  decimal_places()
-```
-
-This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
-
-```{r}
-vec2 %>% 
-  restore_zeros(width = 2)
-
-vec2 %>% 
-  restore_zeros(width = 2) %>% 
-  decimal_places()
-```
+`restore_zeros()` pads numbers with trailing zeros, returning strings; see `vignette("wrangling")`.
 
 ## Sequence generation
 
-### Introduction
-
-`base::seq()` offers a flexible way to generate sequences, but it is not cut out for working with decimal numbers. The `by` argument only allows for manual specifications of the step size, i.e., the difference between two consecutive output values. In an error detection context, there is also the problem of trailing zeros in numeric values.
-
-Use scrutiny's `seq_*()` functions to automatically determine step size from the input numbers and, by default, to supply missing trailing zeros via `restore_zeros()`. Output will then naturally be string.
-
-Why are there multiple such functions? The first two disentangle the two different ways in which `seq()` can be used. A third function adds a way of generating sequences not directly covered by `seq()`.
-
--   `seq_endpoint()` takes two main arguments, `from` and `to`. It creates a sequence between the two, inferring step size from the greater number of decimal places among them. This corresponds to a `seq()` call in which `to` was specified.
-
--   `seq_distance()` takes a `from` argument, uses it to infer the step size, and creates a sequence of a length specified by the `length_out` argument (default is `10`). This corresponds to a `seq()` call in which `length.out` was specified.
-
--   Finally, `seq_disperse()` creates a sequence centered around `from`.
-
-Each of these functions has a `*_df()` variant that embeds the sequence as a tibble column.
-
-### Examples
-
-The `seq_*()` functions have some more features, such as offsets and direction reversal, but I'll focus on the basics here.
-
-Call `seq_endpoint()` to bridge two numbers at the correct decimal level:
-
-```{r}
-seq_endpoint(from = 4.1, to = 6)
-
-seq_endpoint(from = 4.1, to = 4.15)
-```
-
-Call `seq_distance()` to get a sequence of desired length:
-
-```{r}
-seq_distance(from = 4.1, length_out = 3)
-
-# Default for `length_out` is `10`:
-seq_distance(from = 4.1)
-```
-
-Finally, call `seq_disperse()` to construct a sequence around `from`:
+`seq_disperse()` creates a numeric sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`. A number loses trailing zeros, so for a value like `5.30`, state the step size with `by` or give `from` as a string:
 
 ```{r}
 seq_disperse(from = 4.1, dispersion = 1:3)
 
-# Default for `dispersion` if `1:5`:
+# Default for `dispersion` is `1:5`:
 seq_disperse(from = 4.1)
+
+seq_disperse(from = 5.30, by = 0.01, dispersion = 1:3)
+seq_disperse(from = "5.30", dispersion = 1:3)
 ```
 
-`seq_disperse()` is a hybrid between the two `seq()` wrappers explained above and the `disperse*()` functions introduced next.
+`seq_disperse_df()` embeds the sequence as a tibble column. `seq_disperse()` is a hybrid between `base::seq()` and the `disperse*()` functions introduced below.
 
 ## Sequence testing
 
 ### General points
 
-Four predicate functions test whether a vector `x` represents particular kinds of sequences. These testing functions can be used as helpers, but they are also analytic tools in their own right.
+Four predicate functions test whether a vector `x` is a particular kind of sequence.
 
 `is_seq_linear()` returns `TRUE` if the difference between all neighboring values is the same:
 
@@ -194,9 +121,7 @@ is_seq_dispersed(x = x_nonlinear, from = 50, test_linear = FALSE)
 
 ### `NA` handling
 
-All the `is_seq_*()` functions take special care with missing values. If one or more elements of `x` are `NA`, this doesn't necessarily mean that it's unknown whether or not `x` might possibly represent the kind of sequence in question.
-
-In these examples, it is genuinely unclear whether `x` is linear:
+A missing value does not always make the result `NA`. In these examples, it is unclear whether `x` is linear:
 
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 4))
@@ -213,17 +138,21 @@ is_seq_linear(x = c(1, 2, 3, 4, 5, 6))
 is_seq_linear(x = c(1, 2, 17, 29, 32, 6))
 ```
 
-Sometimes, however, `x` cannot possibly represent the tested kind of sequence, independently of the hypothetical numbers substituted for `NA` elements. In such cases, scrutiny's `is_seq_*()` functions will always return `FALSE`:
+If no value substituted for the `NA`s could make `x` the kind of sequence in question, the functions return `FALSE`:
 
 ```{r}
 is_seq_linear(x = c(1, 2, NA, 10))
 is_seq_linear(x = c(1, 2, NA, NA, NA, 10))
-
 ```
 
-This is very much in the spirit of consistency testing. Even if certain data are unknown, it still makes sense to check whether or not *any* data could possibly fill in the gaps. The `is_seq_*()` functions effectively ask: Are the numbers left and right of the `NA`s consistent with each other, given their index positions?
+This follows R's own rules for missing values: `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`. The result is the same for every value that the `NA` could represent [@wickham2019, ch. 3.2.3].
 
-It is worth emphasizing that this behavior is not exotic, or specific to scrutiny. It simply asserts the fundamental ideas of `NA` propagation in R. For example, `is_seq_ascending(x = c(1, 2, NA, 1))` is `FALSE` for the same reason that `NA & FALSE` is `FALSE`: The outcome is the same for all possible values of `NA` [@wickham2019, ch. 3.2.3].
+Likewise, the result is `TRUE` if every value substituted for the `NA`s would make `x` the kind of sequence in question. Any two values are linear:
+
+```{r}
+is_seq_linear(x = c(1, NA))
+is_seq_linear(x = c(NA, NA))
+```
 
 Leading and trailing `NA`s are mostly ignored when determining whether `x` *might* be the kind of sequence in question:
 
@@ -254,9 +183,7 @@ is_seq_dispersed(x = c(NA, NA, 3:7), from = 5)
 
 ## Disperse from (around) half with `disperse_total()`
 
-Briefly, `disperse_total()` checks if an input total is even or odd, cuts it in half, and creates "dispersed" group sizes going out from there, with each pair of group sizes adding up to the input total. This works naturally with even totals. For odd totals, it starts with the two integers closest to half.
-
-The function internally calls either of `disperse()` and `disperse2()`, but I recommend simply using the higher-level `disperse_total()`. Here are two basic examples:
+`disperse_total()` splits a total sample size into pairs of hypothetical group sizes that add up to it, starting from half (or, for an odd total, from the two integers closest to half) and moving outward. It calls `disperse()` or `disperse2()` depending on parity; the two can also be called directly.
 
 ```{r}
 # With an even total...
@@ -265,13 +192,5 @@ disperse_total(n = 70)
 # ...and with an odd total:
 disperse_total(n = 83)
 ```
-
-## Test for subsets, supersets, and equal sets
-
-Starting with `is_subset_of()`, scrutiny features a distinctive family of predicate functions that test whether one vector `x` is a subset of another vector `y`, whether `x` is a superset of `y` (i.e. the reverse of a subset), or whether `x` and `y` are equal sets.
-
-As a teaser: These functions are divided into three subgroups based on the way the second vector, `y`, is constituted. For example, you might test if `x` is a subset of multiple other vectors taken together, or a superset of a vector `y` that consists of multiple values entered along with `x`.
-
-Functions from this family are not currently used as helpers inside other scrutiny functions, but that may well change. Use elsewhere is also conceivable.
 
 # References

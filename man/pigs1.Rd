@@ -7,7 +7,7 @@
 \format{
 A tibble (data frame) with 12 rows and 2 columns. The columns are:
 \describe{
-\item{x}{String. Means.}
+\item{x}{Numeric. Means.}
 \item{n}{Numeric. Sample sizes.}
 }
 }
@@ -20,12 +20,9 @@ A tibble (data frame).
 \description{
 A fictional dataset with means and sample sizes of flying pigs. It can be
 used to demonstrate the functionality of \code{\link[=grim_map]{grim_map()}} and functions
-building up on it.
+built on it.
 }
 \seealso{
-\code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
-for DEBIT-testing, and \code{\link{pigs4}} for detecting duplicates.
-
 \code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
 for DEBIT-testing, \code{\link{pigs4}} for detecting duplicates, and \code{\link{pigs5}} for
 GRIMMER-testing.

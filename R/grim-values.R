@@ -1,0 +1,395 @@
+# The two exported functions below share their work with `grim_scalar()`:
+# `sum_range()` returns the least and the greatest whole-number sum total that
+# would have been reported as `x`. Everything else is division and comparison.
+
+grim_sums_scalar <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  x_meaning,
+  rounding,
+  threshold,
+  symmetric
+) {
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+
+  # The same type checks as in `grim_scalar()`: a string `n` is a mistake, not
+  # an undecidable value set, which `is_decidable_n_items()` would make of it.
+  is_percentage <- arg_match_in_export(x_meaning, X_MEANINGS) == "percentage"
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
+  }
+
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
+
+  x_num <- x
+
+  if (is_percentage) {
+    x_num <- x_num / 100
+    digits_x <- digits_x + 2L
+  }
+
+  n_items <- as.numeric(n) * items_averaged
+
+  # Undecidable cases as in `grim_scalar()`. An infinite `x` would give an
+  # infinitely wide range that `seq()` refuses to walk. Both callers check the
+  # sums with `anyNA()`:
+  sums <- if (
+    !is.finite(x_num) ||
+      is.na(digits_x) ||
+      !is_decidable_n_items(n, items_averaged)
+  ) {
+    c(NA_real_, NA_real_)
+  } else {
+    check_sum_range_exact(
+      x_num,
+      n_items,
+      digits_x,
+      scale = rounding_scale(rounding, threshold, symmetric)
+    )
+    roundwork::sum_range(
+      x_num = x_num,
+      n_items = n_items,
+      digits = digits_x,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+  }
+
+  list(
+    sums = sums,
+    n = as.numeric(n),
+    n_items = n_items,
+    # Values are returned on the scale of `x`, so that they can be read against
+    # it. Internally, a percentage is a decimal number:
+    scale = if (is_percentage) 100 else 1
+  )
+}
+
+
+grim_values_scalar <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  parts <- grim_sums_scalar(
+    x,
+    n,
+    digits_x,
+    items_averaged,
+    x_meaning,
+    rounding,
+    threshold,
+    symmetric
+  )
+  sums <- parts$sums
+
+  if (anyNA(sums)) {
+    # Inconsistent, not undecidable, if `grim()` says so with only `digits_x`
+    # missing; see `digits_least()`:
+    is_incon <- is.na(digits_x) &&
+      isFALSE(grim_scalar(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      ))
+    return(grim_values_tibble(if (is_incon) numeric(0L) else NA_real_, parts))
+  }
+
+  sum1 <- sums[1L]
+  sum2 <- sums[2L]
+
+  # An empty range means no whole-number sum total would have been reported as
+  # `x`; i.e., GRIM inconsistency:
+  if (sum1 > sum2) {
+    return(grim_values_tibble(numeric(0L), parts))
+  }
+
+  check_values_size(
+    sum2 - sum1 + 1,
+    "means",
+    list(x = x, n = n, items_averaged = items_averaged)
+  )
+
+  grim_values_tibble(seq(sum1, sum2), parts)
+}
+
+
+# The means, on the scale of `x`, that whole-number sums give. One row of `NA`
+# but for `n` for an undecidable value set, so that it still has a row in the
+# output.
+grim_values_tibble <- function(sums, parts) {
+  tibble::tibble(
+    x = sums * parts$scale / parts$n_items,
+    n = parts$n,
+    sum = sums
+  )
+}
+
+
+grim_closest_scalar <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+) {
+  parts <- grim_sums_scalar(
+    x,
+    n,
+    digits_x,
+    items_averaged,
+    x_meaning,
+    rounding,
+    threshold,
+    symmetric
+  )
+  sums <- parts$sums
+
+  if (anyNA(sums)) {
+    # With only `digits_x` missing, the answer may not depend on it: an
+    # inconsistent `x` has the same neighbors with the fewest decimal places it
+    # can have, and one that is consistent with any is achievable itself; see
+    # `digits_least()` and `digits_exact_mean()`.
+    consistency <- if (is.na(digits_x)) {
+      grim_scalar(
+        x = x,
+        n = n,
+        digits_x = digits_x,
+        items_averaged = items_averaged,
+        data_type = "integer",
+        x_meaning = x_meaning,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric
+      )
+    }
+    if (is.null(consistency) || is.na(consistency)) {
+      return(NA_real_)
+    }
+    digits_x <- digits_least(x, digits_x)
+    if (consistency) {
+      digits_x <- digits_exact_mean(digits_x, parts$n_items)
+    }
+    # Without these, the call below would land here again, as with `n` missing:
+    if (is.na(digits_x)) {
+      return(NA_real_)
+    }
+    return(grim_closest_scalar(
+      x = x,
+      n = n,
+      digits_x = digits_x,
+      items_averaged = items_averaged,
+      x_meaning = x_meaning,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    ))
+  }
+
+  sum1 <- sums[1L]
+  sum2 <- sums[2L]
+
+  sums_candidate <- if (sum1 > sum2) {
+    # An empty range is empty by exactly one integer: its endpoints are the two
+    # whole-number sum totals that straddle `x`, the lower one first.
+    c(sum2, sum1)
+  } else {
+    # The whole number closest to the unrounded sum total, pulled into the
+    # admissible range: a consistent `x` stands for a mean that rounds to it,
+    # even where a closer one rounds to something else, as under `"floor"`.
+    # The endpoints come along in case `round()` lands one integer off through
+    # floating-point error in the product:
+    sum_nearest <- round(x * parts$n_items / parts$scale)
+    sum_nearest <- min(max(sum_nearest, sum1), sum2)
+    unique(c(sum_nearest, sum1, sum2))
+  }
+
+  values <- sums_candidate * parts$scale / parts$n_items
+  values[which.min(abs(values - x))]
+}
+
+
+#' Achievable means behind a reported one
+#'
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   These functions return the means (or percentages) that a sample
+#'   of `n * items_averaged` integers can have:
+#'
+#'   - `grim_values()` returns every achievable value that would be reported as
+#'   `x`, with the whole-number sum behind it. The result has no rows if `x` is
+#'   GRIM-inconsistent with `n`.
+#'   - `grim_closest()` returns the single achievable value closest to `x`
+#'   among those that would be reported as `x`, or, if there are none, the
+#'   closest one overall.
+#'
+#'   Both are vectorized like [`grim()`]. `grim_closest()` has exactly one
+#'   value per value set, so it returns a vector, like [`grim()`]. A reported
+#'   mean may correspond to one achievable mean, to several, or to none, so
+#'   `grim_values()` returns a tibble with one row per achievable mean, and
+#'   `case` says which value set it belongs to.
+#'   [`grimmer_values()`] is the counterpart for GRIMMER.
+#'
+#' @details The achievable means are the whole numbers in the range that
+#'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
+#'   divided by `n * items_averaged`. Once `n * items_averaged` exceeds
+#'   `10^digits_x`, several of them can be reported as the same `x`, and their
+#'   number grows with `n * items_averaged`. GRIM is then no longer informative.
+#'   `grim_closest()` stays cheap in that case. `grim_values()` does not, and
+#'   more than a million values for one value set is an error.
+#'
+#'   With `x_meaning = "percentage"`, the values are percentages, like `x`.
+#'
+#'   Under `rounding = "even"`, or its synonym `"ties_even"`, both bounds of
+#'   that range are inclusive (see [`roundwork::unround()`]), so the values
+#'   include ties that
+#'   [`base::round()`] may round away from `x`:
+#'   `grim_values(1.3, 20, 1, 1, rounding = "even")` returns 1.25 and 1.35
+#'   along with 1.3.
+#'
+#'   With `items_averaged > 1`, the integers are the respondents' totals
+#'   across the items, so `sum` is the sum of the totals.
+#'
+#' @param x Numeric. The reported mean or percentage.
+#' @param n Integer. The reported sample size.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param items_averaged Integer. As in [`grim()`].
+#' @param x_meaning String. `"mean"` (the default) or `"percentage"`, as in
+#'   [`grim()`].
+#' @param rounding,threshold,symmetric The same as in [`grim()`].
+#' @inheritParams grim
+#'
+#' @return
+#' - For `grim_values()`, a tibble with one row per achievable mean. `case` is
+#'   the index of the value set, i.e., the position in the inputs after they
+#'   are recycled to a common length, so it also counts through `n` if `x` is
+#'   a single value. `x` is the achievable value, `n` the reported sample size,
+#'   and `sum` the whole number behind `x`. An inconsistent value set has no
+#'   rows, and one that cannot be decided has one row of `NA` but for `n`, as
+#'   in [`grim()`]. So does one with a missing `digits_x` that is consistent
+#'   whatever it is: how many values would be reported as `x` still depends on
+#'   it.
+#' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
+#'   where a value set cannot be decided.
+#'
+#' @seealso [`grim()`], [`grim_map()`], [`grimmer_values()`], and
+#'   [`grim_exp_incon()`].
+#'
+#' @include grim.R
+#'
+#' @rdname grim_values
+#'
+#' @export
+#'
+#' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
+#'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
+#'   Psychology. *Social Psychological and Personality Science*, 8(4), 363–369.
+#'   https://journals.sagepub.com/doi/10.1177/1948550616673876
+#'
+#' @examples
+#' # A mean of 5.19 is consistent with a sample size of 32,
+#' # and there is exactly one way to get there:
+#' grim_values(x = 5.19, n = 32, digits_x = 2, items_averaged = 1)
+#'
+#' # With a larger sample, several means round to 5.19:
+#' grim_values(x = 5.19, n = 300, digits_x = 2, items_averaged = 1)
+#'
+#' # It is not consistent with a sample size of 28...
+#' grim_values(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#'
+#' # ...but 5.19 is close to a mean that is achievable:
+#' grim_closest(x = 5.19, n = 28, digits_x = 2, items_averaged = 1)
+#'
+#' # Both functions are vectorized. In `grim_values()`, `case` is the index of
+#' # the value set, and an inconsistent one has no rows:
+#' grim_values(
+#'   x = c(5.19, 4.2),
+#'   n = c(28, 30),
+#'   digits_x = 2,
+#'   items_averaged = 1
+#' )
+#' grim_closest(
+#'   x = c(5.19, 4.2),
+#'   n = c(28, 30),
+#'   digits_x = 2,
+#'   items_averaged = 1
+#' )
+
+# The signatures mirror those of the `*_scalar()` functions; see
+# `map_value_sets()`.
+grim_values <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  percent = deprecated()
+) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_values")
+  }
+  map_value_sets(
+    fn = grim_values_scalar,
+    along = c("x", "n", "digits_x", "items_averaged"),
+    type = "list"
+  ) |>
+    bind_cases(PTYPE_GRIM_VALUES)
+}
+
+
+#' @rdname grim_values
+#' @export
+grim_closest <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  percent = deprecated()
+) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_closest")
+  }
+  map_value_sets(
+    fn = grim_closest_scalar,
+    along = c("x", "n", "digits_x", "items_averaged"),
+    type = "double"
+  )
+}

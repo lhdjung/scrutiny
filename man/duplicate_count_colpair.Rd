@@ -2,61 +2,53 @@
 % Please edit documentation in R/duplicate-count-colpair.R
 \name{duplicate_count_colpair}
 \alias{duplicate_count_colpair}
-\title{Count duplicate values by column}
+\title{Count duplicate values by column pair}
 \usage{
 duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE)
 }
 \arguments{
-\item{data}{Data frame.}
+\item{data}{Data frame with at least two columns.}
 
-\item{ignore}{Optionally, a vector of values that should not be checked for
-duplicates.}
+\item{ignore}{Optionally, a vector of values not to count.}
 
-\item{show_rates}{Logical. If \code{TRUE} (the default), adds columns \code{rate_x} and
-\code{rate_y}. See value section. Set \code{show_rates} to \code{FALSE} for higher
-performance.}
+\item{show_rates}{Logical. If \code{TRUE} (the default), add \code{total_x},
+\code{total_y}, \code{rate_x}, and \code{rate_y}; see \emph{Value}. \code{FALSE} is faster.}
 }
 \value{
-A tibble (data frame) with these columns –
+A tibble with these columns:
 \itemize{
-\item \code{x} and \code{y}: Each line contains a unique combination of \code{data}'s columns,
-stored in the \code{x} and \code{y} output columns.
-\item \code{count}: Number of "duplicates", i.e., values that are present in both \code{x}
-and \code{y}.
-\item \code{total_x}, \code{total_y}, \code{rate_x}, and \code{rate_y} (added by default): \code{total_x}
-is the number of non-missing values in the column named under \code{x}. Also,
-\code{rate_x} is the proportion of \code{x} values that are duplicated in \code{y}, i.e.,
-\code{count / total_x}. Likewise with \code{total_y} and \code{rate_y}. The two \verb{rate_*}
-columns will be equal unless \code{NA} values are present.
+\item \code{x}, \code{y}: a pair of columns of \code{data}, one pair per row.
+\item \code{count}: the number of values of \code{x} that also occur in \code{y}. Missing and
+ignored values are not counted.
+\item \code{total_x}, \code{total_y}: the number of values in \code{x} and \code{y} that are
+neither missing nor ignored.
+\item \code{rate_x}: the proportion of \code{x} values that occur in \code{y}, i.e., \code{count / total_x}. \code{rate_y}: the proportion of \code{y} values that occur in \code{x}. This
+differs from \code{count / total_y} if a value repeats within a column.
 }
 }
 \description{
-\code{duplicate_count_colpair()} takes a data frame and checks each combination of
-columns for duplicates. Results are presented in a tibble, ordered by the
-number of duplicates.
+\code{duplicate_count_colpair()} counts, for every pair of columns in a data
+frame, the values that occur in both. Results are ordered by that count,
+in descending order.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
- There is an S3 method for \code{\link[=audit]{audit()}},
-so you can call \code{\link[=audit]{audit()}} following \code{duplicate_count_colpair()}. It
-returns a tibble with summary statistics.
+ \code{audit()} on
+\code{duplicate_count_colpair()} output returns summary statistics for the
+numeric columns.
 }
 
 \examples{
-# Basic usage:
-mtcars \%>\%
+mtcars |>
   duplicate_count_colpair()
 
-# Summaries with `audit()`:
-mtcars \%>\%
-  duplicate_count_colpair() \%>\%
+mtcars |>
+  duplicate_count_colpair() |>
   audit()
 }
 \seealso{
 \itemize{
 \item \code{\link[=duplicate_count]{duplicate_count()}} for a frequency table.
-\item \code{\link[=duplicate_tally]{duplicate_tally()}} to show instances of a value next to each instance.
-\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} to search for duplicate rows.
-\item \code{\link[corrr:colpair_map]{corrr::colpair_map()}}, a versatile tool for pairwise column analysis which
-the present function wraps.
+\item \code{\link[=duplicate_tally]{duplicate_tally()}} for counts next to each value.
+\item \code{\link[janitor:get_dupes]{janitor::get_dupes()}} for duplicate rows.
 }
 }

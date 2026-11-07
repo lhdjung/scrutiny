@@ -2,35 +2,29 @@
 % Please edit documentation in R/function-factory-helpers.R
 \name{absorb_key_args}
 \alias{absorb_key_args}
-\title{Absorb key arguments from the user's call}
+\title{Rename key columns according to the key arguments}
 \usage{
-absorb_key_args(data, reported, key_cols_call)
+absorb_key_args(data, reported, key_cols_call = NULL)
 }
 \arguments{
-\item{data}{User-supplied data frame.}
+\item{data}{Data frame passed to the mapper.}
 
 \item{reported}{String. Names of the key arguments.}
 
-\item{key_cols_call}{User-provided arguments named after one or more key
-columns.}
+\item{key_cols_call}{Optionally, a named character vector that maps key
+argument names to the columns of \code{data} that they refer to, such as \code{c(x = "mean")}. By default, it is read from the key arguments of the calling
+mapper.}
 }
 \value{
-Data frame \code{data}, possibly with one or more columns renamed.
-Remember reassigning the value to \code{data}!
+\code{data}, possibly with columns renamed. Reassign the result to
+\code{data}.
 }
 \description{
-If \code{insert_key_args()} is called in the exit area of a function factory
-(i.e., after the part that produces the factory-made function),
-\code{absorb_key_args()} must be called in the main part. Unlike the former, it
-transforms \code{data}, not \code{fun}, and should be reassigned to \code{data}.
-}
-\details{
-It renames key columns that have non-standard names, following user-supplied
-directions via the arguments automatically inserted below the function.
+\code{absorb_key_args()} is called within mappers. If a key argument such as \code{x}
+names a column of \code{data}, it renames that column to the key argument's
+name, so that the rest of the mapper finds it.
 }
 \examples{
-# Not really a meaningful example -- need to use
-# the function in very specific places
-data <- grim_map(pigs1)
-data <- absorb_key_args(data, c("x", "n"))
+df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
+absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
 }

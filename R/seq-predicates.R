@@ -1,315 +1,340 @@
-
-# Helpers for `function_map_seq()` as well as its assorted `reverse_*()` and
-# `summarize_*()` functions:
-
-# `index_seq()` takes a vector that's (1) numeric or string coercible to
-# numeric, and (2) that is either a continuous sequence of numbers (step size:
-# 1) or that would be such a sequence if not for exactly one single missing case
-# -- not in the sense of `NA`, but a sequence of two numbers where the second is
-# the first plus 2, so that one would expect an intermediate number in the
-# middle. This number can be identified as the "index case" in an original
-# sequence that dropped it at some point.
-
-# The function returns a sequence of `1` values for a continuous sequence, and
-# such a sequence with a single `2` value strewn in for a sequence with a single
-# missing case. The `2`, if present, has the same index as the last value before
-# the index case in `x`.
-index_seq <- function(x) {
-  if (!is.numeric(x)) {
-    x <- as.numeric(x)
-  }
-  x_seq <- seq_along(x)
-  x_seq <- x[x_seq] - x[x_seq + 1L]
-  abs(x_seq[!is.na(x_seq)])
-}
-
-
-is_seq_linear_basic <- function(x) {
-  if (length(x) < 3L) {
-    return(TRUE)
-  }
-  # As the difference between each successive pair of values must be equal for
-  # `x` to be a linear sequence, we can take the first pairwise difference and
-  # test each other difference for equality with it. If any comparison turns out
-  # unequal, `x` is not a linear sequence.
-  diff_first <- x[2L] - x[1L]
-  for (i in 3L:length(x)) {
-    if (x[i] - x[i - 1L] != diff_first) {
-      return(FALSE)
-    }
-  }
-  TRUE
-}
+# Helpers for the sequence predicates below:
 
 is_seq_ascending_basic <- function(x) {
-  for (i in 1L:(length(x) - 1L)) {
-    if (x[i + 1L] <= x[i]) {
-      return(FALSE)
-    }
-  }
-  TRUE
+  all(diff(x) > 0)
 }
 
 
 is_seq_descending_basic <- function(x) {
-  for (i in 1L:(length(x) - 1L)) {
-    if (x[i + 1L] >= x[i]) {
-      return(FALSE)
-    }
-  }
-  TRUE
+  all(diff(x) < 0)
 }
 
 
-# # Test any of the sequence functions interactively:
-# x <- c(1, 2, NA, 4)
-# tolerance <- .Machine$double.eps^0.5
-# test_linear <- TRUE
-# test_special <- NULL
-# min_length <- NULL
-# args_other <- NULL
+# Like `dplyr::near()`, but a `tolerance` of 0 means exact, and no tolerance is
+# finer than the rounding error of arithmetic on numbers as large as `values`:
+# steps between values of about 1e8 are off by 1e-8 already, which the default
+# would reject. A step or center is off by at most two units in the last place
+# of the largest value; a step of one unit in the 15th significant digit is at
+# least 4.5 of these, so any wider floor merges such steps. `NA` for an
+# infinity, as `near(Inf, Inf)` is:
+near_seq <- function(x, y, tolerance, values, ulps = 2) {
+  magnitude <- max(abs(values[is.finite(values)]), 0)
+  ulp <- if (magnitude > 0) 2^(floor(log2(magnitude)) - 52) else 0
+  abs(x - y) <= max(tolerance, ulps * ulp)
+}
 
 
+# A string as a number, as `is_numeric_like()` reads it: `as.numeric()` only
+# trims ASCII whitespace, so a number next to a non-breaking space would be
+# accepted as one there and then be missing here.
+as_numeric_seq <- function(x) {
+  if (is.character(x)) {
+    x <- trimws(x, whitespace = "[\\h\\v]")
+  }
+  suppressWarnings(as.numeric(x))
+}
 
-# # Example input for dispersed sequences:
-# x <- c(45, NA, 47, 48, 49, 50, 51, 52, 53, 54, NA)
-# tolerance <- .Machine$double.eps^0.5
-# test_linear <- TRUE
-# test_special <- "dispersed"
-# min_length <- 3L
-# args_other <- list(from = 50)
+
+# The sequence predicates take numbers, or strings or factors that may show
+# them, such as `"1.10"` with its trailing zero. Anything else is a mistake in
+# the call, not a sequence that fails the test: a data frame or a list would
+# be judged by its columns or elements, and `TRUE` would be 1. A logical vector
+# of `NA`s only is how R writes values that are missing altogether:
+check_seq_type <- function(x, name) {
+  allowed <- is.null(dim(x)) &&
+    (is.numeric(x) ||
+      is.character(x) ||
+      is.factor(x) ||
+      (is.logical(x) && all(is.na(x))))
+  if (!allowed) {
+    abort_in_export(
+      "`{name}` must be a numeric, character, or factor vector.",
+      "x" = "It is {.obj_type_friendly {x}}."
+    )
+  }
+}
 
 
 # Non-exported workhorse API of all the sequence predicates:
-is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
-                         test_linear = TRUE, test_special = NULL,
-                         min_length = NULL, args_other = NULL) {
+is_seq_basic <- function(
+  x,
+  tolerance = .Machine$double.eps^0.5,
+  test_linear = TRUE,
+  test_special = NULL,
+  min_length = NULL,
+  from = NULL
+) {
+  check_seq_type(x, "x")
+  # A missing value here would fail in `if ()` or make every test `FALSE`:
+  check_flag(test_linear)
+  if (
+    !is.numeric(tolerance) ||
+      length(tolerance) != 1L ||
+      !isTRUE(tolerance >= 0)
+  ) {
+    abort_in_export(
+      "`tolerance` must be a single non-negative number.",
+      "x" = "It is {wrap_in_quotes_or_backticks(tolerance)}."
+    )
+  }
 
   if (!is.null(test_special) && test_special == "dispersed") {
-    # Without the `force()` call, the function may return `FALSE` early, even if
-    # `from` was not supplied:
-    force(args_other$from)
+    # Forced first so that a missing `from` errors rather than being skipped by
+    # an early `FALSE`:
+    force(from)
 
-    # A dispersed sequence requires one central value, so the number of elements
-    # in `x` must be odd:
+    # A dispersed sequence has one central value:
     if (is_even(length(x))) {
+      return(FALSE)
+    }
+
+    if (!is_numeric_like(from)) {
+      return(FALSE)
+    }
+
+    # A factor by its label, not its level code, as `x` below:
+    if (is.factor(from)) {
+      from <- as.character(from)
+    }
+    from <- as_numeric_seq(from)
+
+    # No values are centered on an infinity, so none could make `x` dispersed:
+    if (is.infinite(from)) {
       return(FALSE)
     }
   }
 
-  if (!is_numeric_like(x)) {
-    return(FALSE)
-  }
-
+  # Too short for the sequence in question, whatever the values:
   if (!is.null(min_length) && length(x) < min_length) {
     return(FALSE)
   }
+
+  # A vector of all `NA`s leaves the question open, whatever its type -- unless
+  # no values could close it: any one or two numbers are linear. A missing
+  # string stands for a missing number, as the string `"NA"` does below.
+  # `is_numeric_like()` is `FALSE` for a logical vector, which includes `c(NA,
+  # NA, NA)`, and `NA` for a character one, which the `if` below can't take:
+  if (length(x) > 0L && all(is.na(x))) {
+    linear_anyway <- is.null(test_special) && length(x) <= 2L
+    return(if (linear_anyway) TRUE else NA)
+  }
+
+  # The only logical vector left is an empty one, which is `numeric()`:
+  if (is.logical(x)) {
+    x <- numeric()
+  }
+
+  if (isFALSE(is_numeric_like(x))) {
+    return(FALSE)
+  }
+
+  # Everything below is arithmetic on `x`. A factor is read by its labels, not
+  # its integer codes. Integers become doubles, too: a difference of integers
+  # overflows to `NA` beyond about 2.1e9.
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
+  x <- as_numeric_seq(x)
 
   if (length(x) == 1L) {
     return(TRUE)
   }
 
-  x_has_na <- anyNA(x)
+  if (anyNA(x)) {
+    # Whatever the missing value, two values are linear:
+    if (is.null(test_special) && length(x) == 2L) {
+      return(TRUE)
+    }
 
-  if (x_has_na) {
-
-    # Save the unmodified `x` for a test that is conducted if `x` contains one
-    # or more `NA` elements:
     x_orig <- x
-    n_x_orig <- length(x)
 
     not_na <- which(!is.na(x))
 
-    # Need at least three known values:
-    if (length(not_na) < 3L) {
+    # Strings such as `"NA"` and `"NaN"` only become missing here, so they can
+    # leave no known value even past the all-`NA` check above:
+    if (length(not_na) == 0L) {
       return(NA)
     }
 
-    # # Indices of `NA`s at the start and end of `x`:
-    # n_na_start <- seq_len(not_na[1L] - 1L)
-    # n_na_end   <- (not_na[length(not_na)] + 1L):n_x_orig
-
-    n_na_start <- match(FALSE,     is.na(x_orig))  - 1L
-    n_na_end   <- match(FALSE, rev(is.na(x_orig))) - 1L
-
-    # Remove all `NA` values from the start and the end of `x` because `NA`s at
-    # these particular locations cannot disprove that `x` is the kind of
-    # sequence of interest. (They do mean that it cannot be proven, so the
-    # function will return either `NA` or `FALSE`, depending on other factors.)
+    # Leading and trailing `NA`s cannot disprove that `x` is the kind of
+    # sequence in question, only keep it from being proven:
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
-    # Test separate from `x_has_na`: it checks whether there are `NA`s that are
-    # not at the start or end of `x`.
-    if (test_linear && !anyNA(x) && !is_seq_linear_basic(x)) {
-      return(FALSE)
-    }
+    # As in `vignette("devtools")`: are the known values consistent with each
+    # other, given their positions? For linearity, every pair of neighboring
+    # known values must imply the same step per index, so `c(1, NA, 5, 7)` can
+    # be linear:
+    known <- which(!is.na(x))
 
-    # If the removal of leading and / or trailing `NA` elements in `x` caused
-    # the central value to shift, or if only one side from among left and right
-    # had any `NA` values, the original `x` might not have been symmetrically
-    # grouped around that value, and hence not a dispersed sequence. Otherwise,
-    # the `NA`s leave it open and the result is unknown, i.e., `NA`.
-    if (!is.null(test_special) && test_special == "dispersed") {
-      x_central <- x_orig[index_central(x_orig)]
-      if (!is.na(x_central) && x_central != args_other$from) {
+    # An infinity among more than two values rules linearity out, as below,
+    # even if it is the only known value:
+    if (test_linear) {
+      steps <- diff(x[known]) / diff(known)
+      if (
+        (length(x_orig) > 2L && any(is.infinite(x[known]))) ||
+          !isTRUE(all(near_seq(steps, steps[1L], tolerance, x)))
+      ) {
         return(FALSE)
       }
-      return(NA)
     }
 
-    # Used within the for loop below to check whether the step size must be
-    # negative:
-    x_is_descending_basic <- is_seq_descending_basic(x[!is.na(x)])
-
-    for (i in seq_along(x)) {
-      if (is.na(x[i])) {
-        index_lower <- 1L
-        index_upper <- 1L
-        while (is.na(x[i - index_lower])) {
-          index_lower <- index_lower - 1L
-        }
-        while (is.na(x[i + index_upper])) {
-          index_upper <- index_upper + 1L
-        }
-        seq_start <- x[i - index_lower]
-        seq_end   <- x[i + index_upper]
-        step <- step_size(c(seq_start, seq_end))
-
-        # Descending sequences require a negative step size:
-        if (x_is_descending_basic || seq_start > seq_end) {
-          step <- -step
-        }
-
-        # Look here for `seq.default()` errors:
-        seq_replacement <- seq(from = seq_start, to = seq_end, by = step)
-
-        # Remove the first and the last element because these correspond to the
-        # two next surrounding non-`NA` numbers rather than to the `NA`
-        # subsequence, and therefore should not replace any `NA`s:
-        seq_replacement <- seq_replacement[-1L]
-        seq_replacement <- seq_replacement[-length(seq_replacement)]
-
-        if (test_linear) {
-          # In the first of these two cases, the replacement sequence is too
-          # short to bridge the `NA` subsequence. In the second case, the
-          # replacement sequence is longer than the subsequence of `NA`
-          # elements, which invariably means that the numbers surrounding the
-          # `NA`s are too far spaced out for there to be a linear sequence. In
-          # either case...
-          seq_replacement_has_wrong_length <-
-            length(seq_replacement) == 0L ||
-            length(seq_replacement) > length(index_lower:index_upper)
-
-          # ...an error is thrown:
-          if (seq_replacement_has_wrong_length) {
-            return(FALSE)
+    # The special tests, too, ask whether the known values already rule the
+    # sequence out. Monotonicity is disproven by the known values alone, and by
+    # a missing value beyond an infinity, which no number could fill: the ends
+    # are padded with the infinity that a leading or trailing `NA` would have
+    # to pass. A dispersed sequence has each mirrored pair of values centered
+    # on `from`, which a fully known pair can disprove; the central value is
+    # its own mirror image:
+    if (!is.null(test_special)) {
+      na_first <- is.na(x_orig[1L])
+      na_last <- is.na(x_orig[length(x_orig)])
+      pass_test_special <- switch(
+        test_special,
+        "ascending" = is_seq_ascending_basic(
+          c(if (na_first) -Inf, x[known], if (na_last) Inf)
+        ),
+        "descending" = is_seq_descending_basic(
+          c(if (na_first) Inf, x[known], if (na_last) -Inf)
+        ),
+        "dispersed" = {
+          # No number is centered with an infinity on a finite `from`, so a
+          # known infinity rules it out, as does an infinite `from`:
+          centers <- (x_orig + rev(x_orig)) / 2
+          pass_pairs <- is.finite(from) &&
+            !any(is.infinite(x_orig)) &&
+            all(near_seq(centers[!is.na(centers)], from, tolerance, c(x, from)))
+          # Two known values of a linear sequence fix its step, and so its
+          # central value, even if no mirrored pair is known in full:
+          known_orig <- which(!is.na(x_orig))
+          if (test_linear && length(known_orig) >= 2L) {
+            step <- steps[1L]
+            steps_to_center <- (length(x_orig) + 1L) / 2L - known_orig[1L]
+            center <- x_orig[known_orig[1L]] + step * steps_to_center
+            # The rounding error of the step is multiplied along the way, so
+            # the floor of the tolerance is wider by as much. Otherwise, a
+            # `tolerance` of 0 would rule out a dispersed sequence:
+            pass_pairs &&
+              near_seq(
+                center,
+                from,
+                tolerance,
+                c(x, from),
+                ulps = 2 * (abs(steps_to_center) + 1)
+              )
+          } else {
+            pass_pairs
           }
         }
+      )
+      if (!isTRUE(pass_test_special)) {
+        return(FALSE)
+      }
 
-        # Substitute the replacement sequence for `NA` elements. Warnings are
-        # suppressed because the lengths will only differ in an unproblematic
-        # case -- `x` is non-linear and `test_linear` is `FALSE`, i.e., the user
-        # only wants one of the special tests but not the test for linearity:
-        suppressWarnings(
-          x[i + ((index_lower:index_upper) - 1L)] <- seq_replacement
-        )
+      # A missing value stands for a number, which is between `-Inf` and
+      # `Inf`. So a single `NA` with an infinity on either side that it can't
+      # pass, or none, is monotonic whatever its value; linearity was settled
+      # above, as an infinity rules it out among more than two values:
+      if (test_special %in% c("ascending", "descending")) {
+        end_lower <- if (test_special == "ascending") -Inf else Inf
+        positions <- which(is.na(x_orig))
+        n_orig <- length(x_orig)
+        is_open <- function(i) {
+          (i == 1L || identical(x_orig[i - 1L], end_lower)) &&
+            (i == n_orig || identical(x_orig[i + 1L], -end_lower))
+        }
+        if (all(vapply(positions, is_open, logical(1L)))) {
+          return(TRUE)
+        }
+      }
+    }
 
-      } # End of the `is.na(x[i])` condition
-    }   # End of the for loop
-  }     # End of the `x_has_na` condition
+    return(NA)
+  }
 
-  # If desired, test `x` -- as passed to the function or as partly reconstructed
-  # in the for loop above -- for linearity:
-  if (test_linear) {
-    x_seq <- index_seq(x)
-    pass_test_linear <- all(dplyr::near(x_seq, min(x_seq), tol = tolerance))
-    if (!pass_test_linear) {
+  # Steps are compared with their signs, so a zigzag like `c(1, 2, 1)` is not
+  # linear:
+  # Any two values are linear, even with an infinity among them. Among more,
+  # an infinity makes a step `Inf - Inf`, which is `NaN` and equal to no other
+  # step, hence `isTRUE()`, here and in the other tests:
+  if (test_linear && length(x) > 2L) {
+    steps <- diff(x)
+    if (!isTRUE(all(near_seq(steps, steps[1L], tolerance, x)))) {
       return(FALSE)
     }
   }
 
-  # Interface for the special variant functions:
   if (!is.null(test_special)) {
     pass_test_special <- switch(
       test_special,
-      "ascending"  = is_seq_ascending_basic(x),
+      "ascending" = is_seq_ascending_basic(x),
       "descending" = is_seq_descending_basic(x),
-      "dispersed"  = is_seq_dispersed_basic(x, args_other$from, tolerance)
-      # TODO: MAKE THIS "DISPERSED" TEST ABLE TO ASSUME THAT `NA`S IN `x_orig`
-      # ARE ACTUALLY DISPERSED VALUES! MAYBE USE `index_central()`'S INTERNAL
-      # LOGIC AND BUILD UP ON IT.
+      "dispersed" = is_seq_dispersed_basic(x, from, tolerance)
     )
-    if (!pass_test_special) {
+    if (!isTRUE(pass_test_special)) {
       return(FALSE)
     }
   }
 
-  if (x_has_na) {
-    NA
-  } else {
-    TRUE
-  }
-
+  TRUE
 }
-
 
 
 #' Is a vector a certain kind of sequence?
 #'
-#' @description Predicate functions that test whether `x` is a numeric vector
-#'   (or coercible to numeric) with some special properties:
-
-#'   - `is_seq_linear()` tests whether every two consecutive elements of `x`
-#'   differ by some constant amount.
-
-#'   - `is_seq_ascending()` and `is_seq_descending()` test whether the
-#'   difference between every two consecutive values is positive or negative,
-#'   respectively. `is_seq_dispersed()` tests whether `x` values are grouped
-#'   around a specific central value, `from`, with the same distance to both
-#'   sides per value pair. By default (`test_linear = TRUE`), these functions
-#'   also test for linearity, like `is_seq_linear()`.
+#' @description Predicates for numeric vectors, or vectors coercible to
+#'   numeric:
 #'
-#' `NA` elements of `x` are handled in a nuanced way. See *Value* section below
-#' and the examples in `vignette("devtools")`, section *NA handling*.
-
-#' @param x Numeric or coercible to numeric, as determined by
-#'   `is_numeric_like()`. Vector to be tested.
-#' @param from Numeric or coercible to numeric. Only in `is_seq_dispersed()`. It
-#'   will test whether `from` is at the center of `x`, and if every pair of
-#'   other values is equidistant to it.
-#' @param test_linear Logical. In functions other than `is_seq_linear()`, should
-#'   `x` also be tested for linearity? Default is `TRUE`.
-#' @param tolerance Numeric. Tolerance of comparison between numbers when
-#'   testing. Default is circa 0.000000015 (1.490116e-08), as in
-#'   `dplyr::near()`.
-
-#' @return A single logical value. If `x` contains at least one `NA` element,
-#'   the functions return either `NA` or `FALSE`:
-#'   - If all elements of `x` are `NA`, the functions return `NA`.
-#'   - If some but not all elements are `NA`, they check if `x` *might* be a
-#'   sequence of the kind in question: Is it a linear (and / or ascending, etc.)
-#'   sequence after the `NA`s were replaced by appropriate values? If so, they
-#'   return `NA`; otherwise, they return `FALSE`.
-
-#' @seealso `validate::is_linear_sequence()`, which is much like
-#'   `is_seq_linear()` but more permissive with `NA` values. It comes with some
-#'   additional features, such as support for date-times.
-
+#'   - `is_seq_linear()`: do all consecutive elements differ by the same
+#'   amount?
+#'   - `is_seq_ascending()`, `is_seq_descending()`: is every difference
+#'   positive, or negative?
+#'   - `is_seq_dispersed()`: is `x` centered on `from`, with each pair of
+#'   values equidistant from it?
+#'
+#'   By default (`test_linear = TRUE`), the last three also test for linearity.
+#'
+#' @param x Numeric, character, or factor vector. Strings and factor labels
+#'   count as numbers as determined by [`is_numeric_like()`]; any that are not
+#'   make the result `FALSE`. A logical vector is accepted only if all its
+#'   values are `NA`. Any other type, such as a list or a data frame, is an
+#'   error.
+#' @param from Numeric, character, or factor, like `x`. Only in
+#'   `is_seq_dispersed()`. The value `x` should be centered on.
+#' @param test_linear Logical. Should linearity be tested as well? Default is
+#'   `TRUE`. Not in `is_seq_linear()`.
+#' @param tolerance Numeric. Tolerance for comparing values. Default is about
+#'   `1.5e-8`, as in [`dplyr::near()`]. Any tolerance is widened to the
+#'   rounding error of arithmetic on the values, at most about `4e-16` times
+#'   the largest, so `0` allows that error only, and large values such as
+#'   `123456789.01` are compared as precisely as doubles can. In
+#'   `is_seq_dispersed()`, a central value that is missing is worked out from
+#'   the known ones, step by step, and the error grows with each step, so the
+#'   comparison with `from` allows about `4e-16` times the largest value per
+#'   step to the center.
+#'
+#' @return Logical (length 1). If `x` contains `NA`:
+#'   - `NA` if some values substituted for the `NA`s would make `x` the kind of
+#'   sequence in question and others would not; `FALSE` if none would, e.g.,
+#'   because `x` is too short for it (two values for `is_seq_ascending()` and
+#'   `is_seq_descending()`, three for `is_seq_dispersed()`); and `TRUE` if all
+#'   would, as any one or two values are linear.
+#'
+#'   A missing `from` is handled the same way.
+#'
+#'   See `vignette("devtools")`, section *NA handling*.
+#'
+#' @seealso `validate::is_linear_sequence()`, which is more permissive with
+#'   `NA` and supports date-times.
+#'
 #' @export
 #'
 #' @name seq-predicates
-
+#'
 #' @examples
-#' # These are linear sequences...
 #' is_seq_linear(x = 3:7)
-#' is_seq_linear(x = c(3:7, 8))
-#'
-#' # ...but these aren't:
 #' is_seq_linear(x = c(3:7, 9))
-#' is_seq_linear(x = c(10, 3:7))
 #'
-#' # All other `is_seq_*()` functions
-#' # also test for linearity by default:
+#' # The other predicates test for linearity by default:
 #' is_seq_ascending(x = c(2, 7, 9))
 #' is_seq_ascending(x = c(2, 7, 9), test_linear = FALSE)
 #'
@@ -319,133 +344,118 @@ is_seq_basic <- function(x, tolerance = .Machine$double.eps^0.5,
 #' is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5)
 #' is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5, test_linear = FALSE)
 #'
-#' # These fail their respective
-#' # individual test even
-#' # without linearity testing:
+#' # These fail their own test regardless of linearity:
 #' is_seq_ascending(x = c(1, 7, 4), test_linear = FALSE)
 #' is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 #' is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
-
-
-
-#' @rdname seq-predicates
-#' @export
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
   is_seq_basic(x, tolerance, test_linear = TRUE)
 }
 
 
-
 #' @rdname seq-predicates
 #' @export
 
-is_seq_ascending <- function(x, test_linear = TRUE,
-                             tolerance = .Machine$double.eps^0.5) {
+is_seq_ascending <- function(
+  x,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "ascending", min_length = 2L
+    x,
+    tolerance,
+    test_linear,
+    test_special = "ascending",
+    min_length = 2L
   )
 }
-
-
-
-#' @rdname seq-predicates
-#' @export
-
-is_seq_descending <- function(x, test_linear = TRUE,
-                              tolerance = .Machine$double.eps^0.5) {
-  is_seq_basic(
-    x, tolerance, test_linear, test_special = "descending", min_length = 2L
-  )
-}
-
 
 
 #' @rdname seq-predicates
 #' @export
 
-is_seq_dispersed <- function(x, from, test_linear = TRUE,
-                             tolerance = .Machine$double.eps^0.5) {
+is_seq_descending <- function(
+  x,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
   is_seq_basic(
-    x, tolerance, test_linear, test_special = "dispersed", min_length = 3L,
-    args_other = list(from = from)
+    x,
+    tolerance,
+    test_linear,
+    test_special = "descending",
+    min_length = 2L
   )
 }
 
 
-# x <- 50 %>%
-#   seq_disperse() %>%
-#   as.numeric()
-# x[2] <- NA
-# x[length(x)] <- NA
-# from <- 50
-# tolerance <- .Machine$double.eps^0.5
+#' @rdname seq-predicates
+#' @export
+
+is_seq_dispersed <- function(
+  x,
+  from,
+  test_linear = TRUE,
+  tolerance = .Machine$double.eps^0.5
+) {
+  check_seq_type(x, "x")
+  check_length(from, 1L)
+  check_seq_type(from, "from")
+
+  # A missing center leaves the question open unless `x` rules out every
+  # center. A dispersed sequence is centered on each mirrored pair of its
+  # values, so the first known such center is the only candidate. The strings
+  # `"NA"` and `"NaN"` are missing, as in `is_numeric_like()`:
+  if (is.na(from) || is.na(is_numeric_like(from))) {
+    x_num <- if (is.factor(x)) as.character(x) else x
+    x_num <- as_numeric_seq(x_num)
+    centers <- (x_num + rev(x_num)) / 2
+    candidate <- centers[!is.na(centers)][1L]
+    out <- if (is.na(candidate)) {
+      !is_even(length(x)) &&
+        !any(is.infinite(x_num)) &&
+        !isFALSE(is_seq_basic(x, tolerance, test_linear, min_length = 3L))
+    } else {
+      is_seq_dispersed(x, candidate, test_linear, tolerance)
+    }
+    return(if (isFALSE(out)) FALSE else NA)
+  }
+  is_seq_basic(
+    x,
+    tolerance,
+    test_linear,
+    test_special = "dispersed",
+    min_length = 3L,
+    from = from
+  )
+}
+
 
 # Helper, not exported:
-is_seq_dispersed_basic <- function(x, from,
-                                   tolerance = .Machine$double.eps^0.5) {
-
+is_seq_dispersed_basic <- function(
+  x,
+  from,
+  tolerance = .Machine$double.eps^0.5
+) {
   if (is_even(length(x))) {
     return(FALSE)
   }
 
-  if (!is.numeric(x)) {
-    if (is_numeric_like(x)) {
-      x <- as.numeric(x)
-    } else {
-      return(FALSE)
-    }
-  }
-
-  if (!is.numeric(from)) {
-    if (is_numeric_like(from)) {
-      x <- as.numeric(from)
-    } else {
-      return(FALSE)
-    }
-  }
+  x <- as.numeric(x)
+  from <- as.numeric(from)
 
   index_central_x <- index_central(x)
 
-  if (!dplyr::near(x[index_central_x], from, tolerance)) {
+  # `isTRUE()` because `near(Inf, Inf)` is `NA`:
+  if (!isTRUE(near_seq(x[index_central_x], from, tolerance, c(x, from)))) {
     return(FALSE)
   }
 
   dispersion_minus <- from - x[1L:(index_central_x - 1L)]
-  dispersion_plus  <- from + x[(index_central_x + 1L):length(x)]
+  dispersion_plus <- from + x[(index_central_x + 1L):length(x)]
 
   from_reconstructed <- (dispersion_plus - rev(dispersion_minus)) / 2
 
-  all(dplyr::near(from, from_reconstructed, tolerance))
+  all(near_seq(from, from_reconstructed, tolerance, c(x, from)))
 }
-
-
-# Helper, not exported:
-fill_linear_sequence <- function(x) {
-  # Find positions of non-NA values
-  known_pos <- which(!is.na(x))
-
-  # Need at least 2 known values to determine a linear sequence
-  if (length(known_pos) < 2) {
-    stop("At least 2 non-NA values are required")
-  }
-
-  # Calculate differences between consecutive known values
-  diffs <- diff(x[known_pos]) / diff(known_pos)
-
-  # Check if differences are constant (within floating point tolerance)
-  if (!all(abs(diffs - diffs[1]) < .Machine$double.eps ^ 0.5)) {
-    return(NULL)
-  }
-
-  # Calculate the common difference
-  d <- diffs[1]
-
-  # Calculate the first value based on the sequence
-  first_known <- x[known_pos[1]]
-  start_value <- first_known - (known_pos[1] - 1) * d
-
-  # Generate the complete sequence
-  seq(from = start_value, by = d, length.out = length(x))
-}
-

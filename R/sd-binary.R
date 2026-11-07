@@ -1,29 +1,24 @@
-
 #' Standard deviation of binary data
 #'
-#' @description Compute the sample SD of binary data (i.e., only 0 and 1 values)
-#'   in either of four ways, each based on different inputs:
-
-#' - `sd_binary_groups()` takes the cell sizes of both groups, those coded
-#' as 0 and those coded as 1.
-#' - `sd_binary_0_n()` takes the cell size of the group coded as 0 and the total
-#' sample size.
-#' - `sd_binary_1_n()` takes the cell size of the group coded as 1 and the total
-#' sample size.
-#' - `sd_binary_mean_n()` takes the mean and the total sample size.
+#' @description Compute the sample SD of binary data (0 and 1 values) from
+#'   different inputs:
 #'
-#' These functions are used as helpers inside [`debit()`], and consequently
-#' [`debit_map()`].
-
-#' @param group_0 Integer. Cell size of the group coded as 0.
-#' @param group_1 Integer. Cell size of the group coded as 1.
+#' - `sd_binary_groups()` from the counts of 0s and 1s.
+#' - `sd_binary_0_n()` from the count of 0s and the total.
+#' - `sd_binary_1_n()` from the count of 1s and the total.
+#' - `sd_binary_mean_n()` from the mean and the total.
+#'
+#' These are the SDs that [`debit()`] tests under its default
+#' `sd_meaning = "sd_sample"`.
+#'
+#' @param group_0 Integer. Count of 0s.
+#' @param group_1 Integer. Count of 1s.
 #' @param n Integer. Total sample size.
-#' @param mean Numeric. Mean of the binary data.
+#' @param mean Numeric. Mean of the data.
 #'
-#' @return Numeric. Sample standard deviation.
-#'
-#' @seealso `is_subset_of_vals(x, 0, 1)` checks whether `x` (a list or atomic
-#'   vector) contains nothing but binary numbers.
+#' @return Numeric. Sample standard deviation; `NA` where `n` is below 2,
+#'   since the sample SD divides by `n - 1`, and where `n` or a count is not a
+#'   whole number.
 #'
 #' @export
 #'
@@ -33,31 +28,29 @@
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @examples
-#' # If 127 values are coded as 0 and 153 as 1...
+#' # 127 values are 0 and 153 are 1, so n = 280:
 #' sd_binary_groups(group_0 = 127, group_1 = 153)
-#'
-#' # ...so that n = 280:
 #' sd_binary_0_n(group_0 = 127, n = 280)
 #' sd_binary_1_n(group_1 = 153, n = 280)
 #'
-#' # If only the mean and total sample size are
-#' # given, or these are more convenient to use,
-#' # they still lead to the same result as above
-#' # if the mean is given with a sufficiently
-#' # large number of decimal places:
+#' # From the mean, given enough decimal places:
 #' sd_binary_mean_n(mean = 0.5464286, n = 280)
-
-
 
 # From both groups --------------------------------------------------------
 
 #' @rdname sd-binary
 
 sd_binary_groups <- function(group_0, group_1) {
+  check_binary_args(list(group_0 = group_0, group_1 = group_1))
+  # As doubles, since the product of two integer counts overflows from 46,341.
+  # Below, each count is divided by `n` first, as `n^2` overflows from 1e154:
+  group_0 <- round_whole(as.numeric(group_0))
+  group_1 <- round_whole(as.numeric(group_1))
+  check_binary_count(group_0)
+  check_binary_count(group_1)
   n <- group_0 + group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0, group_1))
 }
-
 
 
 # From subgroup coded as 0 and sample size --------------------------------
@@ -66,10 +59,13 @@ sd_binary_groups <- function(group_0, group_1) {
 #' @export
 
 sd_binary_0_n <- function(group_0, n) {
+  check_binary_args(list(group_0 = group_0, n = n))
+  group_0 <- round_whole(as.numeric(group_0))
+  n <- round_whole(n)
+  check_binary_count(group_0, n)
   group_1 <- n - group_0
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_0))
 }
-
 
 
 # From subgroup coded as 1 and sample size --------------------------------
@@ -78,10 +74,13 @@ sd_binary_0_n <- function(group_0, n) {
 #' @export
 
 sd_binary_1_n <- function(group_1, n) {
+  check_binary_args(list(group_1 = group_1, n = n))
+  group_1 <- round_whole(as.numeric(group_1))
+  n <- round_whole(n)
+  check_binary_count(group_1, n)
   group_0 <- n - group_1
-  suppressWarnings(sqrt((n / (n - 1)) * ((group_0 * group_1) / (n ^ 2))))
+  sd_binary_sample(n, (group_0 / n) * (group_1 / n), list(group_1))
 }
-
 
 
 # From mean and sample size -----------------------------------------------
@@ -90,6 +89,72 @@ sd_binary_1_n <- function(group_1, n) {
 #' @export
 
 sd_binary_mean_n <- function(mean, n) {
-  suppressWarnings(sqrt((n / (n - 1)) * (mean * (1 - mean))))
+  check_binary_args(list(mean = mean, n = n))
+  n <- round_whole(n)
+  if (any(mean < 0 | mean > 1, na.rm = TRUE)) {
+    abort_in_export(
+      "`mean` must be between 0 and 1.",
+      "x" = "It includes {wrap_in_quotes_or_backticks(mean[which(mean < 0 | mean > 1)])}."
+    )
+  }
+  sd_binary_sample(n, mean * (1 - mean))
 }
 
+
+# The sample SD from the population variance. With `n` below 2 there is no
+# sample SD; the formula would give `Inf` or `NaN`, so the warning is
+# suppressed and the result set to `NA`. So is a fractional or infinite `n` or
+# count, which describes no data set, as elsewhere in scrutiny, and any `NaN`:
+sd_binary_sample <- function(n, variance, counts = list()) {
+  out <- suppressWarnings(sqrt((n / (n - 1)) * variance))
+  # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
+  # `rep_len()` recycles `n` along `variance`, as the formula does:
+  length_out <- length(out)
+  undefined <- rep_len(n, length_out) < 2
+  for (count in c(list(n), counts)) {
+    undefined <- undefined | !is_whole_number(rep_len(count, length_out))
+  }
+  out[is.na(out) | !(undefined %in% FALSE)] <- NA_real_
+  out
+}
+
+
+# Numbers, or logical `NA`s, of lengths that recycle as in `debit()`. A
+# character `NA` would reach the arithmetic as a string:
+check_binary_args <- function(args) {
+  for (name in names(args)) {
+    x <- args[[name]]
+    if (!is.numeric(x) && !(is.logical(x) && all(is.na(x)))) {
+      abort_in_export(
+        "`{name}` must be one of these types: double and integer.",
+        "x" = "It is {an_a_type(x)}."
+      )
+    }
+  }
+  recycle_length_common(lengths(args), names(args))
+  invisible()
+}
+
+
+# A count of 0s or 1s can't be negative, nor exceed the sample size. The
+# formulas would silently give `NaN`:
+check_binary_count <- function(group, n = NULL) {
+  name <- deparse(substitute(group))
+  if (any(n < 0, na.rm = TRUE)) {
+    abort_in_export(
+      "`n` must not be negative.",
+      "x" = "It includes {wrap_in_quotes_or_backticks(n[which(n < 0)])}."
+    )
+  }
+  wrong <- group < 0 | (if (!is.null(n)) group > n else FALSE)
+  if (any(wrong, na.rm = TRUE)) {
+    abort_in_export(
+      if (is.null(n)) {
+        "`{name}` must not be negative."
+      } else {
+        "`{name}` must be from 0 to `n`."
+      },
+      "x" = "It includes {wrap_in_quotes_or_backticks(group[which(wrong)])}."
+    )
+  }
+}
