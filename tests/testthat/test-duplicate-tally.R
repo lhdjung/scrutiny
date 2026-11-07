@@ -14,7 +14,7 @@ test_that("`duplicate_tally()` works without rows and on matrices", {
   c(1, 1, 2, 3) |>
     matrix(nrow = 2) |>
     duplicate_tally() |>
-    expect_equal(tibble::tibble(col1 = c("1", "1"), col1_n = 2L, col2 = c("2", "3"), col2_n = 1L), ignore_attr = "class")
+    expect_equal(tibble::tibble(col1 = c("1", "1"), col1_n = 2L, col2 = c("2", "3"), col2_n = 1L), ignore_attr = c("class", "scrutiny"))
 })
 
 

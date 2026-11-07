@@ -206,4 +206,8 @@ test_that("rows of another call's output can't replace rows", {
   copy[2L, "x"] <- 5.17
   copy[2L, ] <- tibble::as_tibble(out[1L, ])
   copy$x |> expect_equal(c(5.18, 5.19))
+  # So do columns, as from `mutate()`:
+  copy["consistency"] <- other["consistency"]
+  copy[, "consistency"] <- other[, "consistency"]
+  copy$consistency |> expect_equal(other$consistency)
 })

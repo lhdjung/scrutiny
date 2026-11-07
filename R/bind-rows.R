@@ -54,9 +54,12 @@ register_bind_methods <- function(class) {
 
 
 # tibble's `[<-` assigns column by column, so the methods above never see the
-# rows of another call's output that replace rows here:
+# rows of another call's output that replace rows here, as in `x[i, ] <-
+# value`. Columns may be replaced, as by `mutate()`, so `x[j] <- value`, with
+# one index, passes:
 subassign_scrutiny <- function(x, i, j, ..., value) {
-  if (inherits(value, ls(bind_classes)) && nrow(value) > 0L) {
+  is_rows <- nargs() == 4L && !missing(i)
+  if (is_rows && inherits(value, ls(bind_classes)) && nrow(value) > 0L) {
     check_same_mapper_call(
       x,
       value,
