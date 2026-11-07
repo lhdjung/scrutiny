@@ -268,8 +268,9 @@ grim_total <- function(
   n_values <- 10^digits_x
   n_means <- as.numeric(n) * as.numeric(items_averaged)
 
-  # `NA` exactly where `grim()` returns `NA`, so that the `exp_incon` column
-  # of `grim_map()` never shows a number next to an `NA` verdict.
+  # `NA` wherever `grim()` returns `NA`, so that the `exp_incon` column of
+  # `grim_map()` never shows a number next to an `NA` verdict, and in some cases
+  # that `grim()` decides, as with `x` missing: the count depends on it.
   decidable <- is_decidable_n_items(n, items_averaged) &
     is.finite(x) &
     is.finite(n_values)

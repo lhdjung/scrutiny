@@ -60,6 +60,9 @@ test_that("huge counts don't overflow", {
   1e200 |> sd_binary_groups(3e200) |> expect_equal(sqrt(0.25 * 0.75))
   1e200 |> sd_binary_0_n(4e200)    |> expect_equal(sqrt(0.25 * 0.75))
   3e200 |> sd_binary_1_n(4e200)    |> expect_equal(sqrt(0.25 * 0.75))
+  # Nor does the SE underflow, which was 0 from about 1e300:
+  1 |> sd_binary_1_n(1e300, sd_meaning = "se") |> expect_equal(1e-300)
+  1 |> sd_binary_1_n(1e160, sd_meaning = "se") |> expect_equal(1e-160)
 })
 
 

@@ -131,9 +131,9 @@ grim_binomial <- function(
 #'   alternative, shared by all value sets.
 #' @param k Numeric (length 1). Number of value sets. Required if `p0` has
 #'   length 1; otherwise ignored in favor of `length(p0)`.
-#' @param alpha Numeric (length 1). Significance level. Default is `0.05`.
 #' @param alternative String (length 1). One of `"greater"` (the default),
 #'   `"less"`, and `"two.sided"`.
+#' @param alpha Numeric (length 1). Significance level. Default is `0.05`.
 #'
 #' @returns Numeric (length 1). The probability of rejecting the null
 #'   hypothesis when the alternative is true.
@@ -154,8 +154,8 @@ grim_binomial_power <- function(
   p0,
   p1,
   k = NULL,
-  alpha = 0.05,
-  alternative = c("greater", "less", "two.sided")
+  alternative = c("greater", "less", "two.sided"),
+  alpha = 0.05
 ) {
   alternative <- rlang::arg_match(alternative)
 

@@ -142,7 +142,11 @@ sd_binary_mean_n <- function(
 # infinite `n` or count, which describes no data set, as elsewhere in scrutiny,
 # and any `NaN`:
 sd_binary_spread <- function(n, variance, sd_meaning, counts = list()) {
-  out <- suppressWarnings(sqrt(sd_denominator_ratio(n, sd_meaning) * variance))
+  # Two roots rather than the root of the product, which underflows to 0 for
+  # an SE at an `n` of about 1e300:
+  out <- suppressWarnings(
+    sqrt(sd_denominator_ratio(n, sd_meaning)) * sqrt(variance)
+  )
   # Assigned rather than multiplied in: `NaN * NA` may be either, by platform.
   # `rep_len()` recycles `n` along `variance`, as the formula does:
   length_out <- length(out)

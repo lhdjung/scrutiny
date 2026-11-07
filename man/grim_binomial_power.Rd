@@ -8,8 +8,8 @@ grim_binomial_power(
   p0,
   p1,
   k = NULL,
-  alpha = 0.05,
-  alternative = c("greater", "less", "two.sided")
+  alternative = c("greater", "less", "two.sided"),
+  alpha = 0.05
 )
 }
 \arguments{
@@ -23,10 +23,10 @@ alternative, shared by all value sets.}
 \item{k}{Numeric (length 1). Number of value sets. Required if \code{p0} has
 length 1; otherwise ignored in favor of \code{length(p0)}.}
 
-\item{alpha}{Numeric (length 1). Significance level. Default is \code{0.05}.}
-
 \item{alternative}{String (length 1). One of \code{"greater"} (the default),
 \code{"less"}, and \code{"two.sided"}.}
+
+\item{alpha}{Numeric (length 1). Significance level. Default is \code{0.05}.}
 }
 \value{
 Numeric (length 1). The probability of rejecting the null
