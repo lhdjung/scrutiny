@@ -930,7 +930,8 @@ test_data_type <- function(data_type, test_integer, continuous, missing) {
 # `n` or `items_averaged` is given but is no whole number of at least `min_n`
 # (see `is_decidable_continuous()`) or a value is infinite. It is inconsistent
 # if the SD is negative, or if it is the population SD of a single value,
-# which is 0, and 0 would not have been reported as `sd`.
+# which is 0, and 0 would not have been reported as `sd`; and undecidable if a
+# missing `n` or SD leaves this open.
 verdict_continuous <- function(
   n,
   items_averaged = 1,
@@ -951,19 +952,33 @@ verdict_continuous <- function(
   if (!is.na(sd) && sd < 0) {
     return(c("Negative SD" = FALSE))
   }
-  # With the decimal places missing, the fewest that `sd` can have: if 0 is
-  # not rounded to it with these, it is not with more.
-  digits_sd <- digits_least(sd, digits_sd)
-  if (isTRUE(n == 1) && !is.na(sd) && !is.na(digits_sd)) {
-    bounds <- roundwork::bound_numerators(
-      sd,
-      digits_sd,
-      rounding,
-      threshold,
-      symmetric
-    )
-    if (bounds$lower > 0 || (bounds$lower == 0 && !bounds$incl_lower)) {
-      return(c("SD of a single value" = FALSE))
+  # An SD of a single value is only tested where `min_n` is 1, as for a
+  # population SD. A missing `n` may be 1 there, and a missing SD may be 0 or
+  # not. GRIM tests no SD:
+  if (!missing(sd) && min_n == 1 && (is.na(n) || n == 1)) {
+    if (is.na(sd)) {
+      return(c("SD of a single value missing" = NA))
+    }
+    # With the decimal places missing, the fewest that `sd` can have: if 0 is
+    # not rounded to it with these, it is not with more.
+    digits_sd <- digits_least(sd, digits_sd)
+    if (!is.na(digits_sd)) {
+      bounds <- roundwork::bound_numerators(
+        sd,
+        digits_sd,
+        rounding,
+        threshold,
+        symmetric
+      )
+      if (bounds$lower > 0 || (bounds$lower == 0 && !bounds$incl_lower)) {
+        return(
+          if (is.na(n)) {
+            c("Maybe a single value" = NA)
+          } else {
+            c("SD of a single value" = FALSE)
+          }
+        )
+      }
     }
   }
   c("Continuous data" = TRUE)

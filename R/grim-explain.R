@@ -145,8 +145,28 @@ grim_explain <- function(
         threshold = threshold,
         symmetric = symmetric
       ),
-      "digits_x"
+      "digits_x",
+      list(x = x)
     ))
+  }
+
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      n = n,
+      items_averaged = items_averaged,
+      data_type = "\"integer\"",
+      x_meaning = if (is_percentage) "\"percentage\""
+    )
+    new_explanation(
+      "GRIM",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text
+    )
   }
 
   if (!identical(data_type, "integer")) {
@@ -171,28 +191,10 @@ grim_explain <- function(
       data_type,
       consistency,
       explain_integer,
+      explain,
       x_meaning,
       names(verdict_continuous(n, items_averaged, x = x))
     ))
-  }
-
-  explain <- function(text) {
-    inputs <- list(
-      x = format_reported(x, digits_x),
-      n = n,
-      items_averaged = items_averaged,
-      data_type = "\"integer\"",
-      x_meaning = if (is_percentage) "\"percentage\""
-    )
-    new_explanation(
-      "GRIM",
-      inputs,
-      rounding,
-      threshold,
-      symmetric,
-      consistency,
-      text
-    )
   }
 
   # Consistent although `n` or `items_averaged` is missing: see `grim_scalar()`.
@@ -239,7 +241,7 @@ grim_explain <- function(
     text <- paste0(
       "x is missing. But the means of ",
       n_items,
-      " integers are 1 / ",
+      if (n_items == 1) " integer are 1 / " else " integers are 1 / ",
       n_items,
       " apart, ",
       if (n_items >= 10^digits_num) {
@@ -250,7 +252,8 @@ grim_explain <- function(
           if (is_percentage) "shares" else "means",
           " with ",
           digits_num,
-          " decimal places, so some mean would be reported as any ",
+          if (digits_num == 1) " decimal place" else " decimal places",
+          ", so some mean would be reported as any ",
           if (is_percentage) "percentage" else "value",
           " with ",
           digits_x,
@@ -531,31 +534,20 @@ grim_explain <- function(
 
 # The explanation for data that are not plainly whole numbers, as decided by
 # `test_data_type()`: the one for whole numbers, `explain_integer()`, with a
-# paragraph on the data type. `what` is what continuous data can have any of,
-# `reason` the name of `verdict_continuous()`'s result, and `sd` the SD as
-# reported, for a value set that is no single value's. `explain_integer(fill =
-# TRUE)` takes a missing `n` or `items_averaged` for the least that the test
-# admits.
+# paragraph on the data type. `explain` makes an explanation from paragraphs.
+# `what` is what continuous data can have any of, `reason` the name of
+# `verdict_continuous()`'s result, and `sd` the SD as reported, for a value set
+# that is no single value's. `explain_integer(fill = TRUE)` takes a missing `n`
+# or `items_averaged` for the least that the test admits.
 explain_data_type <- function(
   data_type,
   consistency,
   explain_integer,
+  explain,
   what,
   reason,
   sd = NULL
 ) {
-  out <- explain_integer()
-
-  # Why continuous data have this value set or not. Undecidable value sets and
-  # negative SDs are no data's, which the explanation for whole numbers says --
-  # but a missing `n` or `items_averaged` can be anything for continuous data
-  # (`verdict_continuous()`), so it is not the reason there, as it would be for
-  # whole numbers. It is filled in to get at the reason that is:
-  is_other_reason <- !reason %in% c("Continuous data", "SD of a single value")
-  if (identical(data_type, "continuous") && is_other_reason) {
-    out$paragraphs <- explain_integer(fill = TRUE)$paragraphs
-  }
-
   text_continuous <- switch(
     reason,
     "Continuous data" = paste0("they can have any ", what),
@@ -563,47 +555,76 @@ explain_data_type <- function(
       "they can have any mean, but a single value has an SD of 0, which ",
       "would not have been reported as ",
       sd
+    ),
+    "Maybe a single value" = paste0(
+      "they can have any mean and SD, unless n is 1: a single value has an ",
+      "SD of 0, which would not have been reported as ",
+      sd,
+      ". n is missing, so the case can't be decided"
+    ),
+    "SD of a single value missing" = paste0(
+      "they can have any mean and SD, except that a single value has an SD ",
+      "of 0. The SD is missing, so the case can't be decided"
     )
   )
 
-  out$paragraphs <- if (is.null(text_continuous)) {
-    out$paragraphs
-  } else if (is.na(data_type)) {
-    if (identical(consistency, NA)) {
-      c(
-        "The data type is missing. If the data are integers, the test goes as follows.",
-        out$paragraphs,
-        paste0(
-          "If the data are continuous, ",
-          text_continuous,
-          ". So whether the value set is consistent depends on the data type."
-        )
-      )
-    } else {
-      c(
-        out$paragraphs,
-        paste0(
-          "The data type is missing, but this doesn't matter here. If the ",
-          "data are continuous, ",
-          text_continuous,
-          ", so the value set is ",
-          if (consistency) "consistent" else "inconsistent",
-          " either way."
-        )
-      )
-    }
-  } else if (data_type == "continuous") {
-    paste0(
+  # Continuous data are explained by their own reason alone, so the explanation
+  # for whole numbers is not needed, and might be refused at sizes that
+  # continuous data can have:
+  if (identical(data_type, "continuous") && !is.null(text_continuous)) {
+    out <- explain(paste0(
       "The data are continuous, so ",
       text_continuous,
-      if (consistency) {
+      if (isTRUE(consistency)) {
         ". The test only applies to integers, so the value set is consistent."
       } else {
         "."
       }
-    )
+    ))
   } else {
-    out$paragraphs
+    out <- explain_integer()
+
+    # Undecidable value sets and negative SDs are no data's, which the
+    # explanation for whole numbers says -- but a missing `n` or
+    # `items_averaged` can be anything for continuous data
+    # (`verdict_continuous()`), so it is not the reason there, as it would be
+    # for whole numbers. It is filled in to get at the reason that is:
+    if (identical(data_type, "continuous")) {
+      out$paragraphs <- explain_integer(fill = TRUE)$paragraphs
+    }
+
+    if (!is.null(text_continuous) && is.na(data_type)) {
+      out$paragraphs <- if (identical(consistency, NA)) {
+        c(
+          "The data type is missing. If the data are integers, the test goes as follows.",
+          out$paragraphs,
+          paste0(
+            "If the data are continuous, ",
+            text_continuous,
+            if (
+              reason %in%
+                c("Maybe a single value", "SD of a single value missing")
+            ) {
+              "."
+            } else {
+              ". So whether the value set is consistent depends on the data type."
+            }
+          )
+        )
+      } else {
+        c(
+          out$paragraphs,
+          paste0(
+            "The data type is missing, but this doesn't matter here. If the ",
+            "data are continuous, ",
+            text_continuous,
+            ", so the value set is ",
+            if (consistency) "consistent" else "inconsistent",
+            " either way."
+          )
+        )
+      }
+    }
   }
 
   out$consistency <- consistency
@@ -784,8 +805,12 @@ explain_digits_least <- function(explanation, missing) {
       paste(missing, collapse = " and "),
       if (length(missing) == 1L) " is" else " are",
       " missing, so the test below takes the fewest decimal places that ",
-      "the reported value can have: those it shows. More decimal places ",
-      "would only narrow the range of numbers that are rounded to it, so a ",
+      if (length(missing) == 1L) {
+        "the reported value can have: those it shows. More decimal places "
+      } else {
+        "the reported values can have: those they show. More decimal places "
+      },
+      "would only narrow the range of numbers that are rounded to them, so a ",
       "value set that is inconsistent here is inconsistent whatever the ",
       "number of decimal places."
     ),
@@ -797,19 +822,37 @@ explain_digits_least <- function(explanation, missing) {
 
 # The same for a value set that is consistent whatever its missing decimal
 # count: `explanation` is the one with so many decimal places that only the
-# value shown passes; see `digits_exact_mean()`.
-explain_digits_most <- function(explanation, missing) {
+# value shown passes; see `digits_exact_mean()`. `values` are the reported
+# values by name, which the inputs show as given, not with these places.
+explain_digits_most <- function(explanation, missing, values) {
   explanation$paragraphs <- c(
     paste0(
       paste(missing, collapse = " and "),
       if (length(missing) == 1L) " is" else " are",
       " missing, so the test below takes so many decimal places that only ",
-      "the value shown itself passes. Fewer decimal places would only widen ",
-      "the range of numbers that are rounded to it, so a value set that is ",
+      if (length(missing) == 1L) {
+        "the value shown itself passes. Fewer decimal places would only widen "
+      } else {
+        "the values shown themselves pass. Fewer decimal places would only widen "
+      },
+      "the range of numbers that are rounded to them, so a value set that is ",
       "consistent here is consistent whatever the number of decimal places."
     ),
     explanation$paragraphs
   )
+  for (name in sub("digits_", "", missing, fixed = TRUE)) {
+    value <- values[[name]]
+    explanation$inputs <- sub(
+      paste0("(^|, )", name, " = [^,]*"),
+      paste0(
+        "\\1",
+        name,
+        " = ",
+        format_reported(value, digits_least(value, NA))
+      ),
+      explanation$inputs
+    )
+  }
   explanation
 }
 

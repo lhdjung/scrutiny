@@ -159,8 +159,28 @@ debit_explain <- function(
         symmetric = symmetric,
         sd_meaning = sd_meaning
       ),
-      digits_missing
+      digits_missing,
+      list(x = x, sd = sd)
     ))
+  }
+
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      sd = format_reported(sd, digits_sd),
+      n = n,
+      data_type = "\"integer\""
+    )
+    new_explanation(
+      "DEBIT",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text,
+      sd_meaning
+    )
   }
 
   if (!identical(data_type, "integer")) {
@@ -182,6 +202,7 @@ debit_explain <- function(
       data_type,
       consistency,
       explain_integer,
+      explain,
       "mean and SD",
       names(verdict_continuous(
         n,
@@ -216,25 +237,6 @@ debit_explain <- function(
       )
     }
     return(explain_sd_sample_or_pop(explain_type, consistency, n))
-  }
-
-  explain <- function(text) {
-    inputs <- list(
-      x = format_reported(x, digits_x),
-      sd = format_reported(sd, digits_sd),
-      n = n,
-      data_type = "\"integer\""
-    )
-    new_explanation(
-      "DEBIT",
-      inputs,
-      rounding,
-      threshold,
-      symmetric,
-      consistency,
-      text,
-      sd_meaning
-    )
   }
 
   # Decided although `n` is missing: see `debit_n_missing()`.
@@ -653,7 +655,11 @@ explain_debit_n_missing <- function(
       paste0(intro, ","),
       "which is at most about",
       paste0(format_number(sqrt(p * (1 - p)), digits_shown), "."),
-      "Any SD that would be reported as",
+      paste(
+        "Any",
+        if (sd_meaning == "se") "SE" else "SD",
+        "that would be reported as"
+      ),
       sd_text,
       "is larger than that, so no data set fits."
     ))
@@ -680,10 +686,16 @@ explain_debit_n_missing <- function(
     },
     "which shrinks as n grows, so from n =",
     n_max,
-    "on, it is smaller than any SD that would be reported as",
+    "on, it is smaller than any",
+    if (sd_meaning == "se") "SE" else "SD",
+    "that would be reported as",
     paste0(sd_text, "."),
-    "No n from 2 to",
-    n_max - 1,
-    "passes either, so no data set fits."
+    if (n_max > 3) {
+      paste("No n from 2 to", n_max - 1, "passes either, so no data set fits.")
+    } else if (n_max == 3) {
+      "n = 2 doesn't pass either, so no data set fits."
+    } else {
+      "So no data set fits."
+    }
   )
 }

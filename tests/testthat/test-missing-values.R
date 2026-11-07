@@ -580,6 +580,25 @@ test_that("a missing `n`, `items_averaged`, or `x` that can't change the verdict
   3.2 |> grimmer(0.2, NA, 1, 1, NA, "integer")                |> expect_na()
   grimmer_scalar(3.2, 0.2, NA, 1, 1, 1, "integer", show_reason = TRUE) |> expect_equal(list(FALSE, "GRIMMER inconsistent (test 1)"))
   (2:300) |> vapply(\(n) f_grimmer(3.2, 0.2, n), logical(1L)) |> any() |> expect_false()
+  # Data that are all the same need the mean of a single value, not of `n`:
+  5.4 |> grimmer(0, 18, 1, 1, NA, "integer")                    |> expect_na()
+  5   |> grimmer(0, 18, 0, 1, NA, "integer")                    |> expect_true()
+  2   |> grimmer(0, 1, 0, 0, NA, "integer")                     |> expect_na()
+  2   |> grimmer(0, 1, 0, 0, NA, "integer", sd_meaning = "sd_pop") |> expect_true()
+  NA  |> grimmer(0, NA, 0, 2, 1, "integer")                     |> expect_true()
+  (1:5) |> vapply(\(items) grimmer(5.4, 0, 18, 1, 1, items, "integer"), logical(1L)) |> expect_equal(c(FALSE, FALSE, FALSE, FALSE, TRUE))
+
+  # Continuous data can have any SD, except a single value's population SD:
+  f_cont <- function(sd, n, sd_meaning = "sd_pop") grimmer(7.6, sd, n, 1, 1, 1, "continuous", sd_meaning = sd_meaning)
+  2.9 |> f_cont(NA)                                      |> expect_na()
+  2.9 |> f_cont(1)                                       |> expect_false()
+  2.9 |> f_cont(NA, sd_meaning = "sd_sample_or_pop")     |> expect_na()
+  2.9 |> f_cont(NA, sd_meaning = "sd_sample")            |> expect_true()
+  NA  |> f_cont(1)                                       |> expect_na()
+  0   |> f_cont(NA)                                      |> expect_true()
+  0.6 |> debit(0.3, NA, 1, 1, "continuous", sd_meaning = "sd_pop") |> expect_na()
+  5.2 |> grim(1, 1, 1, "continuous")                     |> expect_true()
+  grimmer_explain(7.6, 2.9, NA, 1, 1, 1, "continuous", sd_meaning = "sd_pop") |> format() |> paste(collapse = " ") |> expect_match("unless n is 1")
 
   # Binary data have an SD of about sqrt(p * (1 - p)), but an SE shrinks
   # with `n`:
@@ -591,6 +610,10 @@ test_that("a missing `n`, `items_averaged`, or `x` that can't change the verdict
   0.5 |> f_debit(0.5)                      |> expect_na()
   0.5 |> f_debit(0.1, sd_meaning = "se")   |> expect_na()
   (2:500) |> vapply(\(n) debit(0.7, 0.4, n, 1, 1, "integer", sd_meaning = "se"), logical(1L)) |> any() |> expect_false()
+  # No population SD fits, but a sample SD does with `n = 8`:
+  0.5 |> debit(0.53, NA, 2, 2, "integer", sd_meaning = "sd_sample_or_pop") |> expect_na()
+  0.5 |> debit(0.53, 8, 2, 2, "integer", sd_meaning = "sd_sample_or_pop")  |> expect_true()
+  0.5 |> debit_explain(0.53, NA, 2, 2, "integer", sd_meaning = "sd_sample_or_pop") |> (\(e) e$consistency)() |> expect_na()
 
   # The explanations say why:
   text <- function(explanation) format(explanation) |> paste(collapse = " ") |> gsub(pattern = "\\s+", replacement = " ")

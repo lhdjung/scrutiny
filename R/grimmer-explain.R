@@ -159,8 +159,29 @@ grimmer_explain <- function(
         symmetric = symmetric,
         sd_meaning = sd_meaning
       ),
-      digits_missing
+      digits_missing,
+      list(x = x, sd = sd)
     ))
+  }
+
+  explain <- function(text) {
+    inputs <- list(
+      x = format_reported(x, digits_x),
+      sd = format_reported(sd, digits_sd),
+      n = n,
+      items_averaged = items_averaged,
+      data_type = "\"integer\""
+    )
+    new_explanation(
+      "GRIMMER",
+      inputs,
+      rounding,
+      threshold,
+      symmetric,
+      consistency,
+      text,
+      sd_meaning
+    )
   }
 
   if (!identical(data_type, "integer")) {
@@ -187,6 +208,7 @@ grimmer_explain <- function(
       data_type,
       consistency,
       explain_integer,
+      explain,
       "mean and SD",
       names(verdict_continuous(
         n,
@@ -224,26 +246,6 @@ grimmer_explain <- function(
     return(explain_sd_sample_or_pop(explain_type, consistency, n))
   }
 
-  explain <- function(text) {
-    inputs <- list(
-      x = format_reported(x, digits_x),
-      sd = format_reported(sd, digits_sd),
-      n = n,
-      items_averaged = items_averaged,
-      data_type = "\"integer\""
-    )
-    new_explanation(
-      "GRIMMER",
-      inputs,
-      rounding,
-      threshold,
-      symmetric,
-      consistency,
-      text,
-      sd_meaning
-    )
-  }
-
   # Decided although `n` or `items_averaged` is missing: see
   # `grimmer_n_missing()`.
   if (
@@ -261,9 +263,20 @@ grimmer_explain <- function(
       paste(
         text_missing,
         "But data that all have the same value have an SD of 0, however",
-        "many there are, and their mean is that value. A single value can",
-        "have a mean that would be reported as",
-        paste0(format_reported(x, digits_x), ","),
+        "many there are, and their mean is that value.",
+        if (is.na(x)) {
+          paste(
+            "x is missing, too, but a single value can have any mean",
+            "reported with",
+            digits_x,
+            if (digits_x == 1) "decimal place," else "decimal places,"
+          )
+        } else {
+          paste(
+            "A single value can have a mean that would be reported as",
+            paste0(format_reported(x, digits_x), ",")
+          )
+        },
         "as GRIM finds with n = 1, and 0 would be reported as the SD",
         paste0(format_reported(sd, digits_sd), "."),
         "So the value set is consistent whatever",

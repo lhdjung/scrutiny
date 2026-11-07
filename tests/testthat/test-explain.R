@@ -120,6 +120,9 @@ test_that("explanations of continuous data follow the verdict", {
   negative$consistency |> expect_false()
   negative$paragraphs  |> expect_match("no data set has a negative SD")
   1 |> debit_explain(0.5, 1, 1, 1, "continuous", sd_meaning = "sd_pop") |> _$consistency |> expect_false()
+  # Sizes that only the test for integers refuses:
+  52           |> grimmer_explain(0.627, 3e6, 0, 3, 1, "continuous", sd_meaning = "se") |> _$consistency |> expect_true()
+  -54669.38462 |> grim_explain(3e6, 5, 1, "continuous", rounding = "down")             |> _$consistency |> expect_true()
   # The same for both data types, so the type doesn't come up:
   undecidable <- grim_explain(5.2, 0, 1, 1, NA)
   undecidable$consistency |> expect_equal(NA)

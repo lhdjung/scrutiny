@@ -707,9 +707,10 @@ grimmer_sums_pass <- function(sums, n, items_averaged, sd_bounds) {
 # unless a missing value left the sample SD undecided while the population SD
 # fails: the value set may then still be consistent as a sample SD, so the
 # verdict is `NA`. Not at `n = 1`, where a sample SD does not exist and the
-# population SD is the only SD there is. A reason that differs between the two
-# names both, unless the sample SD was undecidable. Shared with
-# `debit_sd_sample_or_pop()`, which has no reasons.
+# population SD is the only SD there is; but a missing `n` may be larger. A
+# reason that differs between the two names both, unless the sample SD was
+# undecidable. `debit_scalar()` and `explain_sd_sample_or_pop()` share
+# `combine_sd_sample_or_pop()`.
 grimmer_sd_sample_or_pop <- function(sample, population, show_reason, n) {
   verdict <- combine_sd_sample_or_pop(sample[[1L]], population[[1L]], n)
 
@@ -738,7 +739,7 @@ grimmer_sd_sample_or_pop <- function(sample, population, show_reason, n) {
 
 
 combine_sd_sample_or_pop <- function(sample, population, n) {
-  if (is.na(sample) && isFALSE(population) && isTRUE(n > 1)) {
+  if (is.na(sample) && isFALSE(population) && !isTRUE(n == 1)) {
     NA
   } else {
     population
@@ -764,17 +765,22 @@ grimmer_n_missing <- function(
   symmetric,
   sd_meaning
 ) {
-  n_one <- if (is.na(n)) 1 else n
+  min_n <- sd_min_n(sd_meaning)
+  n_given <- if (is.na(n)) min_n else n
   items_one <- if (is.na(items_averaged)) 1 else items_averaged
   # A given `n` or `items_averaged` that describes no data set leaves the
   # case open, as it does without missing values:
-  if (!is_decidable_n_items(n_one, items_one)) {
+  if (!is_decidable_n_items(n_given, items_one, min_n = min_n)) {
     return(c("Missing value" = NA))
   }
+  # Data that are all the same have the mean of a single value, so GRIM is
+  # asked about one value, whatever `n` is. With `items_averaged` missing, it
+  # is asked about 1 item: a whole number is also the mean of that many
+  # copies of it.
   constant <- isTRUE(tryCatch(
     grim_scalar(
       x = x,
-      n = n_one,
+      n = 1,
       digits_x = digits_x,
       items_averaged = items_one,
       data_type = "integer",
