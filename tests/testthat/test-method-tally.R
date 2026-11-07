@@ -152,3 +152,11 @@ test_that("the tally columns are found after `select()` and `relocate()`", {
   # Nor is an integer column of the user's a tally:
   tally |> dplyr::mutate(row = dplyr::row_number()) |> audit() |> expect_equal(expected)
 })
+
+
+test_that("the tally columns are found with any `colname_end`", {
+  expected <- pigs4 |> duplicate_tally() |> audit()
+  expected$term <- sub("_n$", "_count", expected$term)
+  pigs4 |> duplicate_tally(colname_end = "count") |> audit() |> expect_equal(expected)
+  pigs4 |> duplicate_tally() |> dplyr::rename(count = snout_n, x = tail_n, y = wings_n) |> audit() |> expect_error("No tally columns")
+})

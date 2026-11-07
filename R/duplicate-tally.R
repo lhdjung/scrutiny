@@ -113,7 +113,10 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
   out[c(TRUE, FALSE)] <- split(x, index_col)
   out[c(FALSE, TRUE)] <- split(new_cols, index_col)
   names(out) <- as.vector(rbind(colnames_original, colnames_new))
-  out |>
+  out <- out |>
     tibble::new_tibble(nrow = nrow_original) |>
     add_class("scrutiny_dup_tally")
+  # `audit()` finds the tally columns by this suffix:
+  attr(out, "scrutiny") <- list(colname_end = colname_end)
+  out
 }
