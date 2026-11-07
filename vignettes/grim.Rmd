@@ -198,7 +198,7 @@ many_means |>
   grim_plot_grid()
 ```
 
-In the first plot, the grey vertical lines at $n = 40$ and $n = 80$ come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. With three or more decimal places, a gradient is shown instead of a raster.
+In the first plot, the grey vertical line at $n = 80$, and the one at $n = 40$, which is grey in 60% of the cells rather than about 40% as its neighbors, come from the default `rounding = "up_or_down"`: many achievable means at these sample sizes lie exactly halfway between two reportable values, and the default accepts both ways of rounding them. With three or more decimal places, a gradient is shown instead of a raster.
 
 `grim_plot_grid()` takes the output of any GRIM or GRIMMER mapper, such as `grim_map()` or `grim_map_seq()`.
 

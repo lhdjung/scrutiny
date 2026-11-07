@@ -843,10 +843,11 @@ grimmer_n_missing <- function(
 #'   `x` and `sd` are limited to about 15 significant digits, and `x` with
 #'   `n` and `items_averaged` as in [`grim()`]. Within these limits,
 #'   `grimmer()` decides value sets of any size exactly, but refuses some it
-#'   would take too long to decide, none of which occur in practice: an SD of
-#'   about 6e5 or more for `n` from 2 to 4, or 3e5 if it is an SE (divided by
-#'   `items_averaged`), and a value set that leaves more than a million
-#'   candidate sums to test, which takes an `n` of more than a million.
+#'   would take too long to decide, none of which occur in practice: for `n`
+#'   from 2 to 4, an SD from about 6e5 (`n = 4`) to 1e6 (`n = 2`) on, or an SE
+#'   from about 3e5 to 7e5 on (each divided by `items_averaged`); and a value
+#'   set that leaves more than a million candidate sums to test, which takes an
+#'   `n` of more than a million.
 #'
 #' @param x Numeric. The reported mean.
 #' @param sd Numeric. The reported standard deviation.

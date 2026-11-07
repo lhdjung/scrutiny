@@ -50,7 +50,8 @@ column of \code{data}; there is no default. It is returned as a column.}
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
 decimal places. It applies to the whole call, so test a table that mixes
-means and percentages part by part, as in the examples. Each part records
+means and percentages part by part, as in the examples of
+\code{\link[=grim_map]{grim_map()}}. Each part records
 its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others
 read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
 them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}

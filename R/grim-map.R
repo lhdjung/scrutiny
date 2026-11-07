@@ -26,7 +26,8 @@
 #' @param x_meaning String. What the `x` values are: `"mean"` (the default) or
 #'   `"percentage"`. Percentages are divided by 100 and tested with two more
 #'   decimal places. It applies to the whole call, so test a table that mixes
-#'   means and percentages part by part, as in the examples. Each part records
+#'   means and percentages part by part, as in the examples of
+#'   [`grim_map()`]. Each part records
 #'   its own settings, which [`grim_plot_grid()`], [`audit()`], and others
 #'   read, so the parts can't be combined with [`dplyr::bind_rows()`]: keep
 #'   them apart. See *Defaults* in [`grim()`].
