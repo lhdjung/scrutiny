@@ -4,10 +4,13 @@
 \alias{grim_plot}
 \title{Deprecated name of \code{grim_plot_grid()}}
 \usage{
-grim_plot(...)
+grim_plot(..., digits = NULL, raster_color = "grey75")
 }
 \arguments{
 \item{...}{Passed on to \code{\link[=grim_plot_grid]{grim_plot_grid()}}.}
+
+\item{digits, raster_color}{The old names of \code{grim_plot_grid()}'s \code{digits_x}
+and \code{color_raster}.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}

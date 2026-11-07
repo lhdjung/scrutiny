@@ -104,7 +104,7 @@ grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "
 `grim_grid()` returns the grid behind the raster of `grim_plot_grid()` as a tibble, with GRIM's result for every cell. It is useful for studying GRIM itself, e.g., the share of means it rules out at each sample size:
 
 ```{r}
-grim_grid(digits = 2, data_type = "integer") |>
+grim_grid(digits_x = 2, data_type = "integer") |>
   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 ```
 

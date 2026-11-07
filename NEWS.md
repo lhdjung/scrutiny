@@ -74,6 +74,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - The `sd_binary_*()` functions take `sd_meaning`, as in `debit()`, and return the population SD under `"sd_pop"` and the standard error under `"se"`. `sd_binary_mean_n()` takes the mean as `x` instead of `mean`, as the tests do.
 
+- `grim_plot_grid()` and `grim_grid()` take the number of decimal places as `digits_x`, as every other function does, and `grim_plot_grid()`'s `raster_color` is now `color_raster`, like the `color_*` arguments of `grim_plot_line()`. The deprecated `grim_plot()` still takes `digits` and `raster_color`.
+
 - `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()` and `restore_zeros()`. `split_by_parens()`'s `check_sep` is now `check_delim`.
 
 - S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).

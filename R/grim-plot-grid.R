@@ -18,14 +18,14 @@
 #'
 #'   A raster only applies to one number of decimal places, so `grim_plot_grid()`
 #'   errors if `digits_x` varies across rows. Use `split_by_digits = TRUE` to
-#'   get one plot per number of decimal places instead, or `digits` to choose
+#'   get one plot per number of decimal places instead, or `digits_x` to choose
 #'   one.
 #'
 #'   With `x_meaning = "percentage"` in the `grim_map()` call, percentages are
 #'   plotted
 #'   as the proportions they were tested as, with two more decimal places.
 #'
-#'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits`,
+#'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits_x`,
 #'   `rounding`, and `n`.
 #'
 #'   Under the default `rounding = "up_or_down"`, fewer values are
@@ -53,8 +53,8 @@
 #'   gradient be drawn? Default is `TRUE`.
 #' @param split_by_digits Logical. If `TRUE`, return a named list with one
 #'   plot per number of decimal places instead of erroring when they differ.
-#'   Cannot be combined with `digits`. Default is `FALSE`.
-#' @param digits Integer. Number of decimal places for the raster. Default is
+#'   Cannot be combined with `digits_x`. Default is `FALSE`.
+#' @param digits_x Integer. Number of decimal places for the raster. Default is
 #'   `NULL`, in which case it is read from the `digits_x` column, or failing
 #'   that, inferred from `x`. For percentages, give the number of decimal
 #'   places as reported; 2 are added.
@@ -66,7 +66,7 @@
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
-#' @param raster_color String. Color of the consistent cells of the raster, and
+#' @param color_raster String. Color of the consistent cells of the raster, and
 #'   of the consistent end of the gradient that replaces it with three or more
 #'   decimal places. Default is `"grey75"`.
 #'
@@ -128,13 +128,16 @@ grim_plot_grid <- function(
   show_gradient = TRUE,
   split_by_digits = FALSE,
   n = NULL,
-  digits = NULL,
+  digits_x = NULL,
   rounding = "up_or_down",
   threshold = 5,
   tile_size = 1.5,
-  raster_color = "grey75"
+  color_raster = "grey75"
 ) {
   # Checks ----
+
+  # Called `digits` below, where it may also come from the data:
+  digits <- digits_x
 
   check_flag(show_data)
   check_flag(show_raster)
@@ -181,19 +184,19 @@ grim_plot_grid <- function(
   if (!is.null(digits)) {
     if (split_by_digits) {
       abort_in_export(
-        "!" = "`digits` and `split_by_digits = TRUE` can't be combined.",
+        "!" = "`digits_x` and `split_by_digits = TRUE` can't be combined.",
         "i" = "`split_by_digits` takes the decimal counts from the data, \
-        whereas `digits` sets one for the whole plot."
+        whereas `digits_x` sets one for the whole plot."
       )
     }
     if (length(digits) != 1L) {
       abort_in_export(
-        "!" = "`digits` must have length 1 (i.e., be a single number).",
+        "!" = "`digits_x` must have length 1 (i.e., be a single number).",
         "x" = "It has length {length(digits)}."
       )
     } else if (!is.numeric(digits) || !isTRUE(is_whole_number(digits))) {
       abort_in_export(
-        "!" = "`digits` must be a whole number.",
+        "!" = "`digits_x` must be a whole number.",
         "x" = "It is {wrap_in_quotes_or_backticks(digits)}."
       )
     }
@@ -309,7 +312,7 @@ grim_plot_grid <- function(
     # data built by hand, without the `digits_x` column every mapper adds.
     has_digits_x_col <- "digits_x" %in% colnames(data)
 
-    digits_x <- if (has_digits_x_col) {
+    digits_data <- if (has_digits_x_col) {
       data$digits_x
     } else {
       decimal_places(data$x)
@@ -318,7 +321,7 @@ grim_plot_grid <- function(
     # Always a list, even with a single decimal count, so that the return type
     # doesn't depend on the data:
     if (split_by_digits) {
-      unique_digits <- digits_x |>
+      unique_digits <- digits_data |>
         unique() |>
         sort()
 
@@ -328,7 +331,7 @@ grim_plot_grid <- function(
       if (is_percent) {
         n_dropped <- 0L
       } else {
-        n_dropped <- sum(digits_x == 0L)
+        n_dropped <- sum(digits_data == 0L)
         unique_digits <- unique_digits[unique_digits != 0L]
       }
 
@@ -338,7 +341,7 @@ grim_plot_grid <- function(
           "i" = "A mean reported with no decimal places has a fractional \\
           portion of zero, so there is no GRIM plot to split by decimal \\
           places.",
-          "i" = "Set `digits` explicitly (and `split_by_digits = FALSE`) if \
+          "i" = "Set `digits_x` explicitly (and `split_by_digits = FALSE`) if \
           you want a plot anyway."
         )
       }
@@ -354,16 +357,16 @@ grim_plot_grid <- function(
 
       plots <- lapply(unique_digits, function(d) {
         grim_plot_grid(
-          data[digits_x == d, ],
+          data[digits_data == d, ],
           show_data = show_data,
           show_raster = show_raster,
           show_gradient = show_gradient,
           n = n,
-          digits = d,
+          digits_x = d,
           rounding = rounding,
           threshold = threshold,
           tile_size = tile_size,
-          raster_color = raster_color
+          color_raster = color_raster
         )
       })
       names(plots) <- paste0("digits_", unique_digits)
@@ -381,14 +384,14 @@ grim_plot_grid <- function(
     }
 
     if (show_raster) {
-      if (!all(digits_x[1L] == digits_x)) {
+      if (!all(digits_data[1L] == digits_data)) {
         # One call returns one plot, and a raster fits only one decimal count.
         means_percentages <- dplyr::if_else(
           is_percent,
           "Percentages",
           "Means"
         )
-        dp_unique <- unique(digits_x)
+        dp_unique <- unique(digits_data)
         if (length(dp_unique) <= 3L) {
           dp_unique_presented <- sort(dp_unique)
           msg_starting_with <- ":"
@@ -416,14 +419,14 @@ grim_plot_grid <- function(
           {tolower(means_percentages)}.",
           "i" = "Avoid this error by plotting {tolower(means_percentages)} \\
           separately for each number of decimal places. (Alternatively, you \\
-          can specify `digits` as the number of decimal places for which \\
+          can specify `digits_x` as the number of decimal places for which \\
           the plot should be shown. Be aware that this will not be sensible \\
           with regard to all {tolower(means_percentages)}.)"
         )
       }
     }
 
-    digits <- digits_x[1L]
+    digits <- digits_data[1L]
   }
 
   # Not if the data are not drawn, nor before splitting them: each plot's own
@@ -453,7 +456,7 @@ grim_plot_grid <- function(
   # there is no raster for it.
   if (digits < 1L) {
     abort_in_export(
-      "`digits` must be at least 1, but it is {digits}.",
+      "`digits_x` must be at least 1, but it is {digits}.",
       "i" = "The y-axis is the fractional portion of the mean, which is zero \\
       for a mean reported with no decimal places.",
       "i" = "With `x_meaning = \"percentage\"` in the `grim_map()` call, a \\
@@ -559,7 +562,7 @@ grim_plot_grid <- function(
         # shows no cells, so it is white, as without the raster: grey would
         # call every cell consistent.
         panel.background = ggplot2::element_rect(
-          fill = if (digits > 2L && !show_gradient) "white" else raster_color,
+          fill = if (digits > 2L && !show_gradient) "white" else color_raster,
           colour = NA
         ),
         panel.grid = ggplot2::element_blank()
@@ -567,7 +570,7 @@ grim_plot_grid <- function(
     if (digits > 2L) {
       if (show_gradient) {
         gradient <-
-          grDevices::colorRampPalette(c("white", raster_color))(10000)
+          grDevices::colorRampPalette(c("white", color_raster))(10000)
         grob_gradient <- gradient |>
           t() |>
           grid::rasterGrob(
@@ -701,13 +704,15 @@ drop_continuous <- function(data, test, ...) {
 #'   `grim_plot()` was renamed to [`grim_plot_grid()`] in scrutiny 1.0.0.
 #'
 #' @param ... Passed on to [`grim_plot_grid()`].
+#' @param digits,raster_color The old names of `grim_plot_grid()`'s `digits_x`
+#'   and `color_raster`.
 #'
 #' @keywords internal
 #' @export
 
-grim_plot <- function(...) {
+grim_plot <- function(..., digits = NULL, raster_color = "grey75") {
   lifecycle::deprecate_warn("1.0.0", "grim_plot()", "grim_plot_grid()")
-  grim_plot_grid(...)
+  grim_plot_grid(..., digits_x = digits, color_raster = raster_color)
 }
 
 

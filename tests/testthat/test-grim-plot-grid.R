@@ -1,13 +1,13 @@
 plot <- pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-  grim_plot_grid(digits = 2)
+  grim_plot_grid(digits_x = 2)
 
 test_that("`grim_plot_grid()` returns a ggplot object", {
   plot |> expect_s3_class("ggplot")
 })
 
 test_that("`grim_plot_grid()` picks up `digits_x` from `grim_map()` output
-          without needing `digits`", {
+          without needing `digits_x`", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid() |> expect_s3_class("ggplot")
 })
 
@@ -215,7 +215,7 @@ test_that("`split_by_digits = TRUE` always returns a named list", {
     grim_plot_grid(split_by_digits = TRUE, show_raster = FALSE) |>
     names() |>
     expect_equal("digits_2")
-  data |> grim_plot_grid(split_by_digits = TRUE, digits = 2) |> expect_error("can't be combined")
+  data |> grim_plot_grid(split_by_digits = TRUE, digits_x = 2) |> expect_error("can't be combined")
 })
 
 
@@ -275,7 +275,7 @@ test_that("`grim_plot_grid()` falls back to `rounding` if `data` has none record
 test_that("the raster follows a `threshold` recorded or given", {
   expected <- generate_grim_grid(2, "up_from", 9)
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up_from", threshold = 9) |> grim_plot_grid() |> purrr::pluck("data") |> expect_identical(expected)
-  grim_plot_grid(show_data = FALSE, digits = 2, rounding = "up_from", threshold = 9) |> purrr::pluck("data") |> expect_identical(expected)
+  grim_plot_grid(show_data = FALSE, digits_x = 2, rounding = "up_from", threshold = 9) |> purrr::pluck("data") |> expect_identical(expected)
 })
 
 
@@ -312,10 +312,10 @@ test_that("the flags must be `TRUE` or `FALSE`", {
 })
 
 
-test_that("`digits` and `tile_size` are checked", {
+test_that("`digits_x` and `tile_size` are checked", {
   # These failed with R's own errors:
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(digits = NA)      |> expect_error("whole number")
-  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(digits = "2")     |> expect_error("whole number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(digits_x = NA)      |> expect_error("whole number")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(digits_x = "2")     |> expect_error("whole number")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(tile_size = "a")  |> expect_error("single positive number")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(tile_size = NA)   |> expect_error("single positive number")
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_plot_grid(tile_size = -1)   |> expect_error("single positive number")
@@ -395,20 +395,20 @@ test_that("negative means get the raster of the mirrored rounding method", {
 
 test_that("three decimal places without the gradient leave the panel plain", {
   # The tile that stands in for the raster was drawn in white at the origin:
-  plot <- grim_plot_grid(show_data = FALSE, digits = 3, n = 20, show_gradient = FALSE)
+  plot <- grim_plot_grid(show_data = FALSE, digits_x = 3, n = 20, show_gradient = FALSE)
   ggplot2::ggplot_build(plot)$data[[1L]]$fill |> expect_equal(NA)
   # And the panel is white, not the grey of consistent cells:
   plot$theme$panel.background$fill |> expect_equal("white")
-  grim_plot_grid(show_data = FALSE, digits = 3, n = 20)$theme$panel.background$fill |> expect_equal("grey75")
+  grim_plot_grid(show_data = FALSE, digits_x = 3, n = 20)$theme$panel.background$fill |> expect_equal("grey75")
 })
 
 
-test_that("a near-whole `digits` is used as the whole number", {
+test_that("a near-whole `digits_x` is used as the whole number", {
   # `digits <= 2` failed for 2 + 1e-12, which got the gradient instead of the
   # raster:
-  plot <- grim_plot_grid(show_data = FALSE, digits = 2 + 1e-12, n = 20)
+  plot <- grim_plot_grid(show_data = FALSE, digits_x = 2 + 1e-12, n = 20)
   plot |> ggplot2::ggplot_build() |> _$data[[1L]] |> nrow() |> expect_gt(1L)
-  grim_plot_grid(show_data = FALSE, digits = 1 - 1e-12, n = 20) |> expect_no_error()
+  grim_plot_grid(show_data = FALSE, digits_x = 1 - 1e-12, n = 20) |> expect_no_error()
 })
 
 

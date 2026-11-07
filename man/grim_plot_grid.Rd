@@ -11,11 +11,11 @@ grim_plot_grid(
   show_gradient = TRUE,
   split_by_digits = FALSE,
   n = NULL,
-  digits = NULL,
+  digits_x = NULL,
   rounding = "up_or_down",
   threshold = 5,
   tile_size = 1.5,
-  raster_color = "grey75"
+  color_raster = "grey75"
 )
 }
 \arguments{
@@ -32,12 +32,12 @@ gradient be drawn? Default is \code{TRUE}.}
 
 \item{split_by_digits}{Logical. If \code{TRUE}, return a named list with one
 plot per number of decimal places instead of erroring when they differ.
-Cannot be combined with \code{digits}. Default is \code{FALSE}.}
+Cannot be combined with \code{digits_x}. Default is \code{FALSE}.}
 
 \item{n}{Integer. Maximal value on the x-axis. Default is \code{NULL}, in which
 case the axis spans the raster and the data.}
 
-\item{digits}{Integer. Number of decimal places for the raster. Default is
+\item{digits_x}{Integer. Number of decimal places for the raster. Default is
 \code{NULL}, in which case it is read from the \code{digits_x} column, or failing
 that, inferred from \code{x}. For percentages, give the number of decimal
 places as reported; 2 are added.}
@@ -49,7 +49,7 @@ same as in \code{\link[=grim]{grim()}} otherwise. Defaults are \code{"up_or_down
 \item{tile_size}{Numeric. Size of the tiles for value sets. Default is
 \code{1.5}.}
 
-\item{raster_color}{String. Color of the consistent cells of the raster, and
+\item{color_raster}{String. Color of the consistent cells of the raster, and
 of the consistent end of the gradient that replaces it with three or more
 decimal places. Default is \code{"grey75"}.}
 }
@@ -79,14 +79,14 @@ probability of inconsistency instead.
 
 A raster only applies to one number of decimal places, so \code{grim_plot_grid()}
 errors if \code{digits_x} varies across rows. Use \code{split_by_digits = TRUE} to
-get one plot per number of decimal places instead, or \code{digits} to choose
+get one plot per number of decimal places instead, or \code{digits_x} to choose
 one.
 
 With \code{x_meaning = "percentage"} in the \code{grim_map()} call, percentages are
 plotted
 as the proportions they were tested as, with two more decimal places.
 
-Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits},
+Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits_x},
 \code{rounding}, and \code{n}.
 
 Under the default \code{rounding = "up_or_down"}, fewer values are

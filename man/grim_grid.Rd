@@ -4,10 +4,10 @@
 \alias{grim_grid}
 \title{GRIM results on a grid of sample sizes and means}
 \usage{
-grim_grid(digits, data_type, rounding = "up_or_down", threshold = 5)
+grim_grid(digits_x, data_type, rounding = "up_or_down", threshold = 5)
 }
 \arguments{
-\item{digits}{Integer. Number of decimal places, from 1 to 3.}
+\item{digits_x}{Integer. Number of decimal places, from 1 to 3.}
 
 \item{data_type}{String. \code{"integer"} if the values are whole numbers, as in
 \code{\link[=grim]{grim()}}. Under \code{"continuous"}, every cell is consistent, and under
@@ -30,8 +30,8 @@ method. It is meant for studying GRIM's properties directly.
 raster.
 }
 \details{
-The grid covers sample sizes from 1 to \code{10^digits}, where GRIM stops
-ruling out any mean, and fractional parts in steps of \code{1 / 10^digits},
+The grid covers sample sizes from 1 to \code{10^digits_x}, where GRIM stops
+ruling out any mean, and fractional parts in steps of \code{1 / 10^digits_x},
 without zero. All fractional parts of means are positive, so \code{symmetric}
 makes no difference.
 
@@ -42,12 +42,12 @@ which is two more: \code{grim_grid(2)} for whole percentages, as in
 Grids for one or two decimal places are precomputed for every rounding
 method that has no \code{threshold}. All others are computed on demand, which
 takes about 20 seconds for three decimal places. Four or more would mean a
-grid of 100 million cells, so \code{digits} is at most 3.
+grid of 100 million cells, so \code{digits_x} is at most 3.
 }
 \examples{
-grim_grid(digits = 1, data_type = "integer")
+grim_grid(digits_x = 1, data_type = "integer")
 
 # Share of means ruled out per sample size:
-grim_grid(digits = 2, data_type = "integer") |>
+grim_grid(digits_x = 2, data_type = "integer") |>
   dplyr::summarise(share_inconsistent = mean(!consistency), .by = n)
 }

@@ -39,9 +39,9 @@ test_that("`data_type` is required and decides the cells as in `grim()`", {
 })
 
 test_that("invalid input is an error", {
-  grim_grid(data_type = "integer") |> expect_error("`digits` is missing")
-  for (digits in list(0, 4, 1.5, NA, Inf, NaN, TRUE, "2")) {
-    digits |> grim_grid(data_type = "integer") |> expect_error("must be 1, 2, or 3")
+  grim_grid(data_type = "integer") |> expect_error("`digits_x` is missing")
+  for (digits_x in list(0, 4, 1.5, NA, Inf, NaN, TRUE, "2")) {
+    digits_x |> grim_grid(data_type = "integer") |> expect_error("must be 1, 2, or 3")
   }
   NULL    |> grim_grid(data_type = "integer")                                  |> expect_error("must have length 1")
   c(1, 2) |> grim_grid(data_type = "integer")                                  |> expect_error("must have length 1")
