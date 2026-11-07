@@ -110,7 +110,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x` (#62).
 
-- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument for data without a recorded one.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
 
@@ -176,7 +176,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector with `NA`s only if the answer depends on the missing values (any one or two values are linear), and test strings and factors by their numeric values. Anything other than a numeric, character, or factor vector is an error, such as a list, a data frame, or a logical vector with values other than `NA`. `tolerance = 0` no longer makes every comparison fail, and the tolerance is never finer than the rounding error of arithmetic on the values, so `seq_disperse()` output around values of 1e8 and more tests as linear and dispersed. A missing string counts as a missing number, as does the string `"NA"`.
 
-- `grim_plot_grid()` plots negative means at the fractional part of their absolute value, plots percentages with the decimal places they were tested with, works with `show_raster = FALSE`, extends its x-axis to the data when `n` is not given, uses its `rounding` argument for data without a recorded rounding method, and warns about any rows it leaves out instead of suppressing all warnings. It only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well.
+- `grim_plot_grid()` plots negative means at the fractional part of their absolute value, plots percentages with the decimal places they were tested with, works with `show_raster = FALSE`, extends its x-axis to the data when `n` is not given, and warns about any rows it leaves out instead of suppressing all warnings. It only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well.
 
 - `debit_plot()` draws the DEBIT lines for the smallest and largest sample size and shades the band between them; it used to draw a single line from a recycled `n` column. Its x-axis is labeled as the mean, and `data` without rows is an error.
 

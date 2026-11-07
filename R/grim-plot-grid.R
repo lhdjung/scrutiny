@@ -55,14 +55,15 @@
 #'   plot per number of decimal places instead of erroring when they differ.
 #'   Cannot be combined with `digits_x`. Default is `FALSE`.
 #' @param digits_x Integer. Number of decimal places for the raster. Default is
-#'   `NULL`, in which case it is read from the `digits_x` column, or failing
-#'   that, inferred from `x`. For percentages, give the number of decimal
-#'   places as reported; 2 are added.
+#'   `NULL`, in which case it is read from the `digits_x` column that every
+#'   mapper adds, or, if that was removed, inferred from `x`, which loses
+#'   trailing zeros. For percentages, give the number of decimal places as
+#'   reported; 2 are added.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
-#' @param rounding,threshold Only used if `show_data` is `FALSE` or if `data`
-#'   has no rounding method recorded by a mapper, as when built by hand. The
-#'   same as in [`grim()`] otherwise. Defaults are `"up_or_down"` and `5`.
+#' @param rounding,threshold The same as in [`grim()`], for the raster. Only
+#'   used if `show_data` is `FALSE`: otherwise, the raster follows the
+#'   settings of the mapper call. Defaults are `"up_or_down"` and `5`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
@@ -309,7 +310,7 @@ grim_plot_grid <- function(
   if (is.null(digits)) {
     # `decimal_places()` on numeric `x` is unreliable because trailing zeros
     # are lost (`5.00` reads as 0 decimal places), so it is only a fallback for
-    # data built by hand, without the `digits_x` column every mapper adds.
+    # mapper output whose `digits_x` column was removed.
     has_digits_x_col <- "digits_x" %in% colnames(data)
 
     digits_data <- if (has_digits_x_col) {
@@ -487,7 +488,8 @@ grim_plot_grid <- function(
 
   if (show_raster) {
     if (digits <= 2L) {
-      # Data built by hand has no recorded rounding method or threshold:
+      # Unless the mapper's record was removed from the output, its settings
+      # apply:
       args <- scrutiny_args(data)
       if (!is.null(args$rounding)) {
         rounding <- args$rounding
