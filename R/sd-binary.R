@@ -14,6 +14,7 @@
 #' @param group_1 Integer. Count of 1s.
 #' @param n Integer. Total sample size.
 #' @param x Numeric. Mean of the data, i.e., the share of 1s.
+#' @param mean `r lifecycle::badge("deprecated")` The old name of `x`.
 #' @param sd_meaning String. What to compute: the sample SD, `"sd_sample"`
 #'   (the default); the population SD, `"sd_pop"`; or the standard error of
 #'   the mean, `"se"`, as in [`debit()`]. `"sd_sample_or_pop"` is an error
@@ -118,8 +119,10 @@ sd_binary_1_n <- function(
 sd_binary_mean_n <- function(
   x,
   n,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  mean = deprecated()
 ) {
+  x <- use_renamed_arg(mean, x, "sd_binary_mean_n", "mean", "x")
   sd_meaning <- check_sd_meaning_single(sd_meaning)
   check_binary_args(list(x = x, n = n))
   n <- round_whole(n)

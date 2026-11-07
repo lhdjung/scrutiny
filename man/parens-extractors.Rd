@@ -6,9 +6,9 @@
 \alias{inside_parens}
 \title{Extract substrings from before and inside parentheses}
 \usage{
-before_parens(string, delim = "parens")
+before_parens(string, delim = "parens", sep = deprecated())
 
-inside_parens(string, delim = "parens")
+inside_parens(string, delim = "parens", sep = deprecated())
 }
 \arguments{
 \item{string}{String vector.}
@@ -16,6 +16,8 @@ inside_parens(string, delim = "parens")
 \item{delim}{String. The pair of delimiters around the second part:
 \code{"parens"} (the default), \code{"brackets"}, or \code{"braces"}, or two custom
 strings, matched literally.}
+
+\item{sep}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old name of \code{delim}.}
 }
 \value{
 String vector as long as \code{string}, with surrounding whitespace

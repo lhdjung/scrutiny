@@ -80,7 +80,7 @@ test_that("a `digits_*` vector of the wrong length is an error", {
 # different numbers of decimal places.
 test_that("total-n mappers take one `digits_*` value per group", {
   df <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40)
-  out <- df |> grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, data_type = "integer") |> audit_total_n()
+  out <- df |> grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, data_type = "integer") |> audit()
 
   # 17/23 with the original pairing, plus 19/21 and 16/24 with it reversed:
   out$hits_forth |> expect_equal(1L)
@@ -88,7 +88,7 @@ test_that("total-n mappers take one `digits_*` value per group", {
   out$hits_total |> expect_equal(3L)
 
   # Testing 5.3 as "5.30" is stricter and finds only what Bauer and Francis did:
-  out_strict <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit_total_n()
+  out_strict <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit()
   out_strict$hits_total |> expect_equal(1L)
 })
 

@@ -238,3 +238,14 @@ test_that("name clashes and empty input get the package's own errors and shapes"
     split_by_parens() |>
     expect_error("must have unique names")
 })
+
+
+test_that("the old names `sep` and `check_sep` still work, with a warning", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  df <- tibble::tibble(a = c("1 [2]", "3 [4]"))
+  expected <- df |> split_by_parens(delim = "brackets", check_delim = FALSE)
+  df |> split_by_parens(sep = "brackets")                     |> expect_warning("delim")
+  df |> split_by_parens(delim = "brackets", check_sep = FALSE) |> expect_warning("check_delim")
+  df |> split_by_parens(sep = "brackets")                     |> suppressWarnings() |> expect_equal(expected)
+  df |> split_by_parens(delim = "brackets", check_sep = FALSE) |> suppressWarnings() |> expect_equal(expected)
+})

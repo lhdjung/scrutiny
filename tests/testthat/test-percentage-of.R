@@ -71,7 +71,7 @@ test_that("`percentage_of_map_seq()` disperses all three columns", {
   out$var |> unique() |> expect_equal(c("absolute", "percentage", "n"))
   # 24 out of 120 is exactly 20%:
   out[out$var == "absolute" & out$consistency, ]$absolute |> expect_equal(24)
-  out |> audit_seq() |> getElement("hits_absolute") |> expect_equal(1L)
+  out |> audit() |> getElement("hits_absolute") |> expect_equal(1L)
 })
 
 test_that("an abbreviated key argument is an error, not a partial match", {
@@ -101,7 +101,7 @@ test_that("a count above its total is tested as any other", {
   c(121, 121) |> percentage_of(c(100.8, 100.9), 120, 1) |> expect_equal(c(TRUE, FALSE))
   130         |> percentage_of(108.3, 120, 1)           |> expect_true()
   120         |> percentage_of(100, 120, 1)             |> expect_true()
-  tibble::tibble(absolute = 118, percentage = 97, n = 120) |> percentage_of_map_seq(digits_percentage = 0) |> audit_seq() |> _$hits_total |> expect_equal(4L)
+  tibble::tibble(absolute = 118, percentage = 97, n = 120) |> percentage_of_map_seq(digits_percentage = 0) |> audit() |> _$hits_total |> expect_equal(4L)
 })
 
 

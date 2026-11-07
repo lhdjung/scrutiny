@@ -101,3 +101,11 @@ test_that("a missing `delim` element is shown as `NA`, not as a string", {
 test_that("an empty delimiter is an error", {
   "5 (1)" |> inside_parens(delim = c("", ")")) |> expect_error("keyword or two strings")
 })
+
+
+test_that("the old name `sep` still works, with a warning", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  "1 [2]" |> before_parens(sep = "brackets") |> expect_warning("delim")
+  "1 [2]" |> before_parens(sep = "brackets") |> suppressWarnings() |> expect_equal("1")
+  "1 [2]" |> inside_parens(sep = "brackets") |> suppressWarnings() |> expect_equal("2")
+})

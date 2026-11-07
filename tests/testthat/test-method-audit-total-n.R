@@ -79,9 +79,9 @@ df2_debit_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `audit_total_n()` works correctly", {
-  df1 |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> audit_total_n() |> audit() |> expect_equal(df1_grim_exp)
-  df1 |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit_total_n() |> audit() |> expect_equal(df1_grimmer_exp)
-  df2 |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> audit_total_n() |> audit() |> expect_equal(df2_debit_exp)
+  df1 |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> audit()         |> audit() |> expect_equal(df1_grim_exp)
+  df1 |> grimmer_map_total_n(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit()         |> audit() |> expect_equal(df1_grimmer_exp)
+  df2 |> debit_map_total_n(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> audit()         |> audit() |> expect_equal(df2_debit_exp)
 })
 
 test_that("undecidable splits count as neither hits nor scenarios", {
@@ -89,14 +89,14 @@ test_that("undecidable splits count as neither hits nor scenarios", {
   # whatever it is, so two decimal places it is:
   out <- tibble::tibble(x1 = c(NA, 5.2), x2 = 4, n = 30L) |>
     grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
-    audit_total_n()
+    audit()
   out$scenarios_total |> expect_equal(c(0L, 3L))
   out$hit_rate[1L]    |> expect_na()
 
   # A sample SD has no value for a group of 1, so those splits are left out:
   out <- tibble::tibble(x1 = 3, x2 = 4, sd1 = 0, sd2 = 0, n = 4L) |>
     grimmer_map_total_n(digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer", n_min = 1) |>
-    audit_total_n()
+    audit()
   out$scenarios_total |> expect_equal(1L)
 })
 
@@ -104,13 +104,13 @@ test_that("undecidable splits count as neither hits nor scenarios", {
 test_that("a direction whose rows were filtered out has unknown hits", {
   # `hits_back` was 0, and the totals and rate were those of "forth" alone:
   out <- tibble::tibble(x1 = c(3.43, 4.61), x2 = c(5.24, 4.19), n = c(70, 81)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
-  audited <- out |> dplyr::filter(dir == "forth") |> audit_total_n()
-  audited$hits_forth      |> expect_equal(audit_total_n(out)$hits_forth)
+  audited <- out |> dplyr::filter(dir == "forth") |> audit()
+  audited$hits_forth      |> expect_equal(audit(out)$hits_forth)
   audited$hits_back       |> expect_equal(c(NA_integer_, NA_integer_))
   audited$hits_total      |> expect_equal(c(NA_integer_, NA_integer_))
   audited$scenarios_total |> expect_equal(c(NA_integer_, NA_integer_))
   audited$hit_rate        |> expect_equal(c(NA_real_, NA_real_))
-  out |> split(out$case) |> dplyr::bind_rows() |> audit_total_n() |> expect_equal(audit_total_n(out))
+  out |> split(out$case) |> dplyr::bind_rows() |> audit() |> expect_equal(audit(out))
 })
 
 
@@ -118,14 +118,14 @@ test_that("a total beyond the integer range stays as it is", {
   # `as.integer()` made it `NA`, with a warning:
   out <- tibble::tibble(x1 = 1.5, x2 = 2.5, n = 6e9) |>
     grim_map_total_n(digits_x = 1, items_averaged = 1, data_type = "integer", dispersion = 0:1) |>
-    audit_total_n() |>
+    audit() |>
     expect_no_warning()
   out$n |> expect_equal(6e9)
   out$hits_total |> expect_type("integer")
   # Group sizes within the integer range, but not their sum:
   out <- tibble::tibble(x1 = 5.19, x2 = 4.2, n = 3e9) |>
     grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
-    audit_total_n() |>
+    audit() |>
     expect_no_warning()
   out$n |> expect_equal(3e9)
 })

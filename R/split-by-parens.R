@@ -20,6 +20,8 @@
 #' @param delim String. The pair of delimiters around the second part:
 #'   `"parens"` (the default), `"brackets"`, or `"braces"`, or two custom
 #'   strings, matched literally.
+#' @param check_sep,sep `r lifecycle::badge("deprecated")` The old names of
+#'   `check_delim` and `delim`.
 #' @param end1,end2 Strings. Suffixes of the two columns that a split column
 #'   produces. Defaults are `"x"` and `"sd"`.
 #'
@@ -87,8 +89,18 @@ split_by_parens <- function(
   transform = FALSE,
   delim = "parens",
   end1 = "x",
-  end2 = "sd"
+  end2 = "sd",
+  check_sep = deprecated(),
+  sep = deprecated()
 ) {
+  check_delim <- use_renamed_arg(
+    check_sep,
+    check_delim,
+    "split_by_parens",
+    "check_sep",
+    "check_delim"
+  )
+  delim <- use_renamed_arg(sep, delim, "split_by_parens", "sep", "delim")
   check_flag(check_delim)
   check_flag(keep)
   check_flag(transform)

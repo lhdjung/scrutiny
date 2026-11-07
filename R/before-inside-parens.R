@@ -126,6 +126,7 @@ proto_split_parens <- function(string, delim = "parens") {
 #' @param delim String. The pair of delimiters around the second part:
 #'   `"parens"` (the default), `"brackets"`, or `"braces"`, or two custom
 #'   strings, matched literally.
+#' @param sep `r lifecycle::badge("deprecated")` The old name of `delim`.
 #'
 #' @export
 #'
@@ -146,7 +147,8 @@ proto_split_parens <- function(string, delim = "parens") {
 #' before_parens(string = x)
 #' inside_parens(string = x)
 
-before_parens <- function(string, delim = "parens") {
+before_parens <- function(string, delim = "parens", sep = deprecated()) {
+  delim <- use_renamed_arg(sep, delim, "before_parens", "sep", "delim")
   stringr::str_trim(proto_split_parens(string, delim)[, 1L])
 }
 
@@ -154,7 +156,8 @@ before_parens <- function(string, delim = "parens") {
 #' @rdname parens-extractors
 #' @export
 
-inside_parens <- function(string, delim = "parens") {
+inside_parens <- function(string, delim = "parens", sep = deprecated()) {
+  delim <- use_renamed_arg(sep, delim, "inside_parens", "sep", "delim")
   out <- stringr::str_trim(proto_split_parens(string, delim)[, 2L])
   out[out == ""] <- NA
   out

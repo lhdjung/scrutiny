@@ -192,9 +192,14 @@ hint_grouped <- function(data, alternative) {
 NULL
 
 
-# The summaries that `audit()` returns for sequence and total-n mapper output,
-# through `audit.scrutiny_map_seq()` and `audit.scrutiny_map_total_n()`.
-audit_seq <- function(data) {
+# The summaries that `audit()` returns for sequence and total-n mapper output.
+# The tier classes come first in the class vector of such output, ahead of the
+# basic mapper's class, so `audit()` reaches these methods rather than counting
+# the dispersed rows as reported cases. Their checks of the class only apply
+# when the deprecated `audit_seq()` and `audit_total_n()` call them:
+
+#' @export
+audit.scrutiny_map_seq <- function(data, ...) {
   if (!inherits(data, "scrutiny_map_seq")) {
     abort_in_export(
       "Invalid `data` argument.",
@@ -361,7 +366,8 @@ audit_seq <- function(data) {
 }
 
 
-audit_total_n <- function(data) {
+#' @export
+audit.scrutiny_map_total_n <- function(data, ...) {
   if (!inherits(data, "scrutiny_map_total_n")) {
     abort_in_export(
       "Invalid `data` argument.",
@@ -445,18 +451,32 @@ audit_total_n <- function(data) {
 }
 
 
-# The tier classes come first in the class vector of sequence and total-n
-# output, ahead of the basic mapper's class, so `audit()` reaches these methods
-# rather than counting the dispersed rows as reported cases:
-
+#' Deprecated summaries of sequence and total-n mapper output
+#'
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `audit_seq()` and `audit_total_n()` were folded into [`audit()`] in
+#'   scrutiny 1.0.0, which returns the same summaries for the output of
+#'   sequence and total-n mappers, and also has `.by`.
+#'
+#' @param data Output of a sequence mapper, such as [`grim_map_seq()`], or of
+#'   a total-n mapper, such as [`grim_map_total_n()`].
+#'
+#' @keywords internal
 #' @export
-audit.scrutiny_map_seq <- function(data, ...) {
-  audit_seq(data)
+
+audit_seq <- function(data) {
+  lifecycle::deprecate_warn("1.0.0", "audit_seq()", "audit()")
+  audit.scrutiny_map_seq(data)
 }
 
+
+#' @rdname audit_seq
 #' @export
-audit.scrutiny_map_total_n <- function(data, ...) {
-  audit_total_n(data)
+
+audit_total_n <- function(data) {
+  lifecycle::deprecate_warn("1.0.0", "audit_total_n()", "audit()")
+  audit.scrutiny_map_total_n(data)
 }
 
 

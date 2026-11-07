@@ -104,7 +104,7 @@ test_that("`*_map_seq()` only adds `digits_*` columns its mapper accepts", {
 
   # The mapper has no `digits_y` argument, so there must be no such column:
   out |> colnames() |> grepl(pattern = "^digits_") |> any() |> expect_false()
-  out |> audit_seq() |> expect_no_error()
+  out |> audit() |> expect_no_error()
 
   # The real mappers do have them, and must keep their columns:
   pigs1 |>
@@ -157,7 +157,7 @@ test_that("`audit_seq()` works on a mapper that nothing can find any more", {
       .reported = c("y", "n"),
       .name_test = "SCHLIM"
     )
-    tibble::tibble(y = 16:25, n = 3:12) |> schlim_map_seq() |> audit_seq()
+    tibble::tibble(y = 16:25, n = 3:12) |> schlim_map_seq() |> audit()
   }
 
   "schlim_map" |> exists(envir = globalenv(), inherits = FALSE) |> expect_false()
@@ -181,11 +181,11 @@ test_that("`audit()` on sequence output works from a foreign caller", {
 test_that("`audit_seq()` errors informatively if the attribute is lost", {
   out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   attr(out, "scrutiny") <- NULL
-  out |> audit_seq() |> expect_error("lost the settings")
+  out |> audit() |> expect_error("lost the settings")
 
   # The mapper's name is not needed, so a class nobody can resolve is no
   # problem:
   out <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   class(out)[class(out) == "scrutiny_grim_map"] <- "scrutiny_nonexistent_map"
-  out |> audit_seq() |> expect_no_error()
+  out |> audit() |> expect_no_error()
 })

@@ -307,6 +307,12 @@ test_that("`grim_plot()` is a deprecated alias of `grim_plot_grid()`", {
   expected <- data |> grim_plot_grid(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L)
   data |> grim_plot(digits = 2, raster_color = "red")   |> ggplot2::layer_data(1L) |> expect_equal(expected)
   data |> grim_plot(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L) |> expect_equal(expected)
+  # By position, as in scrutiny 0.6.1, where `n` came fifth:
+  expected <- data |> grim_plot_grid(n = 40) |> ggplot2::layer_data(1L)
+  data |> grim_plot(TRUE, TRUE, TRUE, 40) |> ggplot2::layer_data(1L) |> expect_equal(expected)
+  # Removed arguments are ignored, with a warning:
+  rlang::local_options(lifecycle_verbosity = "warning")
+  data |> grim_plot(color_cons = "blue", tile_alpha = 0.5) |> expect_warning("color_cons") |> expect_warning("tile_alpha") |> expect_warning("grim_plot_grid")
 })
 
 test_that("the flags must be `TRUE` or `FALSE`", {

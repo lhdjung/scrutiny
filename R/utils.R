@@ -1207,6 +1207,24 @@ is_decidable_continuous <- function(n, items_averaged = 1, min_n = 1) {
 }
 
 
+# An argument renamed in scrutiny 1.0.0 still works under its old name, with a
+# warning. Returns the value to use under the new name; `new_value` is only
+# evaluated if the old name wasn't used, so it may be a missing argument:
+use_renamed_arg <- function(old_value, new_value, fn_name, old, new) {
+  if (!lifecycle::is_present(old_value)) {
+    return(new_value)
+  }
+  lifecycle::deprecate_warn(
+    "1.0.0",
+    paste0(fn_name, "(", old, ")"),
+    paste0(fn_name, "(", new, ")"),
+    env = asNamespace("scrutiny"),
+    user_env = rlang::caller_env(2)
+  )
+  old_value
+}
+
+
 # GRIM's `percent` argument was replaced by `x_meaning` in scrutiny 1.0.0. The
 # functions without dots keep it as a `deprecated()` formal so that they can say
 # so; the mappers say it from `check_factory_dots()`.

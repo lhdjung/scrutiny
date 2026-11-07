@@ -98,3 +98,10 @@ test_that("`debit()` accepts the SDs computed under each `sd_meaning`", {
     (k / 40) |> round(3) |> debit(sd, 40, 3, 3, "integer", sd_meaning = sd_meaning) |> all() |> expect_true()
   }
 })
+
+
+test_that("`sd_binary_mean_n()` still takes `mean`, with a warning", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  sd_binary_mean_n(mean = 0.3, n = 30) |> expect_warning("Please use the `x` argument")
+  sd_binary_mean_n(mean = 0.3, n = 30) |> suppressWarnings() |> expect_equal(sd_binary_mean_n(0.3, 30))
+})

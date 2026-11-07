@@ -12,7 +12,9 @@ split_by_parens(
   transform = FALSE,
   delim = "parens",
   end1 = "x",
-  end2 = "sd"
+  end2 = "sd",
+  check_sep = deprecated(),
+  sep = deprecated()
 )
 }
 \arguments{
@@ -38,6 +40,9 @@ strings, matched literally.}
 
 \item{end1, end2}{Strings. Suffixes of the two columns that a split column
 produces. Defaults are \code{"x"} and \code{"sd"}.}
+
+\item{check_sep, sep}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old names of
+\code{check_delim} and \code{delim}.}
 }
 \value{
 An ungrouped data frame, a tibble if \code{data} is one or if

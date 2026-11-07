@@ -39,7 +39,7 @@ test_that("a case whose first pair is a back pair keeps its groups in order", {
   # `x2`; these used to be returned as `x1 = 5.28, x2 = 3.43`:
   df1_tested |> dplyr::filter(dir == "back")                 |> reverse_map_total_n() |> expect_equal(df1)
   df1_tested |> dplyr::arrange(case, dplyr::desc(dir))       |> reverse_map_total_n() |> expect_equal(df1)
-  df1_tested |> dplyr::filter(dir == "back")                 |> audit_total_n() |> dplyr::select(x1, x2, n) |> unclass_scr() |> expect_equal(df1)
+  df1_tested |> dplyr::filter(dir == "back")                 |> audit() |> dplyr::select(x1, x2, n) |> unclass_scr() |> expect_equal(df1)
   # GRIMMER, with a second pair of reported columns:
   df_sd <- tibble::tibble(x1 = 3.43, x2 = 5.28, sd1 = 1.21, sd2 = 0.95, n = 90)
   df_sd |>
@@ -66,7 +66,7 @@ test_that("`items_averaged` is not multiplied into the reconstructed total", {
   out$n[1:2] |> expect_equal(c(35L, 36L))
   out$items_averaged |> unique() |> expect_equal(2)
   out |> reverse_map_total_n() |> expect_equal(df)
-  out |> audit_total_n() |> purrr::pluck("n") |> expect_equal(71L)
+  out |> audit() |> purrr::pluck("n") |> expect_equal(71L)
 })
 
 
@@ -83,7 +83,7 @@ test_that("0-row output is reconstructed as 0 rows, keeping column types", {
   rec <- reverse_map_total_n(out)
   rec |> nrow() |> expect_equal(0L)
   rec$x1 |> expect_type("double")
-  out |> audit_total_n() |> nrow() |> expect_equal(0L)
+  out |> audit() |> nrow() |> expect_equal(0L)
 })
 
 
@@ -117,12 +117,12 @@ test_that("the reported columns are found wherever `n` is", {
 
 test_that("a missing column or a lost attribute is a scrutiny error", {
   out <- tibble::tibble(x1 = c(5.19, 4.56), x2 = c(4.5, 1.2), n = c(28, 31)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1)
-  out |> dplyr::select(-both_consistent) |> audit_total_n()       |> expect_error("Missing: `both_consistent`")
-  out |> dplyr::select(-dir)             |> audit_total_n()       |> expect_error("Missing: `dir`")
-  out |> dplyr::select(-n_change)        |> audit_total_n()       |> expect_error("Missing: `n_change`")
-  out |> dplyr::select(-case)            |> audit_total_n()       |> expect_error("Missing: `case`")
+  out |> dplyr::select(-both_consistent) |> audit()               |> expect_error("Missing: `both_consistent`")
+  out |> dplyr::select(-dir)             |> audit()               |> expect_error("Missing: `dir`")
+  out |> dplyr::select(-n_change)        |> audit()               |> expect_error("Missing: `n_change`")
+  out |> dplyr::select(-case)            |> audit()               |> expect_error("Missing: `case`")
   out |> dplyr::select(-x)               |> reverse_map_total_n() |> expect_error("Missing: `x`")
   attr(out, "scrutiny") <- NULL
-  out |> audit_total_n()       |> expect_error("lost the settings")
+  out |> audit()               |> expect_error("lost the settings")
   out |> reverse_map_total_n() |> expect_error("lost the settings")
 })

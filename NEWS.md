@@ -62,7 +62,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `debit_map()`'s `show_rec` defaults to `FALSE`, as in `grim_map()`; `debit_plot()` reconstructs the values itself. `debit_map()` output no longer has a `rounding` column. `grimmer_map()` no longer has `show_reason`: the `reason` column is always returned. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
 
-- `audit()` on sequence or total-n mapper output returns the per-case summary of `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_seq()` and `audit_total_n()` are no longer exported, so `audit()`, which also has `.by`, is the one way to summarize mapper output. `audit_cols_minimal()` lost its `name_test` argument.
+- `audit()` on sequence or total-n mapper output returns the per-case summary of `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_seq()` and `audit_total_n()` are deprecated in favor of `audit()`, which returns the same summaries and also has `.by`. `audit_cols_minimal()` lost its `name_test` argument.
 
 - Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column, except by the sequence mappers, which drop all columns that play no role in the test; `case` joins them back.
 
@@ -72,15 +72,15 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, and `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`, so the columns cannot contradict the result. With `x_meaning = "percentage"`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
 
-- The `sd_binary_*()` functions take `sd_meaning`, as in `debit()`, and return the population SD under `"sd_pop"` and the standard error under `"se"`. `sd_binary_mean_n()` takes the mean as `x` instead of `mean`, as the tests do.
+- The `sd_binary_*()` functions take `sd_meaning`, as in `debit()`, and return the population SD under `"sd_pop"` and the standard error under `"se"`. `sd_binary_mean_n()` takes the mean as `x` instead of `mean`, as the tests do; `mean` still works, with a warning.
 
-- `grim_plot_grid()` takes the number of decimal places as `digits_x`, as every other function does, and the color of the raster as `color_raster`, like the `color_*` arguments of `grim_plot_line()`. The deprecated `grim_plot()` still takes its old `digits` and `raster_color`.
+- `grim_plot_grid()` takes the number of decimal places as `digits_x`, as every other function does, and the color of the raster as `color_raster`, like the `color_*` arguments of `grim_plot_line()`. The deprecated `grim_plot()` keeps its old signature, including `digits` and `raster_color`; `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha` have no effect anymore.
 
-- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()` and `restore_zeros()`. `split_by_parens()`'s `check_sep` is now `check_delim`.
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()` and `restore_zeros()`. `split_by_parens()`'s `check_sep` is now `check_delim`. The old names still work, with a warning.
 
 - S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
 
-- `function_map()`, `function_map_seq()`, and `function_map_total_n()` take the function to map as `.fn` instead of `.fun`. `manage_helper_col()` takes the argument as `arg` instead of `var_arg`, and `add_col` instead of `affix`.
+- `function_map()`, `function_map_seq()`, and `function_map_total_n()` take the function to map as `.fn` instead of `.fun`. `manage_helper_col()` takes the argument as `arg` instead of `var_arg`, and `add_col` instead of `affix`; the old names still work, with a warning.
 
 - Mapper settings that other functions need later, such as `rounding`, are recorded in a `"scrutiny"` attribute instead of S3 classes, which are now used for dispatch only. The `"scr_rounding_*"`, `"scr_percent_true"`, `"scr_map_seq_disp_nonlinear"`, `"scr_seq_df"`, and `"scr_seq_test"` classes are gone.
 

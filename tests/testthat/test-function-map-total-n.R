@@ -168,7 +168,7 @@ test_that("`.name_key_result` renames the key result column", {
   out |> colnames() |> expect_contains(c("verdict", "both_consistent"))
   out |> rlang::has_name("consistency") |> expect_false()
   out$verdict |> expect_type("logical")
-  out |> audit_total_n() |> nrow() |> expect_equal(1L)
+  out |> audit() |> nrow() |> expect_equal(1L)
 
   vermin_map_seq <- function_map_seq(
     .fn = vermin_map,
@@ -179,7 +179,7 @@ test_that("`.name_key_result` renames the key result column", {
   out_seq <- vermin_map_seq(tibble::tibble(y = 16:25, n = 3:12))
   out_seq |> colnames() |> expect_contains("verdict")
   out_seq |> rlang::has_name("consistency") |> expect_false()
-  out_seq |> audit_seq() |> colnames() |> expect_contains("verdict")
+  out_seq |> audit() |> colnames() |> expect_contains("verdict")
 
   # A mismatch between the two factories' `.name_key_result` values is caught
   # with a message that names the column, rather than an obscure `NULL`:
@@ -370,7 +370,7 @@ test_that("a `.dir` column of `data` does not replace the direction", {
     grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
   out$dir |> levels() |> expect_equal(c("forth", "back"))
   out$.dir |> unique() |> expect_equal("zz")
-  out |> audit_total_n() |> expect_no_error()
+  out |> audit() |> expect_no_error()
 })
 
 

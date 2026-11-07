@@ -1203,7 +1203,7 @@ test_that("`sd_meaning` reaches the sequence and total-n mappers", {
 
   seq_either <- df |> grimmer_map_seq(digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop", include_consistent = TRUE)
   seq_either |> scrutiny_args() |> _$sd_meaning |> expect_equal("sd_sample_or_pop")
-  seq_either |> audit_seq() |> nrow() |> expect_equal(1L)
+  seq_either |> audit() |> nrow() |> expect_equal(1L)
 
   # Only groups of 5 and 5 fit, and only as population SDs:
   total <- tibble::tibble(x1 = 4.4, x2 = 4.4, sd1 = 1.62, sd2 = 1.62, n = 10)

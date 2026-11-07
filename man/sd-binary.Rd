@@ -29,7 +29,8 @@ sd_binary_1_n(
 sd_binary_mean_n(
   x,
   n,
-  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se")
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  mean = deprecated()
 )
 }
 \arguments{
@@ -45,6 +46,8 @@ here, since it stands for two premises with different values.}
 \item{n}{Integer. Total sample size.}
 
 \item{x}{Numeric. Mean of the data, i.e., the share of 1s.}
+
+\item{mean}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old name of \code{x}.}
 }
 \value{
 Numeric. The SD or standard error; \code{NA} where \code{n} or a count is not

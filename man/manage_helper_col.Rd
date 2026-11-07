@@ -4,7 +4,14 @@
 \alias{manage_helper_col}
 \title{Manage a helper column}
 \usage{
-manage_helper_col(data, arg, default, add_col = TRUE)
+manage_helper_col(
+  data,
+  arg,
+  default,
+  add_col = TRUE,
+  var_arg = deprecated(),
+  affix = deprecated()
+)
 }
 \arguments{
 \item{data}{The mapper's input data frame.}
@@ -17,6 +24,9 @@ argument is missing, and the test function reports that.}
 
 \item{add_col}{Logical. If \code{data} has no such column, should one be added
 from \code{arg}? Default is \code{TRUE}.}
+
+\item{var_arg, affix}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old names of
+\code{arg} and \code{add_col}.}
 }
 \value{
 \code{data}, possibly with the helper column added.

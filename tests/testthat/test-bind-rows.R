@@ -36,7 +36,7 @@ test_that("the sequence and total-n tiers reject different calls, too", {
   seq_2 <- tibble::tibble(x = c(5.17, 4.2), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   dplyr::bind_rows(seq_1, seq_2) |> expect_error("different value sets or results")
   dplyr::bind_rows(seq_1, seq_1[1:3, ]) |> expect_no_error()
-  seq_1 |> dplyr::filter(var == "n") |> dplyr::bind_rows(seq_1 |> dplyr::filter(var == "x")) |> audit_seq() |> expect_equal(audit_seq(seq_1))
+  seq_1 |> dplyr::filter(var == "n") |> dplyr::bind_rows(seq_1 |> dplyr::filter(var == "x")) |> audit() |> expect_equal(audit(seq_1))
   tot_1 <- tibble::tibble(x1 = 5.19, x2 = 4.2, n = 58) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:1)
   tot_2 <- tibble::tibble(x1 = 5.19, x2 = 4.2, n = 58) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:2)
   dplyr::bind_rows(tot_1, tot_2) |> expect_error("`dispersion`")
@@ -148,8 +148,8 @@ test_that("an output bound to itself can't be audited", {
   # Each row was counted twice:
   seq_out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   tot_out <- tibble::tibble(x1 = 3.84, x2 = 4.21, n = 41) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
-  dplyr::bind_rows(seq_out, seq_out) |> audit_seq()     |> expect_error("occur more than once")
-  dplyr::bind_rows(tot_out, tot_out) |> audit_total_n() |> expect_error("bound to itself")
+  dplyr::bind_rows(seq_out, seq_out) |> audit()         |> expect_error("occur more than once")
+  dplyr::bind_rows(tot_out, tot_out) |> audit()         |> expect_error("bound to itself")
 })
 
 test_that("total-n calls record a helper or `digits_*` the same whichever way it was given", {
@@ -164,8 +164,8 @@ test_that("the sequence and total-n audits reject rows added by a join", {
   seq_out   <- tibble::tibble(x = c(5.19, 3.41), n = c(28, 30))           |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   seq_other <- tibble::tibble(x = c(5.19, 3.41, 6.22), n = c(28, 30, 31)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   tot_out   <- tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65)               |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
-  suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit_seq()     |> expect_error("rows that the mapper call didn't return")
-  rbind(tot_out, tot_out[1, ])                                                     |> audit_total_n() |> expect_error("rows that the mapper call didn't return")
+  suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit()         |> expect_error("rows that the mapper call didn't return")
+  rbind(tot_out, tot_out[1, ])                                                     |> audit()         |> expect_error("rows that the mapper call didn't return")
 })
 
 

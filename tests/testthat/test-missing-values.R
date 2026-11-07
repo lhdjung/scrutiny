@@ -183,7 +183,7 @@ test_that("the sequence mappers drop undecidable cases", {
   out$x |> anyNA() |> expect_false()
   out$n |> anyNA() |> expect_false()
 
-  out |> audit_seq() |> purrr::pluck("hits_total") |> expect_equal(4L)
+  out |> audit() |> purrr::pluck("hits_total") |> expect_equal(4L)
 })
 
 
@@ -537,7 +537,7 @@ test_that("sequence mappers disperse the known values of such a case", {
   out <- df |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
   out$var[out$case == 1] |> unique() |> expect_equal(c("x", "n"))
   out$var[out$case == 2] |> unique() |> expect_equal(c("sd", "n"))
-  out |> audit_seq() |> nrow() |> expect_equal(2L)
+  out |> audit() |> nrow() |> expect_equal(2L)
   df[1, ] |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = "sd") |> expect_warning("`sd` is missing in every case")
   tibble::tibble(x = 0.33, sd = NA, n = 10) |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer") |> nrow() |> expect_gt(0)
 })

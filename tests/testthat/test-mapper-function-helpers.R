@@ -38,3 +38,15 @@ test_that("a helper column and an identical argument agree where both are missin
   df |> grim_map(digits_x = 2, items_averaged = c(NA, 1), data_type = "integer") |> expect_error("conflicts with")
   df |> grim_map(digits_x = 2, items_averaged = c(1, 2), data_type = "integer")  |> expect_error("conflicts with")
 })
+
+
+test_that("`manage_helper_col()` still takes `var_arg` and `affix`, with a warning", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  mapper_old <- function(data, items = 1) manage_helper_col(data, var_arg = items, default = 1, affix = FALSE)
+  mapper_new <- function(data, items = 1) manage_helper_col(data, arg = items, default = 1, add_col = FALSE)
+  df <- tibble::tibble(x = 1, items = 2)
+  df |> mapper_old() |> expect_warning("var_arg") |> expect_warning("affix")
+  df |> mapper_old() |> suppressWarnings() |> expect_equal(mapper_new(df))
+  df |> mapper_old(items = 3) |> suppressWarnings() |> expect_error("items")
+  df |> mapper_new(items = 3) |> expect_error("items")
+})

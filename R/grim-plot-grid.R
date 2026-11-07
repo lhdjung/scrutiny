@@ -701,29 +701,70 @@ drop_continuous <- function(data, test, ...) {
 #'
 #' @description `r lifecycle::badge("deprecated")`
 #'
-#'   `grim_plot()` was renamed to [`grim_plot_grid()`] in scrutiny 1.0.0.
+#'   `grim_plot()` was renamed to [`grim_plot_grid()`] in scrutiny 1.0.0. It
+#'   keeps the signature it had in scrutiny 0.6.1, so that calls by position
+#'   still work.
 #'
-#' @param ... Passed on to [`grim_plot_grid()`].
+#' @param data,show_data,show_raster,show_gradient,n,rounding,tile_size Passed
+#'   on to [`grim_plot_grid()`].
 #' @param digits,raster_color The old names of `grim_plot_grid()`'s `digits_x`
 #'   and `color_raster`.
+#' @param color_cons,color_incons,tile_alpha,raster_alpha No longer have any
+#'   effect: `grim_plot_grid()` draws its tiles in fixed colors.
+#' @param ... Other arguments of [`grim_plot_grid()`], such as
+#'   `split_by_digits`.
 #'
 #' @keywords internal
 #' @export
 
 grim_plot <- function(
-  ...,
-  digits = lifecycle::deprecated(),
-  raster_color = lifecycle::deprecated()
+  data = NULL,
+  show_data = TRUE,
+  show_raster = TRUE,
+  show_gradient = TRUE,
+  n = NULL,
+  digits = NULL,
+  rounding = "up_or_down",
+  color_cons = deprecated(),
+  color_incons = deprecated(),
+  tile_alpha = deprecated(),
+  tile_size = 1.5,
+  raster_alpha = deprecated(),
+  raster_color = NULL,
+  ...
 ) {
   lifecycle::deprecate_warn("1.0.0", "grim_plot()", "grim_plot_grid()")
-  args <- list(...)
-  if (lifecycle::is_present(digits)) {
+  removed <- list(
+    color_cons = color_cons,
+    color_incons = color_incons,
+    tile_alpha = tile_alpha,
+    raster_alpha = raster_alpha
+  )
+  for (name in names(removed)) {
+    if (lifecycle::is_present(removed[[name]])) {
+      lifecycle::deprecate_warn(
+        "1.0.0",
+        paste0("grim_plot(", name, ")"),
+        details = "It no longer has any effect."
+      )
+    }
+  }
+  args <- list(
+    data = data,
+    show_data = show_data,
+    show_raster = show_raster,
+    show_gradient = show_gradient,
+    n = n,
+    rounding = rounding,
+    tile_size = tile_size
+  )
+  if (!is.null(digits)) {
     args$digits_x <- digits
   }
-  if (lifecycle::is_present(raster_color)) {
+  if (!is.null(raster_color)) {
     args$color_raster <- raster_color
   }
-  do.call(grim_plot_grid, args)
+  do.call(grim_plot_grid, c(args, list(...)))
 }
 
 

@@ -217,11 +217,37 @@ check_cols_needed <- function(data, cols, ...) {
 #' @param add_col Logical. If `data` has no such column, should one be added
 #'   from `arg`? Default is `TRUE`.
 #'
+#' @param var_arg,affix `r lifecycle::badge("deprecated")` The old names of
+#'   `arg` and `add_col`.
+#'
 #' @return `data`, possibly with the helper column added.
 #'
 #' @export
 
-manage_helper_col <- function(data, arg, default, add_col = TRUE) {
+manage_helper_col <- function(
+  data,
+  arg,
+  default,
+  add_col = TRUE,
+  var_arg = deprecated(),
+  affix = deprecated()
+) {
+  # The old names are passed on as the new ones, unevaluated, because the
+  # name of the expression given as `arg` is the name of the column:
+  if (!missing(var_arg) || !missing(affix)) {
+    call <- match.call()
+    renames <- c(var_arg = "arg", affix = "add_col")
+    for (old in intersect(names(call), names(renames))) {
+      lifecycle::deprecate_warn(
+        "1.0.0",
+        paste0("manage_helper_col(", old, ")"),
+        paste0("manage_helper_col(", renames[[old]], ")")
+      )
+      names(call)[names(call) == old] <- renames[[old]]
+    }
+    call[[1L]] <- manage_helper_col
+    return(eval(call, parent.frame()))
+  }
   var_name <- deparse(substitute(arg))
   check_flag(add_col)
 

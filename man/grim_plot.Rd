@@ -5,20 +5,40 @@
 \title{Deprecated name of \code{grim_plot_grid()}}
 \usage{
 grim_plot(
-  ...,
-  digits = lifecycle::deprecated(),
-  raster_color = lifecycle::deprecated()
+  data = NULL,
+  show_data = TRUE,
+  show_raster = TRUE,
+  show_gradient = TRUE,
+  n = NULL,
+  digits = NULL,
+  rounding = "up_or_down",
+  color_cons = deprecated(),
+  color_incons = deprecated(),
+  tile_alpha = deprecated(),
+  tile_size = 1.5,
+  raster_alpha = deprecated(),
+  raster_color = NULL,
+  ...
 )
 }
 \arguments{
-\item{...}{Passed on to \code{\link[=grim_plot_grid]{grim_plot_grid()}}.}
+\item{data, show_data, show_raster, show_gradient, n, rounding, tile_size}{Passed
+on to \code{\link[=grim_plot_grid]{grim_plot_grid()}}.}
 
 \item{digits, raster_color}{The old names of \code{grim_plot_grid()}'s \code{digits_x}
 and \code{color_raster}.}
+
+\item{color_cons, color_incons, tile_alpha, raster_alpha}{No longer have any
+effect: \code{grim_plot_grid()} draws its tiles in fixed colors.}
+
+\item{...}{Other arguments of \code{\link[=grim_plot_grid]{grim_plot_grid()}}, such as
+\code{split_by_digits}.}
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
-\code{grim_plot()} was renamed to \code{\link[=grim_plot_grid]{grim_plot_grid()}} in scrutiny 1.0.0.
+\code{grim_plot()} was renamed to \code{\link[=grim_plot_grid]{grim_plot_grid()}} in scrutiny 1.0.0. It
+keeps the signature it had in scrutiny 0.6.1, so that calls by position
+still work.
 }
 \keyword{internal}

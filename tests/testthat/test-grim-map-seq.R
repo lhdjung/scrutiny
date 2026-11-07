@@ -1540,7 +1540,7 @@ test_that("`grimmer_map_seq()` tests `n` and `items_averaged` separately", {
   out$consistency |> expect_equal(c(FALSE, TRUE, FALSE))
   out$consistency |>
     expect_equal(grimmer(out$x, out$sd, out$n, digits_x = 2, digits_sd = 2, items_averaged = 2, data_type = "integer"))
-  out |> audit_seq() |> purrr::pluck("consistency") |> expect_true()
+  out |> audit() |> purrr::pluck("consistency") |> expect_true()
 })
 
 
@@ -1592,7 +1592,7 @@ test_that("`reverse_map_seq()` recovers a negative reported mean", {
 
 test_that("`audit_seq()` reports the reported values and their own verdict", {
   out <- tibble::tibble(x = -2.51, n = 40) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
-  out_audit <- out |> audit_seq()
+  out_audit <- out |> audit()
   out_audit$x |> expect_equal(-2.51)
   out_audit$consistency |> expect_equal(grim(-2.51, 40, digits_x = 2, items_averaged = 1, data_type = "integer"))
   out_audit$consistency |> expect_false()
@@ -1656,14 +1656,14 @@ test_that("output without inconsistent cases keeps its shape and class", {
   full_extra  <- pigs1            |> dplyr::mutate(extra = "e") |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE)
   empty_extra |> colnames() |> expect_equal(colnames(full_extra))
   full_extra  |> colnames() |> expect_no_match("extra")
-  empty |> audit_seq()       |> colnames() |> expect_equal(colnames(audit_seq(full)))
+  empty |> audit()           |> colnames() |> expect_equal(colnames(audit(full)))
   empty |> reverse_map_seq() |> colnames() |> expect_equal(c("x", "n", "items_averaged", "data_type"))
   # The dispersed variables are recorded, so the columns follow `var`:
   full  |> scrutiny_meta() |> dplyr::filter(setting == "var") |> _$value |> expect_equal("c('x', 'n')")
   empty_n <- pigs1[c(1, 1), ] |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", var = "n") |> suppressWarnings()
   empty_n |> scrutiny_meta() |> dplyr::filter(setting == "var") |> _$value |> expect_equal("'n'")
-  cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", var = "n") |> audit_seq() |> colnames()
-  empty_n |> audit_seq() |> colnames() |> expect_equal(cols_audit_n)
+  cols_audit_n <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", var = "n") |> audit() |> colnames()
+  empty_n |> audit() |> colnames() |> expect_equal(cols_audit_n)
 })
 
 
