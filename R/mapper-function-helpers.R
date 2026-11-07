@@ -238,6 +238,9 @@ manage_helper_col <- function(
     call <- match.call()
     renames <- c(var_arg = "arg", affix = "add_col")
     for (old in intersect(names(call), names(renames))) {
+      if (renames[[old]] %in% names(call)) {
+        abort_renamed_both(old, renames[[old]])
+      }
       lifecycle::deprecate_warn(
         "1.0.0",
         paste0("manage_helper_col(", old, ")"),

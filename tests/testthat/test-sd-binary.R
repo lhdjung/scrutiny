@@ -107,4 +107,5 @@ test_that("`sd_binary_mean_n()` still takes `mean`, with a warning", {
   rlang::local_options(lifecycle_verbosity = "warning")
   sd_binary_mean_n(mean = 0.3, n = 30) |> expect_warning("Please use the `x` argument")
   sd_binary_mean_n(mean = 0.3, n = 30) |> suppressWarnings() |> expect_equal(sd_binary_mean_n(0.3, 30))
+  sd_binary_mean_n(mean = 0.3, x = 0.3, n = 30) |> expect_error("can't both be given")
 })

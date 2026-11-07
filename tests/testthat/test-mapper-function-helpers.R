@@ -49,4 +49,5 @@ test_that("`manage_helper_col()` still takes `var_arg` and `affix`, with a warni
   df |> mapper_old() |> suppressWarnings() |> expect_equal(mapper_new(df))
   df |> mapper_old(items = 3) |> suppressWarnings() |> expect_error("items")
   df |> mapper_new(items = 3) |> expect_error("items")
+  df |> manage_helper_col(items, 1, var_arg = items) |> expect_error("can't both be given")
 })

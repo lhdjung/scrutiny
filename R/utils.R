@@ -1221,10 +1221,15 @@ is_decidable_continuous <- function(n, items_averaged = 1, min_n = 1) {
 
 # An argument renamed in scrutiny 1.0.0 still works under its old name, with a
 # warning. Returns the value to use under the new name; `new_value` is only
-# evaluated if the old name wasn't used, so it may be a missing argument:
+# evaluated if the old name wasn't used, so it may be a missing argument.
+# Both names at once are an error. `missing()` is asked in the caller's frame:
+# through `new_value`, it is `FALSE` for an argument left at its default.
 use_renamed_arg <- function(old_value, new_value, fn_name, old, new) {
   if (!lifecycle::is_present(old_value)) {
     return(new_value)
+  }
+  if (!eval(call("missing", as.name(new)), rlang::caller_env())) {
+    abort_renamed_both(old, new)
   }
   lifecycle::deprecate_warn(
     "1.0.0",
@@ -1234,6 +1239,14 @@ use_renamed_arg <- function(old_value, new_value, fn_name, old, new) {
     user_env = rlang::caller_env(2)
   )
   old_value
+}
+
+
+abort_renamed_both <- function(old, new) {
+  abort_in_export(
+    "`{old}` and `{new}` can't both be given.",
+    "i" = "`{old}` is the old name of `{new}`. Use `{new}` only."
+  )
 }
 
 

@@ -108,4 +108,5 @@ test_that("the old name `sep` still works, with a warning", {
   "1 [2]" |> before_parens(sep = "brackets") |> expect_warning("delim")
   "1 [2]" |> before_parens(sep = "brackets") |> suppressWarnings() |> expect_equal("1")
   "1 [2]" |> inside_parens(sep = "brackets") |> suppressWarnings() |> expect_equal("2")
+  "1 [2]" |> inside_parens(sep = "brackets", delim = "brackets") |> expect_error("can't both be given")
 })

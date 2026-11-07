@@ -248,4 +248,5 @@ test_that("the old names `sep` and `check_sep` still work, with a warning", {
   df |> split_by_parens(delim = "brackets", check_sep = FALSE) |> expect_warning("check_delim")
   df |> split_by_parens(sep = "brackets")                     |> suppressWarnings() |> expect_equal(expected)
   df |> split_by_parens(delim = "brackets", check_sep = FALSE) |> suppressWarnings() |> expect_equal(expected)
+  df |> split_by_parens(sep = "brackets", delim = "brackets")  |> expect_error("can't both be given")
 })
