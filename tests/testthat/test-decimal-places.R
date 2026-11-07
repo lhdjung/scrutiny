@@ -428,5 +428,10 @@ test_that("a column named `sep` is counted, not taken for the argument", {
 })
 
 test_that("large numbers are written without a leading space", {
-  1e23 |> number_to_string() |> expect_equal("99999999999999991611392")
+  # In full, but the digits past the 17th are R's on each platform: Windows
+  # wrote "99999999999999991618642", macOS and Linux "99999999999999991611392".
+  # R doesn't read either back as exactly `1e23`:
+  out <- number_to_string(1e23)
+  out |> expect_match("^[1-9][0-9]{22}$")
+  out |> as.numeric() |> expect_equal(1e23)
 })
