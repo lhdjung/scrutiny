@@ -22,7 +22,7 @@ This is a list of other packages and apps for error detection, with no claim to 
 
 -   [statcheck](https://michelenuijten.shinyapps.io/statcheck-web/) by Michèle Nuijten and Sacha Epskamp is the best-known error detection software. It recomputes *p*-values and tests them for consistency with their test statistic, such as *t* or *F*. It reads PDF files automatically, so it can scan [large numbers](https://link.springer.com/article/10.3758/s13428-015-0664-2) of published articles. Steve Haroz built a [simple edition](https://steveharoz.shinyapps.io/statchecksimple) of the statcheck web app.
 
--   James Heathers' [SPRITE](https://peerj.com/preprints/26968v1/) algorithm reconstructs possible distributions of raw data from summary statistics; see also his [light introduction](https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb). In R, it is implemented in [rsprite2](https://lukaswallrich.github.io/rsprite2/) by Lukas Wallrich, building on code by Nick Brown.
+-   James Heathers' [SPRITE](https://web.archive.org/web/20241128150317/https://peerj.com/preprints/26968v1/) algorithm reconstructs possible distributions of raw data from summary statistics; see also his [light introduction](https://web.archive.org/web/20240716175701/https://medium.com/hackernoon/introducing-sprite-and-the-case-of-the-carthorse-child-58683c2bfeb). In R, it is implemented in [rsprite2](https://lukaswallrich.github.io/rsprite2/) by Lukas Wallrich, building on code by Nick Brown.
 
 ## Up and coming
 
