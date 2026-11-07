@@ -709,6 +709,13 @@ explain_sd_sample_or_pop <- function(explain_type, consistency, n) {
         "The SD may also be a population SD, which divides by n rather than n - 1.",
         population$paragraphs[is_new]
       )
+    } else if (isFALSE(population$consistency)) {
+      # Word for word the same, as with `x` missing, where no numbers of the
+      # sample SD's own appear; it was checked all the same:
+      c(
+        out$paragraphs,
+        "The SD may also be a population SD, which divides by n rather than n - 1. The same holds for it."
+      )
     } else {
       out$paragraphs
     }

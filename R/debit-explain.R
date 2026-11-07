@@ -300,21 +300,14 @@ debit_explain <- function(
       bounds_sd$incl_upper
     )
     name_missing <- if (is.na(x)) "x" else "digits_x"
-    text_none <- if (formula == "exact") {
-      paste0(
-        name_missing,
-        " is missing, so the number of ones is unknown. But it is an integer ",
-        "from 0 to ",
-        n,
-        ", and none of these gives an SD in that range."
-      )
-    } else {
-      paste0(
-        name_missing,
-        " is missing, so the mean is unknown. But it lies between 0 and 1, ",
-        "and no mean in that range gives an SD in the SD's range."
-      )
-    }
+    # `formula = "exact"`, as checked at the top:
+    text_none <- paste0(
+      name_missing,
+      " is missing, so the number of ones is unknown. But it is an integer ",
+      "from 0 to ",
+      n,
+      ", and none of these gives an SD in that range."
+    )
     return(explain(c(text_intro, text_bounds_sd, text_none)))
   }
 

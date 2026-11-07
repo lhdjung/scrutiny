@@ -439,3 +439,14 @@ test_that("`explain_print()` and `explain_map()` say what is wrong with the data
   out |> dplyr::select(-items_averaged) |> explain_map() |> expect_error("Missing: `items_averaged`")
   out |> dplyr::select(-data_type)      |> explain_map() |> expect_error("Missing: `data_type`")
 })
+
+
+test_that("the population SD is mentioned under `\"sd_sample_or_pop\"` even if its paragraphs repeat", {
+  # With `x` missing, both conventions are explained in the same words, and
+  # the population SD went unmentioned:
+  debit_explain(NA, 0.11, 16, NA, 2, "integer", sd_meaning = "sd_sample_or_pop") |>
+    format() |>
+    paste(collapse = " ") |>
+    gsub(pattern = "\\s+", replacement = " ") |>
+    expect_match("population SD, which divides by n rather than n - 1. The same holds for it")
+})
