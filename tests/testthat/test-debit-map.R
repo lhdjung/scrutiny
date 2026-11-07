@@ -77,11 +77,11 @@ df1_expected <- tibble::tibble(
     scrutiny = list(
       settings = settings_tbl(
         list(
+          sd_meaning = "sd_sample",
           formula = "exact",
           rounding = "up_or_down",
           threshold = 5,
           symmetric = FALSE,
-          sd_meaning = "sd_sample",
           show_rec = TRUE
         ),
         c(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),

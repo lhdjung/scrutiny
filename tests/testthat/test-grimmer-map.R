@@ -47,10 +47,10 @@ pigs5_exp <- tibble::tibble(
     scrutiny = list(
       settings = settings_tbl(
         list(
+          sd_meaning = "sd_sample",
           rounding = "up_or_down",
           threshold = 5,
-          symmetric = FALSE,
-          sd_meaning = "sd_sample"
+          symmetric = FALSE
         ),
         TRUE,
         "grimmer_map"
