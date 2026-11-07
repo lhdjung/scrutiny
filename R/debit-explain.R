@@ -127,7 +127,6 @@ debit_explain <- function(
   if (
     identical(data_type, "integer") &&
       isTRUE(consistency) &&
-      formula == "exact" &&
       length(digits_missing) > 0L &&
       !is.na(n)
   ) {
@@ -655,11 +654,7 @@ explain_debit_n_missing <- function(
       paste0(intro, ","),
       "which is at most about",
       paste0(format_number(sqrt(p * (1 - p)), digits_shown), "."),
-      paste(
-        "Any",
-        if (sd_meaning == "se") "SE" else "SD",
-        "that would be reported as"
-      ),
+      "Any SD that would be reported as",
       sd_text,
       "is larger than that, so no data set fits."
     ))
@@ -690,12 +685,11 @@ explain_debit_n_missing <- function(
     if (sd_meaning == "se") "SE" else "SD",
     "that would be reported as",
     paste0(sd_text, "."),
+    # `debit_n_max()` is at least 3:
     if (n_max > 3) {
       paste("No n from 2 to", n_max - 1, "passes either, so no data set fits.")
-    } else if (n_max == 3) {
-      "n = 2 doesn't pass either, so no data set fits."
     } else {
-      "So no data set fits."
+      "n = 2 doesn't pass either, so no data set fits."
     }
   )
 }

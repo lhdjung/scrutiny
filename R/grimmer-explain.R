@@ -262,8 +262,9 @@ grimmer_explain <- function(
     text <- if (consistency) {
       paste(
         text_missing,
-        "But data that all have the same value have an SD of 0, however",
-        "many there are, and their mean is that value.",
+        "But data that all have the same value have an",
+        if (sd_meaning == "se") "SD and an SE" else "SD",
+        "of 0, however many there are, and their mean is that value.",
         if (is.na(x)) {
           paste(
             "x is missing, too, but a single value can have any mean",
@@ -277,7 +278,8 @@ grimmer_explain <- function(
             paste0(format_reported(x, digits_x), ",")
           )
         },
-        "as GRIM finds with n = 1, and 0 would be reported as the SD",
+        "as GRIM finds with n = 1, and 0 would be reported as the",
+        if (sd_meaning == "se") "SE" else "SD",
         paste0(format_reported(sd, digits_sd), "."),
         "So the value set is consistent whatever",
         paste(missing, collapse = " and "),
@@ -608,6 +610,12 @@ grimmer_explain <- function(
       break
     }
     n_failed <- n_failed + 1L
+    # With the verdict known to be `FALSE`, the sums not shown only add to a
+    # count that the range gives below. Trying them all took seconds from
+    # `n = 1e5` on, where `grimmer()` rules them out at once:
+    if (!consistency && n_failed >= 3L) {
+      break
+    }
   }
   # Up to three failures are shown, which may be all of the first `n`. The
   # sums skipped before the one that passes, or in the whole range, fail too:

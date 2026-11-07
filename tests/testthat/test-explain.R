@@ -332,6 +332,13 @@ test_that("only the first `n` sums are tested, and the rest are counted", {
   text |> expect_match("Inconsistent")
 })
 
+test_that("an inconsistent value set shows three sums and counts the rest", {
+  # Every sum within reach of the SD was tried, which took seconds at this `n`:
+  text <- grimmer_explain(5.5, 0.49, 1e6, 1, 2, 1, data_type = "integer") |> format()
+  text |> expect_match("The remaining 99998 sums fail as well")
+  text |> expect_match("Inconsistent")
+})
+
 test_that("sums out of reach of the SD are said to be skipped, and counted", {
   # The sums from 4500000 on were skipped, yet counted among "the next 499772
   # sums" after the three shown, from 4999549:
