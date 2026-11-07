@@ -312,7 +312,11 @@ grimmer_closest_scalar <- function(
 
   n <- as.numeric(n)
   n_items <- n * items_averaged
-  sum_target <- x * n_items
+  # The unrounded sum is `numerator / scale`. Distances from it are compared as
+  # whole numbers, in units of the last decimal place of `x`, so that two means
+  # equally far from it tie exactly, rather than by the noise in `x * n_items`:
+  scale <- 10^digits_x
+  numerator <- round(x * scale) * n_items
   sums <- roundwork::sum_range(
     x_num = x,
     n_items = n_items,
@@ -339,7 +343,8 @@ grimmer_closest_scalar <- function(
     remainders <- sums |>
       grimmer_sums_reachable(n, sd_bounds) |>
       sums_from_bounds()
-    candidates <- sums_closest_by_remainder(remainders, sums, n, sum_target)
+    candidates <- remainders |>
+      sums_closest_by_remainder(sums, n, numerator, scale)
     # Each is checked against the SD on its own, below:
     check_enumeration_size(
       c(1, length(candidates)),
@@ -353,10 +358,8 @@ grimmer_closest_scalar <- function(
     # whose mean `grim_closest()` returns:
     sd_bounds <- NULL
     candidates <- c(sums[[2L]], sums[[1L]])
-    # Compared as whole numbers, as there, so that a tie goes the same way,
-    # to the smaller one:
-    scale <- 10^digits_x
-    distances <- abs(candidates * scale - round(x * scale) * n_items)
+    # A tie goes the same way as there, to the smaller one:
+    distances <- abs(candidates * scale - numerator)
     candidates <- candidates[which.min(distances)]
   } else {
     sd_bounds <- NULL
@@ -365,7 +368,8 @@ grimmer_closest_scalar <- function(
     } else {
       seq(sums[[1L]], sums[[2L]])
     }
-    candidates <- sums_closest_by_remainder(remainders, sums, n, sum_target)
+    candidates <- remainders |>
+      sums_closest_by_remainder(sums, n, numerator, scale)
   }
 
   r <- candidates %% n
@@ -440,10 +444,7 @@ grimmer_closest_scalar <- function(
   # sum as documented:
   deviations <- (n * squares - r^2) / n
   distance_sd <- abs(sqrt(deviations) - sqrt(deviations_target))
-  # In units of the last decimal place of `x`, so that two means equally far
-  # from it tie exactly, rather than by the noise in `x * n_items`:
-  scale <- 10^digits_x
-  distance_sum <- abs(candidates * scale - round(x * scale) * n_items)
+  distance_sum <- abs(candidates * scale - numerator)
   # Two SDs on either side of `sd` can be equally close, which the roots don't
   # show exactly; such ties go by the sum, too:
   tolerance <- 1e-9 * max(1, sqrt(deviations_target))
@@ -469,12 +470,16 @@ grimmer_closest_scalar <- function(
 
 
 # For each remainder modulo `n` among `remainders`, the sum with it that lies
-# from `sums[1]` to `sums[2]` and is closest to `target`.
-sums_closest_by_remainder <- function(remainders, sums, n, target) {
+# from `sums[1]` to `sums[2]` and is closest to the unrounded sum, which is
+# `numerator / scale`. Compared as whole numbers, so that two sums equally
+# close tie exactly, and the smaller one wins.
+sums_closest_by_remainder <- function(remainders, sums, n, numerator, scale) {
   r <- unique(remainders %% n)
-  below <- floor(target) - ((floor(target) - r) %% n)
+  target_floor <- numerator %/% scale
+  below <- target_floor - ((target_floor - r) %% n)
   above <- below + n
-  closest <- ifelse(target - below <= above - target, below, above)
+  is_below <- numerator - below * scale <= above * scale - numerator
+  closest <- ifelse(is_below, below, above)
   least <- sums[[1L]] + ((r - sums[[1L]]) %% n)
   greatest <- sums[[2L]] - ((sums[[2L]] - r) %% n)
   pmin(pmax(closest, least), greatest)

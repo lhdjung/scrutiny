@@ -295,6 +295,11 @@ test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as do
   # With means equally close, too, the smaller sum wins:
   5.5 |> grimmer_closest(0.6, 35, 1, 1, 1, "integer") |> _$sum |> expect_equal(191)
   1.1 |> grimmer_closest(1.38, 55, 1, 2, 3, "integer") |> _$sum |> expect_equal(174)
+  # Even with two sums of one remainder in reach, where `8.3 * 30` is a little
+  # above 249, and `1.1 * 45` a little below 49.5:
+  8.3 |> grimmer_closest(0.1,  2, 1, 1, 15, "integer") |> _$sum |> expect_equal(248)
+  8.3 |> grimmer_closest(0.17, 2, 1, 2, 15, "integer") |> _$sum |> expect_equal(248)
+  1.1 |> grimmer_closest(0,    3, 1, 1, 15, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(48)
   # SDs of 0 and 0.4 are equally close to 0.2:
   4   |> grimmer_closest(0.2, 5, 0, 2, 1, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(20)
   # With the sum the same, too, the smaller SD wins, not the noise in the roots:
