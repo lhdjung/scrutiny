@@ -60,6 +60,30 @@ test_that("`grim_closest()` keeps a consistent `x` to the means reported as `x`"
 })
 
 
+test_that("`grim_closest()` returns the smaller of two equally close means", {
+  # The tie went by `round()` on the sum, which rounds half to even:
+  0.5  |> grim_closest(17, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(8 / 17)
+  0.5  |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(9 / 19)
+  -0.5 |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(-10 / 19)
+  # Over a grid, against distances in whole numbers: `100 * s - X * n` for a
+  # sum `s` and `x = X / 100`. Under `"up_or_down"`, sums within `n / 2` of it
+  # are reported as `x`:
+  for (n in 2:40) {
+    for (numerator in 0:200) {
+      x <- numerator / 100
+      sums <- 0:(2 * n + 1)
+      distance <- abs(100 * sums - numerator * n)
+      if (any(2 * distance <= n)) {
+        sums <- sums[2 * distance <= n]
+        distance <- distance[2 * distance <= n]
+      }
+      expected <- sums[distance == min(distance)][1L] / n
+      x |> grim_closest(n, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(expected)
+    }
+  }
+})
+
+
 test_that("too many means is an error, not a huge allocation", {
   5 |> grim_values(1e7, digits_x = 0, items_averaged = 1, data_type = "integer")  |> expect_error("Too many achievable means")
   # The error names the value set, with `x` as given:

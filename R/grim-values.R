@@ -236,18 +236,23 @@ grim_closest_scalar <- function(
     # whole-number sum totals that straddle `x`, the lower one first.
     c(sum2, sum1)
   } else {
-    # The whole number closest to the unrounded sum total, pulled into the
+    # The whole numbers around the unrounded sum total, pulled into the
     # admissible range: a consistent `x` stands for a mean that rounds to it,
     # even where a closer one rounds to something else, as under `"floor"`.
-    # The endpoints come along in case `round()` lands one integer off through
+    # One more on either side in case `floor()` lands one integer off through
     # floating-point error in the product:
-    sum_nearest <- round(x * parts$n_items / parts$scale)
-    sum_nearest <- min(max(sum_nearest, sum1), sum2)
-    unique(c(sum_nearest, sum1, sum2))
+    sum_floor <- floor(x * parts$n_items / parts$scale)
+    sort(unique(pmin(pmax(sum_floor + (-1):2, sum1), sum2)))
   }
 
-  values <- sums_candidate * parts$scale / parts$n_items
-  values[which.min(abs(values - x))]
+  # Distances compared as whole numbers, in units of `x`'s last decimal place
+  # times `n_items`, so that two equally close values tie exactly, and the
+  # smaller one wins:
+  numerator <- round(x * 10^digits_x)
+  distance <- abs(
+    sums_candidate * parts$scale * 10^digits_x - numerator * parts$n_items
+  )
+  sums_candidate[which.min(distance)] * parts$scale / parts$n_items
 }
 
 
@@ -263,7 +268,7 @@ grim_closest_scalar <- function(
 #'   GRIM-inconsistent with `n`.
 #'   - `grim_closest()` returns the single achievable value closest to `x`
 #'   among those that would be reported as `x`, or, if there are none, the
-#'   closest one overall.
+#'   closest one overall. Of two equally close values, it returns the smaller.
 #'
 #'   Both are vectorized like [`grim()`]. `grim_closest()` has exactly one
 #'   value per value set, so it returns a vector, like [`grim()`]. A reported

@@ -297,6 +297,10 @@ test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as do
   1.1 |> grimmer_closest(1.38, 55, 1, 2, 3, "integer") |> _$sum |> expect_equal(174)
   # SDs of 0 and 0.4 are equally close to 0.2:
   4   |> grimmer_closest(0.2, 5, 0, 2, 1, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(20)
+  # With the sum the same, too, the smaller SD wins, not the noise in the roots:
+  2.5 |> grimmer_closest(2,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(1.5)
+  5.5 |> grimmer_closest(1,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(0.5)
+  3.4 |> grimmer_closest(0.5, 3, 1, 1, 1, "integer", sd_meaning = "se")     |> _$sd |> expect_equal(1 / 3)
 })
 
 

@@ -77,7 +77,7 @@ of \code{n * items_averaged} integers can have:
 GRIM-inconsistent with \code{n}.
 \item \code{grim_closest()} returns the single achievable value closest to \code{x}
 among those that would be reported as \code{x}, or, if there are none, the
-closest one overall.
+closest one overall. Of two equally close values, it returns the smaller.
 }
 
 Both are vectorized like \code{\link[=grim]{grim()}}. \code{grim_closest()} has exactly one

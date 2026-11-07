@@ -253,7 +253,7 @@ abort_sum_squares_too_large <- function() {
 # gives the mean that `grim_closest()` returns. Sums with the same remainder
 # modulo `n` have the same SDs (see `grimmer_candidate()`), so each remainder
 # is tried once, with its sum closest to `x`. Ties go to the mean closer to
-# `x`, then to the smaller sum.
+# `x`, then to the smaller sum, then to the smaller SD.
 grimmer_closest_scalar <- function(
   x,
   sd,
@@ -500,12 +500,16 @@ closest_square_few <- function(r, n, target, lower, upper) {
 
 # Of two sums of squares around `target`, either of them `NA`, the one whose
 # SD is closer to the SD at `target`. The SD grows with the root of the sum of
-# squared deviations, which is the shifted sum of squares minus `r^2 / n`:
+# squared deviations, which is the shifted sum of squares minus `r^2 / n`.
+# Equally close SDs, which the roots don't show exactly, go to the smaller one,
+# with the same tolerance as in `grimmer_closest_scalar()`:
 closest_by_sd <- function(below, above, r, n, target) {
   root_target <- sqrt(target - r^2 / n)
   distance_below <- abs(sqrt(below - r^2 / n) - root_target)
   distance_above <- abs(sqrt(above - r^2 / n) - root_target)
-  is_below <- !is.na(below) & (is.na(above) | distance_below <= distance_above)
+  tolerance <- 1e-9 * pmax(1, root_target)
+  is_below <- !is.na(below) &
+    (is.na(above) | distance_below <= distance_above + tolerance)
   ifelse(is_below, below, above)
 }
 
@@ -592,7 +596,7 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
 #'   In `grimmer_closest()`, pairs whose SDs are equally close go by the mean
-#'   closer to `x`, then by the smaller sum. A negative `sd` is closest to the
+#'   closer to `x`, then by the smaller sum, then by the smaller SD. A negative `sd` is closest to the
 #'   least SD there is. The number of pairs doesn't matter there, so it has no
 #'   such limit.
 #'
