@@ -199,6 +199,10 @@ grim_closest_scalar <- function(
     if (consistency) {
       digits_x <- digits_exact_mean(digits_x, parts$n_items)
     }
+    # Without these, the call below would land here again, as with `n` missing:
+    if (is.na(digits_x)) {
+      return(NA_real_)
+    }
     return(grim_closest_scalar(
       x = x,
       n = n,

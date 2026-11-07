@@ -24,6 +24,9 @@ test_that("`grim_closest()` returns the achievable mean nearest to `x`", {
   # For a consistent value set, it is one of the `grim_values()`:
   5.19 |> grim_closest(32, digits_x = 2, items_averaged = 1) |> expect_equal(5.1875)
   5.19 |> grim_closest(300, digits_x = 2, items_averaged = 1) |> expect_equal(5.19)
+  # Consistent whatever the missing values are, but without a nearest mean:
+  5 |> grim_closest(NA, digits_x = NA, items_averaged = 1) |> expect_na()
+  5 |> grim_closest(10, digits_x = NA, items_averaged = NA) |> expect_na()
 })
 
 

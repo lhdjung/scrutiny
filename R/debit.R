@@ -187,29 +187,29 @@ debit_n_missing <- function(
   if (is.na(n_max) || n_max > 1000) {
     return(NA)
   }
-  verdicts <- vapply(
-    seq(2, max(n_max, 2)),
-    function(n) {
-      tryCatch(
-        debit_scalar(
-          x = x,
-          sd = sd,
-          n = n,
-          digits_x = digits_x,
-          digits_sd = digits_sd,
-          data_type = "integer",
-          formula = formula,
-          rounding = rounding,
-          threshold = threshold,
-          symmetric = symmetric,
-          sd_meaning = sd_meaning
-        ),
-        error = function(cnd) NA
-      )
-    },
-    logical(1L)
-  )
-  if (any(is.na(verdicts) | verdicts)) NA else FALSE
+  # The first `n` that passes or is undecidable leaves the case open:
+  for (n in seq(2, max(n_max, 2))) {
+    verdict <- tryCatch(
+      debit_scalar(
+        x = x,
+        sd = sd,
+        n = n,
+        digits_x = digits_x,
+        digits_sd = digits_sd,
+        data_type = "integer",
+        formula = formula,
+        rounding = rounding,
+        threshold = threshold,
+        symmetric = symmetric,
+        sd_meaning = sd_meaning
+      ),
+      error = function(cnd) NA
+    )
+    if (!isFALSE(verdict)) {
+      return(NA)
+    }
+  }
+  FALSE
 }
 
 # The largest `n` whose sample SD or SE can reach the lower bound of `sd`, or
