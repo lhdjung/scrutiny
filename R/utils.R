@@ -225,7 +225,13 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 #' @return No return value. Might throw an error.
 #'
 #' @noRd
-check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
+check_enumeration_size <- function(
+  bounds,
+  n,
+  digits_x,
+  limit = 1e6,
+  name = "GRIMMER"
+) {
   lower <- bounds[c(TRUE, FALSE)]
   size <- sum(bounds[c(FALSE, TRUE)] - lower + 1)
   if (isTRUE(size > limit)) {
@@ -237,10 +243,10 @@ check_enumeration_size <- function(bounds, n, digits_x, limit = 1e6) {
       `digits_x = {digits_x}`"
     }
     abort_in_export(
-      "`n` is too large for GRIMMER.",
+      "`n` is too large for {name}.",
       "x" = paste0(
         msg_given,
-        ", GRIMMER checks {format(size, big.mark = ',', scientific = FALSE)} ",
+        ", {name} checks {format(size, big.mark = ',', scientific = FALSE)} ",
         "candidate sums."
       ),
       "i" = "The limit is {format(limit, big.mark = ',', scientific = FALSE)}."

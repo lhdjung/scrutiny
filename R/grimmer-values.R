@@ -340,13 +340,24 @@ grimmer_closest_scalar <- function(
       grimmer_sums_reachable(n, sd_bounds) |>
       sums_from_bounds()
     candidates <- sums_closest_by_remainder(remainders, sums, n, sum_target)
+    # Each is checked against the SD on its own, below:
+    check_enumeration_size(
+      c(1, length(candidates)),
+      n,
+      digits_x,
+      limit = CLOSEST_SUMS_MAX,
+      name = "`grimmer_closest()`"
+    )
   } else if (sums[[1L]] > sums[[2L]]) {
     # No mean would be reported as `x`. Of the two sums around it, the one
     # whose mean `grim_closest()` returns:
     sd_bounds <- NULL
     candidates <- c(sums[[2L]], sums[[1L]])
-    # Compared as means, as there, so that a tie goes the same way:
-    candidates <- candidates[which.min(abs(candidates / n_items - x))]
+    # Compared as whole numbers, as there, so that a tie goes the same way,
+    # to the smaller one:
+    scale <- 10^digits_x
+    distances <- abs(candidates * scale - round(x * scale) * n_items)
+    candidates <- candidates[which.min(distances)]
   } else {
     sd_bounds <- NULL
     remainders <- if (sums[[2L]] - sums[[1L]] + 1 >= n) {
@@ -596,9 +607,11 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
 #'
 #'   In `grimmer_closest()`, pairs whose SDs are equally close go by the mean
-#'   closer to `x`, then by the smaller sum, then by the smaller SD. A negative `sd` is closest to the
-#'   least SD there is. The number of pairs doesn't matter there, so it has no
-#'   such limit.
+#'   closer to `x`, then by the smaller sum, then by the smaller SD. A negative
+#'   `sd` is closest to the least SD there is. The number of pairs doesn't
+#'   matter there, but that of the sums does: for a consistent value set, it
+#'   tries one sum per remainder modulo `n`, and more than 100,000 of them is
+#'   an error. That takes an `n` of more than about `10^(digits_x + 5)`.
 #'
 #' @inheritParams grimmer
 #' @param data_type String. `"integer"` if the values are whole numbers,

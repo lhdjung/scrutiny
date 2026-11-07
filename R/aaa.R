@@ -74,6 +74,10 @@ TIBBLE_FRAC_N_ZERO <- tibble::new_tibble(list(frac = 0, n = 0L), nrow = 1L)
 # value set; see `check_values_size()`:
 VALUES_MAX <- 1e6
 
+# The most sums that `grimmer_closest()` tries for a consistent value set, one
+# remainder modulo `n` each; see `check_enumeration_size()`:
+CLOSEST_SUMS_MAX <- 1e5
+
 # The most values that `grim_plot_line()` and `grimmer_plot_line()` test,
 # one test each; see `comb_values()`:
 COMB_TEETH_MAX <- 2e4

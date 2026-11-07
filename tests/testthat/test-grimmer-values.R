@@ -346,4 +346,6 @@ test_that("`grimmer_closest()` handles missing values and bad input", {
   5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, "integer", sd_meaning = "sd_sample_or_pop") |> expect_error("grimmer_closest")
   # Fast with a large `n`, where every remainder is tried:
   3.51 |> grimmer_closest(9.99, 1e5, 2, 2, 1, "integer") |> nrow() |> expect_equal(1L)
+  # Too many sums to try one by one is an error rather than half a minute:
+  5.1  |> grimmer_closest(2.3, 9e6, 1, 1, 1, "integer") |> expect_error("`grimmer_closest()` checks 900,001 candidate sums", fixed = TRUE)
 })
