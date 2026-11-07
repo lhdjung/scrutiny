@@ -29,14 +29,14 @@ test_that("`grim_binomial()` returns the exact interval, one-sided like the test
   k <- sum(data$consistency)
   n <- nrow(data)
   for (alternative in c("greater", "less", "two.sided")) {
-    out      <- data |> grim_binomial(alternative = alternative, conf.level = 0.9)
+    out      <- data |> grim_binomial(alternative = alternative, alpha = 0.1)
     expected <- k    |> stats::binom.test(n, alternative = alternative, conf.level = 0.9)
     c(out$conf.low, out$conf.high) |> expect_equal(as.numeric(expected$conf.int))
   }
-  data |> grim_binomial()                          |> getElement("conf.high") |> expect_equal(1)
-  data |> grim_binomial(alternative = "less")      |> getElement("conf.low")  |> expect_equal(0)
-  data |> grim_binomial(conf.level = 1)            |> expect_error("between 0 and 1")
-  data |> grim_binomial(conf.level = c(0.9, 0.95)) |> expect_error("between 0 and 1")
+  data |> grim_binomial()                     |> getElement("conf.high") |> expect_equal(1)
+  data |> grim_binomial(alternative = "less") |> getElement("conf.low")  |> expect_equal(0)
+  data |> grim_binomial(alpha = 0)            |> expect_error("between 0 and 1")
+  data |> grim_binomial(alpha = c(0.1, 0.05)) |> expect_error("between 0 and 1")
 })
 
 

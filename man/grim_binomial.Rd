@@ -7,7 +7,7 @@
 grim_binomial(
   data,
   alternative = c("greater", "less", "two.sided"),
-  conf.level = 0.95
+  alpha = 0.05
 )
 }
 \arguments{
@@ -18,13 +18,14 @@ hypothetical value sets, not reported ones.}
 \item{alternative}{String (length 1). One of \code{"greater"} (the default),
 \code{"less"}, and \code{"two.sided"}.}
 
-\item{conf.level}{Numeric (length 1). Confidence level of the interval
-around \code{estimate}. Default is \code{0.95}.}
+\item{alpha}{Numeric (length 1). Significance level of the test. The
+interval around \code{estimate} has a confidence level of \code{1 - alpha}. Default
+is \code{0.05}, as in \code{\link[=grim_binomial_power]{grim_binomial_power()}}.}
 }
 \value{
 Tibble with the columns \code{estimate} (observed consistency rate),
 \code{statistic} (number of consistent cases), \code{p.value}, \code{parameter} (number
-of cases), \code{conf.low}, \code{conf.high}, \code{conf.level}, \code{method}, and
+of cases), \code{conf.low}, \code{conf.high}, \code{conf.level} (\code{1 - alpha}), \code{method}, and
 \code{alternative}.
 }
 \description{

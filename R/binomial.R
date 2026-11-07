@@ -12,8 +12,9 @@
 #'   hypothetical value sets, not reported ones.
 #' @param alternative String (length 1). One of `"greater"` (the default),
 #'   `"less"`, and `"two.sided"`.
-#' @param conf.level Numeric (length 1). Confidence level of the interval
-#'   around `estimate`. Default is `0.95`.
+#' @param alpha Numeric (length 1). Significance level of the test. The
+#'   interval around `estimate` has a confidence level of `1 - alpha`. Default
+#'   is `0.05`, as in [`grim_binomial_power()`].
 #'
 #' @details Under the null hypothesis, the decimal digits of each mean are
 #'   random, so its probability of consistency is `1 - exp_incon`, with
@@ -34,7 +35,7 @@
 #'
 #' @returns Tibble with the columns `estimate` (observed consistency rate),
 #'   `statistic` (number of consistent cases), `p.value`, `parameter` (number
-#'   of cases), `conf.low`, `conf.high`, `conf.level`, `method`, and
+#'   of cases), `conf.low`, `conf.high`, `conf.level` (`1 - alpha`), `method`, and
 #'   `alternative`.
 #'
 #' @export
@@ -47,7 +48,7 @@
 grim_binomial <- function(
   data,
   alternative = c("greater", "less", "two.sided"),
-  conf.level = 0.95
+  alpha = 0.05
 ) {
   alternative <- rlang::arg_match(alternative)
 
@@ -60,17 +61,18 @@ grim_binomial <- function(
   )
 
   if (
-    !is.numeric(conf.level) ||
-      length(conf.level) != 1L ||
-      is.na(conf.level) ||
-      conf.level <= 0 ||
-      conf.level >= 1
+    !is.numeric(alpha) ||
+      length(alpha) != 1L ||
+      is.na(alpha) ||
+      alpha <= 0 ||
+      alpha >= 1
   ) {
     abort_in_export(
-      "`conf.level` must be a single number between 0 and 1.",
-      "x" = "It is {conf.level}."
+      "`alpha` must be a single number between 0 and 1.",
+      "x" = "It is {alpha}."
     )
   }
+  conf_level <- 1 - alpha
 
   # An undecidable value set has neither a verdict nor a probability, so it is
   # left out on both sides; an `NA` probability would make the p-value `NA`:
@@ -96,7 +98,7 @@ grim_binomial <- function(
     n_consistent,
     n_cases,
     alternative = alternative,
-    conf.level = conf.level
+    conf.level = conf_level
   )$conf.int
 
   tibble::tibble(
@@ -106,7 +108,7 @@ grim_binomial <- function(
     parameter = n_cases,
     conf.low = conf_int[1L],
     conf.high = conf_int[2L],
-    conf.level = conf.level,
+    conf.level = conf_level,
     method = "Poisson binomial test",
     alternative = alternative
   )
