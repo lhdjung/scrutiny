@@ -279,6 +279,21 @@ test_that("the raster follows a `threshold` recorded or given", {
 })
 
 
+test_that("`rounding` or `threshold` that disagree with the mapper call are an error", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling")
+  out |> grim_plot_grid(rounding = "up_or_down") |> expect_error("disagrees with the mapper call")
+  out |> grim_plot_grid(threshold = 7)          |> expect_error("disagrees with the mapper call")
+  out |> grim_plot_grid(rounding = "ceiling")   |> expect_s3_class("ggplot")
+  out |> grim_plot_grid(threshold = 5L)         |> expect_s3_class("ggplot")
+  out |> grim_plot()                            |> expect_s3_class("ggplot") |> suppressWarnings()
+  # Nor do the plots for each number of decimal places get the defaults:
+  mixed <- tibble::tibble(x = c(5.19, 5.2), n = c(28, 30)) |> grim_map(digits_x = c(2, 1), items_averaged = 1, data_type = "integer", rounding = "ceiling")
+  pdf(NULL)
+  mixed |> grim_plot_grid(split_by_digits = TRUE) |> length() |> expect_equal(2L) |> suppressMessages()
+  dev.off()
+})
+
+
 test_that("`n` must be a single finite number of at least 1", {
   data <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
   data |> grim_plot_grid(n = -5)        |> expect_error("at least 1")

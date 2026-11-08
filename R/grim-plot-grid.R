@@ -64,7 +64,7 @@
 #' @param rounding,threshold The same as in [`grim()`], for the raster. Only
 #'   used if `show_data` is `FALSE` or if the record of the mapper call was
 #'   removed from `data`: otherwise, the raster follows the settings of that
-#'   call. Defaults are `"up_or_down"` and `5`.
+#'   call, and giving others is an error. Defaults are `"up_or_down"` and `5`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
@@ -164,8 +164,32 @@ grim_plot_grid <- function(
     }
   }
 
+  # The raster follows the settings of the mapper call, so others given here
+  # would be ignored:
+  given <- list(
+    rounding = if (!missing(rounding)) rounding,
+    threshold = if (!missing(threshold)) threshold
+  )
   if (show_data) {
     check_cols_needed(data, c("x", "n", "consistency"))
+    args_call <- scrutiny_args(data)
+    for (name in names(given)) {
+      value <- given[[name]]
+      recorded <- args_call[[name]]
+      if (
+        !is.null(value) &&
+          !is.null(recorded) &&
+          !isTRUE(all.equal(value, recorded, check.attributes = FALSE))
+      ) {
+        abort_in_export(
+          "`{name}` disagrees with the mapper call behind `data`.",
+          "x" = "It is {wrap_in_quotes_or_backticks(value)}, but the call \\
+          used {wrap_in_quotes_or_backticks(recorded)}.",
+          "i" = "The raster follows the call. Leave out `{name}`, or give it \\
+          to the mapper instead."
+        )
+      }
+    }
   }
 
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
@@ -363,19 +387,20 @@ grim_plot_grid <- function(
         ))
       }
 
+      # Settings only if given, which the call checked against the mapper's:
+      settings <- given[!vapply(given, is.null, logical(1L))]
       plots <- lapply(unique_digits, function(d) {
-        grim_plot_grid(
-          data[digits_data == d, ],
+        args <- list(
+          data = data[digits_data == d, ],
           show_data = show_data,
           show_raster = show_raster,
           show_gradient = show_gradient,
           n = n,
           digits_x = d,
-          rounding = rounding,
-          threshold = threshold,
           tile_size = tile_size,
           color_raster = color_raster
         )
+        do.call(grim_plot_grid, c(args, settings))
       })
       names(plots) <- paste0("digits_", unique_digits)
       # Auto-printing would show a list rather than draw the plots:
@@ -764,9 +789,12 @@ grim_plot <- function(
     show_raster = show_raster,
     show_gradient = show_gradient,
     n = n,
-    rounding = rounding,
     tile_size = tile_size
   )
+  # Only if given, which `grim_plot_grid()` checks against the mapper call:
+  if (!missing(rounding)) {
+    args$rounding <- rounding
+  }
   # The old names are passed on as the new ones, which the dots may not also
   # give:
   dots <- list(...)
