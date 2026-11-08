@@ -113,6 +113,12 @@ test_that("a missing `digits_percentage` or `n` that can't change the verdict do
   1        |> percentage_of(50, 2, NA)    |> expect_true()
   # No `n` makes 5 a share of 71.3%, and 0 is a share of 0% out of any `n`:
   5        |> percentage_of(71.3, NA, 1)  |> expect_false()
+  # The guard against products past 2^53 was too strict by a factor of the
+  # upper bound, so these were `NA` although no `n` gives the percentage:
+  20000    |> percentage_of(64.877, NA, 3)  |> expect_false()
+  139      |> percentage_of(64.877, NA, 4)  |> expect_false()
+  1328     |> percentage_of(64.877, NA, 3, rounding = "up_from", threshold = 2.5) |> expect_false()
+  1e15     |> percentage_of(64.877, NA, 3)  |> expect_equal(NA)
   0        |> percentage_of(0, NA, 1)     |> expect_true()
   0        |> percentage_of(1, NA, 1)     |> expect_false()
   0        |> percentage_of(0, NA, NA)    |> expect_true()

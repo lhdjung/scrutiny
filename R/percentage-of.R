@@ -131,7 +131,8 @@ percentage_of_scalar <- function(
 # `absolute * denom / upper` to `absolute * denom / lower`. If no whole number
 # is in that range, no `n` passes; if one is, larger and smaller ones fail,
 # so the case is open. Products past 2^53 are not exact, which leaves it open
-# as well:
+# as well: the least such `n` times each bound, and `n` is at most two more than
+# the ratio of the count's numerator to the upper bound.
 percentage_of_any_n <- function(
   absolute,
   percentage,
@@ -167,7 +168,7 @@ percentage_of_any_n <- function(
   }
 
   target <- absolute * bounds$denom
-  if (target >= 2^53 || target * max(abs(lower), upper) >= 2^53) {
+  if (target >= 2^53 || (target / upper + 2) * max(abs(lower), upper) >= 2^53) {
     return(NA)
   }
   # The least `n` whose share is below the upper bound, or at it if that is
