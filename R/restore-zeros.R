@@ -95,10 +95,13 @@ restore_zeros <- function(
   x_num <- suppressWarnings(as.numeric(x))
   not_number <- is.na(x_num) & !is.nan(x_num) & !(x %in% c(NA, STRINGS_MISSING))
   if (any(not_number)) {
-    cli::cli_warn(c(
-      "Values that are not numbers became `NA`.",
-      "x" = "This concerns {wrap_in_backticks(unique(x[not_number]))}."
-    ))
+    cli::cli_warn(
+      c(
+        "Values that are not numbers became `NA`.",
+        "x" = "This concerns {wrap_in_backticks(unique(x[not_number]))}."
+      ),
+      class = "scrutiny_warning_not_number"
+    )
   }
   x[is.na(x_num)] <- NA_character_
   x_orig <- x
@@ -289,7 +292,8 @@ restore_zeros_df <- function(
 
   # A column of whole numbers, such as `n`, or a single row is normal in a data
   # frame, so `restore_zeros()`'s warning that there is nothing to pad would
-  # only be noise here, and it would name the column `x`:
+  # only be noise here, and it would name the column `x`. Its warning about
+  # non-numbers would repeat the one above about the columns that have them:
   # `dplyr::mutate()` would re-signal the warning on its own, so it is muffled
   # in the function that `across()` applies.
   #
@@ -305,7 +309,12 @@ restore_zeros_df <- function(
         sep_out = sep_out,
         check_width = check_width
       ),
-      scrutiny_warning_no_zeros = function(cnd) rlang::cnd_muffle(cnd)
+      scrutiny_warning_no_zeros = function(cnd) rlang::cnd_muffle(cnd),
+      scrutiny_warning_not_number = function(cnd) {
+        if (dplyr::cur_column() %in% names_wrong_cols) {
+          rlang::cnd_muffle(cnd)
+        }
+      }
     )
   }
 
