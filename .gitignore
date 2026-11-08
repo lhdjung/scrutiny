@@ -21,3 +21,4 @@ code-review.md
 
 # testthat writes one reprex per failed expectation
 tests/testthat/_problems/
+tests/testthat/testthat-problems.rds
