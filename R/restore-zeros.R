@@ -253,19 +253,33 @@ restore_zeros_df <- function(
     allow_rename = FALSE
   )
 
-  # Selected columns that aren't numeric-like, only possible with
-  # `check_numeric_like = FALSE`. `restore_zeros()` turns their non-numeric
-  # values into `NA`:
-  names_cols_select <- names(cols_to_select)
-  names_wrong_cols <- names_cols_select[!names_cols_select %in% names_num_cols]
+  # Columns that `cols` selected but that aren't numeric-like: skipped under
+  # `check_numeric_like = TRUE`, else their non-numeric values become `NA`.
+  # Either way, only columns named by `cols` are worth a warning: under the
+  # default, a study-name column next to the numbers is nothing to report.
+  names_selected <- if (missing(cols)) {
+    character()
+  } else {
+    names(tidyselect::eval_select(
+      rlang::expr({{ cols }}),
+      data,
+      allow_rename = FALSE
+    ))
+  }
+  names_wrong_cols <- names_selected[!names_selected %in% names_num_cols]
 
   if (length(names_wrong_cols) > 0L) {
-    warn_wrong_columns_selected(
-      names_wrong_cols,
-      msg_exclusion = c(
+    msg_exclusion <- if (check_numeric_like) {
+      paste0(c("was", "were"), " excluded")
+    } else {
+      c(
         "had its non-numeric values replaced by `NA`",
         "had their non-numeric values replaced by `NA`"
-      ),
+      )
+    }
+    warn_wrong_columns_selected(
+      names_wrong_cols,
+      msg_exclusion,
       msg_reason = "numeric-like",
       msg_it_they = c("It isn't", "They aren't")
     )

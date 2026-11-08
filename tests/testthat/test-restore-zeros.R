@@ -233,3 +233,18 @@ test_that("`NaN` in any spelling is missing, not a non-number", {
   c("nan", "1.5") |> restore_zeros(width = 2) |> expect_equal(c(NA, "1.50")) |> expect_no_warning()
   c("NaN", "1.5") |> restore_zeros(width = 2) |> expect_equal(c(NA, "1.50")) |> expect_no_warning()
 })
+
+
+test_that("`restore_zeros_df()` warns about a selected column that isn't numeric-like", {
+  df <- tibble::tibble(a = c("x", "y"), b = c(1.5, 2))
+  # Skipped by default, as in `decimal_places_df()`; converted under
+  # `check_numeric_like = FALSE`:
+  df |> restore_zeros_df(a)    |> expect_warning("1 column was excluded: `a`", fixed = TRUE)
+  df |> restore_zeros_df(c(a, b)) |> expect_warning("1 column was excluded: `a`", fixed = TRUE)
+  df |> restore_zeros_df(a, check_numeric_like = FALSE) |> expect_warning("had its non-numeric values replaced", fixed = TRUE)
+  df |> restore_zeros_df(b) |> expect_no_warning()
+  # Not under the default, where a column of labels is nothing to report:
+  df   |> restore_zeros_df() |> expect_no_warning()
+  iris |> restore_zeros_df() |> expect_no_warning()
+  df |> restore_zeros_df(a) |> suppressWarnings() |> expect_equal(df)
+})
