@@ -384,7 +384,8 @@ grimmer_closest_scalar <- function(
   # Distances between SDs are compared exactly, on whole numbers: `n` times the
   # sums of squared deviations, scaled by the square of `10^digits_sd`, which
   # makes the target whole as well. The roots themselves are too close to tell
-  # apart from a sum of squares of about 2^14 on; see `sd_closer()`:
+  # apart from a sum of squares of about 2^14 on, so they only decide where
+  # they are far apart; see `sd_closer()` and `roots_deviations()`:
   scale_sd <- 10^(2 * digits_sd)
   sd_whole <- round(max(sd, 0) * 10^digits_sd) * items_averaged
   target_whole <- whole_mul(whole_mul(n, n_dev), whole_mul(sd_whole, sd_whole))
@@ -459,12 +460,22 @@ grimmer_closest_scalar <- function(
   # sum as documented:
   deviations <- (n * squares - r^2) / n
   distance_sum <- abs(candidates * scale - numerator)
-  # The candidates whose SD is closest to `sd`, compared exactly; ties go by
-  # the sum:
-  tied <- sd_closest_all(
-    deviations_whole(squares, r, n, scale_sd),
+  # The candidates whose SD is closest to `sd`. Doubles narrow them down to
+  # those that may be (see `roots_deviations()`), which are compared exactly;
+  # ties go by the sum:
+  root_target <- sqrt(whole_double(target_whole))
+  roots <- roots_deviations(squares, r, n, scale_sd)
+  distance_sd <- abs(roots - root_target)
+  near <- if (anyNA(roots)) {
+    seq_along(roots)
+  } else {
+    tolerance <- tolerance_roots(max(roots), root_target)
+    which(distance_sd <= min(distance_sd) + tolerance)
+  }
+  tied <- near[sd_closest_all(
+    deviations_whole(squares[near], r[near], n, scale_sd),
     target_whole
-  )
+  )]
   best <- tied[order(distance_sum[tied], candidates[tied])[1L]]
 
   s <- candidates[best]
@@ -551,21 +562,59 @@ closest_square_few <- function(
 # Of two sums of squares around the target, either of them `NA`, the one whose
 # SD is closer to `sd`, for each remainder `r` at once. The SD grows with the
 # root of the sum of squared deviations, which is the shifted sum of squares
-# minus `r^2 / n`. Compared exactly, as whole numbers (see
-# `deviations_whole()`); equally close SDs go to the smaller one:
+# minus `r^2 / n`. Compared exactly (see `sd_closer_each()`);
+# equally close SDs go to the smaller one:
 closest_by_sd <- function(below, above, r, n, target_whole, scale_sd) {
-  below_whole <- deviations_whole(below, r, n, scale_sd)
-  above_whole <- deviations_whole(above, r, n, scale_sd)
-  is_below <- vapply(
-    seq_along(r),
-    function(i) {
-      !is.na(below[i]) &&
-        (is.na(above[i]) ||
-          sd_closer(below_whole[[i]], above_whole[[i]], target_whole) <= 0)
-    },
-    logical(1L)
-  )
+  is_below <- !is.na(below)
+  both <- which(is_below & !is.na(above))
+  is_below[both] <- sd_closer_each(
+    below[both],
+    above[both],
+    r[both],
+    n,
+    target_whole,
+    scale_sd
+  ) <=
+    0
   ifelse(is_below, below, above)
+}
+
+
+# `sd_closer()` for shifted sums of squares `below` and `above`, neither `NA`,
+# with remainders `r`, all at once. The roots as doubles decide where their
+# distances differ by far more than rounding error, the exact comparison the
+# rest, which is much slower; see `roots_deviations()`:
+sd_closer_each <- function(below, above, r, n, target_whole, scale_sd) {
+  root_target <- sqrt(whole_double(target_whole))
+  root_below <- roots_deviations(below, r, n, scale_sd)
+  root_above <- roots_deviations(above, r, n, scale_sd)
+  gap <- abs(root_below - root_target) - abs(root_above - root_target)
+  tolerance <- tolerance_roots(pmax(root_below, root_above), root_target)
+  out <- sign(gap)
+  for (i in which(is.na(gap) | abs(gap) <= tolerance)) {
+    out[i] <- sd_closer(
+      deviations_whole(below[i], r[i], n, scale_sd)[[1L]],
+      deviations_whole(above[i], r[i], n, scale_sd)[[1L]],
+      target_whole
+    )
+  }
+  out
+}
+
+
+# The roots of the whole numbers from `deviations_whole()`, as doubles. Each is
+# within a few units in the last place of the exact root: `n * squares - r^2`
+# is exact below 2^53, and the scaling and the root round once each. A
+# distance between two such roots is therefore off by less than
+# `tolerance_roots()` of the larger one and the target's. From 2^53 on, the
+# root is `NA`, which leaves the comparison to the exact path:
+roots_deviations <- function(squares, r, n, scale_sd) {
+  product <- n * squares
+  ifelse(product < 2^53, sqrt((product - r^2) * scale_sd), NA_real_)
+}
+
+tolerance_roots <- function(root, root_target) {
+  1e-10 * (root + root_target)
 }
 
 
