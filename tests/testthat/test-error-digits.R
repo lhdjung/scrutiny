@@ -155,4 +155,13 @@ test_that("the example call in the error runs as it is", {
   df_grimmer |> grimmer_map_seq()                     |> example_call() |> runs()
   df_debit   |> debit_map_seq()                       |> example_call() |> runs()
   5.19       |> grim_values(28, items_averaged = 1)   |> example_call() |> runs()
+  1          |> percentage_of(20, 5)                  |> example_call() |> runs()
+  # A deprecated function has only dots, which hid that `data_type` is needed:
+  5.19       |> grim_probability(28) |> suppressWarnings() |> example_call() |> runs()
+})
+
+# The example said 33.30% of 120 is 40, which rounds to 33.33%:
+test_that("the example in the `percentage_of()` error is consistent", {
+  1 |> percentage_of(20, 5) |> msg_error() |> gsub(pattern = "\\s+", replacement = " ") |> expect_match("percentage_of(absolute = 15, percentage = 12.5, n = 120, digits_percentage = 2)", fixed = TRUE)
+  percentage_of(absolute = 15, percentage = 12.5, n = 120, digits_percentage = 2) |> expect_true()
 })

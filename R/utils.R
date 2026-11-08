@@ -788,6 +788,11 @@ error_digits_missing <- function(x) {
   # The example shows the function the user called, e.g. `debit()` rather than
   # `debit_scalar()`:
   name_fn <- name_last_export()
+  # ...except for a deprecated one, which also has no formals to tell from
+  # below whether the example needs `data_type`:
+  if (name_fn == "grim_probability") {
+    name_fn <- "grim_exp_incon"
+  }
 
   # If the error occurred in a GRIMMER or DEBIT function, include `sd` and
   # `digits_sd` arguments in the example call because they are required there.
@@ -850,8 +855,8 @@ error_digits_missing <- function(x) {
   is_percentage <- name_x == "percentage"
   args_example <- paste0(part_x, part_sd, ", n = 29")
   if (is_percentage) {
-    example_x <- c("33.30", "33.3")
-    args_example <- "absolute = 40, percentage = 33.3, n = 120"
+    example_x <- c("12.50", "12.5")
+    args_example <- "absolute = 15, percentage = 12.5, n = 120"
   }
 
   msg_history <- if (is_percentage) {
