@@ -22,8 +22,13 @@
 #'   sets, the test
 #'   uses the Poisson binomial distribution rather than averaging the
 #'   probabilities. Value sets whose `consistency` or `exp_incon` is `NA` are
-#'   left out: `exp_incon` is `NA` if `n` or `digits_x` is missing, even where
-#'   the value set has a definite result.
+#'   left out: `exp_incon` is `NA` if `n`, `items_averaged`, or `digits_x` is
+#'   missing, even where the value set has a definite result. Value sets with
+#'   `data_type = "continuous"` have an `exp_incon` of 0, so they count as
+#'   certain successes: they leave the p-value unchanged but raise `estimate`
+#'   and the interval. Filter them out first to compare only the others.
+#'
+#'   The two-sided p-value is twice the smaller one-sided one, capped at 1.
 #'
 #'   Correct value sets are always consistent, so a collection of them should
 #'   be more consistent than random digits even if some are wrong. There is no

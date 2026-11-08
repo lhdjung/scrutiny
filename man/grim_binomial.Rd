@@ -43,8 +43,13 @@ random, so its probability of consistency is \code{1 - exp_incon}, with
 sets, the test
 uses the Poisson binomial distribution rather than averaging the
 probabilities. Value sets whose \code{consistency} or \code{exp_incon} is \code{NA} are
-left out: \code{exp_incon} is \code{NA} if \code{n} or \code{digits_x} is missing, even where
-the value set has a definite result.
+left out: \code{exp_incon} is \code{NA} if \code{n}, \code{items_averaged}, or \code{digits_x} is
+missing, even where the value set has a definite result. Value sets with
+\code{data_type = "continuous"} have an \code{exp_incon} of 0, so they count as
+certain successes: they leave the p-value unchanged but raise \code{estimate}
+and the interval. Filter them out first to compare only the others.
+
+The two-sided p-value is twice the smaller one-sided one, capped at 1.
 
 Correct value sets are always consistent, so a collection of them should
 be more consistent than random digits even if some are wrong. There is no
