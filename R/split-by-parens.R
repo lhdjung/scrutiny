@@ -235,15 +235,24 @@ split_by_parens <- function(
     names_selected[!names_selected %in% names_of_cols_with_delims]
 
   if (length(names_wrong_cols) > 0L) {
-    msg_reason <- delim |>
-      message_delim_if_cols_excluded() |>
-      call_on(\(x) paste0("contain the `delim` elements, ", x))
+    msg_delims <- message_delim_if_cols_excluded(delim)
     if (check_delim) {
       msg_exclusion <- paste0(c("was", "were"), " not split")
+      msg_reason <- paste0("contain the `delim` elements, ", msg_delims)
+      msg_it_they <- c("It doesn't", "They don't")
     } else {
-      msg_exclusion <- "couldn't be split"
+      # Split all the same, so some values may have been cut in unexpected
+      # places:
+      msg_exclusion <- paste0(c("was", "were"), " split anyway")
+      msg_reason <- paste0("the `delim` elements, ", msg_delims)
+      msg_it_they <- "Not every value has"
     }
-    warn_wrong_columns_selected(names_wrong_cols, msg_exclusion, msg_reason)
+    warn_wrong_columns_selected(
+      names_wrong_cols,
+      msg_exclusion,
+      msg_reason,
+      msg_it_they
+    )
   }
 
   if (!transform) {

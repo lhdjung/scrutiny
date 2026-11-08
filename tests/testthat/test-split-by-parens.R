@@ -250,3 +250,11 @@ test_that("the old names `sep` and `check_sep` still work, with a warning", {
   df |> split_by_parens(delim = "brackets", check_sep = FALSE) |> suppressWarnings() |> expect_equal(expected)
   df |> split_by_parens(sep = "brackets", delim = "brackets")  |> expect_error("can't both be given")
 })
+
+
+test_that("`split_by_parens(check_delim = FALSE)` says a column was split anyway", {
+  df <- tibble::tibble(a = c("1 (2", "3 (4)"))
+  df |> split_by_parens(check_delim = FALSE) |> expect_warning("1 column was split anyway: `a`", fixed = TRUE)
+  df |> split_by_parens(check_delim = FALSE) |> expect_warning("Not every value has the `delim` elements", fixed = TRUE)
+  df |> split_by_parens()                    |> expect_warning("1 column was not split: `a`", fixed = TRUE)
+})
