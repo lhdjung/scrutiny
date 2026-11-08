@@ -205,7 +205,7 @@ grim_closest_scalar <- function(
       )
     }
     if (is.null(consistency) || is.na(consistency)) {
-      return(NA_real_)
+      return(grim_values_tibble(NA_real_, parts))
     }
     digits_x <- digits_least(x, digits_x)
     if (consistency) {
@@ -213,7 +213,7 @@ grim_closest_scalar <- function(
     }
     # Without these, the call below would land here again, as with `n` missing:
     if (is.na(digits_x)) {
-      return(NA_real_)
+      return(grim_values_tibble(NA_real_, parts))
     }
     return(grim_closest_scalar(
       x = x,
@@ -252,7 +252,7 @@ grim_closest_scalar <- function(
   distance <- abs(
     sums_candidate * parts$scale * 10^digits_x - numerator * parts$n_items
   )
-  sums_candidate[which.min(distance)] * parts$scale / parts$n_items
+  grim_values_tibble(sums_candidate[which.min(distance)], parts)
 }
 
 
@@ -270,12 +270,12 @@ grim_closest_scalar <- function(
 #'   among those that would be reported as `x`, or, if there are none, the
 #'   closest one overall. Of two equally close values, it returns the smaller.
 #'
-#'   Both are vectorized like [`grim()`]. `grim_closest()` has exactly one
-#'   value per value set, so it returns a vector, like [`grim()`]. A reported
-#'   mean may correspond to one achievable mean, to several, or to none, so
-#'   `grim_values()` returns a tibble with one row per achievable mean, and
-#'   `case` says which value set it belongs to.
-#'   [`grimmer_values()`] is the counterpart for GRIMMER.
+#'   Both are vectorized like [`grim()`] and return a tibble in which `case`
+#'   says which value set a row belongs to. A reported mean may correspond to
+#'   one achievable mean, to several, or to none, so `grim_values()` has one
+#'   row per achievable mean, and `grim_closest()` one row per value set.
+#'   [`grimmer_values()`] and [`grimmer_closest()`] are the counterparts for
+#'   GRIMMER.
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each
@@ -322,8 +322,9 @@ grim_closest_scalar <- function(
 #'   in [`grim()`]. So does one with a missing `digits_x` that is consistent
 #'   whatever it is: how many values would be reported as `x` still depends on
 #'   it.
-#' - For `grim_closest()`, a numeric vector as long as the inputs, with `NA`
-#'   where a value set cannot be decided.
+#' - For `grim_closest()`, a tibble with the same columns and exactly one row
+#'   per value set: the closest achievable mean, or a row of `NA` but for `n`
+#'   if the value set cannot be decided.
 #'
 #' @seealso [`grim()`], [`grim_map()`], [`grimmer_values()`], and
 #'   [`grim_exp_incon()`].
@@ -408,6 +409,7 @@ grim_closest <- function(
   map_value_sets(
     fn = grim_closest_scalar,
     along = c("x", "n", "digits_x", "items_averaged", "data_type"),
-    type = "double"
-  )
+    type = "list"
+  ) |>
+    bind_cases(PTYPE_GRIM_VALUES)
 }

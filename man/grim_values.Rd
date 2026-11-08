@@ -62,8 +62,9 @@ rows, and one that cannot be decided has one row of \code{NA} but for \code{n}, 
 in \code{\link[=grim]{grim()}}. So does one with a missing \code{digits_x} that is consistent
 whatever it is: how many values would be reported as \code{x} still depends on
 it.
-\item For \code{grim_closest()}, a numeric vector as long as the inputs, with \code{NA}
-where a value set cannot be decided.
+\item For \code{grim_closest()}, a tibble with the same columns and exactly one row
+per value set: the closest achievable mean, or a row of \code{NA} but for \code{n}
+if the value set cannot be decided.
 }
 }
 \description{
@@ -80,12 +81,12 @@ among those that would be reported as \code{x}, or, if there are none, the
 closest one overall. Of two equally close values, it returns the smaller.
 }
 
-Both are vectorized like \code{\link[=grim]{grim()}}. \code{grim_closest()} has exactly one
-value per value set, so it returns a vector, like \code{\link[=grim]{grim()}}. A reported
-mean may correspond to one achievable mean, to several, or to none, so
-\code{grim_values()} returns a tibble with one row per achievable mean, and
-\code{case} says which value set it belongs to.
-\code{\link[=grimmer_values]{grimmer_values()}} is the counterpart for GRIMMER.
+Both are vectorized like \code{\link[=grim]{grim()}} and return a tibble in which \code{case}
+says which value set a row belongs to. A reported mean may correspond to
+one achievable mean, to several, or to none, so \code{grim_values()} has one
+row per achievable mean, and \code{grim_closest()} one row per value set.
+\code{\link[=grimmer_values]{grimmer_values()}} and \code{\link[=grimmer_closest]{grimmer_closest()}} are the counterparts for
+GRIMMER.
 }
 \details{
 The achievable means are the whole numbers in the range that

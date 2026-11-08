@@ -19,14 +19,14 @@ test_that("`grim_values()` returns the achievable means and their sums", {
 test_that("`grim_closest()` returns the achievable mean nearest to `x`", {
   # The two sums straddling an inconsistent value set are 145 and 146; 145/28
   # is the closer of the two, and it is what rsprite2 reports (as 5.18):
-  5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(145 / 28)
-  5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer") |> round(2) |> expect_equal(5.18)
+  5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(145 / 28)
+  5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> round(2) |> expect_equal(5.18)
   # For a consistent value set, it is one of the `grim_values()`:
-  5.19 |> grim_closest(32, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(5.1875)
-  5.19 |> grim_closest(300, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(5.19)
+  5.19 |> grim_closest(32, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(5.1875)
+  5.19 |> grim_closest(300, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(5.19)
   # Consistent whatever the missing values are, but without a nearest mean:
-  5 |> grim_closest(NA, digits_x = NA, items_averaged = 1, data_type = "integer") |> expect_na()
-  5 |> grim_closest(10, digits_x = NA, items_averaged = NA, data_type = "integer") |> expect_na()
+  5 |> grim_closest(NA, digits_x = NA, items_averaged = 1, data_type = "integer") |> _$x |> expect_na()
+  5 |> grim_closest(10, digits_x = NA, items_averaged = NA, data_type = "integer") |> _$x |> expect_na()
 })
 
 
@@ -42,29 +42,36 @@ test_that("both functions are vectorized like `grim()`", {
   out$n    |> expect_equal(c(26, 27, 31, 32))
 
   c(5.19, 5.19) |>
-    grim_closest(c(32, 28), digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    grim_closest(c(32, 28), digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |>
     expect_equal(c(5.1875, 145 / 28))
-  5.19 |> grim_closest(25:30, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_length(6L)
+  5.19 |> grim_closest(25:30, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_length(6L)
 
   numeric(0) |> grim_values(numeric(0), digits_x = 2, items_averaged = 1, data_type = "integer")  |> expect_equal(tibble::tibble(case = integer(), x = double(), n = double(), sum = double()))
-  numeric(0) |> grim_closest(numeric(0), digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_identical(numeric(0))
+  numeric(0) |> grim_closest(numeric(0), digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_identical(numeric(0))
   5.19 |> grim_closest(28, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = c("up", "floor")) |> expect_error("must be length 1")
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, data_type = "integer", x_meaning = c("percentage", "mean")) |> expect_error("must be length 1")
   c(1.1, 1.2, 1.3) |> grim_closest(c(10, 20), digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_error()
   5.19 |> grim_closest(28, items_averaged = 1, data_type = "integer") |> expect_error("digits_x")
 })
 
+test_that("`grim_closest()` returns one row per value set, with the columns of `grim_values()`", {
+  out <- c(5.19, NA, 5.19) |> grim_closest(c(28, 28, 32), digits_x = 2, items_averaged = 1, data_type = "integer")
+  out |> expect_equal(tibble::tibble(case = 1:3, x = c(145 / 28, NA, 5.1875), n = c(28, 28, 32), sum = c(145, NA, 166)))
+  out |> names() |> expect_equal(names(grim_values(5.19, 32, 2, 1, "integer")))
+})
+
+
 test_that("`grim_closest()` keeps a consistent `x` to the means reported as `x`", {
   # 56 / 11 is closer to 5.1 than 57 / 11, but it is floored to 5.0:
-  5.1 |> grim_closest(11, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "floor") |> expect_equal(57 / 11)
+  5.1 |> grim_closest(11, digits_x = 1, items_averaged = 1, data_type = "integer", rounding = "floor") |> _$x |> expect_equal(57 / 11)
 })
 
 
 test_that("`grim_closest()` returns the smaller of two equally close means", {
   # The tie went by `round()` on the sum, which rounds half to even:
-  0.5  |> grim_closest(17, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(8 / 17)
-  0.5  |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(9 / 19)
-  -0.5 |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> expect_equal(-10 / 19)
+  0.5  |> grim_closest(17, digits_x = 1, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(8 / 17)
+  0.5  |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(9 / 19)
+  -0.5 |> grim_closest(19, digits_x = 1, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(-10 / 19)
   # Over a grid, against distances in whole numbers: `100 * s - X * n` for a
   # sum `s` and `x = X / 100`. Under `"up_or_down"`, sums within `n / 2` of it
   # are reported as `x`:
@@ -78,7 +85,7 @@ test_that("`grim_closest()` returns the smaller of two equally close means", {
         distance <- distance[2 * distance <= n]
       }
       expected <- sums[distance == min(distance)][1L] / n
-      x |> grim_closest(n, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(expected)
+      x |> grim_closest(n, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(expected)
     }
   }
 })
@@ -88,7 +95,7 @@ test_that("too many means is an error, not a huge allocation", {
   5 |> grim_values(1e7, digits_x = 0, items_averaged = 1, data_type = "integer")  |> expect_error("Too many achievable means")
   # The error names the value set, with `x` as given:
   1.2345 |> grim_values(2e10, digits_x = 4, items_averaged = 1, data_type = "integer") |> expect_error("`x = 1.2345`, `n = 20000000000`")
-  5 |> grim_closest(1e7, digits_x = 0, items_averaged = 1, data_type = "integer") |> expect_equal(5)
+  5 |> grim_closest(1e7, digits_x = 0, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(5)
 })
 
 
@@ -124,7 +131,7 @@ test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
     values$sum[values$case == i] |> expect_equal(seq(out$sum_lower[i], out$sum_upper[i]))
     # `grim_closest()` is one of them wherever there are any:
     pigs1$x[i] |>
-      grim_closest(pigs1$n[i], digits_x = 2, items_averaged = 1, data_type = "integer") |>
+      grim_closest(pigs1$n[i], digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |>
       expect_in(values$x[values$case == i])
   }
 })
@@ -133,13 +140,13 @@ test_that("`grim_values()` matches the `sum_*` columns of `grim_map()`", {
 test_that("`x_meaning = \"percentage\"` returns values on the scale of `x`", {
   # Not on the decimal scale that GRIM works with internally, so that the
   # values can be read against `x`:
-  closest <- grim_closest(71, 43, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage")
+  closest <- grim_closest(71, 43, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage")$x
   closest |> expect_gt(70)
   closest |> expect_lt(74)
   # 40% of 5 is 2 people, so this is consistent and there is one way to get
   # there. The value comes back as 40, not as 0.4:
   40 |> grim_values(5, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> expect_equal(tibble::tibble(case = 1L, x = 40, n = 5, sum = 2))
-  40 |> grim_closest(5, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> expect_equal(40)
+  40 |> grim_closest(5, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage") |> _$x |> expect_equal(40)
 })
 
 
@@ -157,7 +164,7 @@ test_that("undecidable cases give one row of `NA`", {
   # defined bounds either until `anti_trunc()` stopped sending zero away from
   # zero.)
   NA |> grim_values(40, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_undecidable()
-  NA |> grim_closest(40, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_equal(NA_real_)
+  NA |> grim_closest(40, digits_x = 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(NA_real_)
 })
 
 
@@ -167,7 +174,7 @@ test_that("`rounding = \"anti_trunc\"` at a mean of zero is decidable", {
   0 |>
     grim_values(40, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "anti_trunc") |>
     expect_equal(tibble::tibble(case = 1L, x = 0, n = 40, sum = 0))
-  0 |> grim_closest(40, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "anti_trunc") |> expect_equal(0)
+  0 |> grim_closest(40, digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "anti_trunc") |> _$x |> expect_equal(0)
 })
 
 
@@ -182,7 +189,7 @@ test_that("`digits_x` is required, with the bespoke error message", {
 test_that("`grim_values()` and `grim_closest()` are undecidable where `grim()` is", {
   5.19 |> grim(20.5, 2, items_averaged = 1, data_type = "integer")         |> is.na() |> expect_true()
   5.19 |> grim_values(20.5, 2, items_averaged = 1, data_type = "integer")  |> expect_undecidable()
-  5.19 |> grim_closest(20.5, 2, items_averaged = 1, data_type = "integer") |> expect_equal(NA_real_)
+  5.19 |> grim_closest(20.5, 2, items_averaged = 1, data_type = "integer") |> _$x |> expect_equal(NA_real_)
   5.19 |> grim_values(28, 2, items_averaged = 1.5, data_type = "integer")  |> expect_undecidable()
 })
 
@@ -205,6 +212,6 @@ test_that("`data_type` is required, and continuous data are an error", {
   5.19 |> grim_values(28, digits_x = 2, items_averaged = 1, data_type = factor("integer")) |> expect_error("not a factor")
   # Undecidable under `NA`, whether or not whole numbers can have the mean:
   5.19 |> grim_values(c(28, 32), digits_x = 2, items_averaged = 1, data_type = NA)  |> expect_equal(tibble::tibble(case = 1:2, x = NA_real_, n = c(28, 32), sum = NA_real_))
-  5.19 |> grim_closest(c(28, 32), digits_x = 2, items_averaged = 1, data_type = NA) |> expect_equal(c(NA_real_, NA_real_))
-  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1, data_type = NA)       |> expect_na()
+  5.19 |> grim_closest(c(28, 32), digits_x = 2, items_averaged = 1, data_type = NA) |> _$x |> expect_equal(c(NA_real_, NA_real_))
+  5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1, data_type = NA)       |> _$x |> expect_na()
 })

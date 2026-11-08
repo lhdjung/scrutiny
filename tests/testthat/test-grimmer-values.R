@@ -339,7 +339,7 @@ test_that("`grimmer_closest()` agrees with a brute-force search", {
         range <- roundwork::sum_range(x, n, 2, "up_or_down", 5, FALSE)
         in_x <- sums >= range[1] & sums <= range[2]
         if (!any(in_x)) {
-          in_x <- abs(sums / n - grim_closest(x, n, 2, 1, "integer")) < 1e-9
+          in_x <- abs(sums / n - grim_closest(x, n, 2, 1, "integer")$x) < 1e-9
         }
         consistent <- grimmer(x, sd, n, 2, 2, 1, "integer", sd_meaning = sd_meaning)
         pool <- if (consistent) in_x & abs(sds - sd) <= 0.005 + 1e-12 else in_x

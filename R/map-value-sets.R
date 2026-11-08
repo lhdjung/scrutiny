@@ -17,9 +17,8 @@
 #'   split: `along` is what `function_map()` takes from `data`, the rest is
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
-#'   tests, `"double"` for `grim_closest()`, `"list"` for `grim_values()`,
-#'   whose `fn` returns a tibble per value set, which `bind_cases()` then
-#'   stacks.
+#'   tests, `"list"` for `grim_values()` and the like, whose `fn` returns a tibble per value set, which
+#'   `bind_cases()` then stacks.
 #'
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'

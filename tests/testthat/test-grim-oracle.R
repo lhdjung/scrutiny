@@ -183,7 +183,7 @@ test_grim_oracle <- function(x, n, digits_x, items, x_meaning, symmetric) {
       rounding = rounding,
       threshold = threshold,
       symmetric = symmetric
-    )
+    )$x
 
     lower <- out$sum_lower
     upper <- out$sum_upper
