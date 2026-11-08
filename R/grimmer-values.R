@@ -473,11 +473,15 @@ grimmer_closest_scalar <- function(
   # ties go by the sum:
   root_target <- sqrt(whole_double(target_whole))
   roots <- roots_deviations(squares, r, n, scale_sd)
-  distance_sd <- abs(roots - root_target)
-  near <- if (anyNA(roots)) {
-    seq_along(roots)
+  distance_sd <- abs(roots$root - root_target)
+  near <- if (anyNA(roots$root)) {
+    seq_along(roots$root)
   } else {
-    tolerance <- tolerance_roots(max(roots), root_target)
+    tolerance <- tolerance_roots(
+      max(roots$error),
+      max(roots$error),
+      root_target
+    )
     which(distance_sd <= min(distance_sd) + tolerance)
   }
   tied <- near[sd_closest_all(
@@ -596,8 +600,8 @@ sd_closer_each <- function(below, above, r, n, target_whole, scale_sd) {
   root_target <- sqrt(whole_double(target_whole))
   root_below <- roots_deviations(below, r, n, scale_sd)
   root_above <- roots_deviations(above, r, n, scale_sd)
-  gap <- abs(root_below - root_target) - abs(root_above - root_target)
-  tolerance <- tolerance_roots(pmax(root_below, root_above), root_target)
+  gap <- abs(root_below$root - root_target) - abs(root_above$root - root_target)
+  tolerance <- tolerance_roots(root_below$error, root_above$error, root_target)
   out <- sign(gap)
   for (i in which(is.na(gap) | abs(gap) <= tolerance)) {
     out[i] <- sd_closer(
@@ -610,19 +614,27 @@ sd_closer_each <- function(below, above, r, n, target_whole, scale_sd) {
 }
 
 
-# The roots of the whole numbers from `deviations_whole()`, as doubles. Each is
-# within a few units in the last place of the exact root: `n * squares - r^2`
-# is exact below 2^53, and the scaling and the root round once each. A
-# distance between two such roots is therefore off by less than
-# `tolerance_roots()` of the larger one and the target's. From 2^53 on, the
-# root is `NA`, which leaves the comparison to the exact path:
+# The roots of the whole numbers from `deviations_whole()`, as doubles, and
+# bounds on their errors in units of `.Machine$double.eps`. Below 2^53,
+# `n * squares - r^2` is exact, and the scaling and the root round once each.
+# From 2^53 on, the product rounds as well, and the difference magnifies that
+# error by `product / difference`. Where the difference isn't positive as a
+# double, the root is `NA`, which leaves the comparison to the exact path:
 roots_deviations <- function(squares, r, n, scale_sd) {
   product <- n * squares
-  ifelse(product < 2^53, sqrt((product - r^2) * scale_sd), NA_real_)
+  difference <- product - r^2
+  is_exact <- product < 2^53
+  magnified <- ifelse(is_exact, 1, product / difference)
+  root <- sqrt(pmax(difference, 0) * scale_sd)
+  root[!is_exact & difference <= 0] <- NA
+  list(root = root, error = root * (magnified + 2))
 }
 
-tolerance_roots <- function(root, root_target) {
-  1e-10 * (root + root_target)
+# A bound on the error of a difference between the distances of two roots,
+# with errors `error_1` and `error_2` from `roots_deviations()`, to the target's
+# root, with four times the margin:
+tolerance_roots <- function(error_1, error_2, root_target) {
+  4 * .Machine$double.eps * (error_1 + error_2 + 2 * root_target)
 }
 
 

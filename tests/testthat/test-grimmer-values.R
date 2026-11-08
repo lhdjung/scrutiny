@@ -313,6 +313,10 @@ test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as do
   2.5 |> grimmer_closest(2,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(1.5)
   5.5 |> grimmer_closest(1,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(0.5)
   3.4 |> grimmer_closest(0.5, 3, 1, 1, 1, "integer", sd_meaning = "se")     |> _$sd |> expect_equal(1 / 3)
+  # The closest SDs are 9e-12 and 0 away from `sd`, the runners-up 4e-8 and
+  # 6e-9. In the second case, `n` times the sums of squares passes 2^53:
+  512.3 |> grimmer_closest(1200.4, 20000, 1, 1, 1, "integer") |> _$sum |> expect_equal(10246547)
+  50.12 |> grimmer_closest(150.3,  1e6,   2, 1, 1, "integer") |> _$sum |> expect_equal(50119700)
 })
 
 
