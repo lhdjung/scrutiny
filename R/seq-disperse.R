@@ -166,9 +166,11 @@ seq_disperse <- function(
   # A string like `"1e-400"` has more decimal places than a double can scale
   # to, and its step underflows to 0:
   if (!is.finite(10^digits_out)) {
+    # The count is `NA` past the integer range:
+    digits_shown <- if (is.na(digits_out)) "billions" else digits_out
     abort_in_export(
       "`from` has too many decimal places to disperse.",
-      "x" = "It has {digits_out}, but a double can only scale to 308."
+      "x" = "It has {digits_shown}, but a double can only scale to 308."
     )
   }
 
