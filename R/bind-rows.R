@@ -56,18 +56,26 @@ register_bind_methods <- function(class) {
 # tibble's `[<-` assigns column by column, so the methods above never see the
 # rows of another call's output that replace rows here, as in `x[i, ] <-
 # value`. Columns may be replaced, as by `mutate()`, so `x[j] <- value`, with
-# one index, passes:
+# one index, passes. So do plain values in rows that are there, but not in
+# rows past the end, which add rows as `tibble::add_row()` does:
 subassign_scrutiny <- function(x, i, j, ..., value) {
   # `drop = FALSE` comes in the dots:
   is_rows <- nargs() - ...length() == 4L && !missing(i)
-  if (is_rows && inherits(value, ls(bind_classes)) && nrow(value) > 0L) {
+  adds_rows <- is_rows &&
+    if (is.logical(i)) {
+      length(i) > nrow(x)
+    } else {
+      is.numeric(i) && any(i > nrow(x), na.rm = TRUE)
+    }
+  is_output <- inherits(value, ls(bind_classes)) && NROW(value) > 0L
+  if (adds_rows || (is_rows && is_output)) {
     check_same_mapper_call(
       x,
       value,
       "x",
       "value",
       rlang::caller_env(),
-      allow_plain = TRUE
+      allow_plain = !adds_rows
     )
   }
   NextMethod()
