@@ -9,7 +9,7 @@
 #'
 #'   Call [`audit()`] on the output for summary statistics.
 #'
-#' @param x Vector or data frame. Missing values are not counted, nor are
+#' @param x Vector, matrix, or data frame. Missing values are not counted, nor are
 #'   blank strings and `"NA"`, which count as missing.
 #' @param ignore Optionally, a vector of values not to count.
 #' @param locations_type String. `"character"` (the default) pastes the column

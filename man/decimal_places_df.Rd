@@ -20,7 +20,7 @@ Default is \code{everything()}, restricted by \code{check_numeric_like}.}
 
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
 that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
-causes a warning if \code{cols} names it, and any column processed although
+causes a warning if \code{cols} is given, and any column processed although
 it isn't numeric-like does.}
 
 \item{sep}{String. The separator between integer part and mantissa, matched

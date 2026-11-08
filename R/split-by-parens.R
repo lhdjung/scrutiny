@@ -12,8 +12,8 @@
 #'   Default is `everything()`, restricted by `check_delim`.
 #' @param check_delim Logical. If `TRUE` (the default), columns whose values
 #'   do not all contain the delimiters are skipped. Missing values and blank
-#'   strings don't count. A column skipped causes a warning if `cols` names
-#'   it, and any column split although it lacks the delimiters does.
+#'   strings don't count. A column skipped causes a warning if `cols` is
+#'   given, and any column split although it lacks the delimiters does.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer

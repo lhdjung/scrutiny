@@ -23,7 +23,7 @@
 #' @param x Numeric, or a string coercible to numeric. A value that is not
 #'   coercible, such as `"5%"`, becomes `NA` with a warning, and so does one
 #'   with an exponent so large that it can't be written out, such as
-#'   `"1e-999999"`.
+#'   `"1e-999999"`. A blank string or `"NA"` becomes `NA` without a warning.
 #' @param width Integer. Number of decimal places the output should have, up
 #'   to 100,000. Length 1 or the length of `x`. Default is `NULL`, the largest number of
 #'   decimal places in `x`.
@@ -40,7 +40,7 @@
 #'   `restore_zeros_df()`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
 #'   that [`is_numeric_like()`] accepts are processed. A column left out
-#'   causes a warning if `cols` names it, and any column processed although
+#'   causes a warning if `cols` is given, and any column processed although
 #'   it isn't numeric-like does. Only in `restore_zeros_df()`.
 #' @param check_decimals Logical. If `TRUE`, columns without any decimal places
 #'   are skipped. Default is `FALSE`. Only in `restore_zeros_df()`.

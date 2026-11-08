@@ -214,7 +214,7 @@ check_grimmer_attainable_exact <- function(upper, n) {
       "x" = "With `n = {n}`, the sums of squares to test reach 2^40, about \\
       1.1e12, beyond which telling which of them {n} whole numbers can have \\
       is slow.",
-      "i" = "With one or five or more values, GRIMMER has no such limit."
+      "i" = "With one or five or more values, `grimmer()` has no such limit."
     )
   }
 }

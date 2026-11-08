@@ -28,7 +28,7 @@ restore_zeros_df(
 \item{x}{Numeric, or a string coercible to numeric. A value that is not
 coercible, such as \code{"5\%"}, becomes \code{NA} with a warning, and so does one
 with an exponent so large that it can't be written out, such as
-\code{"1e-999999"}.}
+\code{"1e-999999"}. A blank string or \code{"NA"} becomes \code{NA} without a warning.}
 
 \item{width}{Integer. Number of decimal places the output should have, up
 to 100,000. Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
@@ -52,7 +52,7 @@ Default is \code{everything()}, restricted by \code{check_numeric_like}. Only in
 
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
 that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
-causes a warning if \code{cols} names it, and any column processed although
+causes a warning if \code{cols} is given, and any column processed although
 it isn't numeric-like does. Only in \code{restore_zeros_df()}.}
 
 \item{check_decimals}{Logical. If \code{TRUE}, columns without any decimal places

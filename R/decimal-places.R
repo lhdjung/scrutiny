@@ -213,7 +213,7 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'   Default is `everything()`, restricted by `check_numeric_like`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
 #'   that [`is_numeric_like()`] accepts are processed. A column left out
-#'   causes a warning if `cols` names it, and any column processed although
+#'   causes a warning if `cols` is given, and any column processed although
 #'   it isn't numeric-like does.
 #' @param sep String. The separator between integer part and mantissa, matched
 #'   literally. Default is `"."`.

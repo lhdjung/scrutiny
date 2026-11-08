@@ -7,7 +7,7 @@
 duplicate_count(x, ignore = NULL, locations_type = c("character", "list"))
 }
 \arguments{
-\item{x}{Vector or data frame. Missing values are not counted, nor are
+\item{x}{Vector, matrix, or data frame. Missing values are not counted, nor are
 blank strings and \code{"NA"}, which count as missing.}
 
 \item{ignore}{Optionally, a vector of values not to count.}

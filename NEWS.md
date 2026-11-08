@@ -193,7 +193,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `decimal_places_df()` and `split_by_parens()` take a matrix, as `restore_zeros_df()` does, and name the function for vectors when given one.
 
-- `decimal_places_df()` and `restore_zeros_df()` warn about a column that isn't numeric-like if `cols` named it, not under the default, and always if it was processed under `check_numeric_like = FALSE`.
+- `decimal_places_df()` and `restore_zeros_df()` warn about a column that isn't numeric-like if `cols` is given, not under the default, and always if it was processed under `check_numeric_like = FALSE`.
 
 - A column named like an argument, such as `sep` or `width`, no longer replaces that argument in `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()`. `seq_disperse_df()` finds a caller's variable named `x` or `diff_var`. The `is_seq_*()` functions test integers as doubles, so that their differences don't overflow.
 
