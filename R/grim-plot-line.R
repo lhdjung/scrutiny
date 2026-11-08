@@ -427,11 +427,15 @@ comb_window <- function(
 # to reject them, and an undecidable case has nothing to draw.
 check_decidable_n_items <- function(n, items_averaged, min_n) {
   if (!is_decidable_n_items(n, items_averaged, min_n = min_n)) {
+    msg_n <- if (min_n > 1) ", and `n` must be at least {min_n}" else ""
     abort_in_export(
-      "`n` and `items_averaged` must be positive whole numbers, and `n` \\
-      must be at least {min_n}.",
+      paste0(
+        "`n` and `items_averaged` must be positive whole numbers",
+        msg_n,
+        "."
+      ),
       "x" = "`n` is {n} and `items_averaged` is {items_averaged}.",
-      "i" = "The test cannot be decided otherwise, so there is nothing to \\
+      "i" = "Otherwise, the test can't be decided, so there is nothing to \\
       draw."
     )
   }

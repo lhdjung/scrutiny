@@ -113,7 +113,7 @@ debit_plot_line <- function(
     abort_in_export(
       "`n` must be a whole number of at least {min_n}.",
       "x" = "It is {n}.",
-      "i" = "The test cannot be decided otherwise, so there is nothing to \\
+      "i" = "Otherwise, the test can't be decided, so there is nothing to \\
       draw."
     )
   }
