@@ -4,8 +4,11 @@ test_that("`add_up_to()` compares the sum with the total", {
   list(c(40, 37, 43), c(10, 12)) |> add_up_to(c(120, 23)) |> expect_equal(c(TRUE, FALSE))
 })
 
-test_that("`add_up_to()` is `NA` for missing or fractional values", {
+test_that("`add_up_to()` is `NA` for missing, fractional, or negative values", {
   c(1.5, 2)  |> add_up_to(3.5) |> expect_equal(NA)
+  # A negative count describes no group, as in `percentage_of()`:
+  c(-1, 5)   |> add_up_to(4)   |> expect_equal(NA)
+  c(1, 5)    |> add_up_to(-6)  |> expect_equal(NA)
   c(NA, 2)   |> add_up_to(3)   |> expect_equal(NA)
   c(1, 2)    |> add_up_to(NA)  |> expect_equal(NA)
   c("1", "2") |> add_up_to(3)  |> expect_error("summands")
