@@ -214,3 +214,10 @@ test_that("`show_rates` must be a flag", {
   # `0` was accepted, and `NA` failed with R's error:
   pigs1 |> duplicate_count_colpair(show_rates = 0) |> expect_error("`show_rates` must be `TRUE` or `FALSE`")
 })
+
+
+test_that("a column with no values to check has an `NA` rate, not `NaN`", {
+  tibble::tibble(a = c(NA, NA), b = c(1, 2))      |> duplicate_count_colpair() |> _$rate_x |> expect_equal(NA_real_)
+  tibble::tibble(a = c(1, 1), b = c(1, 1))        |> duplicate_count_colpair(ignore = 1) |> _$rate_x |> expect_equal(NA_real_)
+  tibble::tibble(a = c(1, 1), b = c(1, 1))        |> duplicate_count_colpair(ignore = 1) |> _$rate_y |> expect_equal(NA_real_)
+})

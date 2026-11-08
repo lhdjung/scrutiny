@@ -16,7 +16,8 @@
 #' - `total_x`, `total_y`: the number of values in `x` and `y` that are
 #'   neither missing nor ignored.
 #' - `rate_x`: the proportion of `x` values that occur in `y`, i.e., `count /
-#'   total_x`. `rate_y`: the proportion of `y` values that occur in `x`. This
+#'   total_x`, or `NA` if `total_x` is 0. `rate_y`: the proportion of `y`
+#'   values that occur in `x`. This
 #'   differs from `count / total_y` if a value repeats within a column.
 #'
 #' @section Summaries with [`audit()`]: `audit()` on
@@ -114,7 +115,8 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
     dplyr::mutate(
       total_x = unname(total_values[.data$x]),
       total_y = unname(total_values[.data$y]),
-      rate_x = .data$count / .data$total_x,
-      rate_y = count_y / .data$total_y
+      # `NA`, not `NaN`, for a column with no values to check:
+      rate_x = nan_to_na(.data$count / .data$total_x),
+      rate_y = nan_to_na(count_y / .data$total_y)
     )
 }
