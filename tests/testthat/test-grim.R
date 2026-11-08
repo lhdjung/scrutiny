@@ -361,8 +361,8 @@ test_that("integer `n` and `items_averaged` don't overflow their product", {
 
 
 test_that("a factor `n` is rejected rather than tested by its level codes", {
-  5.19 |> grim(factor(28), digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("It is a factor")
-  tibble::tibble(x = 5.19, n = factor(28)) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("It is a factor")
+  5.19 |> grim(factor(28), digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("not a factor")
+  tibble::tibble(x = 5.19, n = factor(28)) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("not a factor")
 })
 
 

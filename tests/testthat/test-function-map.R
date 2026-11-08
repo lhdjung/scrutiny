@@ -1211,6 +1211,14 @@ test_that("factor columns from `read.csv(stringsAsFactors = TRUE)` get their own
   data.frame(m = "5.19", n = 28, stringsAsFactors = TRUE) |>
     grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", x = m) |>
     expect_error("as.numeric(as.character())", fixed = TRUE)
+  # A factor `n` or `items_averaged` got the generic type error in the basic
+  # and seq mappers, and a factor `digits_x` was said to be its number:
+  df <- tibble::tibble(x = 3.43, n = factor(5), items_averaged = factor(1))
+  df |> grim_map(2, data_type = "integer")                                           |> expect_error("`n` must be numeric, not a factor")
+  df |> grim_map_seq(2, data_type = "integer")                                       |> expect_error("`n` must be numeric, not a factor")
+  df |> dplyr::mutate(n = 5) |> grim_map(2, data_type = "integer")                   |> expect_error("`items_averaged` must be numeric, not a factor")
+  df |> dplyr::mutate(n = 5, items_averaged = 1) |> grim_map(factor(2), data_type = "integer") |> expect_error("`digits_x` must be numeric, not a factor")
+  3.43 |> grim(factor(5), 2, items_averaged = 1, data_type = "integer")              |> expect_error("`n` must be numeric, not a factor")
 })
 
 

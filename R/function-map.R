@@ -624,8 +624,10 @@ function_map <- function(
         }
       }
 
-      # Tested as the whole numbers they are accepted as; see `round_whole()`:
+      # Tested as the whole numbers they are accepted as; see `round_whole()`.
+      # A factor, as `read.csv()` may leave, gets a hint at converting it:
       for (arg in intersect(ARGS_WHOLE, names(cols_tested))) {
+        check_not_factor(cols_tested[[arg]], arg)
         cols_tested[[arg]] <- round_whole(cols_tested[[arg]])
       }
 

@@ -618,6 +618,8 @@ recycle_digits <- function(digits, n_rows, name_digits_arg) {
 
 error_digits_flawed <- function(digits, name_digits_arg) {
   check_length(digits, 1)
+  # A factor prints as the number it shows, which would look valid:
+  check_not_factor(digits, name_digits_arg)
 
   abort_in_export(
     "`{name_digits_arg}` must be a single whole number from 0 to 15.",

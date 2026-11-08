@@ -63,6 +63,7 @@ map_value_sets <- function(fn, along, type = "logical") {
 
   # Tested as the whole numbers they are accepted as; see `round_whole()`:
   for (name in intersect(ARGS_WHOLE, names_along)) {
+    check_not_factor(vals[[name]], name)
     vals[[name]] <- round_whole(vals[[name]])
   }
 
