@@ -271,7 +271,8 @@ restore_zeros_df <- function(
       allow_rename = FALSE
     ))
   }
-  names_wrong_cols <- names_selected[!names_selected %in% names_num_cols]
+  names_wrong_cols <- names_selected[!names_selected %in% names_num_cols] |>
+    drop_cols_empty(data)
 
   if (length(names_wrong_cols) > 0L) {
     msg_exclusion <- if (check_numeric_like) {

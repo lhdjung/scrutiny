@@ -257,3 +257,12 @@ test_that("a blank cell is missing, so its column is padded all the same", {
   data <- read.csv(text = "study,m\nA,0.50\nB,\nC,1.2\n", colClasses = "character")
   data |> restore_zeros_df() |> dplyr::pull(m) |> expect_equal(c("0.50", NA, "1.20"))
 })
+
+
+test_that("the `*_df()` functions don't warn about a column with no values", {
+  df <- tibble::tibble(a = c("1.5", "2.25"), e = NA, b = c("", "NA"))
+  df |> restore_zeros_df(c(a, e, b), check_numeric_like = FALSE) |> expect_no_warning()
+  df |> decimal_places_df(c(a, e, b), check_numeric_like = FALSE) |> expect_no_warning()
+  df |> restore_zeros_df(c(e, b))                                 |> expect_no_warning()
+  tibble::tibble(a = "1 (2)", e = NA) |> split_by_parens(check_delim = FALSE) |> expect_no_warning()
+})

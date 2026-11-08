@@ -240,7 +240,8 @@ split_by_parens <- function(
   }
 
   names_wrong_cols <-
-    names_selected[!names_selected %in% names_of_cols_with_delims]
+    names_selected[!names_selected %in% names_of_cols_with_delims] |>
+    drop_cols_empty(data)
 
   if (length(names_wrong_cols) > 0L) {
     msg_delims <- message_delim_if_cols_excluded(delim)

@@ -275,6 +275,7 @@ decimal_places_df <- function(
   if (check_numeric_like && missing(cols)) {
     names_wrong_cols <- character()
   }
+  names_wrong_cols <- drop_cols_empty(names_wrong_cols, data)
 
   if (length(names_wrong_cols) > 0L) {
     if (check_numeric_like) {
@@ -341,6 +342,13 @@ trim_space <- function(x) {
 # `STRINGS_MISSING` once trimmed:
 is_value_missing <- function(x) {
   is.na(x) | (is.character(x) & trim_space(x) %in% STRINGS_MISSING)
+}
+
+# The `*_df()` functions don't warn about a column with no values, such as an
+# empty one from `read.csv()`: nothing in it was skipped, replaced, or split.
+drop_cols_empty <- function(names, data) {
+  is_empty <- vapply(data[names], \(x) all(is_value_missing(x)), logical(1L))
+  names[!is_empty]
 }
 
 # The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.
