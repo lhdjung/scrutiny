@@ -269,6 +269,22 @@ whole_add <- function(x, k) {
   big_or_double(if (k >= 0) big_add(x, big(k)) else big_sub(x, big(-k)))
 }
 
+# `a + b`, and `a - b` for `a >= b`, exact at any size. A difference of two
+# doubles below `2^53` is exact as it is:
+whole_sum <- function(a, b) {
+  if (!is_big(a) && !is_big(b) && a + b < 2^53) {
+    return(a + b)
+  }
+  big_or_double(big_add(as_big(a), as_big(b)))
+}
+
+whole_diff <- function(a, b) {
+  if (!is_big(a) && !is_big(b)) {
+    return(a - b)
+  }
+  big_or_double(big_sub(as_big(a), as_big(b)))
+}
+
 # The sign of `a - b`:
 whole_cmp <- function(a, b) {
   if (is_big(a) && is_big(b)) {

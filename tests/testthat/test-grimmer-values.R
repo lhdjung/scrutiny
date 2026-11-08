@@ -297,6 +297,13 @@ test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as do
   1.1 |> grimmer_closest(1.38, 55, 1, 2, 3, "integer") |> _$sum |> expect_equal(174)
   # Even with two sums of one remainder in reach, where `8.3 * 30` is a little
   # above 249, and `1.1 * 45` a little below 49.5:
+  # Two sums of squares around an exact square `k^2` have SDs whose distances
+  # to `k` differ by about `1 / (4 * k^3)`, which the roots don't show from
+  # `k` of about 100 on, so 16173 was taken for as close as 16175:
+  3.0 |> grimmer_closest(63.5, 5, 1, 1, 1, "integer") |> _$sum_squares |> expect_equal(16175)
+  # ...and two such sums with mirrored remainders tie exactly, so the smaller
+  # sum wins:
+  3.0 |> grimmer_closest(12.7, 101, 1, 1, 1, "integer") |> dplyr::select(sum, sum_squares) |> expect_equal(tibble::tibble(sum = 302, sum_squares = 17032))
   8.3 |> grimmer_closest(0.1,  2, 1, 1, 15, "integer") |> _$sum |> expect_equal(248)
   8.3 |> grimmer_closest(0.17, 2, 1, 2, 15, "integer") |> _$sum |> expect_equal(248)
   1.1 |> grimmer_closest(0,    3, 1, 1, 15, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(48)

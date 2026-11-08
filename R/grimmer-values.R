@@ -381,6 +381,13 @@ grimmer_closest_scalar <- function(
   if (max(targets) >= 2^52) {
     abort_sum_squares_too_large()
   }
+  # Distances between SDs are compared exactly, on whole numbers: `n` times the
+  # sums of squared deviations, scaled by the square of `10^digits_sd`, which
+  # makes the target whole as well. The roots themselves are too close to tell
+  # apart from a sum of squares of about 2^14 on; see `sd_closer()`:
+  scale_sd <- 10^(2 * digits_sd)
+  sd_whole <- round(max(sd, 0) * 10^digits_sd) * items_averaged
+  target_whole <- whole_mul(whole_mul(n, n_dev), whole_mul(sd_whole, sd_whole))
 
   # The shifted sums of squares that the SD admits, if it is to be kept to
   # them, else all from the minimum `r` on:
@@ -417,12 +424,20 @@ grimmer_closest_scalar <- function(
   }
 
   squares <- if (n >= 5) {
-    closest_square_parity(r, n, targets, lower, upper)
+    closest_square_parity(r, n, targets, lower, upper, target_whole, scale_sd)
   } else {
     vapply(
       seq_along(r),
       function(i) {
-        closest_square_few(r[i], n, targets[i], lower[i], upper[i])
+        closest_square_few(
+          r[i],
+          n,
+          targets[i],
+          lower[i],
+          upper[i],
+          target_whole,
+          scale_sd
+        )
       },
       numeric(1L)
     )
@@ -443,12 +458,13 @@ grimmer_closest_scalar <- function(
   # deviations, and only this form keeps them equal, so that a tie goes by the
   # sum as documented:
   deviations <- (n * squares - r^2) / n
-  distance_sd <- abs(sqrt(deviations) - sqrt(deviations_target))
   distance_sum <- abs(candidates * scale - numerator)
-  # Two SDs on either side of `sd` can be equally close, which the roots don't
-  # show exactly; such ties go by the sum, too:
-  tolerance <- 1e-9 * max(1, sqrt(deviations_target))
-  tied <- which(distance_sd <= min(distance_sd) + tolerance)
+  # The candidates whose SD is closest to `sd`, compared exactly; ties go by
+  # the sum:
+  tied <- sd_closest_all(
+    deviations_whole(squares, r, n, scale_sd),
+    target_whole
+  )
   best <- tied[order(distance_sum[tied], candidates[tied])[1L]]
 
   s <- candidates[best]
@@ -490,43 +506,142 @@ sums_closest_by_remainder <- function(remainders, sums, n, numerator, scale) {
 # `r`, the one closest to `target` in terms of the SD, for each remainder `r`
 # at once; `NA` where there is none. From five whole numbers on, these are all
 # the sums of squares that the numbers can have, from the minimum `r` on.
-closest_square_parity <- function(r, n, target, lower, upper) {
+# `target_whole` and `scale_sd` are for the exact comparison; see
+# `closest_by_sd()`.
+closest_square_parity <- function(
+  r,
+  n,
+  target,
+  lower,
+  upper,
+  target_whole,
+  scale_sd
+) {
   below <- floor(pmin(target, upper))
   below <- below - (below - r) %% 2
   above <- ceiling(pmax(target, lower))
   above <- above + (above - r) %% 2
   below[below < lower] <- NA
   above[above > upper] <- NA
-  closest_by_sd(below, above, r, n, target)
+  closest_by_sd(below, above, r, n, target_whole, scale_sd)
 }
 
 
 # The same for fewer than five numbers, one remainder at a time, which can only
 # have some of these; see `sum_squares_attainable()`. One number has only the
 # minimum, which is 0 after the shift.
-closest_square_few <- function(r, n, target, lower, upper) {
+closest_square_few <- function(
+  r,
+  n,
+  target,
+  lower,
+  upper,
+  target_whole,
+  scale_sd
+) {
   if (n == 1) {
     return(if (lower <= 0 && 0 <= upper) 0 else NA_real_)
   }
   below <- square_attainable_below(r, n, lower, floor(min(target, upper)))
   above <- square_attainable_above(r, n, ceiling(max(target, lower)), upper)
-  closest_by_sd(below, above, r, n, target)
+  closest_by_sd(below, above, r, n, target_whole, scale_sd)
 }
 
 
-# Of two sums of squares around `target`, either of them `NA`, the one whose
-# SD is closer to the SD at `target`. The SD grows with the root of the sum of
-# squared deviations, which is the shifted sum of squares minus `r^2 / n`.
-# Equally close SDs, which the roots don't show exactly, go to the smaller one,
-# with the same tolerance as in `grimmer_closest_scalar()`:
-closest_by_sd <- function(below, above, r, n, target) {
-  root_target <- sqrt(target - r^2 / n)
-  distance_below <- abs(sqrt(below - r^2 / n) - root_target)
-  distance_above <- abs(sqrt(above - r^2 / n) - root_target)
-  tolerance <- 1e-9 * pmax(1, root_target)
-  is_below <- !is.na(below) &
-    (is.na(above) | distance_below <= distance_above + tolerance)
+# Of two sums of squares around the target, either of them `NA`, the one whose
+# SD is closer to `sd`, for each remainder `r` at once. The SD grows with the
+# root of the sum of squared deviations, which is the shifted sum of squares
+# minus `r^2 / n`. Compared exactly, as whole numbers (see
+# `deviations_whole()`); equally close SDs go to the smaller one:
+closest_by_sd <- function(below, above, r, n, target_whole, scale_sd) {
+  below_whole <- deviations_whole(below, r, n, scale_sd)
+  above_whole <- deviations_whole(above, r, n, scale_sd)
+  is_below <- vapply(
+    seq_along(r),
+    function(i) {
+      !is.na(below[i]) &&
+        (is.na(above[i]) ||
+          sd_closer(below_whole[[i]], above_whole[[i]], target_whole) <= 0)
+    },
+    logical(1L)
+  )
   ifelse(is_below, below, above)
+}
+
+
+# `n` times the sum of squared deviations behind each shifted sum of squares
+# `squares` with the remainder `r`, scaled by `scale_sd`, so that it is a whole
+# number on the scale of `target_whole`. A list, as each may be a `big()`
+# number; `NA` stays `NA`:
+deviations_whole <- function(squares, r, n, scale_sd) {
+  lapply(seq_along(squares), function(i) {
+    if (is.na(squares[i])) {
+      return(NA_real_)
+    }
+    whole_mul(whole_diff(whole_mul(n, squares[i]), r[i]^2), scale_sd)
+  })
+}
+
+
+# Which of two SDs is closer to a third, for whole numbers `below <= target <=
+# above` that the squares of the three are proportional to: -1 if the SD at
+# `below` is, 1 if the one at `above` is, and 0 if they are equally close. The
+# one below is closer if `sqrt(target) - sqrt(below) < sqrt(above) -
+# sqrt(target)`, i.e., `2 * sqrt(target) < sqrt(above) + sqrt(below)`. Squared,
+# that is `4 * target - above - below < 2 * sqrt(above * below)`, which holds
+# if the left side is negative, and otherwise if its square is below `4 *
+# above * below`. All whole numbers, so the comparison is exact, where the
+# roots themselves are not: next to a square `k^2`, the squares `k^2 - 1` and
+# `k^2 + 1` have roots that differ in their distance to `k` by about
+# `1 / (4 * k^3)`, which a double no longer shows from `k` of about 100 on:
+sd_closer <- function(below, above, target) {
+  sum_ab <- whole_sum(above, below)
+  four_target <- whole_mul(4, target)
+  if (whole_cmp(four_target, sum_ab) < 0) {
+    return(-1)
+  }
+  left <- whole_diff(four_target, sum_ab)
+  whole_cmp(whole_mul(left, left), whole_mul(whole_mul(4, above), below))
+}
+
+
+# The indices of the `deviations`, whole numbers as from `deviations_whole()`,
+# whose SD is closest to the one at `target`: the greatest at or below it, the
+# least at or above it, or both if they are equally close, and every one
+# equal to these:
+sd_closest_all <- function(deviations, target) {
+  sides <- vapply(deviations, whole_cmp, numeric(1L), target)
+  best <- function(side, pick) {
+    index <- which(sides == side | sides == 0)
+    if (length(index) == 0L) {
+      return(NULL)
+    }
+    value <- deviations[[index[1L]]]
+    for (i in index[-1L]) {
+      if (pick(whole_cmp(deviations[[i]], value))) {
+        value <- deviations[[i]]
+      }
+    }
+    value
+  }
+  below <- best(-1, function(cmp) cmp > 0)
+  above <- best(1, function(cmp) cmp < 0)
+  closer <- if (is.null(below)) {
+    1
+  } else if (is.null(above)) {
+    -1
+  } else {
+    sd_closer(below, above, target)
+  }
+  is_tied <- vapply(
+    deviations,
+    function(value) {
+      (closer <= 0 && whole_cmp(value, below) == 0) ||
+        (closer >= 0 && whole_cmp(value, above) == 0)
+    },
+    logical(1L)
+  )
+  which(is_tied)
 }
 
 
