@@ -110,3 +110,12 @@ test_that("the old name `sep` still works, with a warning", {
   "1 [2]" |> inside_parens(sep = "brackets") |> suppressWarnings() |> expect_equal("2")
   "1 [2]" |> inside_parens(sep = "brackets", delim = "brackets") |> expect_error("can't both be given")
 })
+
+
+test_that("a blank part is `NA` in both functions", {
+  # A blank cell gave `""` before and `NA` inside, so `split_by_parens()`
+  # split it into two kinds of missing values:
+  c("", "  ", "(2)") |> before_parens() |> expect_equal(c(NA_character_, NA, NA))
+  c("", "  ", "1 ()") |> inside_parens() |> expect_equal(c(NA_character_, NA, NA))
+  tibble::tibble(a = c("1 (2)", "")) |> split_by_parens() |> unlist(use.names = FALSE) |> expect_equal(c("1", NA, "2", NA))
+})

@@ -132,8 +132,8 @@ proto_split_parens <- function(string, delim = "parens") {
 #'
 #' @return String vector as long as `string`, with surrounding whitespace
 #'   removed. If a string has no opening delimiter, `before_parens()` returns
-#'   all of it and `inside_parens()` returns `NA`, as it does for empty
-#'   delimiters.
+#'   all of it and `inside_parens()` returns `NA`. A blank part, as of a blank
+#'   string or of empty delimiters, is `NA`.
 #'
 #' @name parens-extractors
 #'
@@ -149,7 +149,10 @@ proto_split_parens <- function(string, delim = "parens") {
 
 before_parens <- function(string, delim = "parens", sep = deprecated()) {
   delim <- use_renamed_arg(sep, delim, "before_parens", "sep", "delim")
-  stringr::str_trim(proto_split_parens(string, delim)[, 1L])
+  out <- stringr::str_trim(proto_split_parens(string, delim)[, 1L])
+  # A blank cell is missing, as in `inside_parens()`:
+  out[out == ""] <- NA
+  out
 }
 
 
