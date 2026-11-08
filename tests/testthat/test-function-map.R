@@ -997,6 +997,11 @@ test_that("the seq and total-n factories refuse result columns named like theirs
   map_dir <- function_map(.fn = fn, .reported = c("score", "n"), .name_test = "T", .name_key_result = "dir")
   map_dir |> function_map_total_n(.reported = "score", .name_test = "T", .name_key_result = "dir") |> expect_error("Rename `dir`")
   "score" |> map_cols() |> function_map_seq(.reported = c("score", "n"), .name_test = "T") |> expect_no_error()
+  # Helper columns are returned, too; one named `case` was overwritten:
+  fn_helper <- function(score, n, case = 1) score > n * case
+  map_helper <- function_map(.fn = fn_helper, .reported = c("score", "n"), .name_test = "T", .cols_helper = "case")
+  map_helper |> function_map_seq(.reported = c("score", "n"), .name_test = "T") |> expect_error("Rename `case`")
+  map_helper |> function_map_total_n(.reported = "score", .name_test = "T")     |> expect_error("Rename `case`")
 })
 
 

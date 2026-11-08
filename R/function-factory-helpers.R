@@ -898,9 +898,12 @@ check_fn_wrappable <- function(fn, name_key_result, reserved, factory) {
       `{arg_variadic}`."
     )
   }
+  # Helper and by-row arguments are returned as columns, too:
   cols_result <- c(
     name_key_result,
-    attr(fn, "scrutiny_cols_result", exact = TRUE)
+    attr(fn, "scrutiny_cols_result", exact = TRUE),
+    attr(fn, "scrutiny_args_helper", exact = TRUE),
+    attr(fn, "scrutiny_args_by_row", exact = TRUE)
   )
   offenders <- intersect(cols_result, reserved)
   if (length(offenders) > 0L) {
