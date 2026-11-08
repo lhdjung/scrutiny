@@ -21,6 +21,13 @@
 #'   any other columns from `data`. It has the class `scrutiny_add_up_to_map`,
 #'   which is recognized by [`audit()`].
 #'
+#' @section Summaries with [`audit()`]: `audit()` on `add_up_to_map()` output
+#'   returns a tibble with one row and these columns:
+#'
+#' 1. `all_cases`: total number of rows.
+#' 2. `incon_cases`: number of inconsistent rows.
+#' 3. `emp_incon`: proportion of inconsistent rows.
+#'
 #' @include add-up-to.R function-map.R
 #'
 #' @export

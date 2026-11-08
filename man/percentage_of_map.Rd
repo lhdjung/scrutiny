@@ -48,6 +48,16 @@ every row of a data frame with counts, percentages, and totals.
 Call \code{\link[=audit]{audit()}} on the output for summary statistics. See
 \code{\link[=percentage_of]{percentage_of()}} for causes of inconsistencies.
 }
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on \code{percentage_of_map()} output
+returns a tibble with one row and these columns:
+\enumerate{
+\item \code{all_cases}: total number of value sets.
+\item \code{incon_cases}: number of inconsistent value sets.
+\item \code{emp_incon}: proportion of inconsistent value sets.
+}
+}
+
 \examples{
 df <- tibble::tibble(
   absolute = c(40, 37, 25),

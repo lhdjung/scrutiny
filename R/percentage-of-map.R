@@ -25,6 +25,13 @@
 #'   has the class `scrutiny_percentage_of_map`, which is recognized by
 #'   [`audit()`].
 #'
+#' @section Summaries with [`audit()`]: `audit()` on `percentage_of_map()` output
+#'   returns a tibble with one row and these columns:
+#'
+#' 1. `all_cases`: total number of value sets.
+#' 2. `incon_cases`: number of inconsistent value sets.
+#' 3. `emp_incon`: proportion of inconsistent value sets.
+#'
 #' @include percentage-of.R function-map.R
 #'
 #' @export

@@ -33,6 +33,16 @@ number of columns can be added up.
 
 Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on \code{add_up_to_map()} output
+returns a tibble with one row and these columns:
+\enumerate{
+\item \code{all_cases}: total number of rows.
+\item \code{incon_cases}: number of inconsistent rows.
+\item \code{emp_incon}: proportion of inconsistent rows.
+}
+}
+
 \examples{
 df <- tibble::tibble(
   n_control = c(40, 25, 31),

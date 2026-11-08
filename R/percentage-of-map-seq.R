@@ -16,6 +16,10 @@
 #'   `"auto"`, which keeps `absolute` and `percentage` at 0 or above and `n`
 #'   at 1 or above. A number applies to every dispersed variable, and `NULL`
 #'   removes the limit.
+#' @param digits_percentage Integer (length 1). The number of decimal places in
+#'   `percentage`, including trailing zeros. There is no default, since a
+#'   numeric value does not keep them (`1.40` is `1.4`). It also sets the step
+#'   size for dispersing `percentage`.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams percentage_of_map
