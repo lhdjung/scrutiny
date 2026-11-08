@@ -123,7 +123,8 @@ The number of pairs grows with \code{n}, \code{items_averaged}, and \code{sd}, a
 shrinks with \code{digits_x} and \code{digits_sd}. More than a million pairs for one
 value set is an error, since the output has one row for each. So is a sum
 of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
-\code{\link[=grimmer]{grimmer()}} tests such value sets all the same.
+\code{\link[=grimmer]{grimmer()}} tests such value sets all the same. \code{grimmer_closest()}
+stops at 2^48, about 3e14, beyond which it can miss the closest pair.
 
 Under \code{rounding = "even"}, the pairs include ties that \code{\link[base:Round]{base::round()}}
 may round away from \code{x} or \code{sd}, as in \code{\link[=grim_values]{grim_values()}}.

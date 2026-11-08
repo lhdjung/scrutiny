@@ -360,4 +360,9 @@ test_that("`grimmer_closest()` handles missing values and bad input", {
   3.51 |> grimmer_closest(9.99, 1e5, 2, 2, 1, "integer") |> nrow() |> expect_equal(1L)
   # Too many sums to try one by one is an error rather than half a minute:
   5.1  |> grimmer_closest(2.3, 9e6, 1, 1, 1, "integer") |> expect_error("`grimmer_closest()` checks 900,001 candidate sums", fixed = TRUE)
+  # Past 2^48, the double target can be off by 1 or more, and ...396 came back
+  # where ...398 is closer to the exact target of ...397.0456:
+  0    |> grimmer_closest(26074777.74, 7, 2, 2, 1, "integer") |> expect_error("too large to find the closest one")
+  # Just below, the closer neighbor is found (exact target 27993661689633.9864):
+  0    |> grimmer_closest(2160002.38,  7, 2, 2, 1, "integer") |> _$sum_squares |> expect_equal(27993661689634)
 })

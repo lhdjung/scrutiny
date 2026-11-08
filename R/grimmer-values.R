@@ -378,8 +378,16 @@ grimmer_closest_scalar <- function(
   # 0:
   deviations_target <- n_dev * (max(sd, 0) * items_averaged)^2
   targets <- deviations_target + r^2 / n
-  if (max(targets) >= 2^52) {
-    abort_sum_squares_too_large()
+  # The candidates on either side of each target are found from the double,
+  # which is fine as long as it is off by less than 1. From about 2^50.5, it
+  # can be off by more, and the closer neighbor on the other side is missed:
+  if (max(targets) >= 2^48) {
+    abort_in_export(
+      "The sums of squares are too large to find the closest one.",
+      "x" = "They reach 2^48, about 3e14, beyond which `grimmer_closest()` \\
+      can miss it.",
+      "i" = "`grimmer()` tests this value set exactly all the same."
+    )
   }
   # Distances between SDs are compared exactly, on whole numbers: `n` times the
   # sums of squared deviations, scaled by the square of `10^digits_sd`, which
@@ -770,7 +778,8 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   shrinks with `digits_x` and `digits_sd`. More than a million pairs for one
 #'   value set is an error, since the output has one row for each. So is a sum
 #'   of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
-#'   [`grimmer()`] tests such value sets all the same.
+#'   [`grimmer()`] tests such value sets all the same. `grimmer_closest()`
+#'   stops at 2^48, about 3e14, beyond which it can miss the closest pair.
 #'
 #'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
