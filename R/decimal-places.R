@@ -84,7 +84,8 @@ decimal_places <- function(x, sep = ".") {
     regexpr(pattern = "^[0-9]*") |>
     attr("match.length")
 
-  out <- pmax(out - exponent, 0L)
+  # A count past the integer range is `NA`, like an exponent past it:
+  out <- suppressWarnings(pmax(out - exponent, 0L))
   out[non_finite] <- NA_integer_
   out
 }
@@ -195,7 +196,7 @@ decimal_places_scalar <- function(x, sep = ".") {
       attr("match.length")
   }
 
-  max(out - exponent, 0L)
+  suppressWarnings(max(out - exponent, 0L))
 }
 
 

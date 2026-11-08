@@ -234,12 +234,16 @@ test_that("the two functions agree over a generated corpus", {
     "1..5", "1.a.25", "inf", "nan", "infinity", "-INF", "+NaN",
     # Exponents beyond the integer range, and whitespace `as.numeric()` does
     # not skip:
-    "1e-99999999999", "1.5e99999999999", "\u00a02.50", "2.50\u00a0"
+    "1e-99999999999", "1.5e99999999999", "\u00a02.50", "2.50\u00a0",
+    # An exponent within the range, but not the count it gives:
+    "1.5e-2147483647"
   )
 
   from_scalar <- values |>
     vapply(decimal_places_scalar, integer(1L), USE.NAMES = FALSE)
   values |> decimal_places() |> expect_equal(from_scalar)
+  "1.5e-2147483647" |> decimal_places()        |> expect_no_warning()
+  "1.5e-2147483647" |> decimal_places_scalar() |> expect_no_warning()
 
   # Not a vacuous comparison -- the corpus has to exercise the whole range:
   from_scalar[!is.na(from_scalar)] |> unique() |> length() |> expect_gt(5L)
