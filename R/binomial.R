@@ -202,6 +202,13 @@ grim_binomial_power <- function(
   check_probability(alpha, "alpha")
   check_length(p1, 1L)
   check_length(alpha, 1L)
+  # As in `grim_binomial()`: a level of 0 or 1 rejects nothing or everything:
+  if (alpha <= 0 || alpha >= 1) {
+    abort_in_export(
+      "`alpha` must be between 0 and 1, exclusive.",
+      "x" = "It is {alpha}."
+    )
+  }
 
   if (length(p0) == 1L) {
     p0 <- rep(p0, k)

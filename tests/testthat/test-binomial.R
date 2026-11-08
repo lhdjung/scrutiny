@@ -45,6 +45,9 @@ test_that("`grim_binomial_power()` checks its probabilities and `k`", {
   0.5 |> grim_binomial_power(1.5, k = 3)            |> expect_error("`p1` must be between 0 and 1")
   1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error("`p0` must be between 0 and 1")
   0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be between 0 and 1")
+  # 0 and 1 are no levels either, as in `grim_binomial()`:
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 0) |> expect_error("`alpha` must be between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 1) |> expect_error("`alpha` must be between 0 and 1")
   0.5 |> grim_binomial_power(0.9, k = 2.5)          |> expect_error("whole number")
   0.5 |> grim_binomial_power(0.9, k = "10")         |> expect_error("whole number")
   0.5 |> grim_binomial_power(0.9, k = Inf)          |> expect_error("whole number")
