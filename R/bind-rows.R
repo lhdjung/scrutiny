@@ -61,12 +61,8 @@ register_bind_methods <- function(class) {
 subassign_scrutiny <- function(x, i, j, ..., value) {
   # `drop = FALSE` comes in the dots:
   is_rows <- nargs() - ...length() == 4L && !missing(i)
-  adds_rows <- is_rows &&
-    if (is.logical(i)) {
-      length(i) > nrow(x)
-    } else {
-      is.numeric(i) && any(i > nrow(x), na.rm = TRUE)
-    }
+  # Only numbers add rows; tibble rejects a logical `i` longer than `x`:
+  adds_rows <- is_rows && is.numeric(i) && any(i > nrow(x), na.rm = TRUE)
   is_output <- inherits(value, ls(bind_classes)) && NROW(value) > 0L
   if (adds_rows || (is_rows && is_output)) {
     check_same_mapper_call(

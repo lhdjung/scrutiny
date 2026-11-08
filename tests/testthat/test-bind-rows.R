@@ -216,7 +216,8 @@ test_that("rows of another call's output can't replace rows", {
   copy <- out
   expect_error(copy[3L, ] <- tibble::as_tibble(out[1L, ]), "not mapper output")
   expect_error(copy[3L, "x"] <- 5.17, "not mapper output")
-  expect_error(copy[c(TRUE, TRUE, TRUE), "x"] <- 5.17, "not mapper output")
+  # A logical `i` adds none, so tibble's own error explains it:
+  expect_error(copy[c(TRUE, TRUE, TRUE), "x"] <- 5.17, "must be size")
   # Rows of the same output may, as in `bind_rows()`:
   copy[3L, ] <- out[1L, ]
   copy$x |> expect_equal(c(5.19, 5.18, 5.19))
