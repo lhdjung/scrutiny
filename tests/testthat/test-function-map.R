@@ -981,6 +981,33 @@ test_that("the factories refuse key columns named like their own names", {
 })
 
 
+# Only `.reported` was checked. A result column named `var` kept the seq tier
+# from labeling the dispersed variables, and `audit()` then blamed duplicates.
+test_that("the seq and total-n factories refuse result columns named like theirs", {
+  fn <- function(score, n, show_rec = FALSE) if (show_rec) list(TRUE, 1) else TRUE
+  map_cols <- function(col) {
+    function_map(.fn = fn, .reported = c("score", "n"), .name_test = "T", .col_names = c("consistency", col))
+  }
+  for (col in c("var", "case", "diff_var")) {
+    col |> map_cols() |> function_map_seq(.reported = c("score", "n"), .name_test = "T") |> expect_error("`function_map_seq\\(\\)` adds itself")
+  }
+  for (col in c("case", "dir", "n_change", "both_consistent")) {
+    col |> map_cols() |> function_map_total_n(.reported = "score", .name_test = "T") |> expect_error("`function_map_total_n\\(\\)` adds itself")
+  }
+  map_dir <- function_map(.fn = fn, .reported = c("score", "n"), .name_test = "T", .name_key_result = "dir")
+  map_dir |> function_map_total_n(.reported = "score", .name_test = "T", .name_key_result = "dir") |> expect_error("Rename `dir`")
+  "score" |> map_cols() |> function_map_seq(.reported = c("score", "n"), .name_test = "T") |> expect_no_error()
+})
+
+
+# The docs ruled this out, but calling the result failed with "object 'a' not
+# found".
+test_that("the seq and total-n factories refuse a variadic mapper", {
+  add_up_to_map |> function_map_seq(.reported = "total", .name_test = "add_up_to")     |> expect_error("through `summands`")
+  add_up_to_map |> function_map_total_n(.reported = "total", .name_test = "add_up_to") |> expect_error("through `summands`")
+})
+
+
 # `check_args_disabled()` read the names off the call, which through `lapply()`
 # is `FUN(X[[i]], ...)`, so a disabled argument went through.
 test_that("disabled arguments stay disabled when the mapper is called indirectly", {

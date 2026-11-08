@@ -883,3 +883,30 @@ check_reported_reserved <- function(reported, reserved, factory) {
     )
   }
 }
+
+
+# Whether the seq and total-n tiers can wrap `.fn`. They derive their arguments
+# from `.reported`, so not a mapper with a variadic argument. Nor one whose
+# result columns they would overwrite or misread with the columns they add
+# (`reserved`):
+check_fn_wrappable <- function(fn, name_key_result, reserved, factory) {
+  arg_variadic <- attr(fn, "scrutiny_arg_variadic", exact = TRUE)
+  if (!is.null(arg_variadic)) {
+    abort_in_export(
+      "`{factory}()` can't wrap a mapper with a variadic argument.",
+      "x" = "`.fn` takes its key columns through `{arg_variadic}`."
+    )
+  }
+  cols_result <- c(
+    name_key_result,
+    attr(fn, "scrutiny_cols_result", exact = TRUE)
+  )
+  offenders <- intersect(cols_result, reserved)
+  if (length(offenders) > 0L) {
+    abort_in_export(
+      "`.fn` returns columns that `{factory}()` adds itself.",
+      "x" = "Rename {wrap_in_backticks(offenders)} where `.fn` was made.",
+      "i" = "Reserved: {wrap_in_backticks(reserved)}."
+    )
+  }
+}

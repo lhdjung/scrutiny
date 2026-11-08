@@ -270,6 +270,12 @@ function_map_total_n <- function(
   force(.name_test)
   force(.name_key_result)
   check_string(.name_key_result)
+  check_fn_wrappable(
+    .fn,
+    .name_key_result,
+    c("case", "dir", "n_change", "both_consistent"),
+    "function_map_total_n"
+  )
   force(.name_class)
 
   # A class added here comes first; see `R/bind-rows.R`:

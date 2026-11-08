@@ -233,6 +233,12 @@ function_map_seq <- function(
   force(.name_test)
   force(.name_key_result)
   check_string(.name_key_result)
+  check_fn_wrappable(
+    .fn,
+    .name_key_result,
+    c("var", "case", "diff_var"),
+    "function_map_seq"
+  )
   force(.name_class)
 
   # A class added here comes first; see `R/bind-rows.R`:

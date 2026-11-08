@@ -931,6 +931,9 @@ function_map <- function(
   # The result columns that the mapper may add, which `function_map_total_n()`
   # keeps a `constant` from being named like:
   attr(fn_out, "scrutiny_cols_result") <- c(names(.cols_derived), .col_names)
+  # The other tiers derive their arguments from `.reported`, so they refuse a
+  # mapper with a variadic argument:
+  attr(fn_out, "scrutiny_arg_variadic") <- .reported_variadic
 
   fn_out
 }
