@@ -522,6 +522,7 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 
   for (col in names(index)) {
     check_not_integer64(data[[index[[col]]]], col)
+    check_not_factor(data[[index[[col]]]], col)
   }
 
   # The selected columns are combined row by row with `c()`, which takes a

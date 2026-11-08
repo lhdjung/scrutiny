@@ -196,7 +196,9 @@ grim_plot_grid <- function(
         "!" = "`digits_x` must have length 1 (i.e., be a single number).",
         "x" = "It has length {length(digits)}."
       )
-    } else if (!is.numeric(digits) || !isTRUE(is_whole_number(digits))) {
+    }
+    check_not_factor(digits, "digits_x")
+    if (!is.numeric(digits) || !isTRUE(is_whole_number(digits))) {
       abort_in_export(
         "!" = "`digits_x` must be a whole number.",
         "x" = "It is {wrap_in_quotes_or_backticks(digits)}."

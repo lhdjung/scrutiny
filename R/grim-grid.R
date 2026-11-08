@@ -54,6 +54,7 @@ grim_grid <- function(
   }
 
   check_length(digits_x, 1L)
+  check_not_factor(digits_x, "digits_x")
 
   # Near-whole values pass, as elsewhere in the package:
   is_valid <- is.numeric(digits_x) &&

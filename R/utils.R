@@ -511,7 +511,9 @@ check_n_exact <- function(n) {
 round_whole <- function(x) {
   # Named if the caller's variable is the argument, as in `round_whole(n)`:
   name <- substitute(x)
-  check_not_integer64(x, if (is.symbol(name)) as.character(name))
+  name <- if (is.symbol(name)) as.character(name)
+  check_not_integer64(x, name)
+  check_not_factor(x, name)
 
   if (is.double(x)) {
     whole <- which(is_whole_number(x))
@@ -546,11 +548,17 @@ check_not_integer64 <- function(x, name = NULL) {
 
 # A factor is no string that was meant as a number, just a column that
 # `read.csv(stringsAsFactors = TRUE)` made one, and its codes are not its
-# values:
-check_not_factor <- function(x, name) {
+# values. `round_whole()` checks every whole-number argument, by name if it
+# can:
+check_not_factor <- function(x, name = NULL) {
   if (is.factor(x)) {
+    what <- if (is.null(name)) {
+      "A whole-number argument"
+    } else {
+      paste0("`", name, "`")
+    }
     abort_in_export(
-      "`{name}` must be numeric, not a factor.",
+      "{what} must be numeric, not a factor.",
       "i" = "Convert the factor with `as.numeric(as.character())`, or read \\
       the data with `stringsAsFactors = FALSE`."
     )
@@ -1372,6 +1380,9 @@ check_type <- function(x, t) {
   # numbers it shows:
   if (is.factor(x) || !any(typeof(x) == t)) {
     msg_name <- deparse(substitute(x))
+    if (any(t %in% c("double", "integer"))) {
+      check_not_factor(x, msg_name)
+    }
     if (length(t) == 1L) {
       msg_object <- "be of type"
     } else {

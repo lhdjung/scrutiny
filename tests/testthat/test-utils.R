@@ -404,3 +404,18 @@ test_that("`sd_denominator_ratio()` agrees with `sd_denominator()`", {
     (n * 0 + sd_denominator_ratio(n, sd_meaning)) |> expect_equal(n / sd_denominator(n, sd_meaning))
   }
 })
+
+
+test_that("a factor gets the hint at converting it in every export that takes a number", {
+  f <- factor(28)
+  expect_error(grim_explain(5.19, f, 2, 1, "integer"),            "`n` must be numeric, not a factor")
+  expect_error(grim_total(5.19, f, 2, 1, data_type = "integer"),  "`n` must be numeric, not a factor")
+  expect_error(grim_plot_line(5.19, f, 2, 1, "integer"),          "`n` must be numeric, not a factor")
+  expect_error(disperse_total(f),                                 "`n` must be numeric, not a factor")
+  expect_error(sd_binary_0_n(3, f),                               "`n` must be numeric, not a factor")
+  expect_error(add_up_to(c(1, 2), factor(3)),                     "`total` must be numeric, not a factor")
+  expect_error(grim_grid(digits_x = factor(2), data_type = "integer"), "`digits_x` must be numeric, not a factor")
+  expect_error(grim_plot_grid(show_data = FALSE, digits_x = factor(2)), "`digits_x` must be numeric, not a factor")
+  expect_error(grim_binomial_power(0.5, 0.7, factor(20)),         "`k` must be numeric, not a factor")
+  expect_error(restore_zeros("1.2", width = factor(3)),           "`width` must be numeric, not a factor")
+})

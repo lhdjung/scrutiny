@@ -164,6 +164,7 @@ sd_binary_spread <- function(n, variance, sd_meaning, counts = list()) {
 check_binary_args <- function(args) {
   for (name in names(args)) {
     x <- args[[name]]
+    check_not_factor(x, name)
     if (!is.numeric(x) && !(is.logical(x) && all(is.na(x)))) {
       abort_in_export(
         "`{name}` must be one of these types: double and integer.",

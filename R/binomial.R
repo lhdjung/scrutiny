@@ -178,6 +178,7 @@ grim_binomial_power <- function(
       "x" = "`p0` has length 0."
     )
   }
+  check_not_factor(k, "k")
   if (
     length(k) != 1L ||
       !is.numeric(k) ||
