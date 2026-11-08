@@ -170,7 +170,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows or columns, only warns about unsplit columns that `cols` named, but always about columns split under `check_delim = FALSE`, and keeps the column order with `transform = TRUE`.
 
-- `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD".
+- `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD". It skips blank header cells and trims whitespace, so that a blank cell above "Study" no longer gives the name " Study".
 
 - `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `audit()` finds its tally columns by the names `duplicate_tally()` gave them; it took every second column, so a selection or reordering summarized the wrong ones. `duplicate_count()` is linear rather than quadratic for named input, uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`. A list-column or a matrix column is an error.
 

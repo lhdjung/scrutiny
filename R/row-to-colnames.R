@@ -6,10 +6,13 @@
 #'   those rows and drops the rows.
 #'
 #' @details With several rows, their values are pasted together per column.
-#'   Missing values are skipped; if all of a column's values in these rows are
-#'   missing, it keeps its name. The new names must be unique: a header that
+#'   Missing values and blank strings are skipped, and whitespace around a
+#'   value is trimmed; if all of a column's values in these rows are missing
+#'   or blank, it keeps its name. The new names must be unique: a header that
 #'   repeats, as in "M, SD, M, SD", is an error unless a second row tells the
-#'   columns apart.
+#'   columns apart. A label that spans several columns, such as a group name
+#'   above "M, SD", is often only in the first of them; repeat it in each
+#'   one first.
 #'
 #' @param data Data frame or matrix.
 #' @param row Integer. Position of the row or rows that contain the column
@@ -81,7 +84,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
     )
   }
 
-  # A column whose cells in `row` are all missing keeps its current name:
+  # A column whose cells in `row` are all missing or blank keeps its current
+  # name. A blank cell, as `read.csv()` leaves, would add a stray `collapse`:
   correct <- vapply(
     seq_along(data),
     function(i) {
@@ -89,7 +93,8 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       # mark of `options(OutDec = )`:
       cells <- data[[i]][row] |>
         value_to_string() |>
-        call_on(\(x) x[!is.na(x)])
+        trim_space() |>
+        call_on(\(x) x[!is.na(x) & x != ""])
       if (length(cells) == 0L) {
         colnames(data)[i]
       } else {
@@ -119,7 +124,9 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       "x" = "{wrap_in_backticks(names_dup)} {cli::qty(length(names_dup))}\\
       {?is/are} taken more than once.",
       "i" = "Specify several rows in `row` to tell the columns apart, or \\
-      change the repeated cells in `data` first."
+      change the repeated cells in `data` first.",
+      "i" = "A label that spans several columns, such as a group name, \\
+      must be in each of their cells, not only in the first one."
     )
   }
 
