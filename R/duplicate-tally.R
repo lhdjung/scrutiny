@@ -51,6 +51,11 @@
 duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
   check_duplicate_input(x)
   check_string(colname_end)
+  # A matrix's column names are its `colnames()`, which `rlang::is_named()`
+  # doesn't see, so they would be replaced below:
+  if (is.matrix(x) && !is.null(colnames(x))) {
+    x <- tibble::as_tibble(x)
+  }
   x_was_named <- rlang::is_named(x)
   if (!x_was_named || !is.data.frame(x)) {
     x <- tibble::as_tibble(

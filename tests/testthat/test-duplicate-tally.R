@@ -26,3 +26,10 @@ test_that("`duplicate_tally()` compares numbers as written out in full", {
   out$b_n |> expect_equal(c(2L, 1L))
   tibble::tibble(a = 100000L, b = 100000) |> duplicate_tally(ignore = 1e5) |> dplyr::pull(a_n) |> expect_na()
 })
+
+
+test_that("a matrix keeps its column names", {
+  m <- as.matrix(pigs4[1:3, ])
+  m |> duplicate_tally() |> colnames() |> expect_equal(c(rbind(colnames(pigs4), paste0(colnames(pigs4), "_n"))))
+  m |> unname() |> duplicate_tally() |> colnames() |> expect_equal(c("col1", "col1_n", "col2", "col2_n", "col3", "col3_n"))
+})

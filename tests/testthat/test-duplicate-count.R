@@ -1137,3 +1137,12 @@ test_that("raw bytes are an error, not a crash inside dplyr", {
   tibble::tibble(a = as.raw(c(1, 1)))    |> duplicate_count()         |> expect_error("raw bytes")
   tibble::tibble(a = as.raw(c(1, 1)))    |> duplicate_tally()         |> expect_error("raw bytes")
 })
+
+
+test_that("a matrix keeps its column names", {
+  m <- as.matrix(pigs4[1:3, ])
+  m |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency", "locations", "locations_n"))
+  m |> duplicate_count() |> dplyr::pull(locations) |> expect_match("snout|tail|wings")
+  # Without names, there are no locations to name, as for an unnamed vector:
+  m |> unname() |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
+})

@@ -59,6 +59,11 @@ duplicate_count <- function(
   locations_type <- rlang::arg_match(locations_type)
 
   check_duplicate_input(x)
+  # A matrix's column names are its `colnames()`, which `rlang::is_named()`
+  # doesn't see, so they would be replaced below:
+  if (is.matrix(x) && !is.null(colnames(x))) {
+    x <- tibble::as_tibble(x)
+  }
   x_was_named <- rlang::is_named(x)
 
   # Long format: one row per value and the name of its location. The names of
