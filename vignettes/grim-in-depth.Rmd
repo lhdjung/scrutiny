@@ -198,7 +198,7 @@ $$
 
 where $D$ is the number of decimal places, $N$ the sample size, and $L$ the number of items. This is the probability that a mean with $D$ decimal places but random decimal digits is GRIM-inconsistent with $N$ and $L$. If it is 0, GRIM cannot detect any inconsistency.
 
-The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_exp_incon()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
+The formula is exact for rounding methods in which exactly one range of unrounded values, one rounding step wide, is rounded to each reported value, such as `"up"`. The default, `"up_or_down"`, accepts a mean exactly halfway between two reportable values in both directions, so the formula overstates the probability whenever $NL < 10^D$ and $NL / \gcd(NL, 10^D)$ is even: at $N = 40$ with two decimal places, the probability is $0.4$, not $0.6$. Under `"ceiling_or_floor"`, the range is two steps wide. `grim_exp_incon()` and `grim_total()` therefore take `rounding` and `threshold` arguments and count exactly the values that `grim()` would reject. `grim_map()` passes its own `rounding` on.
 
 ```{r}
 grim_exp_incon(x = 1.40, n = 72, digits_x = 2, items_averaged = 1, data_type = "integer")
