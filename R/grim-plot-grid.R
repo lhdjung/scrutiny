@@ -282,10 +282,14 @@ grim_plot_grid <- function(
     is_placeless <- Reduce(`|`, lapply(data[cols_place], is.na))
     n_placeless <- sum(is_placeless)
     if (n_placeless == nrow(data)) {
+      msg_rows <- if (nrow(data) == 1L) {
+        "the only row"
+      } else {
+        paste("each of the", nrow(data), "rows")
+      }
       abort_in_export(
         "No value set in `data` has a place on the grid.",
-        "x" = "{.or {.code {cols_place}}} is missing in each of the \\
-        {nrow(data)} row{?s}.",
+        "x" = "{.or {.code {cols_place}}} is missing in {msg_rows}.",
         "i" = "Set `show_data = FALSE` for the background raster on its own."
       )
     }

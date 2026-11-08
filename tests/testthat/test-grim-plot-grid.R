@@ -359,6 +359,7 @@ test_that("an inconsistent value set without a mean or its decimal places is dro
   plot <- out |> grim_plot_grid() |> expect_warning("Dropping 1 value set without a place") |> suppressMessages()
 
   out[2L, ] |> grim_plot_grid() |> expect_error("No value set in `data` has a place") |> suppressMessages()
+  out[2L, ] |> grim_plot_grid() |> expect_error("missing in the only row")             |> suppressMessages()
 })
 
 
