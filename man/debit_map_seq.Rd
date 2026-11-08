@@ -83,7 +83,8 @@ Call \code{\link[=audit]{audit()}} on the output for summary statistics.
  \code{audit()} on \code{debit_map_seq()}
 output returns a tibble with one row per case and these columns:
 \itemize{
-\item \code{x}, \code{sd}, and \code{n}: the reported values, with their \code{consistency}.
+\item \code{x}, \code{sd}, and \code{n}: the reported values, with \code{data_type} and their
+\code{consistency}.
 \item \code{hits_total}: the number of DEBIT-consistent value sets found within the
 \code{dispersion} range.
 \item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying each

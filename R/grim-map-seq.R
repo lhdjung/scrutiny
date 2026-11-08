@@ -39,7 +39,8 @@
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `grim_map_seq()`
 #'   output returns a tibble with one row per case and these columns:
-#'   - `x` and `n`: the reported values, with their `consistency`.
+#'   - `x` and `n`: the reported values, with `items_averaged`, `data_type`,
+#'   and their `consistency`.
 #'   - `hits_total`: the number of GRIM-consistent value sets found within the
 #'   `dispersion` range.
 #'   - `hits_x`, `hits_n`: the number found by varying `x` and `n`,

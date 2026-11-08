@@ -31,7 +31,8 @@
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `debit_map_seq()`
 #'   output returns a tibble with one row per case and these columns:
-#'   - `x`, `sd`, and `n`: the reported values, with their `consistency`.
+#'   - `x`, `sd`, and `n`: the reported values, with `data_type` and their
+#'   `consistency`.
 #'   - `hits_total`: the number of DEBIT-consistent value sets found within the
 #'   `dispersion` range.
 #'   - `hits_x`, `hits_sd`, `hits_n`: the number found by varying each

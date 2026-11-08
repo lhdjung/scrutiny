@@ -97,7 +97,8 @@ Call \code{\link[=audit]{audit()}} on the output for summary statistics.
  \code{audit()} on \code{grim_map_seq()}
 output returns a tibble with one row per case and these columns:
 \itemize{
-\item \code{x} and \code{n}: the reported values, with their \code{consistency}.
+\item \code{x} and \code{n}: the reported values, with \code{items_averaged}, \code{data_type},
+and their \code{consistency}.
 \item \code{hits_total}: the number of GRIM-consistent value sets found within the
 \code{dispersion} range.
 \item \code{hits_x}, \code{hits_n}: the number found by varying \code{x} and \code{n},
