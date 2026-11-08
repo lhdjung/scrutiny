@@ -295,8 +295,8 @@ debit_explain <- function(
       if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
       sd,
       digits_sd,
-      format_number(bounds_sd$lower / bounds_sd$denom, digits_sd),
-      format_number(bounds_sd$upper / bounds_sd$denom, digits_sd),
+      format_product_exact(1, bounds_sd$lower, bounds_sd$denom, digits_sd),
+      format_product_exact(1, bounds_sd$upper, bounds_sd$denom, digits_sd),
       bounds_sd$incl_lower,
       bounds_sd$incl_upper
     )
@@ -394,10 +394,11 @@ debit_explain <- function(
     if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
     sd,
     digits_sd,
-    format_number(rec[[2L]], digits_sd),
-    format_number(rec[[4L]], digits_sd),
-    rec[[3L]],
-    rec[[5L]]
+    # In full, like the mean's bounds; see `grimmer_explain()`:
+    format_product_exact(1, bounds$sd$lower, bounds$sd$denom, digits_sd),
+    format_product_exact(1, bounds$sd$upper, bounds$sd$denom, digits_sd),
+    bounds$sd$incl_lower,
+    bounds$sd$incl_upper
   )
 
   n_dev <- sd_denominator(n, sd_meaning)

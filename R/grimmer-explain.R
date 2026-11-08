@@ -376,8 +376,8 @@ grimmer_explain <- function(
       if (sd_meaning == "se") "SD, taken to be an SE," else "SD",
       sd,
       digits_sd,
-      format_number(sd_bounds$lower / sd_bounds$denom, digits_sd),
-      format_number(sd_bounds$upper / sd_bounds$denom, digits_sd),
+      format_product_exact(1, sd_bounds$lower, sd_bounds$denom, digits_sd),
+      format_product_exact(1, sd_bounds$upper, sd_bounds$denom, digits_sd),
       sd_bounds$incl_lower,
       sd_bounds$incl_upper
     )
@@ -428,8 +428,20 @@ grimmer_explain <- function(
     symmetric = symmetric,
     sd_meaning = sd_meaning
   )
-  sd_lower <- format_number(sd_bounds$lower / sd_bounds$denom, digits_sd)
-  sd_upper <- format_number(sd_bounds$upper / sd_bounds$denom, digits_sd)
+  # In full, like the mean's bounds: a `threshold` with two decimal places
+  # gives bounds with `digits_sd + 3`, which `format_number()` would round:
+  sd_lower <- format_product_exact(
+    1,
+    sd_bounds$lower,
+    sd_bounds$denom,
+    digits_sd
+  )
+  sd_upper <- format_product_exact(
+    1,
+    sd_bounds$upper,
+    sd_bounds$denom,
+    digits_sd
+  )
 
   text_bounds <- describe_reported(
     if (sd_meaning == "se") "SD, taken to be an SE," else "SD",

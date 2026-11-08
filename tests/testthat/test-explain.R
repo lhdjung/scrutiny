@@ -162,6 +162,19 @@ test_that("`grim_explain()` shows its bounds exactly", {
 })
 
 
+test_that("`grimmer_explain()` and `debit_explain()` show the SD's bounds exactly", {
+  # A `threshold` with two decimal places gives bounds with `digits_sd + 3`
+  # places, which were rounded to `digits_sd + 2`: 2.54225 showed as 2.5423.
+  # The text is wrapped, so its whitespace is collapsed first:
+  one_line <- function(x) gsub("\\s+", " ", paste(format(x), collapse = " "))
+  5.23 |> grimmer_explain(2.55, 35, 2, 2, 1, "integer", rounding = "up_from", threshold = 2.25) |> one_line() |> expect_match("from 2.54225 up to, but not including, 2.55225", fixed = TRUE)
+  5.23 |> grimmer_explain(2.55, 35, 2, 2, 1, "integer", rounding = "up_from", threshold = 2.25) |> one_line() |> expect_match("34 * 2.54225^2 + 183^2 / 35", fixed = TRUE)
+  NA   |> grimmer_explain(0.05, 20, 2, 2, 1, "integer", rounding = "up_from", threshold = 2.25) |> one_line() |> expect_match("from 0.04225 up to, but not including, 0.05225", fixed = TRUE)
+  0.35 |> debit_explain(0.49, 20, 2, 2, "integer", rounding = "up_from", threshold = 2.25)      |> one_line() |> expect_match("from 0.48225 up to, but not including, 0.49225", fixed = TRUE)
+  NA   |> debit_explain(0.05, 20, 2, 2, "integer", rounding = "up_from", threshold = 2.25)      |> one_line() |> expect_match("from 0.04225 up to, but not including, 0.05225", fixed = TRUE)
+})
+
+
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("length 1")
 })
