@@ -11,9 +11,10 @@
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, restricted by `check_delim`.
 #' @param check_delim Logical. If `TRUE` (the default), columns whose values
-#'   do not all contain the delimiters are skipped. Missing values and blank
-#'   strings don't count. A column skipped causes a warning if `cols` is
-#'   given, and any column split although it lacks the delimiters does.
+#'   do not all contain the delimiters are skipped. Missing values, blank
+#'   strings, `"NA"`, and `"NaN"` don't count. A column skipped causes a
+#'   warning if `cols` is given, and any column split although it lacks the
+#'   delimiters does, unless it has no values at all.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer
@@ -117,7 +118,7 @@ split_by_parens <- function(
   # re-add the grouping columns, and `across()` would run per group:
   data <- dplyr::ungroup(data)
 
-  # A column qualifies if every non-missing, non-blank value has an opening
+  # A column qualifies if every value that isn't missing has an opening
   # `delim` element followed by a closing one. With no rows, a character column
   # qualifies, so that the output has the same shape as for any other data:
   data_is_empty <- nrow(data) == 0L
@@ -127,8 +128,7 @@ split_by_parens <- function(
         if (data_is_empty) {
           return(is.character(x))
         }
-        x <- x[!is.na(x)]
-        x <- x[!trim_space(as.character(x)) %in% STRINGS_MISSING]
+        x <- x[!is_value_missing(as.character(x))]
         delims <- translate_delim_keywords(delim)
         after_open <- stringr::str_split_fixed(
           x,
@@ -244,23 +244,18 @@ split_by_parens <- function(
     drop_cols_empty(data)
 
   if (length(names_wrong_cols) > 0L) {
-    msg_delims <- message_delim_if_cols_excluded(delim)
-    if (check_delim) {
-      msg_exclusion <- paste0(c("was", "were"), " not split")
-      msg_reason <- paste0("contain the `delim` elements, ", msg_delims)
-      msg_it_they <- c("It doesn't", "They don't")
+    # Under `check_delim = FALSE`, split all the same, so some values may have
+    # been cut in unexpected places:
+    msg_exclusion <- if (check_delim) {
+      paste0(c("was", "were"), " not split")
     } else {
-      # Split all the same, so some values may have been cut in unexpected
-      # places:
-      msg_exclusion <- paste0(c("was", "were"), " split anyway")
-      msg_reason <- paste0("the `delim` elements, ", msg_delims)
-      msg_it_they <- "Not every value has"
+      paste0(c("was", "were"), " split anyway")
     }
     warn_wrong_columns_selected(
       names_wrong_cols,
       msg_exclusion,
-      msg_reason,
-      msg_it_they
+      paste0("the `delim` elements, ", message_delim_if_cols_excluded(delim)),
+      "Not every value has"
     )
   }
 

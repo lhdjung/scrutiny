@@ -133,7 +133,7 @@ proto_split_parens <- function(string, delim = "parens") {
 #' @return String vector as long as `string`, with surrounding whitespace
 #'   removed. If a string has no opening delimiter, `before_parens()` returns
 #'   all of it and `inside_parens()` returns `NA`. A blank part, as of a blank
-#'   string or of empty delimiters, is `NA`, and so is a part `"NA"`.
+#'   string or of empty delimiters, is `NA`, and so is a part `"NA"` or `"NaN"`.
 #'
 #' @name parens-extractors
 #'
@@ -150,7 +150,7 @@ proto_split_parens <- function(string, delim = "parens") {
 before_parens <- function(string, delim = "parens", sep = deprecated()) {
   delim <- use_renamed_arg(sep, delim, "before_parens", "sep", "delim")
   out <- stringr::str_trim(proto_split_parens(string, delim)[, 1L])
-  # A blank part, or `"NA"`, is missing, as in `inside_parens()`:
+  # A blank part, `"NA"`, or `"NaN"` is missing, as in `inside_parens()`:
   out[is_value_missing(out)] <- NA
   out
 }

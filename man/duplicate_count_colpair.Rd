@@ -7,8 +7,8 @@
 duplicate_count_colpair(data, ignore = NULL, show_rates = TRUE)
 }
 \arguments{
-\item{data}{Data frame or matrix with at least two columns. Blank strings and \code{"NA"}
-count as missing.}
+\item{data}{Data frame or matrix with at least two columns. Blank strings,
+\code{"NA"}, and \code{"NaN"} count as missing.}
 
 \item{ignore}{Optionally, a vector of values not to count.}
 

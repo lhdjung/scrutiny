@@ -214,7 +214,7 @@ decimal_places_scalar <- function(x, sep = ".") {
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
 #'   that [`is_numeric_like()`] accepts are processed. A column left out
 #'   causes a warning if `cols` is given, and any column processed although
-#'   it isn't numeric-like does.
+#'   it isn't numeric-like does, unless it has no values at all.
 #' @param sep String. The separator between integer part and mantissa, matched
 #'   literally. Default is `"."`.
 #'
@@ -339,9 +339,22 @@ trim_space <- function(x) {
 }
 
 # Whether each value is missing: `NA`, or a string that is one of
-# `STRINGS_MISSING` once trimmed:
+# `STRINGS_MISSING` once trimmed, or that `as.numeric()` reads as `NaN`. Each
+# distinct string is checked once, which is much faster for the repeated values
+# of a data frame:
 is_value_missing <- function(x) {
-  is.na(x) | (is.character(x) & trim_space(x) %in% STRINGS_MISSING)
+  if (is.factor(x)) {
+    x <- as.character(x)
+  }
+  if (!is.character(x)) {
+    return(is.na(x))
+  }
+  unique_x <- unique(x)
+  trimmed <- trim_space(unique_x)
+  is_missing <- is.na(unique_x) |
+    trimmed %in% STRINGS_MISSING |
+    chartr("AN", "an", trimmed) %in% NAN_TOKENS
+  is_missing[match(x, unique_x)]
 }
 
 # The `*_df()` functions don't warn about a column with no values, such as an

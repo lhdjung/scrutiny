@@ -1143,8 +1143,13 @@ test_that("a matrix keeps its column names", {
   m <- as.matrix(pigs4[1:3, ])
   m |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency", "locations", "locations_n"))
   m |> duplicate_count() |> dplyr::pull(locations) |> expect_match("snout|tail|wings")
-  # Without names, there are no locations to name, as for an unnamed vector:
-  m |> unname() |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
+  # Without names, the columns are `col1` etc., as in the other `duplicate_*()`
+  # functions, even a single one:
+  m |> unname() |> duplicate_count() |> dplyr::pull(locations) |> expect_match("col1|col2|col3")
+  matrix(c(1, 1, 2)) |> duplicate_tally() |> colnames() |> expect_equal(c("col1", "col1_n"))
+  matrix(c(1, 1, 2)) |> duplicate_count() |> dplyr::pull(locations) |> expect_equal(c("col1", "col1"))
+  # The string `"NaN"` is missing, as `NaN` is:
+  c("NaN", " nan ", "1", "1") |> duplicate_count() |> nrow() |> expect_equal(1L)
   # Names that a list couldn't have are treated as in a list:
   m2 <- matrix(c(1, 2, 1, 3), 2)
   m2 |> `colnames<-`(c("a", "a")) |> duplicate_count() |> expect_error("unique names")

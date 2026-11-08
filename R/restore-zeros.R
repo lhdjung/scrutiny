@@ -41,7 +41,8 @@
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
 #'   that [`is_numeric_like()`] accepts are processed. A column left out
 #'   causes a warning if `cols` is given, and any column processed although
-#'   it isn't numeric-like does. Only in `restore_zeros_df()`.
+#'   it isn't numeric-like does, unless it has no values at all. Only in
+#'   `restore_zeros_df()`.
 #' @param check_decimals Logical. If `TRUE`, columns without any decimal places
 #'   are skipped. Default is `FALSE`. Only in `restore_zeros_df()`.
 #'

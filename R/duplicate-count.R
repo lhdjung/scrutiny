@@ -10,7 +10,7 @@
 #'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param x Vector, matrix, or data frame. Missing values are not counted, nor are
-#'   blank strings and `"NA"`, which count as missing.
+#'   blank strings, `"NA"`, and `"NaN"`, which count as missing.
 #' @param ignore Optionally, a vector of values not to count.
 #' @param locations_type String. `"character"` (the default) pastes the column
 #'   names in `locations` into one string; `"list"` keeps them as a vector per
@@ -101,7 +101,7 @@ duplicate_count <- function(
       dplyr::mutate("name" = as.factor(.data$name))
   }
 
-  # Blank strings and `"NA"` are missing, as everywhere in scrutiny:
+  # Blank strings, `"NA"`, and `"NaN"` are missing, as everywhere in scrutiny:
   is_missing <- is_value_missing(as.character(x$value))
   if (!is.null(ignore)) {
     is_missing <- is_missing | x$value %in% value_to_string(ignore)
@@ -169,16 +169,21 @@ value_to_factor <- function(x) {
 # A matrix's column names are its `colnames()`, which `rlang::is_named()`
 # doesn't see. As a list of columns, it gets the checks and the names of a list:
 # repeated names are an error, and missing or blank ones fall back to `col1`
-# etc. Without names, it is a list of unnamed columns, as a matrix was before:
+# etc. A matrix without names gets `col1` etc. right away, as it did before it
+# was converted, so that a single column isn't taken for a vector:
 matrix_to_cols <- function(x) {
   if (!is.matrix(x)) {
     return(x)
+  }
+  names <- colnames(x)
+  if (is.null(names)) {
+    names <- paste0("col", seq_len(ncol(x)))
   }
   x |>
     ncol() |>
     seq_len() |>
     lapply(function(j) x[, j]) |>
-    stats::setNames(colnames(x))
+    stats::setNames(names)
 }
 
 

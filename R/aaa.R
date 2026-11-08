@@ -71,6 +71,10 @@ NON_FINITE_TOKENS <- c(outer(
   paste0
 ))
 
+# The ones among them for `NaN`, which is a missing value everywhere in
+# scrutiny; see `is_value_missing()`:
+NAN_TOKENS <- c("nan", "+nan", "-nan")
+
 
 # Placeholder data for `grim_plot_grid()`'s tile layer when there is no
 # raster, as with `digits > 2`:

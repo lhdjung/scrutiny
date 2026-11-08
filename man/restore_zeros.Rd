@@ -53,7 +53,8 @@ Default is \code{everything()}, restricted by \code{check_numeric_like}. Only in
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
 that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
 causes a warning if \code{cols} is given, and any column processed although
-it isn't numeric-like does. Only in \code{restore_zeros_df()}.}
+it isn't numeric-like does, unless it has no values at all. Only in
+\code{restore_zeros_df()}.}
 
 \item{check_decimals}{Logical. If \code{TRUE}, columns without any decimal places
 are skipped. Default is \code{FALSE}. Only in \code{restore_zeros_df()}.}

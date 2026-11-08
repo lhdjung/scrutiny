@@ -25,9 +25,10 @@ split_by_parens(
 Default is \code{everything()}, restricted by \code{check_delim}.}
 
 \item{check_delim}{Logical. If \code{TRUE} (the default), columns whose values
-do not all contain the delimiters are skipped. Missing values and blank
-strings don't count. A column skipped causes a warning if \code{cols} is
-given, and any column split although it lacks the delimiters does.}
+do not all contain the delimiters are skipped. Missing values, blank
+strings, \code{"NA"}, and \code{"NaN"} don't count. A column skipped causes a
+warning if \code{cols} is given, and any column split although it lacks the
+delimiters does, unless it has no values at all.}
 
 \item{keep}{Logical. Should the original columns be kept? Default is
 \code{FALSE}.}

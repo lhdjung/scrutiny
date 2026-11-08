@@ -14,7 +14,8 @@
 #'   So `1` and `"1"` are duplicates, but `2` and `"2.0"` are not. Numbers
 #'   lose trailing zeros when converted: `2.0` becomes `"2"`.
 #'
-#' @param x Vector, matrix, or data frame. Blank strings and `"NA"` count as missing.
+#' @param x Vector, matrix, or data frame. Blank strings, `"NA"`, and
+#'   `"NaN"` count as missing.
 #' @param ignore Optionally, a vector of values not to check. Their tally is
 #'   `NA`, as is that of missing values.
 #' @param colname_end String. Suffix of the tally columns. Default is `"n"`.
@@ -97,8 +98,8 @@ duplicate_tally <- function(x, ignore = NULL, colname_end = "n") {
   first_of_kind <- match(x, x)
   new_cols <- tabulate(first_of_kind, nbins = length(x))[first_of_kind]
 
-  # Whether a missing value has duplicates is unknown. Blank strings and `"NA"`
-  # are missing, as everywhere in scrutiny:
+  # Whether a missing value has duplicates is unknown. Blank strings, `"NA"`,
+  # and `"NaN"` are missing, as everywhere in scrutiny:
   if (is.null(ignore)) {
     new_cols[is_value_missing(x)] <- NA
   } else {
