@@ -175,6 +175,23 @@ test_that("`grimmer_explain()` and `debit_explain()` show the SD's bounds exactl
 })
 
 
+test_that("`grimmer_explain()` leaves out what the verdict doesn't depend on", {
+  one_line <- function(x) gsub("\\s+", " ", paste(format(x), collapse = " "))
+  # A negative SD fails whatever its decimal places, so a missing `digits_sd`
+  # is not what decides the case:
+  out <- 5 |> grimmer_explain(-1, 20, 0, NA, 1, "integer") |> one_line()
+  out |> expect_match("no data set has a negative SD", fixed = TRUE)
+  out |> expect_no_match("digits_sd is missing", fixed = TRUE)
+  # A mean that fails GRIM ends the test before the SD is looked at, under
+  # either premise about the SD:
+  out <- 5.19 |> grimmer_explain(1.2, 30, 2, 1, 1, "integer", sd_meaning = "sd_sample_or_pop") |> one_line()
+  out |> expect_match("the SD doesn't need to be checked", fixed = TRUE)
+  out |> expect_no_match("The same holds for it", fixed = TRUE)
+  # ...but with `x` missing, the SD was checked under both:
+  NA |> grimmer_explain(0.05, 20, 2, 2, 1, "integer", sd_meaning = "sd_sample_or_pop") |> one_line() |> expect_match("The same holds for it", fixed = TRUE)
+})
+
+
 test_that("only a single case is explained", {
   c(5.19, 5.2) |> grim_explain(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("length 1")
 })

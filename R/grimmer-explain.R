@@ -93,7 +93,8 @@ grimmer_explain <- function(
   )
   consistency <- result[[1L]]
 
-  # Inconsistent although a decimal count is missing: see `digits_least()`.
+  # Inconsistent although a decimal count is missing: see `digits_least()`. Not
+  # for a negative SD, which no data set has, whatever its decimal places:
   digits_missing <- c(
     if (is.na(digits_x) && !is.na(digits_least(x, digits_x))) "digits_x",
     if (is.na(digits_sd) && !is.na(digits_least(sd, digits_sd))) "digits_sd"
@@ -101,7 +102,8 @@ grimmer_explain <- function(
   if (
     identical(data_type, "integer") &&
       isFALSE(consistency) &&
-      length(digits_missing) > 0L
+      length(digits_missing) > 0L &&
+      result[[2L]] != "Negative SD"
   ) {
     return(explain_digits_least(
       grimmer_explain(
@@ -243,7 +245,12 @@ grimmer_explain <- function(
         sd_meaning = sd_meaning
       )
     }
-    return(explain_sd_sample_or_pop(explain_type, consistency, n))
+    return(explain_sd_sample_or_pop(
+      explain_type,
+      consistency,
+      n,
+      grim_failed = result[[2L]] == "GRIM inconsistent"
+    ))
   }
 
   # Decided although `n` or `items_averaged` is missing: see
