@@ -221,3 +221,11 @@ test_that("a column with no values to check has an `NA` rate, not `NaN`", {
   tibble::tibble(a = c(1, 1), b = c(1, 1))        |> duplicate_count_colpair(ignore = 1) |> _$rate_x |> expect_equal(NA_real_)
   tibble::tibble(a = c(1, 1), b = c(1, 1))        |> duplicate_count_colpair(ignore = 1) |> _$rate_y |> expect_equal(NA_real_)
 })
+
+
+test_that("a matrix is taken as its columns", {
+  m <- matrix(c(1, 2, 1, 3), 2, dimnames = list(NULL, c("a", "b")))
+  m          |> duplicate_count_colpair() |> dplyr::select(x, y, count) |> expect_equal(tibble::tibble(x = "a",    y = "b",    count = 1L), ignore_attr = TRUE)
+  m |> unname() |> duplicate_count_colpair() |> dplyr::select(x, y, count) |> expect_equal(tibble::tibble(x = "col1", y = "col2", count = 1L), ignore_attr = TRUE)
+  m |> as.vector() |> duplicate_count_colpair() |> expect_error("data frame or a matrix")
+})

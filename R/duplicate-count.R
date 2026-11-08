@@ -169,9 +169,9 @@ value_to_factor <- function(x) {
 # A matrix's column names are its `colnames()`, which `rlang::is_named()`
 # doesn't see. As a list of columns, it gets the checks and the names of a list:
 # repeated names are an error, and missing or blank ones fall back to `col1`
-# etc.
+# etc. Without names, it is a list of unnamed columns, as a matrix was before:
 matrix_to_cols <- function(x) {
-  if (!is.matrix(x) || is.null(colnames(x))) {
+  if (!is.matrix(x)) {
     return(x)
   }
   x |>
@@ -256,7 +256,7 @@ check_atomic_cols <- function(x, name) {
 # `duplicate_count_colpair()`:
 check_unique_names <- function(x, name) {
   names_x <- names(x)
-  repeated <- unique(names_x[duplicated(names_x) & names_x != ""])
+  repeated <- unique(names_x[duplicated(names_x) & !names_x %in% c("", NA)])
   if (length(repeated) > 0L) {
     abort_in_export(
       "The columns of `{name}` must have unique names.",

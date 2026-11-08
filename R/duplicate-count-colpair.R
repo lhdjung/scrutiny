@@ -4,7 +4,7 @@
 #' frame, the values that occur in both. Results are ordered by that count,
 #' in descending order.
 #'
-#' @param data Data frame with at least two columns. Blank strings and `"NA"`
+#' @param data Data frame or matrix with at least two columns. Blank strings and `"NA"`
 #'   count as missing.
 #' @param ignore Optionally, a vector of values not to count.
 #' @param show_rates Logical. If `TRUE` (the default), add `total_x`,
@@ -44,8 +44,11 @@
 
 duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
   check_flag(show_rates)
-  if (!is.data.frame(data)) {
-    abort_in_export("`data` must be a data frame.")
+  # A matrix is taken as its columns, as in `duplicate_count()`:
+  if (is.matrix(data)) {
+    data <- matrix_to_cols(data)
+  } else if (!is.data.frame(data)) {
+    abort_in_export("`data` must be a data frame or a matrix.")
   }
   check_unique_names(data, "data")
   check_atomic_cols(data, "data")
