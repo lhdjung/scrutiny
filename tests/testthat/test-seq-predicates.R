@@ -424,3 +424,8 @@ test_that("a missing value between an infinity and the end can't make a sequence
   c(1, NA, Inf)        |> is_seq_ascending(test_linear = FALSE) |> expect_na()
   c(-Inf, NA, Inf)     |> is_seq_ascending()                    |> expect_false()
 })
+
+
+test_that("`is_seq_dispersed()` says that `from` is required", {
+  1:3 |> is_seq_dispersed() |> expect_error("Need to specify `from`", fixed = TRUE)
+})

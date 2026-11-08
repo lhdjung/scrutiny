@@ -1130,3 +1130,10 @@ test_that("`duplicate_count_colpair()` names unnamed columns by position", {
   out$y     |> expect_equal("col2")
   out$count |> expect_equal(1L)
 })
+
+
+test_that("raw bytes are an error, not a crash inside dplyr", {
+  as.raw(c(1, 1))                        |> duplicate_count()         |> expect_error("raw bytes")
+  tibble::tibble(a = as.raw(c(1, 1)))    |> duplicate_count()         |> expect_error("raw bytes")
+  tibble::tibble(a = as.raw(c(1, 1)))    |> duplicate_tally()         |> expect_error("raw bytes")
+})

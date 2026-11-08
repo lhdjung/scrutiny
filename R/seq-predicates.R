@@ -400,6 +400,12 @@ is_seq_dispersed <- function(
   tolerance = .Machine$double.eps^0.5
 ) {
   check_seq_type(x, "x")
+  if (missing(from)) {
+    abort_in_export(
+      "Need to specify {.arg from}.",
+      "i" = "It is the value that `x` would be dispersed around."
+    )
+  }
   check_length(from, 1L)
   check_seq_type(from, "from")
 

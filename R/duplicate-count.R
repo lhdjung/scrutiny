@@ -174,6 +174,18 @@ check_duplicate_input <- function(x) {
       "x" = "It is {.obj_type_friendly {x}}."
     )
   }
+  # Raw bytes have no order, and `sort()` fails on them:
+  is_raw <- if (is.list(x)) {
+    vapply(x, is.raw, logical(1L), USE.NAMES = FALSE)
+  } else {
+    is.raw(x)
+  }
+  if (any(is_raw)) {
+    abort_in_export(
+      "`x` must not contain raw bytes.",
+      "i" = "Convert them with `as.integer()` or `as.character()` first."
+    )
+  }
   if (!is.list(x)) {
     return(invisible(NULL))
   }
