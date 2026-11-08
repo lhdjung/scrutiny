@@ -761,13 +761,21 @@ grim_plot <- function(
     rounding = rounding,
     tile_size = tile_size
   )
-  if (!is.null(digits)) {
-    args$digits_x <- digits
+  # The old names are passed on as the new ones, which the dots may not also
+  # give:
+  dots <- list(...)
+  renames <- list(digits_x = digits, color_raster = raster_color)
+  names_old <- c(digits_x = "digits", color_raster = "raster_color")
+  for (new in names(renames)) {
+    if (is.null(renames[[new]])) {
+      next
+    }
+    if (new %in% names(dots)) {
+      abort_renamed_both(names_old[[new]], new)
+    }
+    args[[new]] <- renames[[new]]
   }
-  if (!is.null(raster_color)) {
-    args$color_raster <- raster_color
-  }
-  do.call(grim_plot_grid, c(args, list(...)))
+  do.call(grim_plot_grid, c(args, dots))
 }
 
 

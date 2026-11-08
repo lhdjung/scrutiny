@@ -307,6 +307,9 @@ test_that("`grim_plot()` is a deprecated alias of `grim_plot_grid()`", {
   expected <- data |> grim_plot_grid(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L)
   data |> grim_plot(digits = 2, raster_color = "red")   |> ggplot2::layer_data(1L) |> expect_equal(expected)
   data |> grim_plot(digits_x = 2, color_raster = "red") |> ggplot2::layer_data(1L) |> expect_equal(expected)
+  # Not both at once:
+  data |> grim_plot(digits = 2, digits_x = 2)                |> expect_error("`digits` and `digits_x` can't both be given")
+  data |> grim_plot(raster_color = "red", color_raster = "red") |> expect_error("`raster_color` and `color_raster` can't both be given")
   # By position, as in scrutiny 0.6.1, where `n` came fifth:
   expected <- data |> grim_plot_grid(n = 40) |> ggplot2::layer_data(1L)
   data |> grim_plot(TRUE, TRUE, TRUE, 40) |> ggplot2::layer_data(1L) |> expect_equal(expected)
