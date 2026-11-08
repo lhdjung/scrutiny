@@ -41,7 +41,7 @@ which is two more: \code{grim_grid(2)} for whole percentages, as in
 
 Grids for one or two decimal places are precomputed for every rounding
 method that has no \code{threshold}. All others are computed on demand, which
-takes about 20 seconds for three decimal places. Four or more would mean a
+takes some 20 to 30 seconds for three decimal places. Four or more would mean a
 grid of 100 million cells, so \code{digits_x} is at most 3.
 }
 \examples{

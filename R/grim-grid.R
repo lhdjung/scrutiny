@@ -19,7 +19,7 @@
 #'
 #'   Grids for one or two decimal places are precomputed for every rounding
 #'   method that has no `threshold`. All others are computed on demand, which
-#'   takes about 20 seconds for three decimal places. Four or more would mean a
+#'   takes some 20 to 30 seconds for three decimal places. Four or more would mean a
 #'   grid of 100 million cells, so `digits_x` is at most 3.
 #'
 #' @param digits_x Integer. Number of decimal places, from 1 to 3.
@@ -119,7 +119,7 @@ grim_grid_inconsistent <- function(digits, rounding, threshold) {
   grid <- GRIM_GRIDS[[paste(digits, rounding, sep = "_")]]
 
   # Not cached: three decimal places, or the `"up_from"` family. The former
-  # takes about 20 seconds.
+  # takes some 20 to 30 seconds.
   if (is.null(grid)) {
     generate_grim_grid(digits, rounding, threshold)
   } else {
