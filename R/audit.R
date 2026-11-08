@@ -262,14 +262,7 @@ audit.scrutiny_map_seq <- function(data, ...) {
     abort_lost_settings()
   }
 
-  # Case numbers made strings or a factor, as for a plot, are numbers again,
-  # which `sort()` and `split()` would otherwise order as 1, 10, 2:
-  if (!is.numeric(data$case)) {
-    case_number <- suppressWarnings(as.integer(as.character(data$case)))
-    if (!anyNA(case_number)) {
-      data$case <- case_number
-    }
-  }
+  data$case <- case_as_number(data$case)
 
   # One row per case, in the order of `case`, as `split()` below has it:
   data_rev <- reverse_map_seq(data)
@@ -385,6 +378,7 @@ audit.scrutiny_map_total_n <- function(data, ...) {
 
   check_cols_needed(data, c("n", "n_change", "case", "dir", "both_consistent"))
 
+  data$case <- case_as_number(data$case)
   df_list <- split(data, data$case)
   cases <- as.integer(names(df_list))
 
@@ -484,6 +478,19 @@ audit_seq <- function(data) {
 audit_total_n <- function(data) {
   lifecycle::deprecate_warn("1.0.0", "audit_total_n()", "audit()")
   audit.scrutiny_map_total_n(data)
+}
+
+
+# Case numbers made strings or a factor, as for a plot, as numbers again, which
+# `sort()`, `split()`, and `group_by()` would otherwise order as 1, 10, 2.
+# Anything that is no case number is left as it is, for `rows_removed_by()` to
+# report:
+case_as_number <- function(case) {
+  if (is.numeric(case)) {
+    return(case)
+  }
+  case_number <- suppressWarnings(as.integer(as.character(case)))
+  if (anyNA(case_number)) case else case_number
 }
 
 

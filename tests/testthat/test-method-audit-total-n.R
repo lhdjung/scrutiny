@@ -129,3 +129,16 @@ test_that("a total beyond the integer range stays as it is", {
     expect_no_warning()
   out$n |> expect_equal(3e9)
 })
+
+
+test_that("`audit()` and `reverse_map_total_n()` order string or factor cases as numbers", {
+  # 12 cases, so that a string order would be 1, 10, 11, 12, 2, ...:
+  dft <- tibble::tibble(x1 = rep(c(3.43, 2.97, 4.11), 4), x2 = rep(c(5.28, 4.42, 1.05), 4), n = 90:101)
+  out <- dft |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = 0:2)
+  out_chr <- out |> dplyr::mutate(case = as.character(case))
+  out_fct <- out |> dplyr::mutate(case = factor(case, levels = rev(unique(case))))
+  out_chr |> audit()               |> expect_equal(audit(out))
+  out_fct |> audit()               |> expect_equal(audit(out))
+  out_chr |> reverse_map_total_n() |> expect_equal(reverse_map_total_n(out))
+  out_fct |> reverse_map_total_n() |> expect_equal(reverse_map_total_n(out))
+})

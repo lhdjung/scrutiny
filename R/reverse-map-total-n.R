@@ -46,6 +46,9 @@ reverse_map_total_n <- function(data) {
 
   check_cols_needed(data, c(colnames_reported, "n", "n_change", "case", "dir"))
 
+  # So that the cases come out in the order 1, 2, ..., 10, not 1, 10, 2:
+  data$case <- case_as_number(data$case)
+
   # The group sizes come in pairs: consecutive rows of the same case and
   # direction with the same absolute `n_change`. All pairs of a case add up to
   # the same total. Removed or reordered rows break this, and taking the first
