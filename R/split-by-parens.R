@@ -12,7 +12,8 @@
 #'   Default is `everything()`, restricted by `check_delim`.
 #' @param check_delim Logical. If `TRUE` (the default), columns whose values
 #'   do not all contain the delimiters are skipped. Missing values and blank
-#'   strings don't count.
+#'   strings don't count. A column skipped causes a warning if `cols` names
+#'   it, and any column split although it lacks the delimiters does.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer
@@ -225,13 +226,18 @@ split_by_parens <- function(
 
   # Warn about selected columns without the `delim` elements: depending on
   # `check_delim`, they were either skipped or split in a way likely not
-  # intended. Only the columns that `cols` selected are worth a warning, as in
-  # `decimal_places_df()`:
-  names_selected <- names(tidyselect::eval_select(
-    rlang::expr({{ cols }}),
-    data,
-    allow_rename = FALSE
-  ))
+  # intended. A skipped column is only worth a warning if `cols` named it, as
+  # in `decimal_places_df()`: under the default, a label or `n` column is
+  # nothing to report. A column split anyway always is:
+  names_selected <- if (check_delim && missing(cols)) {
+    character()
+  } else {
+    names(tidyselect::eval_select(
+      rlang::expr({{ cols }}),
+      data,
+      allow_rename = FALSE
+    ))
+  }
 
   names_wrong_cols <-
     names_selected[!names_selected %in% names_of_cols_with_delims]

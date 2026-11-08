@@ -26,7 +26,8 @@ Default is \code{everything()}, restricted by \code{check_delim}.}
 
 \item{check_delim}{Logical. If \code{TRUE} (the default), columns whose values
 do not all contain the delimiters are skipped. Missing values and blank
-strings don't count.}
+strings don't count. A column skipped causes a warning if \code{cols} names
+it, and any column split although it lacks the delimiters does.}
 
 \item{keep}{Logical. Should the original columns be kept? Default is
 \code{FALSE}.}

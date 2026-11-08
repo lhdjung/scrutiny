@@ -246,6 +246,8 @@ test_that("`restore_zeros_df()` warns about a selected column that isn't numeric
   # Not under the default, where a column of labels is nothing to report:
   df   |> restore_zeros_df() |> expect_no_warning()
   iris |> restore_zeros_df() |> expect_no_warning()
+  # But a column whose values were replaced always is:
+  df |> restore_zeros_df(check_numeric_like = FALSE) |> expect_warning("had its non-numeric values replaced", fixed = TRUE) |> expect_warning("Values that are not numbers")
   df |> restore_zeros_df(a) |> suppressWarnings() |> expect_equal(df)
 })
 

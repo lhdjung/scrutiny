@@ -19,7 +19,9 @@ decimal_places_df(
 Default is \code{everything()}, restricted by \code{check_numeric_like}.}
 
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
-that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed.}
+that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
+causes a warning if \code{cols} names it, and any column processed although
+it isn't numeric-like does.}
 
 \item{sep}{String. The separator between integer part and mantissa, matched
 literally. Default is \code{"."}.}
@@ -38,7 +40,7 @@ iris <- iris |>
   tibble::as_tibble() |>
   dplyr::mutate(across(everything(), as.character))
 
-# All numeric-like columns, but not `Species`:
+# All numeric-like columns, silently leaving out `Species`:
 iris |>
   decimal_places_df()
 

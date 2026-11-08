@@ -150,7 +150,8 @@ test_that("", {
 })
 
 test_that("`decimal_places_df()` throws a warning if and only if it should", {
-  iris |> decimal_places_df() |> expect_warning()
+  iris |> decimal_places_df() |> expect_no_warning()
+  iris |> decimal_places_df(cols = everything()) |> expect_warning("excluded")
   iris |> dplyr::select(1:4) |> decimal_places_df() |> expect_no_warning()
   iris |> decimal_places_df(check_numeric_like = FALSE) |> expect_warning()
   iris |> dplyr::select(1:4) |> decimal_places_df(check_numeric_like = FALSE) |> expect_no_warning()

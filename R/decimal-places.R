@@ -212,7 +212,9 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, restricted by `check_numeric_like`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
-#'   that [`is_numeric_like()`] accepts are processed.
+#'   that [`is_numeric_like()`] accepts are processed. A column left out
+#'   causes a warning if `cols` names it, and any column processed although
+#'   it isn't numeric-like does.
 #' @param sep String. The separator between integer part and mantissa, matched
 #'   literally. Default is `"."`.
 #'
@@ -228,7 +230,7 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'   tibble::as_tibble() |>
 #'   dplyr::mutate(across(everything(), as.character))
 #'
-#' # All numeric-like columns, but not `Species`:
+#' # All numeric-like columns, silently leaving out `Species`:
 #' iris |>
 #'   decimal_places_df()
 #'
@@ -256,7 +258,6 @@ decimal_places_df <- function(
     tidyselect::eval_select(data, allow_rename = FALSE) |>
     names()
 
-  # Only columns that `cols` selected are worth a warning:
   is_numeric_like_selected <- vapply(
     data[names_selected],
     is_numeric_like_col,
@@ -264,11 +265,20 @@ decimal_places_df <- function(
     sep = sep_literal_value
   )
   names_wrong_cols <- names_selected[!is_numeric_like_selected]
+  if (check_numeric_like) {
+    names_selected <- names_selected[is_numeric_like_selected]
+  }
+
+  # A skipped column is only worth a warning if `cols` named it: under the
+  # default, a study-name column next to the numbers is nothing to report, as
+  # in `restore_zeros_df()`. A column counted anyway always is:
+  if (check_numeric_like && missing(cols)) {
+    names_wrong_cols <- character()
+  }
 
   if (length(names_wrong_cols) > 0L) {
     if (check_numeric_like) {
       msg_exclusion <- paste0(c("was", "were"), " excluded")
-      names_selected <- names_selected[is_numeric_like_selected]
     } else {
       msg_exclusion <- c(
         "had its decimal places counted anyway",

@@ -39,8 +39,9 @@
 #'   Default is `everything()`, restricted by `check_numeric_like`. Only in
 #'   `restore_zeros_df()`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
-#'   that [`is_numeric_like()`] accepts are processed. Only in
-#'   `restore_zeros_df()`.
+#'   that [`is_numeric_like()`] accepts are processed. A column left out
+#'   causes a warning if `cols` names it, and any column processed although
+#'   it isn't numeric-like does. Only in `restore_zeros_df()`.
 #' @param check_decimals Logical. If `TRUE`, columns without any decimal places
 #'   are skipped. Default is `FALSE`. Only in `restore_zeros_df()`.
 #'
@@ -254,10 +255,11 @@ restore_zeros_df <- function(
   )
 
   # Columns that `cols` selected but that aren't numeric-like: skipped under
-  # `check_numeric_like = TRUE`, else their non-numeric values become `NA`.
-  # Either way, only columns named by `cols` are worth a warning: under the
-  # default, a study-name column next to the numbers is nothing to report.
-  names_selected <- if (missing(cols)) {
+  # `check_numeric_like = TRUE`, else their non-numeric values become `NA`. A
+  # skipped column is only worth a warning if `cols` named it: under the
+  # default, a study-name column next to the numbers is nothing to report. A
+  # column whose values were replaced always is:
+  names_selected <- if (check_numeric_like && missing(cols)) {
     character()
   } else {
     names(tidyselect::eval_select(

@@ -90,7 +90,8 @@ test_that("using the dots, `...`, is an error", {
 pigs_wider <- pigs |> dplyr::mutate(letters = letters[1:4])
 
 test_that("non-`delim` columns are handled correctly with `check_delim = TRUE` (the default)", {
-  pigs_wider |> split_by_parens() |> ncol() |> expect_equal(5L) |> expect_warning()
+  pigs_wider |> split_by_parens()                     |> ncol() |> expect_equal(5L) |> expect_silent()
+  pigs_wider |> split_by_parens(cols = everything()) |> ncol() |> expect_equal(5L) |> expect_warning("not split")
 })
 
 test_that("non-`delim` columns are handled correctly with `check_delim = FALSE", {
@@ -120,9 +121,9 @@ test_that("uneven delimiters, `NA`s, and column names ending on `end2` work", {
 test_that("the warning names the delimiters for every spelling of `delim`", {
   data <- tibble::tibble(a = c("1 (2)", "3 (4)"), b = c("x", "y"))
   for (delim in list("parens", "(", "\\(")) {
-    data |> split_by_parens(delim = delim) |> expect_warning("i.e., parentheses")
+    data |> split_by_parens(b, delim = delim) |> expect_warning("i.e., parentheses")
   }
-  data |> split_by_parens(delim = c("<", ">")) |> expect_warning('"<" and ">"')
+  data |> split_by_parens(b, delim = c("<", ">")) |> expect_warning('"<" and ">"')
 })
 
 
@@ -212,8 +213,8 @@ test_that("`cols` can't rename columns in the `*_df()` functions", {
 test_that("a column named `_` is no name clash", {
   # With no column to split, `paste0()` made the new name `"_"`:
   data <- tibble::tibble("_" = c("a", "b"))
-  data |> split_by_parens() |> expect_warning("not split")
-  data |> split_by_parens() |> suppressWarnings() |> colnames() |> expect_equal("_")
+  data |> split_by_parens(cols = everything()) |> expect_warning("not split")
+  data |> split_by_parens() |> colnames() |> expect_equal("_")
 })
 
 
@@ -256,7 +257,8 @@ test_that("`split_by_parens(check_delim = FALSE)` says a column was split anyway
   df <- tibble::tibble(a = c("1 (2", "3 (4)"))
   df |> split_by_parens(check_delim = FALSE) |> expect_warning("1 column was split anyway: `a`", fixed = TRUE)
   df |> split_by_parens(check_delim = FALSE) |> expect_warning("Not every value has the `delim` elements", fixed = TRUE)
-  df |> split_by_parens()                    |> expect_warning("1 column was not split: `a`", fixed = TRUE)
+  df |> split_by_parens(a)                   |> expect_warning("1 column was not split: `a`", fixed = TRUE)
+  df |> split_by_parens()                    |> expect_silent()
 })
 
 

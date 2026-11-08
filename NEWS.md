@@ -168,7 +168,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 ### Other
 
-- `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows or columns, only warns about unsplit columns that `cols` selected, and keeps the column order with `transform = TRUE`.
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows or columns, only warns about unsplit columns that `cols` named, but always about columns split under `check_delim = FALSE`, and keeps the column order with `transform = TRUE`.
 
 - `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD".
 
@@ -191,6 +191,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 - `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, reads a number next to a non-breaking space, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them. A blank string, as `read.csv()` leaves in a character column, is missing too: `restore_zeros_df()` used to skip a column with a blank cell without a word. `decimal_places()` gives it `NA` decimal places, not 0, and `restore_zeros()` makes it `NA` without a warning.
 
 - `decimal_places_df()` and `split_by_parens()` take a matrix, as `restore_zeros_df()` does, and name the function for vectors when given one.
+
+- `decimal_places_df()` and `restore_zeros_df()` warn about a column that isn't numeric-like if `cols` named it, not under the default, and always if it was processed under `check_numeric_like = FALSE`.
 
 - A column named like an argument, such as `sep` or `width`, no longer replaces that argument in `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()`. `seq_disperse_df()` finds a caller's variable named `x` or `diff_var`. The `is_seq_*()` functions test integers as doubles, so that their differences don't overflow.
 
