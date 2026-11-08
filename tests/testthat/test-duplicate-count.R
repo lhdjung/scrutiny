@@ -1151,3 +1151,10 @@ test_that("a matrix keeps its column names", {
   m2 |> `colnames<-`(c("a", NA))  |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
   m2 |> `colnames<-`(c("a", ""))  |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
 })
+
+
+test_that("blank strings and `\"NA\"` are missing in all `duplicate_*()` functions", {
+  c("", " ", "NA", NA, "5", "5") |> duplicate_count() |> expect_equal(tibble::tibble(value = "5", frequency = 2L), ignore_attr = TRUE)
+  c("", "NA", "5", "5")          |> duplicate_tally() |> _$value_n |> expect_equal(c(NA, NA, 2L, 2L))
+  tibble::tibble(a = c("", "1"), b = c("", "1")) |> duplicate_count_colpair() |> _$count |> expect_equal(1L)
+})

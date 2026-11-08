@@ -337,6 +337,12 @@ trim_space <- function(x) {
   gsub("^[\\s\\p{Z}]+|[\\s\\p{Z}]+$", "", x, perl = TRUE)
 }
 
+# Whether each value is missing: `NA`, or a string that is one of
+# `STRINGS_MISSING` once trimmed:
+is_value_missing <- function(x) {
+  is.na(x) | (is.character(x) & trim_space(x) %in% STRINGS_MISSING)
+}
+
 # The strings `as.numeric()` reads as an infinity or `NaN`, in any letter case.
 # `chartr()` folds the ASCII letters of these tokens and nothing else, so unlike
 # `tolower()` it does not depend on the locale. A number too large for a double,

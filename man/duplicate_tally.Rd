@@ -7,7 +7,7 @@
 duplicate_tally(x, ignore = NULL, colname_end = "n")
 }
 \arguments{
-\item{x}{Vector or data frame.}
+\item{x}{Vector or data frame. Blank strings and \code{"NA"} count as missing.}
 
 \item{ignore}{Optionally, a vector of values not to check. Their tally is
 \code{NA}, as is that of missing values.}

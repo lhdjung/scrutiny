@@ -9,7 +9,8 @@
 #'
 #'   Call [`audit()`] on the output for summary statistics.
 #'
-#' @param x Vector or data frame.
+#' @param x Vector or data frame. Missing values are not counted, nor are
+#'   blank strings and `"NA"`, which count as missing.
 #' @param ignore Optionally, a vector of values not to count.
 #' @param locations_type String. `"character"` (the default) pastes the column
 #'   names in `locations` into one string; `"list"` keeps them as a vector per
@@ -100,15 +101,12 @@ duplicate_count <- function(
       dplyr::mutate("name" = as.factor(.data$name))
   }
 
-  if (is.null(ignore)) {
-    x <- x |>
-      dplyr::filter(!is.na(.data$value))
-  } else {
-    x <- x |>
-      dplyr::filter(
-        !is.na(.data$value) & !.data$value %in% value_to_string(ignore)
-      )
+  # Blank strings and `"NA"` are missing, as everywhere in scrutiny:
+  is_missing <- is_value_missing(as.character(x$value))
+  if (!is.null(ignore)) {
+    is_missing <- is_missing | x$value %in% value_to_string(ignore)
   }
+  x <- x[!is_missing, ]
 
   # `tibble::as_tibble()` can't convert a table with no values, so the columns
   # are built by hand. `table()` counts every level of a factor, including

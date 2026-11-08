@@ -4,7 +4,8 @@
 #' frame, the values that occur in both. Results are ordered by that count,
 #' in descending order.
 #'
-#' @param data Data frame with at least two columns.
+#' @param data Data frame with at least two columns. Blank strings and `"NA"`
+#'   count as missing.
 #' @param ignore Optionally, a vector of values not to count.
 #' @param show_rates Logical. If `TRUE` (the default), add `total_x`,
 #'   `total_y`, `rate_x`, and `rate_y`; see *Value*. `FALSE` is faster.
@@ -68,8 +69,12 @@ duplicate_count_colpair <- function(data, ignore = NULL, show_rates = TRUE) {
 
   # Values are compared as strings, as in the other `duplicate_*()` functions,
   # so that `0.1 + 0.2` duplicates `0.3` here as it does there:
+  # Blank strings and `"NA"` are missing, as everywhere in scrutiny:
   values <- data |>
-    lapply(function(x) value_to_string(x[!is.na(x)]))
+    lapply(function(x) {
+      x <- value_to_string(x)
+      x[!is_value_missing(x)]
+    })
 
   if (!is.null(ignore)) {
     ignore <- value_to_string(ignore)
