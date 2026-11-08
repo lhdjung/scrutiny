@@ -188,7 +188,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - Errors about an invalid `rounding` or `symmetric` name the function that the user called. Many errors from base R or from internal code were replaced by messages that name the argument at fault. `audit()` and `grim_plot_grid()` name the columns they need if any were dropped.
 
-- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, reads a number next to a non-breaking space, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them.
+- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, reads a number next to a non-breaking space, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them. A blank string, as `read.csv()` leaves in a character column, is missing too: `restore_zeros_df()` used to skip a column with a blank cell without a word. `decimal_places()` gives it `NA` decimal places, not 0, and `restore_zeros()` makes it `NA` without a warning.
 
 - `decimal_places_df()` and `split_by_parens()` take a matrix, as `restore_zeros_df()` does, and name the function for vectors when given one.
 

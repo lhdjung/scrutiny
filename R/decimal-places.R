@@ -11,8 +11,9 @@
 #' @details The function counts the run of digits after the first `sep`,
 #'   after trimming whitespace and applying any exponent: `"5.30%"` has two
 #'   decimal places, `"1e-5"` has five, and `"1..5"` has none. Missing and
-#'   non-finite values have `NA` decimal places, as do the string `"NA"` and
-#'   strings that [`as.numeric()`] reads as an infinity or `NaN`.
+#'   non-finite values have `NA` decimal places, as do the string `"NA"`, a
+#'   blank string, and strings that [`as.numeric()`] reads as an infinity or
+#'   `NaN`.
 #'
 #'   Numeric values with more than 15 significant digits cannot be counted
 #'   accurately; enter such numbers as strings.
@@ -54,7 +55,7 @@ decimal_places <- function(x, sep = ".") {
     sep <- "."
   } else {
     x <- trim_space(x)
-    non_finite <- x %in% c(NA, "NA") | is_non_finite_token(x)
+    non_finite <- is.na(x) | x %in% STRINGS_MISSING | is_non_finite_token(x)
   }
   x[non_finite] <- ""
 
@@ -158,7 +159,7 @@ decimal_places_scalar <- function(x, sep = ".") {
   # trimming, which only a string can need:
   if (is.character(x)) {
     x <- trim_space(x)
-    if (is.na(x) || x == "NA" || is_non_finite_token(x)) {
+    if (is.na(x) || x %in% STRINGS_MISSING || is_non_finite_token(x)) {
       return(NA_integer_)
     }
   } else if (is.finite(x)) {

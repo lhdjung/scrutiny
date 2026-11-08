@@ -10,8 +10,9 @@
 #' @param cols Columns to split, selected with
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, restricted by `check_delim`.
-#' @param check_delim Logical. If `TRUE` (the default), columns whose non-`NA`
-#'   values do not all contain the delimiters are skipped.
+#' @param check_delim Logical. If `TRUE` (the default), columns whose values
+#'   do not all contain the delimiters are skipped. Missing values and blank
+#'   strings don't count.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer
@@ -115,9 +116,9 @@ split_by_parens <- function(
   # re-add the grouping columns, and `across()` would run per group:
   data <- dplyr::ungroup(data)
 
-  # A column qualifies if every non-missing value has an opening `delim` element
-  # followed by a closing one. With no rows, a character column qualifies, so
-  # that the output has the same shape as for any other data:
+  # A column qualifies if every non-missing, non-blank value has an opening
+  # `delim` element followed by a closing one. With no rows, a character column
+  # qualifies, so that the output has the same shape as for any other data:
   data_is_empty <- nrow(data) == 0L
   names_of_cols_with_delims <- data |>
     dplyr::select(
@@ -126,6 +127,7 @@ split_by_parens <- function(
           return(is.character(x))
         }
         x <- x[!is.na(x)]
+        x <- x[!trim_space(as.character(x)) %in% STRINGS_MISSING]
         delims <- translate_delim_keywords(delim)
         after_open <- stringr::str_split_fixed(
           x,

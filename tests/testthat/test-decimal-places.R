@@ -439,3 +439,9 @@ test_that("large numbers are written without a leading space", {
   out |> expect_match("^[1-9][0-9]{22}$")
   out |> as.numeric() |> expect_equal(1e23)
 })
+
+
+test_that("a blank string has `NA` decimal places, like the string \"NA\"", {
+  c("", " ", "1.25") |> decimal_places() |> expect_equal(c(NA, NA, 2L))
+  for (x in c("", " ")) x |> decimal_places_scalar() |> expect_equal(NA_integer_)
+})

@@ -24,8 +24,9 @@ vector, or of a string vector coercible to numeric.
 The function counts the run of digits after the first \code{sep},
 after trimming whitespace and applying any exponent: \code{"5.30\%"} has two
 decimal places, \code{"1e-5"} has five, and \code{"1..5"} has none. Missing and
-non-finite values have \code{NA} decimal places, as do the string \code{"NA"} and
-strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity or \code{NaN}.
+non-finite values have \code{NA} decimal places, as do the string \code{"NA"}, a
+blank string, and strings that \code{\link[=as.numeric]{as.numeric()}} reads as an infinity or
+\code{NaN}.
 
 Numeric values with more than 15 significant digits cannot be counted
 accurately; enter such numbers as strings.

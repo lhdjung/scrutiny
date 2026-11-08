@@ -248,3 +248,10 @@ test_that("`restore_zeros_df()` warns about a selected column that isn't numeric
   iris |> restore_zeros_df() |> expect_no_warning()
   df |> restore_zeros_df(a) |> suppressWarnings() |> expect_equal(df)
 })
+
+
+test_that("a blank cell is missing, so its column is padded all the same", {
+  c("1.2", "", " ") |> restore_zeros(width = 2) |> expect_silent() |> expect_equal(c("1.20", NA, NA))
+  data <- read.csv(text = "study,m\nA,0.50\nB,\nC,1.2\n", colClasses = "character")
+  data |> restore_zeros_df() |> dplyr::pull(m) |> expect_equal(c("0.50", NA, "1.20"))
+})

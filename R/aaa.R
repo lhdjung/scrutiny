@@ -56,6 +56,12 @@ X_MEANINGS <- c("mean", "percentage")
 DATA_TYPES <- c("integer", "continuous")
 
 
+# Strings that stand for a missing value once trimmed: R's own spelling, and a
+# blank cell, which `read.csv()` leaves in a character column. The
+# string-reading functions all treat them as `NA`.
+STRINGS_MISSING <- c("NA", "")
+
+
 # The strings that `as.numeric()` reads as an infinity or `NaN`, once their
 # letters are lowercased. `decimal_places()` and `decimal_places_scalar()` give
 # them `NA` decimal places, via `is_non_finite_token()`.

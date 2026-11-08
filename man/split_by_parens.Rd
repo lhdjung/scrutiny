@@ -24,8 +24,9 @@ split_by_parens(
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 Default is \code{everything()}, restricted by \code{check_delim}.}
 
-\item{check_delim}{Logical. If \code{TRUE} (the default), columns whose non-\code{NA}
-values do not all contain the delimiters are skipped.}
+\item{check_delim}{Logical. If \code{TRUE} (the default), columns whose values
+do not all contain the delimiters are skipped. Missing values and blank
+strings don't count.}
 
 \item{keep}{Logical. Should the original columns be kept? Default is
 \code{FALSE}.}

@@ -89,10 +89,10 @@ restore_zeros <- function(
   }
 
   # A value that is not a number becomes missing rather than being padded into
-  # nonsense such as `"5%000"`. The string `"NA"` is missing, not a non-number,
-  # and so is `NaN` in any spelling that `as.numeric()` reads, such as `"nan"`:
+  # nonsense such as `"5%000"`. The strings `"NA"` and `""` are missing, not
+  # non-numbers, and so is `NaN` in any spelling that `as.numeric()` reads, such as `"nan"`:
   x_num <- suppressWarnings(as.numeric(x))
-  not_number <- is.na(x_num) & !is.nan(x_num) & !(x %in% c(NA, "NA"))
+  not_number <- is.na(x_num) & !is.nan(x_num) & !(x %in% c(NA, STRINGS_MISSING))
   if (any(not_number)) {
     cli::cli_warn(c(
       "Values that are not numbers became `NA`.",

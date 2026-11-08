@@ -87,3 +87,11 @@ test_that("the string `\"NA\"` next to whitespace is missing", {
   c("1", "2", "3")          |> is_seq_dispersed(from = " NA") |> expect_na()
   tibble::tibble(a = c("1.50", "NA ")) |> decimal_places_df() |> _$a |> expect_equal(c(2L, NA))
 })
+
+
+test_that("a blank string is missing, as in a blank cell of a CSV file", {
+  c("1.5", "")  |> is_numeric_like() |> expect_true()
+  c("1.5", " ") |> is_numeric_like() |> expect_true()
+  c("", "")     |> is_numeric_like() |> expect_na()
+  list("", 1)   |> is_numeric_like() |> expect_true()
+})

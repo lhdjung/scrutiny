@@ -258,3 +258,9 @@ test_that("`split_by_parens(check_delim = FALSE)` says a column was split anyway
   df |> split_by_parens(check_delim = FALSE) |> expect_warning("Not every value has the `delim` elements", fixed = TRUE)
   df |> split_by_parens()                    |> expect_warning("1 column was not split: `a`", fixed = TRUE)
 })
+
+
+test_that("a blank cell doesn't keep a column from being split", {
+  df <- tibble::tibble(a = c("1.2 (0.5)", "", NA))
+  df |> split_by_parens() |> expect_silent() |> colnames() |> expect_equal(c("a_x", "a_sd"))
+})
