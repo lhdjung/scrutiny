@@ -67,18 +67,7 @@ grim_binomial <- function(
     "i" = "`grim_map()` output has them."
   )
 
-  if (
-    !is.numeric(alpha) ||
-      length(alpha) != 1L ||
-      is.na(alpha) ||
-      alpha <= 0 ||
-      alpha >= 1
-  ) {
-    abort_in_export(
-      "`alpha` must be a single number between 0 and 1.",
-      "x" = "It is {wrap_in_quotes_or_backticks(alpha)}."
-    )
-  }
+  check_alpha(alpha)
   conf_level <- 1 - alpha
 
   # An undecidable value set has neither a verdict nor a probability, so it is
@@ -198,6 +187,12 @@ grim_binomial_power <- function(
 
   # A probability outside of 0 and 1 would give `NaN`, an error, or a power of 1:
   check_probability <- function(p, name) {
+    if (is.data.frame(p)) {
+      abort_in_export(
+        "`{name}` must be a vector of probabilities, not a data frame.",
+        "i" = "For `grim_map()` output, pass `1 - data$exp_incon`."
+      )
+    }
     if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
       abort_in_export(
         "`{name}` must be between 0 and 1.",
@@ -207,16 +202,8 @@ grim_binomial_power <- function(
   }
   check_probability(p0, "p0")
   check_probability(p1, "p1")
-  check_probability(alpha, "alpha")
   check_length(p1, 1L)
-  check_length(alpha, 1L)
-  # As in `grim_binomial()`: a level of 0 or 1 rejects nothing or everything:
-  if (alpha <= 0 || alpha >= 1) {
-    abort_in_export(
-      "`alpha` must be between 0 and 1, exclusive.",
-      "x" = "It is {alpha}."
-    )
-  }
+  check_alpha(alpha)
 
   if (length(p0) == 1L) {
     p0 <- rep(p0, k)
@@ -285,4 +272,21 @@ poibin_p_values <- function(p, alternative) {
     less = p_lower,
     two.sided = pmin(1, 2 * pmin(p_upper, p_lower))
   )
+}
+
+
+# For both functions above. A level of 0 or 1 rejects nothing or everything:
+check_alpha <- function(alpha) {
+  if (
+    !is.numeric(alpha) ||
+      length(alpha) != 1L ||
+      is.na(alpha) ||
+      alpha <= 0 ||
+      alpha >= 1
+  ) {
+    abort_in_export(
+      "`alpha` must be a single number between 0 and 1, exclusive.",
+      "x" = "It is {wrap_in_quotes_or_backticks(alpha)}."
+    )
+  }
 }

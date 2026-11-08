@@ -45,10 +45,12 @@ test_that("`grim_binomial_power()` checks its probabilities and `k`", {
   # These used to give `NaN`, an error, or a power of 1:
   0.5 |> grim_binomial_power(1.5, k = 3)            |> expect_error("`p1` must be between 0 and 1")
   1.5 |> grim_binomial_power(0.9, k = 3)            |> expect_error("`p0` must be between 0 and 1")
-  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 5) |> expect_error("`alpha` must be a single number between 0 and 1")
   # 0 and 1 are no levels either, as in `grim_binomial()`:
-  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 0) |> expect_error("`alpha` must be between 0 and 1")
-  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 1) |> expect_error("`alpha` must be between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 0) |> expect_error("`alpha` must be a single number between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = 1) |> expect_error("`alpha` must be a single number between 0 and 1")
+  0.5 |> grim_binomial_power(0.9, k = 3, alpha = c(0.1, 0.05)) |> expect_error("`alpha` must be a single number between 0 and 1")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> grim_binomial_power(0.9, k = 3) |> expect_error("1 - data$exp_incon", fixed = TRUE)
   0.5 |> grim_binomial_power(0.9, k = 2.5)          |> expect_error("whole number")
   0.5 |> grim_binomial_power(0.9, k = "10")         |> expect_error("whole number")
   0.5 |> grim_binomial_power(0.9, k = Inf)          |> expect_error("whole number")
