@@ -207,3 +207,20 @@ ROUNDING_METHODS <- c(
 # arguments spell these out as defaults, so that they show in their usage.
 COLORS_CONSISTENCY <- c("TRUE" = "#0047ff", "FALSE" = "#ff2a00")
 COLOR_ATTAINABLE <- "grey75"
+
+
+# The exports that took `x` and `sd` as strings in scrutiny 0.6.1, where users
+# migrating from it will try strings again; see `stop_string_number()`:
+EXPORTS_STRING_NUMBERS <- c(
+  "grim",
+  "grimmer",
+  "debit",
+  outer(
+    c("grim", "grimmer", "debit"),
+    c("_map", "_map_seq", "_map_total_n"),
+    paste0
+  ),
+  "grim_total",
+  "grim_exp_incon",
+  "grim_probability"
+)

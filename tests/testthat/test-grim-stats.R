@@ -131,8 +131,10 @@ test_that("`grim_exp_incon()` and `grim_total()` are `NA` where `grim()` is", {
 
 
 test_that("`grim_total()` rejects a string `x` but not a missing one", {
-  "5.19"      |> grim_total(20, 2, items_averaged = 1, data_type = "integer")       |> expect_error("must be one of these types")
-  "5.19"      |> grim_exp_incon(20, 2, items_averaged = 1, data_type = "integer") |> expect_error("must be one of these types")
+  "5.19"      |> grim_total(20, 2, items_averaged = 1, data_type = "integer")       |> expect_error("must be numeric as of scrutiny 1.0.0")
+  "5.19"      |> grim_exp_incon(20, 2, items_averaged = 1, data_type = "integer") |> expect_error("must be numeric as of scrutiny 1.0.0")
+  # Exports new since 0.6.1 never took strings, so they say so plainly:
+  "5.19"      |> grim_values(20, 2, items_averaged = 1, data_type = "integer")    |> expect_error("`x` must be numeric.\n")
   NA          |> grim_exp_incon(20, 2, items_averaged = 1, data_type = "integer") |> expect_na()
   c(NA, 5.19) |> grim_total(20, 2, items_averaged = 1, data_type = "integer")       |> expect_equal(c(NA, 80))
 })

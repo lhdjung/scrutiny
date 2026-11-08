@@ -222,8 +222,15 @@ grim_total <- function(
     data_type <- data_type_bad[[1L]]
     arg_match_in_export(data_type, DATA_TYPES)
   }
+  # A string `x` is how 0.6.1 took it:
+  check_not_factor(x, "x")
   if (!is.numeric(x) && !all(is.na(x))) {
-    check_type(x, c("double", "integer"))
+    stop_string_number(
+      x,
+      "x",
+      name_last_export(),
+      sys.frame(index_last_export())
+    )
   }
   if (!is.numeric(n) && !all(is.na(n))) {
     check_type(n, c("double", "integer"))

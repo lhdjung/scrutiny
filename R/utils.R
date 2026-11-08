@@ -726,37 +726,12 @@ check_newly_numeric <- function(
   caller_name <- name_last_export()
   caller_frame <- sys.frame(index_last_export())
 
-  # A mapper's messages talk about columns, not arguments:
-  caller_is_mapper <- grepl("_map", caller_name)
-
   name_x <- deparse(substitute(x))
-  name_fn <- paste0("scrutiny::", caller_name)
 
   check_not_factor(x, name_x)
 
   if (!is.numeric(x)) {
-    msg_what <- if (caller_is_mapper) {
-      I(paste0("Using string `", name_x, "` columns in `", name_fn, "()`"))
-    } else {
-      paste0(name_fn, "(", name_x, " = 'must be numeric')")
-    }
-
-    msg_digits_name <- paste0(
-      "Instead, use `digits_",
-      name_x,
-      "` to specify the number of decimal places."
-    )
-
-    lifecycle::deprecate_stop(
-      when = "1.0.0",
-      what = msg_what,
-      details = c(
-        msg_digits_name,
-        "This is to ensure a correct number of decimal places.
-        Apologies for the inconvenience."
-      ),
-      env = caller_frame
-    )
+    stop_string_number(x, name_x, caller_name, caller_frame)
   }
 
   # `digits_*` is too small for the decimal places in `x`:
@@ -769,6 +744,41 @@ check_newly_numeric <- function(
       must not be less than the number of decimal places in `{name_x}`.",
     "x" = "`{name_digits_arg}` is {digits}.",
     "x" = "`{name_x}` is {x}, so it has {digits_in_x} decimal place{?s}."
+  )
+}
+
+
+# The lifecycle message for the exports in `EXPORTS_STRING_NUMBERS`, a plain
+# one for the others:
+stop_string_number <- function(x, name_x, caller_name, caller_frame) {
+  name_digits <- paste0("digits_", name_x)
+  if (!caller_name %in% EXPORTS_STRING_NUMBERS) {
+    abort_in_export(
+      "`{name_x}` must be numeric.",
+      "x" = "It is {.obj_type_friendly {x}}.",
+      "i" = "Give its decimal places in `{name_digits}`."
+    )
+  }
+  name_fn <- paste0("scrutiny::", caller_name)
+  # A mapper's messages talk about columns, not arguments:
+  msg_what <- if (grepl("_map", caller_name)) {
+    I(paste0("Using string `", name_x, "` columns in `", name_fn, "()`"))
+  } else {
+    paste0(name_fn, "(", name_x, " = 'must be numeric')")
+  }
+  lifecycle::deprecate_stop(
+    when = "1.0.0",
+    what = msg_what,
+    details = c(
+      paste0(
+        "Instead, use `",
+        name_digits,
+        "` to specify the number of decimal places."
+      ),
+      "This is to ensure a correct number of decimal places.
+      Apologies for the inconvenience."
+    ),
+    env = caller_frame
   )
 }
 
