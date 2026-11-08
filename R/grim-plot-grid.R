@@ -62,9 +62,9 @@
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
 #' @param rounding,threshold The same as in [`grim()`], for the raster. Only
-#'   used if `show_data` is `FALSE` or if the record of the mapper call was
-#'   removed from `data`: otherwise, the raster follows the settings of that
-#'   call, and giving others is an error. Defaults are `"up_or_down"` and `5`.
+#'   used if `show_data` is `FALSE`: otherwise, the raster follows the
+#'   settings of the mapper call, and giving others is an error. Defaults are
+#'   `"up_or_down"` and `5`.
 #' @param show_raster Logical. Should the raster be drawn? Default is `TRUE`.
 #' @param tile_size Numeric. Size of the tiles for value sets. Default is
 #'   `1.5`.
@@ -172,24 +172,18 @@ grim_plot_grid <- function(
   )
   if (show_data) {
     check_cols_needed(data, c("x", "n", "consistency"))
+    # The record survives the same dplyr verbs as the class, so data with the
+    # class but no record got it by hand:
     args_call <- scrutiny_args(data)
-    for (name in names(given)) {
-      value <- given[[name]]
-      recorded <- args_call[[name]]
-      if (
-        !is.null(value) &&
-          !is.null(recorded) &&
-          !isTRUE(all.equal(value, recorded, check.attributes = FALSE))
-      ) {
-        abort_in_export(
-          "`{name}` disagrees with the mapper call behind `data`.",
-          "x" = "It is {wrap_in_quotes_or_backticks(value)}, but the call \\
-          used {wrap_in_quotes_or_backticks(recorded)}.",
-          "i" = "The raster follows the call. Leave out `{name}`, or give it \\
-          to the mapper instead."
-        )
-      }
+    if (is.null(args_call$rounding)) {
+      abort_in_export(
+        "!" = "`data` doesn't record the settings it was tested with.",
+        "x" = "It has the class of mapper output, but not the \"scrutiny\" \
+        attribute that the mappers give their output.",
+        "i" = "Plot the output of the mapper itself."
+      )
     }
+    check_settings_agree(given, args_call)
   }
 
   if (!show_data && any(inherits_grim, inherits_grimmer)) {
@@ -811,6 +805,48 @@ grim_plot <- function(
     args[[new]] <- renames[[new]]
   }
   do.call(grim_plot_grid, c(args, dots))
+}
+
+
+# `rounding` or `threshold` given to `grim_plot_grid()` that would draw
+# another raster than the settings `args_call` of the mapper call, which the
+# raster follows. A `"ties_*"` string is compared as the method it stands
+# for, and `threshold` only where the method reads it:
+check_settings_agree <- function(given, args_call) {
+  resolve <- function(rounding, symmetric) {
+    roundwork::resolve_ties_rounding(
+      rounding,
+      if (startsWith(rounding, "ties_")) FALSE else isTRUE(symmetric)
+    )
+  }
+  check_rounding_args(
+    if (is.null(given$rounding)) "up_or_down" else given$rounding,
+    given$threshold
+  )
+  recorded <- resolve(args_call$rounding, args_call$symmetric)
+  disagrees <- list(rounding = FALSE, threshold = FALSE)
+  if (!is.null(given$rounding)) {
+    mine <- resolve(given$rounding, FALSE)
+    disagrees$rounding <- mine$rounding != recorded$rounding ||
+      (startsWith(given$rounding, "ties_") &&
+        mine$symmetric != recorded$symmetric)
+  }
+  uses_threshold <- recorded$rounding %in%
+    c("up_from", "down_from", "up_from_or_down_from")
+  if (!is.null(given$threshold) && uses_threshold) {
+    disagrees$threshold <- !isTRUE(
+      all.equal(given$threshold, args_call$threshold, check.attributes = FALSE)
+    )
+  }
+  for (name in names(which(unlist(disagrees)))) {
+    abort_in_export(
+      "`{name}` disagrees with the mapper call behind `data`.",
+      "x" = "It is {wrap_in_quotes_or_backticks(given[[name]])}, but the \
+      call used {wrap_in_quotes_or_backticks(args_call[[name]])}.",
+      "i" = "The raster follows the call. Leave out `{name}`, or give it \
+      to the mapper instead."
+    )
+  }
 }
 
 

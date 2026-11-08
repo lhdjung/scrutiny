@@ -109,9 +109,9 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
 
-- `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x`, in a tibble with one row per value set (#62).
+- `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x`. Both return a tibble with a `case` column, as `grimmer_values()` and `grimmer_closest()` do (#62).
 
-- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own, or behind mapper output that lost the record of its call. Otherwise, the raster follows the mapper call, and a `rounding` or `threshold` that disagrees with it is an error.
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own. Otherwise, the raster follows the mapper call, and a `rounding` or `threshold` that disagrees with it is an error.
 
 - `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
 

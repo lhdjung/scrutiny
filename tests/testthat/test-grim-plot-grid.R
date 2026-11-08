@@ -264,11 +264,11 @@ test_that("`grim_plot_grid()` names the columns it lacks", {
   pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(x) |> grim_plot_grid() |> expect_error("Missing: `n` and `consistency`")
 })
 
-test_that("`grim_plot_grid()` falls back to `rounding` if `data` has none recorded", {
+test_that("`grim_plot_grid()` rejects mapper output without its record", {
   data <- tibble::tibble(x = 5.19, n = 28, digits_x = 2, consistency = TRUE)
   class(data) <- c("scrutiny_grim_map", class(data))
-  data |> grim_plot_grid() |> expect_s3_class("ggplot")
-  data |> grim_plot_grid(rounding = "up_from", show_raster = TRUE) |> expect_s3_class("ggplot")
+  data |> grim_plot_grid()                    |> expect_error("doesn't record the settings")
+  data |> grim_plot_grid(rounding = "up_from") |> expect_error("doesn't record the settings")
 })
 
 
@@ -282,7 +282,14 @@ test_that("the raster follows a `threshold` recorded or given", {
 test_that("`rounding` or `threshold` that disagree with the mapper call are an error", {
   out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "ceiling")
   out |> grim_plot_grid(rounding = "up_or_down") |> expect_error("disagrees with the mapper call")
-  out |> grim_plot_grid(threshold = 7)          |> expect_error("disagrees with the mapper call")
+  out |> grim_plot_grid(rounding = "ties_up")   |> expect_error("disagrees with the mapper call")
+  # A `threshold` that the method doesn't read can't disagree:
+  out |> grim_plot_grid(threshold = 7)          |> expect_s3_class("ggplot")
+  out_from <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up_from", threshold = 9)
+  out_from |> grim_plot_grid(threshold = 7)     |> expect_error("disagrees with the mapper call")
+  # A `"ties_*"` string is the method it stands for:
+  out_even <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "even")
+  out_even |> grim_plot_grid(rounding = "ties_even") |> expect_s3_class("ggplot")
   out |> grim_plot_grid(rounding = "ceiling")   |> expect_s3_class("ggplot")
   out |> grim_plot_grid(threshold = 5L)         |> expect_s3_class("ggplot")
   out |> grim_plot()                            |> expect_s3_class("ggplot") |> suppressWarnings()
