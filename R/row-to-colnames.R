@@ -6,7 +6,7 @@
 #'   those rows and drops the rows.
 #'
 #' @details With several rows, their values are pasted together per column.
-#'   Missing values and blank strings are skipped, and whitespace around a
+#'   Missing values, blank strings, and `"NA"` are skipped, and whitespace around a
 #'   value is trimmed; if all of a column's values in these rows are missing
 #'   or blank, it keeps its name. The new names must be unique: a header that
 #'   repeats, as in "M, SD, M, SD", is an error unless a second row tells the
@@ -94,7 +94,7 @@ row_to_colnames <- function(data, row = 1L, collapse = " ", drop = TRUE) {
       cells <- data[[i]][row] |>
         value_to_string() |>
         trim_space() |>
-        call_on(\(x) x[!is.na(x) & x != ""])
+        call_on(\(x) x[!is_value_missing(x)])
       if (length(cells) == 0L) {
         colnames(data)[i]
       } else {

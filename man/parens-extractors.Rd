@@ -23,7 +23,7 @@ strings, matched literally.}
 String vector as long as \code{string}, with surrounding whitespace
 removed. If a string has no opening delimiter, \code{before_parens()} returns
 all of it and \code{inside_parens()} returns \code{NA}. A blank part, as of a blank
-string or of empty delimiters, is \code{NA}.
+string or of empty delimiters, is \code{NA}, and so is a part \code{"NA"}.
 }
 \description{
 \code{before_parens()} and \code{inside_parens()} extract the part of a

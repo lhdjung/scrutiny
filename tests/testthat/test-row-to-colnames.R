@@ -94,6 +94,8 @@ test_that("numbers in a header row are written out in full, with a point", {
 test_that("blank header cells are skipped, not pasted in", {
   df <- tibble::tibble(V1 = c("", "Study", "A"), V2 = c("Control", " M ", "5.2"), V3 = c("", "", "1"))
   df |> row_to_colnames(row = 1:2) |> colnames() |> expect_equal(c("Study", "Control M", "V3"))
+  # So are cells `"NA"`:
+  df |> dplyr::mutate(V1 = c("NA", "Study", "A")) |> row_to_colnames(row = 1:2) |> colnames() |> expect_equal(c("Study", "Control M", "V3"))
 })
 
 test_that("the error about repeated names says to fill in spanning labels", {

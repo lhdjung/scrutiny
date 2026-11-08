@@ -118,4 +118,7 @@ test_that("a blank part is `NA` in both functions", {
   c("", "  ", "(2)") |> before_parens() |> expect_equal(c(NA_character_, NA, NA))
   c("", "  ", "1 ()") |> inside_parens() |> expect_equal(c(NA_character_, NA, NA))
   tibble::tibble(a = c("1 (2)", "")) |> split_by_parens() |> unlist(use.names = FALSE) |> expect_equal(c("1", NA, "2", NA))
+  # So is a part `"NA"`:
+  "NA (NA)" |> before_parens() |> expect_equal(NA_character_)
+  "NA (NA)" |> inside_parens() |> expect_equal(NA_character_)
 })
