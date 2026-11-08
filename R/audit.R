@@ -380,7 +380,8 @@ audit.scrutiny_map_total_n <- function(data, ...) {
 
   data$case <- case_as_number(data$case)
   df_list <- split(data, data$case)
-  cases <- as.integer(names(df_list))
+  # Keys of the record, as `rows_removed_by()` pastes them:
+  cases <- names(df_list)
 
   df_list_hits <- df_list |>
     purrr::map(function(x) dplyr::filter(x, both_consistent))
@@ -508,6 +509,20 @@ count_rows_by <- function(case, other) {
 rows_removed_by <- function(recorded, case, other) {
   present <- count_rows_by(case, other)
   if (!is.null(recorded)) {
+    # Case labels changed, as by `paste0("c", case)`, have no record at all:
+    cases_unknown <- setdiff(
+      as.character(unique(case)),
+      sub("\r.*", "", names(recorded))
+    )
+    if (length(cases_unknown) > 0L) {
+      abort_in_export(
+        "`data` has cases that the mapper call didn't return.",
+        "x" = "`case` has {length(cases_unknown)} value{?s} that the call \\
+        didn't write, such as \\
+        {wrap_in_backticks(utils::head(cases_unknown, 3L))}.",
+        "i" = "Keep the case numbers as the mapper returned them."
+      )
+    }
     before <- unname(recorded[names(present)])
     if (any(is.na(before) | present > before)) {
       abort_in_export(

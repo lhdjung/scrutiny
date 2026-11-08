@@ -323,7 +323,7 @@ test_that("`audit_seq()` reads `case` as case numbers, whatever its type", {
   out <- tibble::tibble(x = c(5.19, 2.50, 4.56), n = c(28, 10, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   out |> dplyr::mutate(case = factor(case))       |> audit()     |> expect_equal(audit(out))
   out |> dplyr::mutate(case = as.character(case)) |> audit()     |> expect_equal(audit(out))
-  out |> dplyr::mutate(case = letters[case])      |> audit()     |> expect_error("rows that the mapper call didn't return")
+  out |> dplyr::mutate(case = letters[case])      |> audit()     |> expect_error("that the call didn't write")
   # Strings came out in the order 1, 10, 11, 12, 2, ...:
   out <- tibble::tibble(x = c(5.19, 5.22, 5.26, 5.30, 5.33, 5.37, 5.40, 5.44, 5.48, 5.51, 5.55, 5.58), n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   out |> dplyr::mutate(case = as.character(case))                    |> audit() |> expect_equal(audit(out))
@@ -373,4 +373,13 @@ test_that("the hint about dropped columns is only for sequence output", {
   msg |> expect_no_match("doesn't keep")
   out_seq     |> audit(.by = stdy)  |> expect_error("Sequence output doesn't keep")
   out_total_n |> audit(.by = study) |> nrow() |> expect_equal(2L)
+})
+
+
+test_that("`audit()` says so if `case` was relabeled", {
+  tn <- tibble::tibble(x1 = c(3.82, 4.11), x2 = c(4.15, 4.97), n = c(40, 50)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
+  sq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+  tn |> dplyr::mutate(case = paste0("c", case)) |> audit() |> expect_error("2 values that the call didn't write") |> expect_no_warning()
+  sq |> dplyr::mutate(case = paste0("c", case)) |> audit() |> expect_error("that the call didn't write")
+  tn |> dplyr::mutate(case = as.character(case)) |> audit() |> expect_equal(audit(tn))
 })
