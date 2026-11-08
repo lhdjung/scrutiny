@@ -42,7 +42,9 @@ random, so its probability of consistency is \code{1 - exp_incon}, with
 \code{exp_incon} from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value
 sets, the test
 uses the Poisson binomial distribution rather than averaging the
-probabilities. Value sets whose consistency is \code{NA} are left out.
+probabilities. Value sets whose \code{consistency} or \code{exp_incon} is \code{NA} are
+left out: \code{exp_incon} is \code{NA} if \code{n} or \code{digits_x} is missing, even where
+the value set has a definite result.
 
 Correct value sets are always consistent, so a collection of them should
 be more consistent than random digits even if some are wrong. There is no

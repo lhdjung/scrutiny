@@ -37,6 +37,7 @@ test_that("`grim_binomial()` returns the exact interval, one-sided like the test
   data |> grim_binomial(alternative = "less") |> getElement("conf.low")  |> expect_equal(0)
   data |> grim_binomial(alpha = 0)            |> expect_error("between 0 and 1")
   data |> grim_binomial(alpha = c(0.1, 0.05)) |> expect_error("between 0 and 1")
+  data |> grim_binomial(alpha = NULL)         |> expect_error("It is `NULL`", fixed = TRUE)
 })
 
 
@@ -121,4 +122,11 @@ test_that("a shared `p0` is a plain binomial, in linear time", {
   for (alternative in c("greater", "less", "two.sided")) {
     p |> poibin_p_values(alternative) |> expect_equal(poibin_p_values(p_loop, alternative))
   }
+})
+
+
+test_that("a definite result with `NA` `exp_incon` is left out, as documented", {
+  data <- tibble::tibble(x = c(1.23, 4.56, 7.89), n = c(7, 40, 40)) |> grim_map(digits_x = c(NA, 2, 2), items_averaged = 1, data_type = "integer")
+  data$consistency[1L] |> expect_false()
+  data |> grim_binomial() |> getElement("parameter") |> expect_equal(2L, ignore_attr = TRUE)
 })

@@ -21,7 +21,9 @@
 #'   `exp_incon` from [`grim_exp_incon()`]. Since this differs between value
 #'   sets, the test
 #'   uses the Poisson binomial distribution rather than averaging the
-#'   probabilities. Value sets whose consistency is `NA` are left out.
+#'   probabilities. Value sets whose `consistency` or `exp_incon` is `NA` are
+#'   left out: `exp_incon` is `NA` if `n` or `digits_x` is missing, even where
+#'   the value set has a definite result.
 #'
 #'   Correct value sets are always consistent, so a collection of them should
 #'   be more consistent than random digits even if some are wrong. There is no
@@ -69,7 +71,7 @@ grim_binomial <- function(
   ) {
     abort_in_export(
       "`alpha` must be a single number between 0 and 1.",
-      "x" = "It is {alpha}."
+      "x" = "It is {wrap_in_quotes_or_backticks(alpha)}."
     )
   }
   conf_level <- 1 - alpha
