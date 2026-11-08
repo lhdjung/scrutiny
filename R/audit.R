@@ -509,7 +509,8 @@ count_rows_by <- function(case, other) {
 rows_removed_by <- function(recorded, case, other) {
   present <- count_rows_by(case, other)
   if (!is.null(recorded)) {
-    # Case labels changed, as by `paste0("c", case)`, have no record at all:
+    # Case labels changed, as by `paste0("c", case)`, or cases joined from other
+    # output have no record at all:
     cases_unknown <- setdiff(
       as.character(unique(case)),
       sub("\r.*", "", names(recorded))
@@ -520,7 +521,7 @@ rows_removed_by <- function(recorded, case, other) {
         "x" = "`case` has {length(cases_unknown)} value{?s} that the call \\
         didn't write, such as \\
         {wrap_in_backticks(utils::head(cases_unknown, 3L))}.",
-        "i" = "Keep the case numbers as the mapper returned them."
+        "i" = "Keep `case` as the mapper returned it, and add no rows of other data."
       )
     }
     before <- unname(recorded[names(present)])

@@ -164,7 +164,7 @@ test_that("the sequence and total-n audits reject rows added by a join", {
   seq_out   <- tibble::tibble(x = c(5.19, 3.41), n = c(28, 30))           |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   seq_other <- tibble::tibble(x = c(5.19, 3.41, 6.22), n = c(28, 30, 31)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
   tot_out   <- tibble::tibble(x1 = 5.19, x2 = 4.06, n = 65)               |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
-  suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit()         |> expect_error("rows that the mapper call didn't return")
+  suppressMessages(dplyr::full_join(seq_out, dplyr::filter(seq_other, case == 3))) |> audit()         |> expect_error("cases that the mapper call didn't return")
   rbind(tot_out, tot_out[1, ])                                                     |> audit()         |> expect_error("rows that the mapper call didn't return")
 })
 
