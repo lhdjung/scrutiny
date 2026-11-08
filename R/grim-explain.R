@@ -692,8 +692,14 @@ new_explanation <- function(
 # paragraphs the two share, such as the GRIM test. The verdict is then the
 # population SD's, as in `grimmer_sd_sample_or_pop()`. `explain_type()` explains
 # the test under one `sd_meaning`, and `consistency` is the verdict under
-# `"sd_sample_or_pop"`.
-explain_sd_sample_or_pop <- function(explain_type, consistency, n) {
+# `"sd_sample_or_pop"`. With `grim_failed`, the mean alone decided the case, so
+# there is nothing to say about the SD under either premise.
+explain_sd_sample_or_pop <- function(
+  explain_type,
+  consistency,
+  n,
+  grim_failed = FALSE
+) {
   out <- explain_type("sd_sample")
   verdict <- out$consistency
 
@@ -726,7 +732,7 @@ explain_sd_sample_or_pop <- function(explain_type, consistency, n) {
         "The SD may also be a population SD, which divides by n rather than n - 1.",
         population$paragraphs[is_new]
       )
-    } else if (isFALSE(population$consistency)) {
+    } else if (isFALSE(population$consistency) && !grim_failed) {
       # Word for word the same, as with `x` missing, where no numbers of the
       # sample SD's own appear; it was checked all the same:
       c(
