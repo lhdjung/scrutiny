@@ -286,7 +286,9 @@ plot_comb <- function(
 # decimal place. Only the whole window of `zoom = "wide"` can reach the limit.
 # `name` is `"x"` or `"sd"`, for the message:
 comb_values <- function(from, to, digits, name) {
-  size <- (to - from) * 10^digits + 1
+  # Rounded, as `from` and `to` are multiples of the step only up to noise,
+  # which put a window that fills the limit exactly a hair over it:
+  size <- round((to - from) * 10^digits) + 1
   if (size > COMB_TEETH_MAX) {
     limit <- format(COMB_TEETH_MAX, big.mark = ",", scientific = FALSE)
     abort_in_export(

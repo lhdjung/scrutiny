@@ -354,6 +354,10 @@ test_that("`zoom = \"medium\"` searches as far as a side cut short allows", {
   # The search stopped at 9,999 values per side, short of 100% here, although
   # nothing lies below 0%:
   0 |> grim_plot_line(1, 2, 1, x_meaning = "percentage", zoom = "medium", data_type = "integer") |> squares() |> expect_equal(c(0, 100))
+  # A window that fills the limit exactly passed it by floating-point noise:
+  for (x in c(0.01, 0.03, 0.07, 0.057, 0.089)) {
+    x |> grim_plot_line(7, 3, 1, x_meaning = "percentage", zoom = "medium", data_type = "integer") |> expect_s3_class("ggplot")
+  }
 })
 
 
