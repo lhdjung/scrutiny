@@ -2043,6 +2043,7 @@ check_rounding_args <- function(rounding, threshold = 5, symmetric = FALSE) {
   }
   # roundwork reads `threshold` and `symmetric` only under the methods that use
   # them, but every call records them, as in the print header of mapper output:
+  check_not_factor(threshold, "threshold")
   if (
     length(threshold) == 1L &&
       !(is.numeric(threshold) && is.finite(threshold))

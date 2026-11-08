@@ -193,6 +193,7 @@ grim_binomial_power <- function(
         "i" = "For `grim_map()` output, pass `1 - data$exp_incon`."
       )
     }
+    check_not_factor(p, name)
     if (!is.numeric(p) || anyNA(p) || any(p < 0 | p > 1)) {
       abort_in_export(
         "`{name}` must be between 0 and 1.",
@@ -277,6 +278,7 @@ poibin_p_values <- function(p, alternative) {
 
 # For both functions above. A level of 0 or 1 rejects nothing or everything:
 check_alpha <- function(alpha) {
+  check_not_factor(alpha, "alpha")
   if (
     !is.numeric(alpha) ||
       length(alpha) != 1L ||

@@ -504,6 +504,7 @@ grim_plot_grid <- function(
 
   # Only a user-supplied `n` bounds the x-axis with a raster; see below.
   n_given <- !is.null(n)
+  check_not_factor(n, "n")
   if (
     n_given && (length(n) != 1L || !is.numeric(n) || !is.finite(n) || n < 1)
   ) {

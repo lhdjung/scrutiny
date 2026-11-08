@@ -328,6 +328,7 @@ disperse_total <- function(
 # `disperse2()` checks the limits before shifting them, so that the message
 # shows what the user gave:
 check_limit_n <- function(limit, name) {
+  check_not_factor(limit, name)
   if (
     !is.null(limit) &&
       (length(limit) != 1L || !is.numeric(limit) || is.na(limit))
