@@ -1145,4 +1145,9 @@ test_that("a matrix keeps its column names", {
   m |> duplicate_count() |> dplyr::pull(locations) |> expect_match("snout|tail|wings")
   # Without names, there are no locations to name, as for an unnamed vector:
   m |> unname() |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
+  # Names that a list couldn't have are treated as in a list:
+  m2 <- matrix(c(1, 2, 1, 3), 2)
+  m2 |> `colnames<-`(c("a", "a")) |> duplicate_count() |> expect_error("unique names")
+  m2 |> `colnames<-`(c("a", NA))  |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
+  m2 |> `colnames<-`(c("a", ""))  |> duplicate_count() |> colnames() |> expect_equal(c("value", "frequency"))
 })

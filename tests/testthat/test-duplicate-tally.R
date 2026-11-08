@@ -32,4 +32,9 @@ test_that("a matrix keeps its column names", {
   m <- as.matrix(pigs4[1:3, ])
   m |> duplicate_tally() |> colnames() |> expect_equal(c(rbind(colnames(pigs4), paste0(colnames(pigs4), "_n"))))
   m |> unname() |> duplicate_tally() |> colnames() |> expect_equal(c("col1", "col1_n", "col2", "col2_n", "col3", "col3_n"))
+  # Names that a list couldn't have are treated as in a list:
+  m2 <- matrix(c(1, 2, 1, 3), 2)
+  m2 |> `colnames<-`(c("a", "a")) |> duplicate_tally() |> expect_error("unique names")
+  m2 |> `colnames<-`(c("a", NA))  |> duplicate_tally() |> colnames() |> expect_equal(c("col1", "col1_n", "col2", "col2_n"))
+  m2 |> `colnames<-`(c("a", ""))  |> duplicate_tally() |> colnames() |> expect_equal(c("col1", "col1_n", "col2", "col2_n"))
 })

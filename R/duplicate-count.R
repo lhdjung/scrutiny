@@ -58,12 +58,8 @@ duplicate_count <- function(
 ) {
   locations_type <- rlang::arg_match(locations_type)
 
+  x <- matrix_to_cols(x)
   check_duplicate_input(x)
-  # A matrix's column names are its `colnames()`, which `rlang::is_named()`
-  # doesn't see, so they would be replaced below:
-  if (is.matrix(x) && !is.null(colnames(x))) {
-    x <- tibble::as_tibble(x)
-  }
   x_was_named <- rlang::is_named(x)
 
   # Long format: one row per value and the name of its location. The names of
@@ -172,6 +168,22 @@ value_to_factor <- function(x) {
 # tidyr with an error about their own arguments. `tibble::as_tibble()` recycles
 # an element of length 1 to the length of the others, which would count its
 # value several times, so the columns must have the same length, too:
+# A matrix's column names are its `colnames()`, which `rlang::is_named()`
+# doesn't see. As a list of columns, it gets the checks and the names of a list:
+# repeated names are an error, and missing or blank ones fall back to `col1`
+# etc.
+matrix_to_cols <- function(x) {
+  if (!is.matrix(x) || is.null(colnames(x))) {
+    return(x)
+  }
+  x |>
+    ncol() |>
+    seq_len() |>
+    lapply(function(j) x[, j]) |>
+    stats::setNames(colnames(x))
+}
+
+
 check_duplicate_input <- function(x) {
   if (!rlang::is_vector(x)) {
     abort_in_export(
