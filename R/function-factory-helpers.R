@@ -894,7 +894,8 @@ check_fn_wrappable <- function(fn, name_key_result, reserved, factory) {
   if (!is.null(arg_variadic)) {
     abort_in_export(
       "`{factory}()` can't wrap a mapper with a variadic argument.",
-      "x" = "`.fn` takes its key columns through `{arg_variadic}`."
+      "x" = "`.fn` takes a variable number of key columns through \\
+      `{arg_variadic}`."
     )
   }
   cols_result <- c(
