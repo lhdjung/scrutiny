@@ -78,7 +78,8 @@ debit_plot <- function(
   if (!inherits(data, "scrutiny_debit_map")) {
     abort_in_export(
       "!" = "`debit_plot()` only works with DEBIT results.",
-      "x" = "`data` is not `debit_map()` output."
+      "x" = "`data` is not `debit_map()` output.",
+      "i" = hint_grouped(data, "debit_plot(data)")
     )
   }
 

@@ -159,7 +159,8 @@ grim_plot_grid <- function(
         or `grim_map_total_n()`; or of the respective `grimmer_*()` functions.",
         "i" = "The only exception is an \"empty\" plot that shows the \\
         background raster but no empirical test results. Create such a plot \\
-        with `show_data = FALSE`."
+        with `show_data = FALSE`.",
+        "i" = hint_grouped(data, "grim_plot_grid(data)")
       )
     }
   }
@@ -184,6 +185,9 @@ grim_plot_grid <- function(
       )
     }
     check_settings_agree(given, args_call)
+  } else {
+    # Before the raster's arithmetic on them:
+    check_rounding_args(rounding, threshold)
   }
 
   if (!show_data && any(inherits_grim, inherits_grimmer)) {

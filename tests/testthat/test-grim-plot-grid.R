@@ -471,3 +471,14 @@ test_that("GRIMMER inconsistencies are only announced if drawn, and once per plo
   )
   messages |> grepl(pattern = "GRIMMER inconsistenc") |> sum() |> expect_equal(1L)
 })
+
+
+test_that("a bad `threshold` is reported before the raster is drawn", {
+  grim_plot_grid(show_data = FALSE, rounding = "up_from", threshold = "4") |> expect_error("must be a finite number")
+})
+
+
+test_that("grouped output gets a hint", {
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(2, items_averaged = 1, data_type = "integer")
+  out |> dplyr::group_by(n) |> grim_plot_grid() |> expect_error("removed the class")
+})
