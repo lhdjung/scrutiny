@@ -4,14 +4,14 @@
 \alias{scrutiny_meta}
 \title{Read the settings a mapper recorded on its output}
 \usage{
-scrutiny_meta(x)
+scrutiny_meta(data)
 }
 \arguments{
-\item{x}{Output of a mapper function.}
+\item{data}{Output of a mapper function.}
 }
 \value{
 A tibble with one row per setting and these columns, or \code{NULL} if
-\code{x} has no record of its settings:
+\code{data} has no record of its settings:
 \itemize{
 \item \code{setting}: the name of the argument.
 \item \code{value}: its value, written as R code, such as \code{'up'} or \code{1:5}.

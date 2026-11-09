@@ -19,6 +19,8 @@
 #'   DEBIT explanations cover `formula = "exact"` only.
 #'
 #' @param data Data frame returned by one of the mappers named above.
+#' @param ... These dots must be empty. They allow methods for other classes to
+#'   take further arguments.
 #'
 #' @return `data` with an `explanation` column, a string per row.
 #'
@@ -31,13 +33,13 @@
 #'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   dplyr::filter(!consistency) |>
 #'   explain_map()
-explain_map <- function(data) {
+explain_map <- function(data, ...) {
   UseMethod("explain_map")
 }
 
 
 #' @export
-explain_map.default <- function(data) {
+explain_map.default <- function(data, ...) {
   hint <- hint_grouped(data, paste0(name_last_export(), "(data)"))
   if (is.null(hint)) {
     hint <- "Their sequence and total-n mappers, such as `grim_map_seq()`, \\
@@ -53,7 +55,8 @@ explain_map.default <- function(data) {
 
 
 #' @export
-explain_map.scrutiny_grim_map <- function(data) {
+explain_map.scrutiny_grim_map <- function(data, ...) {
+  rlang::check_dots_empty()
   add_explanation_col(
     data,
     grim_explain,
@@ -63,7 +66,8 @@ explain_map.scrutiny_grim_map <- function(data) {
 }
 
 #' @export
-explain_map.scrutiny_grimmer_map <- function(data) {
+explain_map.scrutiny_grimmer_map <- function(data, ...) {
+  rlang::check_dots_empty()
   add_explanation_col(
     data,
     grimmer_explain,
@@ -73,7 +77,8 @@ explain_map.scrutiny_grimmer_map <- function(data) {
 }
 
 #' @export
-explain_map.scrutiny_debit_map <- function(data) {
+explain_map.scrutiny_debit_map <- function(data, ...) {
+  rlang::check_dots_empty()
   # `debit_explain()` checks this too, but would blame a `formula` that the
   # user never passed here:
   formula <- scrutiny_args(data)$formula

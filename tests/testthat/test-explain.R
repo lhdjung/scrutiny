@@ -501,6 +501,13 @@ test_that("the population SD is mentioned under `\"sd_sample_or_pop\"` even if i
 })
 
 
+test_that("`explain_map()` has dots for other methods, which must be empty here", {
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(2, items_averaged = 1, data_type = "integer")
+  out |> explain_map(extra = 1) |> expect_error("must be empty")
+  names(formals(explain_map)) |> expect_equal(c("data", "..."))
+})
+
+
 test_that("a missing argument without a default is named in order", {
   5.19 |> grim_explain(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("Need to specify `n`")
   0.3  |> debit_explain(n = 20)                                                  |> expect_error("Need to specify `sd`")

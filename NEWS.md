@@ -76,7 +76,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_plot_grid()` takes the number of decimal places as `digits_x`, as every other function does, and the color of the raster as `color_raster`, like the `color_*` arguments of `grim_plot_line()`. The deprecated `grim_plot()` keeps its old signature, including `digits` and `raster_color`; `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha` have no effect anymore.
 
-- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()` and `restore_zeros()`. `split_by_parens()`'s `check_sep` is now `check_delim`. The old names still work, with a warning.
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()`. `split_by_parens()`'s `check_sep` is now `check_delim`. The old names still work, with a warning.
 
 - S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
 
@@ -89,7 +89,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - In every function, `rounding` must be a string and `symmetric` a single `TRUE` or `FALSE`; a numeric or logical `rounding` was silently read as a position in the list of rounding methods.
 
-- `decimal_places()`, `decimal_places_df()`, `restore_zeros()`, and `restore_zeros_df()` match `sep` literally, and the default is `"."` instead of `"\\."`.
+- `decimal_places()` and `decimal_places_df()` match `sep` literally, as `restore_zeros()` and `restore_zeros_df()` match `sep_in`, and the defaults are `"."` instead of `"\\."`.
 
 - `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1 (undo it with `ggplot2::theme(aspect.ratio = NULL)`) and a new `split_by_digits` argument that returns one plot per number of decimal places. `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
 
@@ -151,7 +151,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `*_map_seq()` functions disperse means and SDs down to zero, and means below it; they used to stop one decimal unit above zero. With `include_consistent = TRUE`, they skip cases without a test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns, not one without columns.
 
-- `seq_disperse()` rounds its values to the decimal level of `by`, so that long sequences don't accumulate floating-point error (#83). It applies `out_min` and `out_max` to `from` as well, and no longer includes `from` twice when `dispersion` contains 0.
+- `seq_disperse()` rounds its values to the decimal level of `by`, so that long sequences don't accumulate floating-point error (#83). It applies `out_min` and `out_max` to `from` as well, and no longer includes `from` twice when `dispersion` contains 0. `out_max = "auto"` is no maximum, like the default `NULL`, so that it works as in the sequence mappers.
 
 - `*_map_total_n()` functions use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total for any `dispersion`. Functions made by `function_map_total_n()` work when created in another package (#69). An even total split into two equal groups is tested once rather than twice, so `audit()` on total-n output no longer counts one split too many. It leaves undecidable splits out of `scenarios_total`, its hits are `NA` where an undecidable split might be one, and its `hit_rate` is `NA` for a case with no decidable split.
 

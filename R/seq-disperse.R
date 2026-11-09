@@ -24,7 +24,7 @@
 #'   suits a count but not a quantity that can reach zero or be negative; use
 #'   `NULL` for an unbounded quantity such as a mean, or `0` for one bounded
 #'   at zero such as a standard deviation. `out_max` defaults to `NULL`, no
-#'   maximum. (The `*_map_seq()` functions choose limits per variable; see
+#'   maximum, and `"auto"` is the same. (The `*_map_seq()` functions choose limits per variable; see
 #'   `.var_bounds` in [`function_map_seq()`].)
 #' @param include_reported,.include_reported Logical. Should `from` itself be
 #'   part of the sequence? Default is `TRUE`.
@@ -212,8 +212,12 @@ seq_disperse <- function(
   if (!is.null(out_min)) {
     out_min <- check_limit(out_min, "out_min", auto = TRUE)
   }
+  # No maximum suits every quantity, so `"auto"` is none, as the default:
+  if (identical(out_max, "auto")) {
+    out_max <- NULL
+  }
   if (!is.null(out_max)) {
-    out_max <- check_limit(out_max, "out_max")
+    out_max <- check_limit(out_max, "out_max", auto = TRUE)
   }
 
   # The offset moves the point the sequence is built around, so it has to be

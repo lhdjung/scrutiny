@@ -70,3 +70,9 @@ test_that("a setting close to its default is not recorded as the default", {
   d |> sum_check_map(parts = c(a, b), tolerance = 0L)   |> default_of() |> expect_true()
   d |> sum_check_map(parts = c(a, b), tolerance = 1e-9) |> default_of() |> expect_false()
 })
+
+
+test_that("`scrutiny_meta()` takes `data`", {
+  out <- tibble::tibble(x = 5.19, n = 28) |> grim_map(2, items_averaged = 1, data_type = "integer")
+  scrutiny_meta(data = out) |> expect_equal(scrutiny_meta(out))
+})

@@ -4,10 +4,13 @@
 \alias{explain_map}
 \title{Explain mapper results row by row}
 \usage{
-explain_map(data)
+explain_map(data, ...)
 }
 \arguments{
 \item{data}{Data frame returned by one of the mappers named above.}
+
+\item{...}{These dots must be empty. They allow methods for other classes to
+take further arguments.}
 }
 \value{
 \code{data} with an \code{explanation} column, a string per row.

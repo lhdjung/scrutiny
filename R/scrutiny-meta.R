@@ -22,10 +22,10 @@
 #'   Some dplyr verbs, such as `summarise()`, drop the record, and with it the
 #'   header line; `filter()`, `arrange()`, and `mutate()` keep it.
 #'
-#' @param x Output of a mapper function.
+#' @param data Output of a mapper function.
 #'
 #' @return A tibble with one row per setting and these columns, or `NULL` if
-#'   `x` has no record of its settings:
+#'   `data` has no record of its settings:
 #'   - `setting`: the name of the argument.
 #'   - `value`: its value, written as R code, such as `'up'` or `1:5`.
 #'   - `default`: `TRUE` if the value is the mapper's default, `FALSE` if not.
@@ -54,8 +54,8 @@
 #'   ) |>
 #'   scrutiny_meta() |>
 #'   dplyr::filter(!default)
-scrutiny_meta <- function(x) {
-  settings <- attr(x, "scrutiny", exact = TRUE)$settings
+scrutiny_meta <- function(data) {
+  settings <- attr(data, "scrutiny", exact = TRUE)$settings
   if (is.null(settings)) {
     return(NULL)
   }

@@ -271,3 +271,8 @@ test_that("limits and `from` are read as the numbers they show", {
   # A `by` with too many decimal places was blamed on `from`:
   seq_disperse(5, by = 1 / 3)             |> expect_error("`by` has too many decimal places")
 })
+
+
+test_that("`out_max = \"auto\"` is no maximum, as in the sequence mappers", {
+  5 |> seq_disperse(out_max = "auto") |> expect_equal(seq_disperse(5))
+})

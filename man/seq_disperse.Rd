@@ -48,7 +48,7 @@ many steps. Default is \code{0}.}
 suits a count but not a quantity that can reach zero or be negative; use
 \code{NULL} for an unbounded quantity such as a mean, or \code{0} for one bounded
 at zero such as a standard deviation. \code{out_max} defaults to \code{NULL}, no
-maximum. (The \verb{*_map_seq()} functions choose limits per variable; see
+maximum, and \code{"auto"} is the same. (The \verb{*_map_seq()} functions choose limits per variable; see
 \code{.var_bounds} in \code{\link[=function_map_seq]{function_map_seq()}}.)}
 
 \item{include_reported, .include_reported}{Logical. Should \code{from} itself be
