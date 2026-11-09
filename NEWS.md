@@ -2,7 +2,34 @@
 
 scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code. You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, although I don't recommend reading the entire release notes.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all basic mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package, so go there if you need these functions themselves. Under the default settings, GRIM's results for testable value sets are unchanged, GRIMMER no longer flags consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" below for details.
+## In short
+
+Most calls to `grim_map()` or `grim()` need three new arguments:
+
+``` r
+# scrutiny 0.6.1
+grim_map(pigs1)
+grim(x = "5.19", n = 28)
+
+# scrutiny 1.0.0
+grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
+grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
+```
+
+- `x` and `sd` are numbers, not strings. Numbers drop trailing zeros, so `digits_x` (and `digits_sd` for GRIMMER and DEBIT) states the number of decimal places.
+- `items_averaged` replaces `items`, which defaulted to 1 and so tested means of multi-item scales as single items without a word.
+- `data_type` states whether the data are whole numbers (`"integer"`), as the tests assume, or `"continuous"`, where they don't apply.
+
+Each of these can also be a column of `data`, for values that differ by row. If one is missing, the error says how to give it.
+
+Other changes that most users will meet:
+
+- `percent = TRUE` is now `x_meaning = "percentage"`.
+- The `probability` column of `grim_map()` is now `exp_incon`, and `audit()` renamed some columns, such as `incons_rate` to `emp_incon`.
+- Under the default settings, GRIM's results for testable value sets are unchanged. GRIMMER no longer flags some consistent value sets and catches some it used to miss, and DEBIT is now exact. All three tests use exact integer arithmetic, and several rounding procedures were corrected; see "Test results" below.
+- `grim_plot()` is now `grim_plot_grid()`, which returns its plot instead of printing it.
+- The rounding functions, such as `reround()`, moved to the [roundwork](https://lhdjung.github.io/roundwork/) package.
+- New: `grim_explain()`, `grimmer_explain()`, and `debit_explain()` explain a result in plain words, and `explain_print()` does so for mapper output.
 
 The tests, their three mapper tiers, and `audit()` constitute the stable core of this release. Every function newly added in 1.0.0 is experimental and may change in a minor or major release later on. The same applies to the developer tools, such as `function_map()`.
 
@@ -131,7 +158,7 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 ### Consistency tests
 
-- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a result, make a case untestable, or split a total as odd. This applies to the tests and their mappers, `percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_line()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
+- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a result, make a case untestable, or make `disperse_total()` and the total-n mappers treat an even total as odd: `40 - 1e-9` was split into 19.5 and 20.5 instead of 20 and 20. This applies to the tests and their mappers, `percentage_of()` and its mapper, `grim_exp_incon()`, `grim_total()`, `grim_binomial_power()`, the `sd_binary_*()` functions, the `*_explain()` and `*_plot_line()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
 
 - `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`. Under `formula = "mean_n"`, a bound of the mean's range that the rounding method excludes no longer counts as attained: `debit(0.03, 0.14, 10, 2, 2, "integer", "mean_n", rounding = "ceiling", sd_meaning = "sd_pop")` is `FALSE`, since every mean above 0.02 has an SD above 0.14.
 
