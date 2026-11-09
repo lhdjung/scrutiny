@@ -22,7 +22,8 @@ grimmer_map(
 }
 \arguments{
 \item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}, and optionally
-\code{items_averaged}. Any other columns are returned alongside the results.}
+\code{items_averaged}, \code{data_type}, \code{digits_x}, and \code{digits_sd}. Any other
+columns are returned alongside the results.}
 
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric

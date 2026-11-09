@@ -38,9 +38,9 @@ with \code{sd_meaning = "sd_pop"}, which shows the population SD. Under
 \code{sd_meaning = "sd_sample_or_pop"}, the lines for both are drawn. Under
 \code{"se"}, the line is that of the SE.
 
-The means that \code{n} binary values can have, \code{k / n}, are marked as
-points on the line. Under \code{formula = "exact"}, the default of
-\code{\link[=debit_map]{debit_map()}}, a value set is consistent if one of these points lies
+Under \code{formula = "exact"}, the default of \code{\link[=debit_map]{debit_map()}}, the means
+\code{k / n} that would be reported as each value set's \code{x} are marked as
+points on the line, and a value set is consistent if one of them lies
 inside its rectangle. If \code{n} is large, only the points that would not be
 drawn over by others are drawn, with a message.
 
@@ -50,7 +50,8 @@ other \code{n}.
 
 A rectangle can be too small to see, so each is drawn over a point at the
 reported mean and SD. Value sets with \code{NA} in a column needed for drawing
-are left out with a warning.
+are left out with a warning, and so are those of continuous data, to which
+DEBIT doesn't apply.
 
 The labels come from \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}, which places them at
 random to minimize overlap. A fixed seed makes the placement the same on

@@ -63,7 +63,7 @@ which numbers of ones the mean allows, and whether the SD of any of them
 would be reported as the given one.
 
 The text is built from the numbers that decide the test itself, so it
-always agrees with \code{\link[=debit]{debit()}} under its default \code{formula = "exact"}.
+always agrees with \code{\link[=debit]{debit()}}.
 }
 \examples{
 debit_explain(

@@ -8,7 +8,7 @@
 #'   would be reported as the given one.
 #'
 #'   The text is built from the numbers that decide the test itself, so it
-#'   always agrees with [`debit()`] under its default `formula = "exact"`.
+#'   always agrees with [`debit()`].
 #'
 #' @inheritParams debit
 #' @param formula String. Only `"exact"`, the default, can be explained.

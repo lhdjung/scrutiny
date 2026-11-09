@@ -2,7 +2,7 @@
 % Please edit documentation in R/debit-map.R
 \name{debit_map}
 \alias{debit_map}
-\title{Apply DEBIT to many cases}
+\title{DEBIT-test many cases at once}
 \usage{
 debit_map(
   data,
@@ -22,8 +22,9 @@ debit_map(
 )
 }
 \arguments{
-\item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}. Any other columns are
-returned alongside the results.}
+\item{data}{Data frame with columns \code{x}, \code{sd}, and \code{n}, and optionally
+\code{data_type}, \code{digits_x}, and \code{digits_sd}. Any other columns are returned
+alongside the results.}
 
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
@@ -54,18 +55,19 @@ A tibble with these columns:
 \item \code{digits_x}, \code{digits_sd}: the numbers of decimal places, as given.
 \item \code{consistency}: DEBIT consistency of \code{x}, \code{sd}, and \code{n}. \code{NA} for a case
 that cannot be decided, such as one with a missing value.
+\item Any other columns from \code{data}.
+}
 
-If \code{show_rec} is \code{TRUE}, further columns hold the reconstructed values:
-the bounds of \code{sd} and \code{x} (\code{sd_lower}, \code{sd_upper}, \code{x_lower}, \code{x_upper}) with
-\code{sd_incl_lower} and \code{sd_incl_upper} saying whether the SD bounds are
-inclusive; and \code{sum_lower} and \code{sum_upper}, the least and the greatest
-number of ones among \code{n} values whose mean would be reported as \code{x}. Under
-\code{formula = "exact"}, a value set is consistent exactly if some \code{k} from
-\code{sum_lower} to \code{sum_upper} has an SD within the bounds of \code{sd}.
+If \code{show_rec} is \code{TRUE}, further columns right after \code{consistency} hold the
+reconstructed values: the bounds of \code{sd} and \code{x} (\code{sd_lower}, \code{sd_upper},
+\code{x_lower}, \code{x_upper}) with \code{sd_incl_lower} and \code{sd_incl_upper} saying whether
+the SD bounds are inclusive; and \code{sum_lower} and \code{sum_upper}, the least and
+the greatest number of ones among \code{n} values whose mean would be reported as
+\code{x}. Under \code{formula = "exact"}, a value set is consistent exactly if some \code{k}
+from \code{sum_lower} to \code{sum_upper} has an SD within the bounds of \code{sd}.
 
 The tibble has the class \code{scrutiny_debit_map}, which is recognized by
 \code{\link[=audit]{audit()}} and \code{\link[=debit_plot]{debit_plot()}}.
-}
 }
 \description{
 \code{debit_map()} applies \code{\link[=debit]{debit()}} to every row of a data frame

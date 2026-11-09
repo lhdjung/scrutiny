@@ -67,9 +67,9 @@ and \code{sd}. Default is \code{"up_or_down"}. See \code{\link[=grim]{grim()}} f
 \value{
 A tibble with one row per achievable pair. \code{case} is the index of
 the value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \code{sd} are the achievable
-values, \code{n} the reported sample size, and \code{sum} the number of ones. An
-inconsistent value set has no rows, and one that cannot be decided has
-one row of \code{NA} but for \code{n}, as in \code{\link[=debit]{debit()}}.
+values, \code{n} the reported sample size, and \code{sum} the number of ones, \code{k}
+in the mean \code{k / n}. An inconsistent value set has no rows, and one that
+cannot be decided has one row of \code{NA} but for \code{n}, as in \code{\link[=debit]{debit()}}.
 
 \code{debit_closest()} returns the same columns with exactly one row per value
 set: of \code{NA} but for \code{n} if a value is missing or the value set cannot be
@@ -88,9 +88,6 @@ to \code{sd}, like \code{\link[=grimmer_closest]{grimmer_closest()}}. If \code{x
 is one of the pairs that \code{debit_values()} returns. Otherwise, it is
 closest among the pairs whose mean would be reported as \code{x}, or, if there
 are none, it is the pair whose mean \code{\link[=grim_closest]{grim_closest()}} returns.
-
-With \code{k} ones, the mean is \code{k / n}, and \code{k} is returned as \code{sum}, the sum
-of the values.
 }
 \details{
 The values are those of actual samples, so they follow \code{debit()}'s
@@ -98,7 +95,7 @@ default \code{formula = "exact"}.
 
 More than a million numbers of ones whose mean would be reported as \code{x}
 is an error, since they are listed before the SD narrows them down. That
-takes an \code{n} far beyond any study's.
+takes an \code{n} of more than about \code{10^(digits_x + 6)}.
 
 In \code{debit_closest()}, pairs whose SDs are equally close go by the mean
 closer to \code{x}, then by the smaller number of ones.

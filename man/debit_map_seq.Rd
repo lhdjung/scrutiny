@@ -2,7 +2,7 @@
 % Please edit documentation in R/debit-map-seq.R
 \name{debit_map_seq}
 \alias{debit_map_seq}
-\title{Apply DEBIT to values around the reported ones}
+\title{DEBIT-test values around the reported ones}
 \usage{
 debit_map_seq(
   data,
@@ -75,8 +75,8 @@ other columns of \code{data} are dropped.
 }
 \description{
 \code{debit_map_seq()} varies the reported means, standard
-deviations, and sample sizes a few steps up and down and applies DEBIT to
-each resulting value set. This shows whether a small error in reporting or
+deviations, and sample sizes a few steps up and down and DEBIT-tests each
+resulting value set. This shows whether a small error in reporting or
 computing could explain an inconsistency.
 
 Call \code{\link[=audit]{audit()}} on the output for summary statistics.
@@ -94,9 +94,11 @@ variable. If both \code{include_reported} and \code{include_consistent} are \cod
 a consistent reported value set is counted as well: once per variable
 here, and once in \code{hits_total}.
 \item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
-value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the
-distances to the nearest consistent value above and below.
-\item \verb{diff_sd*} and \verb{diff_n*}: the same for \code{sd} and \code{n}.
+value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the signed
+steps to the nearest consistent value above and below (\verb{_down} is
+negative).
+\item \code{diff_sd}, \code{diff_sd_up}, \code{diff_sd_down}: the same for \code{sd}.
+\item \code{diff_n}, \code{diff_n_up}, \code{diff_n_down}: the same for \code{n}.
 }
 
 A count or distance is \code{NA} if it depends on a dispersed value set whose

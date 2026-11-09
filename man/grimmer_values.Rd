@@ -77,7 +77,7 @@ otherwise.}
 
 \item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
-\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be \code{TRUE} with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
@@ -126,9 +126,8 @@ value set is an error, since the output has one row for each. So is a sum
 of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
 \code{\link[=grimmer]{grimmer()}} tests such value sets all the same. \code{grimmer_closest()}
 stops at 2^48, about 3e14, beyond which it can miss the closest pair.
-With \code{n} from 2 to 4, both functions stop at 2^40, about 1.1e12, as
-\code{\link[=grimmer]{grimmer()}} does; \code{grimmer_closest()} even if \code{x} fails GRIM, since it
-still looks for the closest pair.
+With \code{n} from 2 to 4, both stop at 2^40, about 1.1e12, as \code{\link[=grimmer]{grimmer()}}
+does, \code{grimmer_closest()} even if \code{x} fails GRIM.
 
 Under \code{rounding = "even"}, the pairs include ties that \code{\link[base:Round]{base::round()}}
 may round away from \code{x} or \code{sd}, as in \code{\link[=grim_values]{grim_values()}}.

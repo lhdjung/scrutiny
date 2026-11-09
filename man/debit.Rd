@@ -43,8 +43,7 @@ an error for either data type.}
 sample SD is the default and when to choose another.}
 
 \item{formula}{String. \code{"exact"} (the default) only considers means that
-\code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}. It is
-the default because no other mean is possible.
+\code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}.
 \code{"mean_n"} treats the mean as continuous, as in Heathers and Brown
 (2019), and accepts some SDs that no binary sample of size \code{n} can have:
 \code{debit(0.05, 0.21, 20, 2, 2, "integer")} is \code{TRUE} under \code{"mean_n"},
@@ -99,6 +98,7 @@ Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
-\code{\link[=debit_explain]{debit_explain()}} to explain a result in plain words, and
-\code{\link[=debit_map]{debit_map()}} for data frames.
+\code{\link[=debit_explain]{debit_explain()}} to explain a result in plain words,
+\code{\link[=debit_map]{debit_map()}} for data frames, and \code{\link[=debit_values]{debit_values()}} and
+\code{\link[=debit_plot_line]{debit_plot_line()}} for the means and SDs behind a value set.
 }

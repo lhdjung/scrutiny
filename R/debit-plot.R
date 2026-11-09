@@ -10,9 +10,9 @@
 #'   `sd_meaning = "sd_sample_or_pop"`, the lines for both are drawn. Under
 #'   `"se"`, the line is that of the SE.
 #'
-#'   The means that `n` binary values can have, `k / n`, are marked as
-#'   points on the line. Under `formula = "exact"`, the default of
-#'   [`debit_map()`], a value set is consistent if one of these points lies
+#'   Under `formula = "exact"`, the default of [`debit_map()`], the means
+#'   `k / n` that would be reported as each value set's `x` are marked as
+#'   points on the line, and a value set is consistent if one of them lies
 #'   inside its rectangle. If `n` is large, only the points that would not be
 #'   drawn over by others are drawn, with a message.
 #'
@@ -22,7 +22,8 @@
 #'
 #'   A rectangle can be too small to see, so each is drawn over a point at the
 #'   reported mean and SD. Value sets with `NA` in a column needed for drawing
-#'   are left out with a warning.
+#'   are left out with a warning, and so are those of continuous data, to which
+#'   DEBIT doesn't apply.
 #'
 #'   The labels come from [`ggrepel::geom_text_repel()`], which places them at
 #'   random to minimize overlap. A fixed seed makes the placement the same on

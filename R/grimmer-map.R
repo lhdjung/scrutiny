@@ -7,7 +7,8 @@
 #'   accepts it as well.
 #'
 #' @param data Data frame with columns `x`, `sd`, and `n`, and optionally
-#'   `items_averaged`. Any other columns are returned alongside the results.
+#'   `items_averaged`, `data_type`, `digits_x`, and `digits_sd`. Any other
+#'   columns are returned alongside the results.
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for the

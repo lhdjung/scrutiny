@@ -1,4 +1,4 @@
-#' Apply DEBIT to many cases
+#' DEBIT-test many cases at once
 #'
 #' @description `debit_map()` applies [`debit()`] to every row of a data frame
 #'   with means, standard deviations, and sample sizes of binary data.
@@ -6,8 +6,9 @@
 #'   Call [`audit()`] on the output for summary statistics and
 #'   [`debit_plot()`] to visualize it.
 #'
-#' @param data Data frame with columns `x`, `sd`, and `n`. Any other columns are
-#'   returned alongside the results.
+#' @param data Data frame with columns `x`, `sd`, and `n`, and optionally
+#'   `data_type`, `digits_x`, and `digits_sd`. Any other columns are returned
+#'   alongside the results.
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for the
@@ -34,17 +35,18 @@
 #' - `digits_x`, `digits_sd`: the numbers of decimal places, as given.
 #' - `consistency`: DEBIT consistency of `x`, `sd`, and `n`. `NA` for a case
 #'   that cannot be decided, such as one with a missing value.
+#' - Any other columns from `data`.
 #'
-#'   If `show_rec` is `TRUE`, further columns hold the reconstructed values:
-#'   the bounds of `sd` and `x` (`sd_lower`, `sd_upper`, `x_lower`, `x_upper`) with
-#'   `sd_incl_lower` and `sd_incl_upper` saying whether the SD bounds are
-#'   inclusive; and `sum_lower` and `sum_upper`, the least and the greatest
-#'   number of ones among `n` values whose mean would be reported as `x`. Under
-#'   `formula = "exact"`, a value set is consistent exactly if some `k` from
-#'   `sum_lower` to `sum_upper` has an SD within the bounds of `sd`.
+#' If `show_rec` is `TRUE`, further columns right after `consistency` hold the
+#' reconstructed values: the bounds of `sd` and `x` (`sd_lower`, `sd_upper`,
+#' `x_lower`, `x_upper`) with `sd_incl_lower` and `sd_incl_upper` saying whether
+#' the SD bounds are inclusive; and `sum_lower` and `sum_upper`, the least and
+#' the greatest number of ones among `n` values whose mean would be reported as
+#' `x`. Under `formula = "exact"`, a value set is consistent exactly if some `k`
+#' from `sum_lower` to `sum_upper` has an SD within the bounds of `sd`.
 #'
-#'   The tibble has the class `scrutiny_debit_map`, which is recognized by
-#'   [`audit()`] and [`debit_plot()`].
+#' The tibble has the class `scrutiny_debit_map`, which is recognized by
+#' [`audit()`] and [`debit_plot()`].
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `debit_map()` output
 #'   returns a tibble with one row and these columns:

@@ -36,19 +36,16 @@ keep them (\code{1.40} is \code{1.4}).}
 
 \item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}, for \code{x} and \code{sd}.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"},
-the latter of which can have any mean
-and SD, though no negative SD, and a single value only an SD of 0. No
-default.}
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+No default. Continuous data can have any mean and any SD of 0 or more, but
+a single value only an SD of 0.}
 
 \item{sd_meaning}{String. What \code{sd} really is. \code{"sd_sample"} (the
-default; see \emph{Defaults} in \code{\link[=grimmer]{grimmer()}}) is the sample SD, which
-divides by \code{n - 1}, as in R, SPSS, Stata, or Excel's \code{STDEV.S}.
-\code{"sd_pop"} is the population SD, which divides by \code{n}, as in NumPy's
-\code{np.std()} or Excel's \code{STDEV.P}. \code{"sd_sample_or_pop"}
-accepts a value set that is consistent as one or the other. \code{"se"} is the
-standard error of the mean, the sample SD divided by \code{sqrt(n)}, reported as
-if it were an SD. See \emph{SD meaning}.}
+default) is the sample SD, which divides by \code{n - 1}; \code{"sd_pop"} is the
+population SD, which divides by \code{n}; \code{"sd_sample_or_pop"} accepts either;
+\code{"se"} is the standard error of the mean, the sample SD divided by
+\code{sqrt(n)}, reported as if it were an SD. See \emph{Defaults} and \emph{SD meaning}
+in \code{\link[=grimmer]{grimmer()}}.}
 
 \item{rounding}{String. The rounding method assumed to have produced \code{x}.
 Default is \code{"up_or_down"}, which accepts either direction; see
@@ -66,7 +63,7 @@ otherwise.}
 
 \item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
-\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be \code{TRUE} with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
@@ -83,7 +80,7 @@ least 2.
 \description{
 \code{grimmer()} checks whether a reported mean and standard
 deviation of integer data are consistent with the reported sample size and
-the number of items that compose them. It extends \code{\link[=grim]{grim()}}: the mean
+the number of items averaged. It extends \code{\link[=grim]{grim()}}: the mean
 must pass GRIM, and the SD must then be reachable from one of the integer
 sums that GRIM admits.
 
@@ -114,13 +111,11 @@ decides exactly whether a mean and SD are possible within the bounds.
 
 \code{x} and \code{sd} are limited to about 15 significant digits, and \code{x} with
 \code{n} and \code{items_averaged} as in \code{\link[=grim]{grim()}}. Within these limits,
-\code{grimmer()} decides value sets of any size exactly, but refuses some it
-would take too long to decide, none of which occur in practice: for \code{n}
-from 2 to 4, a sample SD from about 6e5 (\code{n = 4}) to 1e6 (\code{n = 2}) on, a
-population SD from about 5e5 to 7e5 on, or an SE from about 3e5 to 7e5 on
-(each divided by \code{items_averaged}); and a value
-set that leaves more than a million candidate sums to test, which takes an
-\code{n} of more than a million.
+\code{grimmer()} decides value sets of any size exactly, but refuses two kinds
+that no study reports: with \code{n} from 2 to 4, SDs above about 3e5 to 1e6
+(divided by \code{items_averaged}), depending on \code{n} and \code{sd_meaning}; and value
+sets with more than a million candidate sums, which takes an \code{n} of more
+than a million.
 }
 \section{Defaults}{
  \code{sd_meaning = "sd_sample"} because the sample SD is what
@@ -175,7 +170,8 @@ grimmer(
   n = 35,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1, data_type = "integer"
+  items_averaged = 1,
+  data_type = "integer"
 )
 
 # However, mean and SD are consistent with a
@@ -186,7 +182,8 @@ grimmer(
   n = 31,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 1, data_type = "integer"
+  items_averaged = 1,
+  data_type = "integer"
 )
 
 # For a scale composed of two items:
@@ -196,7 +193,8 @@ grimmer(
   n = 63,
   digits_x = 2,
   digits_sd = 2,
-  items_averaged = 2, data_type = "integer"
+  items_averaged = 2,
+  data_type = "integer"
 )
 }
 \references{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/debit-map-total-n.R
 \name{debit_map_total_n}
 \alias{debit_map_total_n}
-\title{Apply DEBIT with hypothetical group sizes}
+\title{DEBIT-test with hypothetical group sizes}
 \usage{
 debit_map_total_n(
   data,
@@ -60,10 +60,9 @@ as further columns; see \emph{Value} in \code{\link[=debit_map]{debit_map()}}. D
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}, which stands
-for 2 under \code{sd_meaning = "sd_sample"} or \code{"se"}, since a sample SD
-divides by \code{n - 1}, so a group of 1 has no test result; and for 1 under
-\code{"sd_pop"} or \code{"sd_sample_or_pop"}, where it does.}
+\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}: 2 under
+\code{sd_meaning = "sd_sample"} or \code{"se"}, which divide by \code{n - 1}, and 1 under
+\code{"sd_pop"} or \code{"sd_sample_or_pop"}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}
@@ -128,8 +127,8 @@ Light or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 \emph{Psychological Science}, 32(12), 2042–2043.
 https://journals.sagepub.com/doi/10.1177/09567976211058727
 
-Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
-Test For Binary Data. https://osf.io/5vb3u/.
+Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A Simple
+Consistency Test For Binary Data. https://osf.io/5vb3u/.
 }
 \seealso{
 \code{\link[=function_map_total_n]{function_map_total_n()}}, which created this function from

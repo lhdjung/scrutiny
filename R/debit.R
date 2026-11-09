@@ -1002,8 +1002,7 @@ debit_scalar <- function(
 #'   population SD of a single value, which is 0. Values outside of 0 to 1 are
 #'   an error for either data type.
 #' @param formula String. `"exact"` (the default) only considers means that
-#'   `n` binary values can have, i.e., `k / n` for a whole number `k`. It is
-#'   the default because no other mean is possible.
+#'   `n` binary values can have, i.e., `k / n` for a whole number `k`.
 #'   `"mean_n"` treats the mean as continuous, as in Heathers and Brown
 #'   (2019), and accepts some SDs that no binary sample of size `n` can have:
 #'   `debit(0.05, 0.21, 20, 2, 2, "integer")` is `TRUE` under `"mean_n"`,
@@ -1028,8 +1027,9 @@ debit_scalar <- function(
 #'   `sd_meaning = "sd_sample"` (the default) and `"se"`, `n` must also be at
 #'   least 2.
 #'
-#' @seealso [`debit_explain()`] to explain a result in plain words, and
-#'   [`debit_map()`] for data frames.
+#' @seealso [`debit_explain()`] to explain a result in plain words,
+#'   [`debit_map()`] for data frames, and [`debit_values()`] and
+#'   [`debit_plot_line()`] for the means and SDs behind a value set.
 #'
 #' @references Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A
 #'   Simple Consistency Test For Binary Data. https://osf.io/5vb3u/.

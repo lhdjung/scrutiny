@@ -818,7 +818,7 @@ grimmer_n_missing <- function(
 #'
 #' @description `grimmer()` checks whether a reported mean and standard
 #'   deviation of integer data are consistent with the reported sample size and
-#'   the number of items that compose them. It extends [`grim()`]: the mean
+#'   the number of items averaged. It extends [`grim()`]: the mean
 #'   must pass GRIM, and the SD must then be reachable from one of the integer
 #'   sums that GRIM admits.
 #'
@@ -848,13 +848,11 @@ grimmer_n_missing <- function(
 #'
 #'   `x` and `sd` are limited to about 15 significant digits, and `x` with
 #'   `n` and `items_averaged` as in [`grim()`]. Within these limits,
-#'   `grimmer()` decides value sets of any size exactly, but refuses some it
-#'   would take too long to decide, none of which occur in practice: for `n`
-#'   from 2 to 4, a sample SD from about 6e5 (`n = 4`) to 1e6 (`n = 2`) on, a
-#'   population SD from about 5e5 to 7e5 on, or an SE from about 3e5 to 7e5 on
-#'   (each divided by `items_averaged`); and a value
-#'   set that leaves more than a million candidate sums to test, which takes an
-#'   `n` of more than a million.
+#'   `grimmer()` decides value sets of any size exactly, but refuses two kinds
+#'   that no study reports: with `n` from 2 to 4, SDs above about 3e5 to 1e6
+#'   (divided by `items_averaged`), depending on `n` and `sd_meaning`; and value
+#'   sets with more than a million candidate sums, which takes an `n` of more
+#'   than a million.
 #'
 #' @param x Numeric. The reported mean.
 #' @param sd Numeric. The reported standard deviation.
@@ -863,18 +861,15 @@ grimmer_n_missing <- function(
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param items_averaged Integer. As in [`grim()`], for `x` and `sd`.
-#' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`,
-#'   the latter of which can have any mean
-#'   and SD, though no negative SD, and a single value only an SD of 0. No
-#'   default.
+#' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`.
+#'   No default. Continuous data can have any mean and any SD of 0 or more, but
+#'   a single value only an SD of 0.
 #' @param sd_meaning String. What `sd` really is. `"sd_sample"` (the
-#'   default; see *Defaults* in [`grimmer()`]) is the sample SD, which
-#'   divides by `n - 1`, as in R, SPSS, Stata, or Excel's `STDEV.S`.
-#'   `"sd_pop"` is the population SD, which divides by `n`, as in NumPy's
-#'   `np.std()` or Excel's `STDEV.P`. `"sd_sample_or_pop"`
-#'   accepts a value set that is consistent as one or the other. `"se"` is the
-#'   standard error of the mean, the sample SD divided by `sqrt(n)`, reported as
-#'   if it were an SD. See *SD meaning*.
+#'   default) is the sample SD, which divides by `n - 1`; `"sd_pop"` is the
+#'   population SD, which divides by `n`; `"sd_sample_or_pop"` accepts either;
+#'   `"se"` is the standard error of the mean, the sample SD divided by
+#'   `sqrt(n)`, reported as if it were an SD. See *Defaults* and *SD meaning*
+#'   in [`grimmer()`].
 #'
 #' @inheritParams grim
 #'
@@ -950,7 +945,8 @@ grimmer_n_missing <- function(
 #'   n = 35,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1, data_type = "integer"
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #'
 #' # However, mean and SD are consistent with a
@@ -961,7 +957,8 @@ grimmer_n_missing <- function(
 #'   n = 31,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 1, data_type = "integer"
+#'   items_averaged = 1,
+#'   data_type = "integer"
 #' )
 #'
 #' # For a scale composed of two items:
@@ -971,7 +968,8 @@ grimmer_n_missing <- function(
 #'   n = 63,
 #'   digits_x = 2,
 #'   digits_sd = 2,
-#'   items_averaged = 2, data_type = "integer"
+#'   items_averaged = 2,
+#'   data_type = "integer"
 #' )
 
 # The signature mirrors `grimmer_scalar()`'s minus `show_reason`; see

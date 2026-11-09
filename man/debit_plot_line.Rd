@@ -30,18 +30,17 @@ debit_plot_line(
 assumption. \code{"continuous"} and \code{NA} are errors: if the data may be
 continuous, there are no values to draw.}
 
-\item{zoom}{String. How much of the row to show: \code{"close"} (the default)
-shows the values around \code{x}, so that the marker and the strip behind it
-stand out, \code{"medium"} widens this to the nearest attainable value on
-either side, and \code{"wide"} shows a whole unit. See \emph{Details}.}
+\item{zoom}{String. How much of the row to show: \code{"close"} (the default),
+\code{"medium"}, or \code{"wide"}; see \emph{Details}.}
 
 \item{color_con, color_incon}{Strings. Color of the marker, the strip behind
 the squares, and the square at the reported value if it is consistent.
-\code{color_con} applies if the value is consistent, \code{color_incon} if not.}
+\code{color_con} applies if the value is consistent, \code{color_incon} if not.
+Defaults are \code{"#0047ff"} and \code{"#ff2a00"}.}
 
 \item{color_attainable}{String. Color of the squares for attainable values
-that were not reported, as of the consistent cells of \code{\link[=grim_plot_grid]{grim_plot_grid()}}'s
-raster.}
+that were not reported, like the consistent cells of
+\code{\link[=grim_plot_grid]{grim_plot_grid()}}'s raster. Default is \code{"grey75"}.}
 }
 \value{
 A ggplot object.

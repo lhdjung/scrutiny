@@ -794,9 +794,8 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
 #'   [`grimmer()`] tests such value sets all the same. `grimmer_closest()`
 #'   stops at 2^48, about 3e14, beyond which it can miss the closest pair.
-#'   With `n` from 2 to 4, both functions stop at 2^40, about 1.1e12, as
-#'   [`grimmer()`] does; `grimmer_closest()` even if `x` fails GRIM, since it
-#'   still looks for the closest pair.
+#'   With `n` from 2 to 4, both stop at 2^40, about 1.1e12, as [`grimmer()`]
+#'   does, `grimmer_closest()` even if `x` fails GRIM.
 #'
 #'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
 #'   may round away from `x` or `sd`, as in [`grim_values()`].

@@ -244,15 +244,12 @@ debit_values_tibble <- function(ones, n, sd_meaning) {
 #'   closest among the pairs whose mean would be reported as `x`, or, if there
 #'   are none, it is the pair whose mean [`grim_closest()`] returns.
 #'
-#'   With `k` ones, the mean is `k / n`, and `k` is returned as `sum`, the sum
-#'   of the values.
-#'
 #' @details The values are those of actual samples, so they follow `debit()`'s
 #'   default `formula = "exact"`.
 #'
 #'   More than a million numbers of ones whose mean would be reported as `x`
 #'   is an error, since they are listed before the SD narrows them down. That
-#'   takes an `n` far beyond any study's.
+#'   takes an `n` of more than about `10^(digits_x + 6)`.
 #'
 #'   In `debit_closest()`, pairs whose SDs are equally close go by the mean
 #'   closer to `x`, then by the smaller number of ones.
@@ -273,9 +270,9 @@ debit_values_tibble <- function(ones, n, sd_meaning) {
 #'
 #' @return A tibble with one row per achievable pair. `case` is the index of
 #'   the value set, as in [`grim_values()`]. `x` and `sd` are the achievable
-#'   values, `n` the reported sample size, and `sum` the number of ones. An
-#'   inconsistent value set has no rows, and one that cannot be decided has
-#'   one row of `NA` but for `n`, as in [`debit()`].
+#'   values, `n` the reported sample size, and `sum` the number of ones, `k`
+#'   in the mean `k / n`. An inconsistent value set has no rows, and one that
+#'   cannot be decided has one row of `NA` but for `n`, as in [`debit()`].
 #'
 #'   `debit_closest()` returns the same columns with exactly one row per value
 #'   set: of `NA` but for `n` if a value is missing or the value set cannot be

@@ -61,10 +61,9 @@ column of \code{data}; there is no default. It is returned as a column.}
 \item{dispersion}{Numeric. Steps up and down from half the total \code{n}.
 Default is \code{0:5}, i.e., the even split and five steps away from it.}
 
-\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}, which stands
-for 2 under \code{sd_meaning = "sd_sample"} or \code{"se"}, since a sample SD
-divides by \code{n - 1}, so a group of 1 has no test result; and for 1 under
-\code{"sd_pop"} or \code{"sd_sample_or_pop"}, where it does.}
+\item{n_min}{Numeric. Minimal group size. Default is \code{NULL}: 2 under
+\code{sd_meaning = "sd_sample"} or \code{"se"}, which divide by \code{n - 1}, and 1 under
+\code{"sd_pop"} or \code{"sd_sample_or_pop"}.}
 
 \item{n_max}{Numeric. Maximal group size. Default is \code{NULL}, i.e., no
 maximum.}

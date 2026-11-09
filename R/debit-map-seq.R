@@ -1,8 +1,8 @@
-#' Apply DEBIT to values around the reported ones
+#' DEBIT-test values around the reported ones
 #'
 #' @description `debit_map_seq()` varies the reported means, standard
-#'   deviations, and sample sizes a few steps up and down and applies DEBIT to
-#'   each resulting value set. This shows whether a small error in reporting or
+#'   deviations, and sample sizes a few steps up and down and DEBIT-tests each
+#'   resulting value set. This shows whether a small error in reporting or
 #'   computing could explain an inconsistency.
 #'
 #'   Call [`audit()`] on the output for summary statistics.
@@ -42,9 +42,11 @@
 #'   a consistent reported value set is counted as well: once per variable
 #'   here, and once in `hits_total`.
 #'   - `diff_x`: the distance from `x` to the nearest consistent dispersed
-#'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the
-#'   distances to the nearest consistent value above and below.
-#'   - `diff_sd*` and `diff_n*`: the same for `sd` and `n`.
+#'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the signed
+#'   steps to the nearest consistent value above and below (`_down` is
+#'   negative).
+#'   - `diff_sd`, `diff_sd_up`, `diff_sd_down`: the same for `sd`.
+#'   - `diff_n`, `diff_n_up`, `diff_n_down`: the same for `n`.
 #'
 #'   A count or distance is `NA` if it depends on a dispersed value set whose
 #'   consistency is `NA`, on a variable whose reported value is missing, which

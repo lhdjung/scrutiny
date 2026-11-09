@@ -1,4 +1,4 @@
-#' Apply DEBIT with hypothetical group sizes
+#' DEBIT-test with hypothetical group sizes
 #'
 #' @description Some studies report group means and standard deviations of
 #'   binary data but only the total sample size, not the group sizes. For two
@@ -21,10 +21,9 @@
 #'   separately and [`audit()`] each output.
 #' @param x1,x2,sd1,sd2,n Optionally, the names of the columns in `data` that
 #'   contain these values, if they differ from the defaults.
-#' @param n_min Numeric. Minimal group size. Default is `NULL`, which stands
-#'   for 2 under `sd_meaning = "sd_sample"` or `"se"`, since a sample SD
-#'   divides by `n - 1`, so a group of 1 has no test result; and for 1 under
-#'   `"sd_pop"` or `"sd_sample_or_pop"`, where it does.
+#' @param n_min Numeric. Minimal group size. Default is `NULL`: 2 under
+#'   `sd_meaning = "sd_sample"` or `"se"`, which divide by `n - 1`, and 1 under
+#'   `"sd_pop"` or `"sd_sample_or_pop"`.
 #' @param ... These dots must be empty. Every argument after them must be
 #'   named in full.
 #' @inheritParams debit_map
@@ -37,8 +36,8 @@
 #'   *Psychological Science*, 32(12), 2042–2043.
 #'   https://journals.sagepub.com/doi/10.1177/09567976211058727
 #'
-#'   Heathers, J. A. J., & Brown, N. J. L. (2019). DEBIT: A Simple Consistency
-#'   Test For Binary Data. https://osf.io/5vb3u/.
+#'   Heathers, James A. J., and Brown, Nicholas J. L. 2019. DEBIT: A Simple
+#'   Consistency Test For Binary Data. https://osf.io/5vb3u/.
 #'
 #' @seealso [`function_map_total_n()`], which created this function from
 #'   [`debit_map()`].
