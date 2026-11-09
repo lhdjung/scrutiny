@@ -127,7 +127,6 @@ reference:
 - subtitle: Counting decimal places
 - contents:
   - decimal_places
-  - decimal_places_df
 - subtitle: Sequence generation
 - contents:
   - seq_disperse
@@ -148,7 +147,6 @@ reference:
 - title: Data wrangling
   desc: Automate formatting tasks with a special relevance to error detection
 - contents:
-  - restore_zeros
   - split_by_parens
   - before_parens
   - inside_parens

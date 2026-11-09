@@ -21,7 +21,7 @@ options(pillar.sigfig = 4)
 library(scrutiny)
 ```
 
-Preparing data for error detection can take longer than the tests themselves: copying numbers from PDF, restoring trailing zeros, or splitting strings that look like `"7.64 (1.5)"`. This vignette gives some tips for these tasks and presents scrutiny's wrangling functions.
+Preparing data for error detection can take longer than the tests themselves: copying numbers from PDF, keeping track of trailing zeros, or splitting strings that look like `"7.64 (1.5)"`. This vignette gives some tips for these tasks and presents scrutiny's wrangling functions.
 
 ## Trailing zeros
 
@@ -31,7 +31,7 @@ Numeric values in R don't preserve trailing zeros. A mean reported as 5.30 is st
 
 scrutiny's consistency tests solve this by asking you to state the number of decimal places explicitly: `grim_map()` has a `digits_x` argument, and `grimmer_map()` and `debit_map()` have `digits_x` and `digits_sd`. None of them has a default, so you can't forget. Values themselves stay numeric.
 
-To get the trailing zeros back in the values, for display, export, or a function that expects strings, use `restore_zeros()`; see below.
+To get the trailing zeros back in the values for display or export, format them as strings with `formatC(x, format = "f", digits = 2)`.
 
 ### Enter numbers from PDF
 
@@ -66,54 +66,6 @@ flights1 <- flights1 |>
   dplyr::mutate(n = 28)
 
 flights1
-```
-
-### Restore trailing zeros
-
-To restore trailing zeros in the values themselves, call `restore_zeros()`. It returns strings. Suppose all of the following numbers originally had one decimal place, but some no longer do:
-
-```{r}
-vec <- c(4, 6.9, 5, 4.2, 4.8, 7, 4)
-
-vec |>
-  decimal_places()
-```
-
-Now, get them back with `restore_zeros()`:
-
-```{r}
-vec |>
-  restore_zeros()
-
-vec |>
-  restore_zeros() |>
-  decimal_places()
-```
-
-This uses the default of going by the longest mantissa and padding the other strings with decimal zeros until they have that many decimal places. However, this is just a heuristic: The longest mantissa might itself have lost decimal places. Specify the `width` argument to explicitly state the desired mantissa length:
-
-```{r}
-vec |>
-  restore_zeros(width = 2)
-
-vec |>
-  restore_zeros(width = 2) |>
-  decimal_places()
-```
-
-A convenient way to restore trailing zeros in a data frame is `restore_zeros_df()`. By default, it operates on all columns that are numeric-like, i.e., that `is_numeric_like()` accepts, such as numbers and strings that represent numbers:
-
-```{r}
-iris <- tibble::as_tibble(iris)
-iris |>
-  restore_zeros_df(width = 3)
-```
-
-Specify columns mostly like you would in `dplyr::select()`:
-
-```{r}
-iris |>
-  restore_zeros_df(starts_with("Sepal"), width = 3)
 ```
 
 ## Split strings by parentheses

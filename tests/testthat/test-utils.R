@@ -407,6 +407,7 @@ test_that("`sd_denominator_ratio()` agrees with `sd_denominator()`", {
 
 
 test_that("a factor gets the hint at converting it in every export that takes a number", {
+  rlang::local_options(lifecycle_verbosity = "quiet")
   f <- factor(28)
   expect_error(grim_explain(5.19, f, 2, 1, "integer"),            "`n` must be numeric, not a factor")
   expect_error(grim_total(5.19, f, 2, 1, data_type = "integer"),  "`n` must be numeric, not a factor")

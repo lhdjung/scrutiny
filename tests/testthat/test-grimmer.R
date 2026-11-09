@@ -282,8 +282,8 @@ as_logical_consistency <- function(x) {
 names(df1) <- c("n", "x", "sd")
 df1 <- df1 |>
   dplyr::mutate(
-    x = as.numeric(restore_zeros(x, width = 2)),
-    sd = as.numeric(restore_zeros(sd, width = 2)),
+    x = as.numeric(x),
+    sd = as.numeric(sd),
     digits_x = 2L,
     digits_sd = 2L,
     items_averaged = 1,

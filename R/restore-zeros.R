@@ -1,6 +1,13 @@
 #' Restore trailing zeros
 #'
-#' @description `restore_zeros()` formats numbers as strings with a given number
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   These functions are deprecated because the tests no longer take strings,
+#'   so there is no need to restore trailing zeros for them. Give the number
+#'   of decimal places as `digits_x` or `digits_sd` instead. To format numbers
+#'   for display, use `formatC(x, format = "f", digits = 2)`.
+#'
+#'   `restore_zeros()` formats numbers as strings with a given number
 #'   of decimal places, padding with zeros. By default, the target is the number
 #'   of decimal places of the value that has the most. Do not rely on this
 #'   default without checking it, since the longest mantissa may itself have
@@ -50,6 +57,7 @@
 #' - For `restore_zeros()`, a string vector.
 #' - For `restore_zeros_df()`, a data frame.
 #'
+#' @keywords internal
 #' @export
 #'
 #' @include utils.R
@@ -78,7 +86,25 @@ restore_zeros <- function(
   sep_out = sep_in,
   check_width = c("capped", "never")
 ) {
-  check_width <- rlang::arg_match(check_width)
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "restore_zeros()",
+    details = DETAILS_RESTORE_ZEROS
+  )
+  pad_zeros(x, width, sep_in, sep_out, check_width)
+}
+
+
+# The body of `restore_zeros()`, also used by `restore_zeros_df()` and
+# `debit_plot()`, which must not warn about the deprecation:
+pad_zeros <- function(
+  x,
+  width = NULL,
+  sep_in = ".",
+  sep_out = sep_in,
+  check_width = c("capped", "never")
+) {
+  check_width <- arg_match_in_export(check_width)
   sep_in <- sep_literal(sep_in)
 
   # A number is written out in full, as `decimal_places()` reads it:
@@ -219,6 +245,11 @@ restore_zeros_df <- function(
   sep_out = sep_in,
   check_width = c("capped", "never")
 ) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "restore_zeros_df()",
+    details = DETAILS_RESTORE_ZEROS
+  )
   check_flag(check_numeric_like)
   check_flag(check_decimals)
   data <- as_data_frame_input(data, "`restore_zeros()`, without `_df`")
@@ -304,7 +335,7 @@ restore_zeros_df <- function(
   # `data` first, so that a column of such a name would replace the argument.
   restore <- function(x) {
     withCallingHandlers(
-      restore_zeros(
+      pad_zeros(
         x = x,
         width = width,
         sep_in = sep_in,

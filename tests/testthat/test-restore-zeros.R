@@ -1,3 +1,9 @@
+# Deprecated, but tested until removed; testthat resets
+# `lifecycle_verbosity` in every `test_that()`, so these wrappers silence them:
+restore_zeros     <- function(...) rlang::with_options(scrutiny::restore_zeros(...),     lifecycle_verbosity = "quiet") # fmt: skip
+restore_zeros_df  <- function(...) rlang::with_options(scrutiny::restore_zeros_df(...),  lifecycle_verbosity = "quiet") # fmt: skip
+decimal_places_df <- function(...) rlang::with_options(scrutiny::decimal_places_df(...), lifecycle_verbosity = "quiet") # fmt: skip
+
 round_to <- rnorm(50, 2, 1) |>
   censor(1, 4) |>
   round()
@@ -265,4 +271,16 @@ test_that("the `*_df()` functions don't warn about a column with no values", {
   df |> decimal_places_df(c(a, e, b), check_numeric_like = FALSE) |> expect_no_warning()
   df |> restore_zeros_df(c(e, b))                                 |> expect_no_warning()
   tibble::tibble(a = "1 (2)", e = NA) |> split_by_parens(check_delim = FALSE) |> expect_no_warning()
+})
+
+test_that("`restore_zeros()`, `restore_zeros_df()`, and `decimal_places_df()` are deprecated", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  1.5                       |> scrutiny::restore_zeros(width = 2) |> expect_warning(class = "lifecycle_warning_deprecated")
+  tibble::tibble(a = 1.5)   |> scrutiny::restore_zeros_df()       |> expect_warning(class = "lifecycle_warning_deprecated")
+  tibble::tibble(a = "1.5") |> scrutiny::decimal_places_df()      |> expect_warning(class = "lifecycle_warning_deprecated")
+})
+
+test_that("`debit_plot()` labels values with their trailing zeros, without a deprecation warning", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |> debit_plot() |> expect_no_warning()
 })

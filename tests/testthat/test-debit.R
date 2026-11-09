@@ -10,7 +10,7 @@ run_full_debit_oracle <- identical(Sys.getenv("SCRUTINY_FULL_ORACLE"), "true")
 #
 #
 # x <- 0.01 |> seq(1, by = 0.01) |> round(2) |> rep(10)
-# sd <- rnorm(100, 0.15, 0.05) |> round(2) |> restore_zeros(width = 2)
+# sd <- rnorm(100, 0.15, 0.05) |> sprintf(fmt = "%.2f")
 #
 # out <- purrr::pmap_lgl(list(x, sd, n), debit)
 

@@ -194,8 +194,8 @@ debit_plot <- function(
   x <- x_num
   sd <- sd_num
   if (all(c("digits_x", "digits_sd") %in% colnames(data))) {
-    x <- restore_zeros(x_num, width = data$digits_x)
-    sd <- restore_zeros(sd_num, width = data$digits_sd)
+    x <- pad_zeros(x_num, width = data$digits_x)
+    sd <- pad_zeros(sd_num, width = data$digits_sd)
   }
   value_labels <- paste0(x, "; ", sd)
 

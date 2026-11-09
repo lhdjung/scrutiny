@@ -1,3 +1,9 @@
+# Deprecated, but tested until removed; testthat resets
+# `lifecycle_verbosity` in every `test_that()`, so these wrappers silence them:
+restore_zeros     <- function(...) rlang::with_options(scrutiny::restore_zeros(...),     lifecycle_verbosity = "quiet") # fmt: skip
+restore_zeros_df  <- function(...) rlang::with_options(scrutiny::restore_zeros_df(...),  lifecycle_verbosity = "quiet") # fmt: skip
+decimal_places_df <- function(...) rlang::with_options(scrutiny::decimal_places_df(...), lifecycle_verbosity = "quiet") # fmt: skip
+
 # Long vectors with decimal numbers:
 x1 <- iris$Petal.Length
 x2 <- mtcars$qsec

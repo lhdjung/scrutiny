@@ -23,7 +23,7 @@ scrutiny exports the helper functions on which its error detection techniques ar
 
 ## Count decimal places
 
-`seq_disperse()` and `restore_zeros()` are based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
+`seq_disperse()` is based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
 
 ```{r}
 decimal_places("2.80")
@@ -47,8 +47,6 @@ decimal_places(7.200)
 
 decimal_places("7.200")
 ```
-
-`restore_zeros()` pads numbers with trailing zeros, returning strings; see `vignette("wrangling")`.
 
 ## Sequence generation
 

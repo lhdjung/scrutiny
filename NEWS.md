@@ -250,6 +250,10 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 - `audit_seq()` and `audit_total_n()` are deprecated in favor of `audit()`, which returns the same summaries.
 
+- `restore_zeros()` and `restore_zeros_df()` are deprecated. They put trailing zeros back into numbers as strings, which the tests no longer take. Give the number of decimal places as `digits_x` or `digits_sd` instead, and format numbers for display with `formatC(x, format = "f", digits = 2)`.
+
+- `decimal_places_df()` is deprecated, since it replaces the values by their counts, while the tests need both. Use `decimal_places()` in `dplyr::mutate()` instead, as in `mutate(digits_x = decimal_places(x))`.
+
 ### Removed
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.

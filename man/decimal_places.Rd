@@ -34,8 +34,9 @@ accurately; enter such numbers as strings.
 \section{Trailing zeros}{
  A numeric value has lost its trailing zeros: \code{3.70}
 is stored as \code{3.7} and has one decimal place. If trailing zeros matter,
-enter the values as strings, such as \code{"3.70"}, or restore them with
-\code{\link[=restore_zeros]{restore_zeros()}} if the original number of decimal places is known.
+count them while the values are still strings, such as \code{"3.70"}, and
+give the counts to the tests as \code{digits_x} or \code{digits_sd}, as in
+\code{dplyr::mutate(data, digits_x = decimal_places(x), x = as.numeric(x))}.
 }
 
 \examples{
@@ -47,7 +48,4 @@ decimal_places(x = c(7.3900, "7.3900"))
 
 # Whitespace at the end of a string is ignored:
 decimal_places(x = "6.0     ")
-}
-\seealso{
-\code{\link[=decimal_places_df]{decimal_places_df()}} for data frames.
 }

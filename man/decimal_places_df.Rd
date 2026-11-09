@@ -31,6 +31,12 @@ Data frame with the selected columns replaced by their counts of
 decimal places.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{decimal_places_df()} is deprecated because it replaces the values by
+their counts, while the tests need both. Use \code{\link[=decimal_places]{decimal_places()}} in
+\code{dplyr::mutate()} instead, as in \code{mutate(digits_x = decimal_places(x))}.
+
 \code{decimal_places_df()} replaces every value in the selected columns by its
 number of decimal places. By default, it operates on all columns coercible
 to numeric.
@@ -51,3 +57,4 @@ iris |>
 \seealso{
 \code{\link[=decimal_places]{decimal_places()}}.
 }
+\keyword{internal}

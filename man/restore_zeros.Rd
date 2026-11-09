@@ -66,6 +66,13 @@ are skipped. Default is \code{FALSE}. Only in \code{restore_zeros_df()}.}
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+These functions are deprecated because the tests no longer take strings,
+so there is no need to restore trailing zeros for them. Give the number
+of decimal places as \code{digits_x} or \code{digits_sd} instead. To format numbers
+for display, use \code{formatC(x, format = "f", digits = 2)}.
+
 \code{restore_zeros()} formats numbers as strings with a given number
 of decimal places, padding with zeros. By default, the target is the number
 of decimal places of the value that has the most. Do not rely on this
@@ -104,3 +111,4 @@ restore_zeros_df(iris)
 # Selected columns:
 restore_zeros_df(iris, starts_with("Sepal"), width = 3)
 }
+\keyword{internal}

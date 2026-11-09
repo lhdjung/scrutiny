@@ -5,8 +5,9 @@
 #'
 #' @section Trailing zeros: A numeric value has lost its trailing zeros: `3.70`
 #'   is stored as `3.7` and has one decimal place. If trailing zeros matter,
-#'   enter the values as strings, such as `"3.70"`, or restore them with
-#'   [`restore_zeros()`] if the original number of decimal places is known.
+#'   count them while the values are still strings, such as `"3.70"`, and
+#'   give the counts to the tests as `digits_x` or `digits_sd`, as in
+#'   `dplyr::mutate(data, digits_x = decimal_places(x), x = as.numeric(x))`.
 #'
 #' @details The function counts the run of digits after the first `sep`,
 #'   after trimming whitespace and applying any exponent: `"5.30%"` has two
@@ -29,8 +30,6 @@
 #'
 #' @rdname decimal_places
 #' @export
-#'
-#' @seealso [`decimal_places_df()`] for data frames.
 #'
 #' @examples
 #' decimal_places(x = 2.851)
@@ -203,9 +202,15 @@ decimal_places_scalar <- function(x, sep = ".") {
 
 #' Count decimal places in a data frame
 #'
-#' `decimal_places_df()` replaces every value in the selected columns by its
-#' number of decimal places. By default, it operates on all columns coercible
-#' to numeric.
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `decimal_places_df()` is deprecated because it replaces the values by
+#'   their counts, while the tests need both. Use [`decimal_places()`] in
+#'   `dplyr::mutate()` instead, as in `mutate(digits_x = decimal_places(x))`.
+#'
+#'   `decimal_places_df()` replaces every value in the selected columns by its
+#'   number of decimal places. By default, it operates on all columns coercible
+#'   to numeric.
 #'
 #' @param data Data frame.
 #' @param cols Columns to operate on, selected with
@@ -223,6 +228,7 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'
 #' @seealso [`decimal_places()`].
 #'
+#' @keywords internal
 #' @export
 #'
 #' @examples
@@ -244,6 +250,15 @@ decimal_places_df <- function(
   check_numeric_like = TRUE,
   sep = "."
 ) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "decimal_places_df()",
+    "decimal_places()",
+    details = paste(
+      "Use it in `dplyr::mutate()`, as in",
+      "`mutate(digits_x = decimal_places(x))`, which keeps the values."
+    )
+  )
   check_flag(check_numeric_like)
   sep_literal_value <- sep_literal(sep)
   data <- as_data_frame_input(data, "`decimal_places()`, without `_df`")

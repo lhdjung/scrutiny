@@ -1,3 +1,9 @@
+# Deprecated, but tested until removed; testthat resets
+# `lifecycle_verbosity` in every `test_that()`, so these wrappers silence them:
+restore_zeros     <- function(...) rlang::with_options(scrutiny::restore_zeros(...),     lifecycle_verbosity = "quiet") # fmt: skip
+restore_zeros_df  <- function(...) rlang::with_options(scrutiny::restore_zeros_df(...),  lifecycle_verbosity = "quiet") # fmt: skip
+decimal_places_df <- function(...) rlang::with_options(scrutiny::decimal_places_df(...), lifecycle_verbosity = "quiet") # fmt: skip
+
 # Example data:
 # fmt: skip
 pigs <- tibble::tribble(
@@ -25,8 +31,8 @@ test_that("It has correct column names", {
 
 pigs_tested_transformed <- pigs |> split_by_parens(transform = TRUE)
 
-x_expected  <- c(0.09, 0.19, 0.62, 0.15, 0.19, 0.53, 0.50, 0.57) |> restore_zeros() # fmt: skip
-sd_expected <- c(0.21, 0.28, 0.16, 0.35, 0.13, 0.10, 0.11, 0.16) |> restore_zeros() # fmt: skip
+x_expected  <- c(0.09, 0.19, 0.62, 0.15, 0.19, 0.53, 0.50, 0.57) |> sprintf(fmt = "%.2f") # fmt: skip
+sd_expected <- c(0.21, 0.28, 0.16, 0.35, 0.13, 0.10, 0.11, 0.16) |> sprintf(fmt = "%.2f") # fmt: skip
 
 test_that("It has correct values", {
   pigs_tested_transformed$x  |> expect_equal(x_expected)

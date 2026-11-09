@@ -237,3 +237,10 @@ EXPORTS_STRING_NUMBERS <- c(
   "grim_exp_incon",
   "grim_probability"
 )
+
+# Deprecation details shared by `restore_zeros()` and `restore_zeros_df()`:
+DETAILS_RESTORE_ZEROS <- paste(
+  "Give the number of decimal places as `digits_x` or `digits_sd` instead.",
+  "To format numbers for display, use",
+  "`formatC(x, format = \"f\", digits = 2)`."
+)

@@ -1,10 +1,6 @@
-before <- rnorm(500, 25, 5) |>
-  round(2) |>
-  restore_zeros(width = 2)
+before <- rnorm(500, 25, 5) |> sprintf(fmt = "%.2f")
 
-inside <- rnorm(500, 25, 5) |>
-  round(2) |>
-  restore_zeros(width = 2)
+inside <- rnorm(500, 25, 5) |> sprintf(fmt = "%.2f")
 
 x_parens <- paste0(before, " (", inside, ")")
 
