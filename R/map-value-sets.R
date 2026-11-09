@@ -57,6 +57,7 @@ map_value_sets <- function(fn, along, type = "logical") {
   names_scalar <- args_supplied[!args_supplied %in% along]
 
   for (name in names_along) {
+    check_not_data_frame(vals[[name]], name)
     check_not_integer64(vals[[name]], name)
   }
 

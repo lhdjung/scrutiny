@@ -424,3 +424,12 @@ test_that("a factor gets the hint at converting it in every export that takes a 
   expect_error(grim_binomial_power(factor(0.5), 0.7, 20),         "`p0` must be numeric, not a factor")
   expect_error(check_alpha(factor(0.05)),                         "`alpha` must be numeric, not a factor")
 })
+
+test_that("a data frame where values are expected is an error", {
+  df <- tibble::tibble(x = 5.19, n = 28)
+  df |> grim(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")           |> expect_error("`grim_map\\(\\)`")
+  df |> grim_values(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")    |> expect_error("data\\$x")
+  df |> grim_plot_line(n = 28, digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("data\\$x\\[1\\]")
+  df |> grim_explain(n = 28)                                                             |> expect_error("explain_print")
+  1  |> grimmer_explain(df, n = 28)                                                      |> expect_error("`sd` must not be a data frame")
+})

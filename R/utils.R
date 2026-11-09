@@ -567,6 +567,30 @@ check_not_factor <- function(x, name = NULL) {
 }
 
 
+# Mapper output piped into a function for values, as in `out |> grim()`, would
+# otherwise fail on whichever check comes first, such as one for `digits_x`:
+check_not_data_frame <- function(x, name) {
+  if (!is.data.frame(x)) {
+    return(invisible())
+  }
+  name_fn <- name_last_export()
+  hint <- if (grepl("_explain$|_plot_line$", name_fn)) {
+    c(
+      "i" = "`{name_fn}()` takes one value set. Pass the values of a row, as \\
+      in `data${name}[1]`.",
+      if (grepl("_explain$", name_fn)) {
+        c("i" = "To explain every row of mapper output, use `explain_print()`.")
+      }
+    )
+  } else if (exists(paste0(name_fn, "_map"), envir = asNamespace("scrutiny"))) {
+    c("i" = "For a data frame, use `{name_fn}_map()`.")
+  } else {
+    c("i" = "Pass a column, as in `data${name}`.")
+  }
+  abort_in_export("`{name}` must not be a data frame.", hint)
+}
+
+
 #' Coerce a whole-number column to integer, but only if that is lossless
 #'
 #' @description Mappers store the `ARGS_WHOLE` columns, such as `n`, and the
@@ -968,6 +992,7 @@ check_args_given <- function(names, env = parent.frame()) {
     if (eval(call("missing", as.name(name)), env)) {
       abort_in_export("Need to specify {.arg {name}}.")
     }
+    check_not_data_frame(get(name, envir = env), name)
   }
 }
 
