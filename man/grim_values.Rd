@@ -82,12 +82,9 @@ among those that would be reported as \code{x}, or, if there are none, the
 closest one overall. Of two equally close values, it returns the smaller.
 }
 
-Both are vectorized like \code{\link[=grim]{grim()}} and return a tibble in which \code{case}
-says which value set a row belongs to. A reported mean may correspond to
-one achievable mean, to several, or to none, so \code{grim_values()} has one
-row per achievable mean, and \code{grim_closest()} one row per value set.
-\code{\link[=grimmer_values]{grimmer_values()}} and \code{\link[=grimmer_closest]{grimmer_closest()}} are the counterparts for
-GRIMMER.
+Both are vectorized like \code{\link[=grim]{grim()}}; \code{case} says which value set a row
+belongs to. \code{\link[=grimmer_values]{grimmer_values()}} and \code{\link[=grimmer_closest]{grimmer_closest()}} are the
+counterparts for GRIMMER.
 }
 \details{
 The achievable means are the whole numbers in the range that

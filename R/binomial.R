@@ -14,19 +14,19 @@
 #'   `"less"`, and `"two.sided"`.
 #' @param alpha Numeric (length 1). Significance level of the test. The
 #'   interval around `estimate` has a confidence level of `1 - alpha`. Default
-#'   is `0.05`, as in [`grim_binomial_power()`].
+#'   is `0.05`.
 #'
 #' @details Under the null hypothesis, the decimal digits of each mean are
 #'   random, so its probability of consistency is `1 - exp_incon`, with
 #'   `exp_incon` from [`grim_exp_incon()`]. Since this differs between value
-#'   sets, the test
-#'   uses the Poisson binomial distribution rather than averaging the
-#'   probabilities. Value sets whose `consistency` or `exp_incon` is `NA` are
-#'   left out: `exp_incon` is `NA` if `n`, `items_averaged`, `digits_x`, or
-#'   `data_type` is missing, even where the value set has a definite result.
-#'   Value sets with `data_type = "continuous"` have an `exp_incon` of 0, so they count as
-#'   certain successes: they leave the p-value unchanged but raise `estimate`
-#'   and the interval. Filter them out first to compare only the others.
+#'   sets, the test uses the Poisson binomial distribution rather than
+#'   averaging the probabilities. Value sets whose `consistency` or `exp_incon`
+#'   is `NA` are left out: `exp_incon` is `NA` if `x`, `n`, `items_averaged`,
+#'   `digits_x`, or `data_type` is missing, even where the value set has a
+#'   definite result. Value sets with `data_type = "continuous"` have an
+#'   `exp_incon` of 0, so they count as certain successes: they leave the
+#'   p-value unchanged but raise `estimate` and the interval. Filter them out
+#'   first to compare only the others.
 #'
 #'   The two-sided p-value is twice the smaller one-sided one, capped at 1.
 #'

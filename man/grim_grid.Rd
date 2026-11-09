@@ -32,8 +32,8 @@ raster.
 \details{
 The grid covers sample sizes from 1 to \code{10^digits_x}, where GRIM stops
 ruling out any mean, and fractional parts in steps of \code{1 / 10^digits_x},
-without zero. All fractional parts of means are positive, so \code{symmetric}
-makes no difference.
+without zero. All fractional parts of means are positive, so there is no
+\code{symmetric} argument.
 
 For percentages, use the number of decimal places of the proportion,
 which is two more: \code{grim_grid(2)} for whole percentages, as in

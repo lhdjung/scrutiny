@@ -40,9 +40,10 @@ values, if they differ from the defaults.}
 \item{...}{These dots must be empty. Every argument after them must be
 named in full.}
 
-\item{items_averaged}{Integer. As in \code{\link[=grim_map]{grim_map()}}: the number of items
-averaged into each score, given as an argument or as a column of \code{data}.
-There is no default.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}: the number of items
+averaged into each score, not the number of scale points. Give it as an
+argument or as a column of \code{data}; there is no default. It is returned as
+a column.}
 
 \item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
 Like \code{items_averaged}, give it as an argument or as a
@@ -51,11 +52,9 @@ column of \code{data}; there is no default. It is returned as a column.}
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
 decimal places. It applies to the whole call, so test a table that mixes
-means and percentages part by part, as in the examples of
-\code{\link[=grim_map]{grim_map()}}. Each part records
-its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others
-read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
-them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
+means and percentages in parts, as in the examples of \code{\link[=grim_map]{grim_map()}}.
+The parts record different settings, so they can't be combined with
+\code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}, whose
 section \emph{Defaults} explains the defaults.}
@@ -107,8 +106,9 @@ respectively. If both \code{include_reported} and \code{include_consistent} are
 \code{TRUE}, a consistent reported value set is counted as well: once per
 variable here, and once in \code{hits_total}.
 \item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
-value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the
-distances to the nearest consistent value above and below.
+value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the signed
+steps to the nearest consistent value above and below (\verb{_down} is
+negative).
 \item \code{diff_n}, \code{diff_n_up}, \code{diff_n_down}: the same for \code{n}.
 }
 

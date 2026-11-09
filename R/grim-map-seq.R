@@ -25,11 +25,6 @@
 #'   part of the sequences? Default is `FALSE`.
 #' @param include_consistent Logical. Should consistent value sets be dispersed
 #'   as well, not just inconsistent ones? Default is `FALSE`.
-#' @param items_averaged Integer. As in [`grim_map()`]: the number of items
-#'   averaged into each score, given as an argument or as a column of `data`.
-#'   There is no default.
-#' @param ... These dots must be empty. Every argument after them must be
-#'   named in full.
 #' @inheritParams grim_map
 #'
 #' @return A tibble with the columns of [`grim_map()`] output plus `diff_var`,
@@ -49,8 +44,9 @@
 #'   `TRUE`, a consistent reported value set is counted as well: once per
 #'   variable here, and once in `hits_total`.
 #'   - `diff_x`: the distance from `x` to the nearest consistent dispersed
-#'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the
-#'   distances to the nearest consistent value above and below.
+#'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the signed
+#'   steps to the nearest consistent value above and below (`_down` is
+#'   negative).
 #'   - `diff_n`, `diff_n_up`, `diff_n_down`: the same for `n`.
 #'
 #'   A count or distance is `NA` if it depends on a dispersed value set whose

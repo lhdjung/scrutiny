@@ -40,8 +40,8 @@ case the axis spans the raster and the data.}
 \item{digits_x}{Integer. Number of decimal places for the raster. Default is
 \code{NULL}, in which case it is read from the \code{digits_x} column that every
 mapper adds, or, if that was removed, inferred from \code{x}, which loses
-trailing zeros. For percentages, give the number of decimal places as
-reported; 2 are added.}
+trailing zeros. With \code{show_data = FALSE}, \code{NULL} means 2. For percentages,
+give the number of decimal places as reported; 2 are added.}
 
 \item{rounding, threshold}{The same as in \code{\link[=grim]{grim()}}, for the raster. Only
 used if \code{show_data} is \code{FALSE}: otherwise, the raster follows the
@@ -63,10 +63,10 @@ plot is printed.
 }
 \description{
 \code{grim_plot_grid()} plots the output of \code{\link[=grim_map]{grim_map()}} or
-\code{\link[=grimmer_map]{grimmer_map()}}. Each value set is placed by its sample size and the
-fractional part of its mean, in blue if consistent and red if not, on a
-background raster that shows which combinations are GRIM-consistent at
-all.
+\code{\link[=grimmer_map]{grimmer_map()}}. Each value set is placed by \code{n * items_averaged} (the
+sample size for single items) and the fractional part of its mean, in
+blue if consistent and red if not, on a background raster that shows
+which combinations are GRIM-consistent at all.
 }
 \section{Background raster}{
  For one or two decimal places, the raster
@@ -89,7 +89,7 @@ plotted
 as the proportions they were tested as, with two more decimal places.
 
 Set \code{show_data = FALSE} to plot the raster alone, controlled by \code{digits_x},
-\code{rounding}, and \code{n}.
+\code{rounding}, \code{threshold}, and \code{n}.
 
 Under the default \code{rounding = "up_or_down"}, fewer values are
 inconsistent at sample sizes 40 and 80 than at their neighbors with two

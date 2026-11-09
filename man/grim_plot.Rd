@@ -29,7 +29,8 @@ on to \code{\link[=grim_plot_grid]{grim_plot_grid()}}.}
 and \code{color_raster}.}
 
 \item{color_cons, color_incons, tile_alpha, raster_alpha}{No longer have any
-effect: \code{grim_plot_grid()} draws its tiles in fixed colors.}
+effect. To recolor the tiles, add a color scale, as in the examples of
+\code{\link[=grim_plot_grid]{grim_plot_grid()}}.}
 
 \item{...}{Other arguments of \code{\link[=grim_plot_grid]{grim_plot_grid()}}, such as
 \code{split_by_digits}.}

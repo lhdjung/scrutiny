@@ -21,7 +21,8 @@ grim_map(
 }
 \arguments{
 \item{data}{Data frame with columns \code{x} and \code{n}, and optionally
-\code{items_averaged}. Any other columns are returned alongside the results.}
+\code{items_averaged}, \code{data_type}, and \code{digits_x}. Any other columns are
+returned alongside the results.}
 
 \item{digits_x}{Integer. The number of decimal places in \code{x}, including
 trailing zeros. There is no default, since a numeric value does not keep
@@ -47,11 +48,9 @@ column of \code{data}; there is no default. It is returned as a column.}
 \item{x_meaning}{String. What the \code{x} values are: \code{"mean"} (the default) or
 \code{"percentage"}. Percentages are divided by 100 and tested with two more
 decimal places. It applies to the whole call, so test a table that mixes
-means and percentages part by part, as in the examples of
-\code{\link[=grim_map]{grim_map()}}. Each part records
-its own settings, which \code{\link[=grim_plot_grid]{grim_plot_grid()}}, \code{\link[=audit]{audit()}}, and others
-read, so the parts can't be combined with \code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}: keep
-them apart. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
+means and percentages in parts, as in the examples of \code{\link[=grim_map]{grim_map()}}.
+The parts record different settings, so they can't be combined with
+\code{\link[dplyr:bind_rows]{dplyr::bind_rows()}}. See \emph{Defaults} in \code{\link[=grim]{grim()}}.}
 
 \item{rounding, threshold, symmetric}{Passed on to \code{\link[=grim]{grim()}}, whose
 section \emph{Defaults} explains the defaults.}
@@ -88,7 +87,7 @@ Call these functions on the output of \code{grim_map()}:
 \itemize{
 \item \code{\link[=audit]{audit()}} for summary statistics.
 \item \code{\link[=grim_plot_grid]{grim_plot_grid()}} to visualize the results.
-\item \code{\link[=explain_print]{explain_print()}} to learn about the math of GRIM.
+\item \code{\link[=explain_print]{explain_print()}} to explain each result in plain words.
 }
 }
 \section{Reconstructed numbers}{
@@ -104,10 +103,12 @@ are the whole numbers on either side of \code{rec_sum}, so their gap is always 1
 and does not measure how far off the reported values are.
 \item \code{rec_x_upper}, \code{rec_x_lower}: the two achievable means closest to \code{x},
 i.e., \code{rec_sum} rounded up and down, divided by \code{n} (times
-\code{items_averaged}). With \code{x_meaning = "percentage"}, these are percentages
-like \code{x};
-the sum columns are not affected.
+\code{items_averaged}).
 }
+
+With \code{x_meaning = "percentage"}, \code{rec_sum} is \code{x / 100} times \code{n} (times
+\code{items_averaged}), and \code{rec_x_upper} and \code{rec_x_lower} are percentages like
+\code{x}.
 }
 
 \section{Summaries with \code{\link[=audit]{audit()}}}{
@@ -152,8 +153,7 @@ pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
   explain_print(1:2)
 
-# A table of means and percentages, tested part by part. Each part records
-# its own settings, so the two are kept apart:
+# A table of means and percentages, tested in parts:
 df <- tibble::tibble(
   x = c(5.19, 71),
   n = c(32, 43),
@@ -178,8 +178,4 @@ Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 Simple Technique Detects Numerous Anomalies in the Reporting of Results in
 Psychology. \emph{Social Psychological and Personality Science}, 8(4), 363–369.
 https://journals.sagepub.com/doi/10.1177/1948550616673876
-}
-\seealso{
-\code{\link[=explain_map]{explain_map()}} and \code{\link[=explain_print]{explain_print()}} to explain each row's
-result in plain words.
 }

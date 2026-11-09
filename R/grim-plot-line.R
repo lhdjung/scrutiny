@@ -488,25 +488,25 @@ check_comb_value <- function(value, digits, name) {
 #'   one. [`grim_values()`] returns the attainable values as numbers.
 #'
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
-#'   same as in [`grim()`], but `x`, `n`, and `items_averaged` must have
-#'   length 1.
+#'   same as in [`grim()`], but `x`, `n`, `digits_x`, and `items_averaged`
+#'   must have length 1.
 #' @param data_type String. `"integer"` if the values are whole numbers,
 #'   as in [`grim()`]. There is no default, so that every call states
 #'   this assumption. `"continuous"` and `NA` are errors: if the data may
 #'   be continuous, there are no values to draw.
-#' @param zoom String. How much of the row to show: `"close"` (the default)
-#'   shows the values around `x`, so that the marker and the strip behind it
-#'   stand out, `"medium"` widens this to the nearest attainable value on
-#'   either side, and `"wide"` shows a whole unit. See *Details*.
+#' @param zoom String. How much of the row to show: `"close"` (the default),
+#'   `"medium"`, or `"wide"`; see *Details*.
 #' @param color_con,color_incon Strings. Color of the marker, the strip behind
 #'   the squares, and the square at the reported value if it is consistent.
 #'   `color_con` applies if the value is consistent, `color_incon` if not.
+#'   Defaults are `"#0047ff"` and `"#ff2a00"`.
 #' @param color_attainable String. Color of the squares for attainable values
-#'   that were not reported, as of the consistent cells of [`grim_plot_grid()`]'s
-#'   raster.
+#'   that were not reported, like the consistent cells of
+#'   [`grim_plot_grid()`]'s raster. Default is `"grey75"`.
 #'
-#' @details By default, the row shows 10 values on either side of `x`. If `x`
-#'   is inconsistent, it widens until the nearest attainable value is in view,
+#' @details With `zoom = "close"`, the row shows 10 values on either side of
+#'   `x`, so that the marker and the strip behind it stand out. If `x` is
+#'   inconsistent, it widens until the nearest attainable value is in view,
 #'   but no farther than the row with `zoom = "wide"` is wide. It does not
 #'   widen further for the nearest one on the other side: attainable
 #'   percentages in particular can be dozens of values apart, so the squares
@@ -529,8 +529,8 @@ check_comb_value <- function(value, digits, name) {
 #'   this unit are attainable, or all if `n` exceeds `10 ^ digits_x`. With
 #'   `x_meaning = "percentage"`, the unit is that of the proportion GRIM
 #'   tests, so the row runs from 0% to 100%, and about `n + 1` values are
-#'   attainable, or all if `n` exceeds `10 ^ (digits_x + 2)`. Squares too narrow to be seen as such are drawn as ticks of
-#'   the same height.
+#'   attainable, or all if `n` exceeds `10 ^ (digits_x + 2)`. Squares too
+#'   narrow to be seen as such are drawn as ticks of the same height.
 #'
 #'   The strip behind the squares is the range of unrounded means that would
 #'   have been reported as `x`, from [`roundwork::unround()`]. The value is

@@ -41,25 +41,18 @@ missing or infinite, which makes the result \code{NA}; the argument mirrors
 trailing zeros. There is no default, since a numeric value does not
 keep them (\code{1.40} is \code{1.4}).}
 
-\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}. Like \code{x}, \code{n}, and
-\code{digits_x}, it is recycled under the tidyverse rules: all four must have
-the same length, or length 1.}
+\item{items_averaged}{Integer. As in \code{\link[=grim]{grim()}}.}
 
-\item{data_type}{String. As in \code{\link[=grim]{grim()}}, and recycled like \code{x}. No
-default. For \code{"continuous"} data, which GRIM can't find inconsistent,
-the result is 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}.}
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}. No default. For \code{"continuous"}
+data, which GRIM can't find inconsistent, the result is 0, or \code{NA} where
+\code{\link[=grim]{grim()}} is \code{NA}.}
 
 \item{x_meaning}{String. \code{"mean"} (the default) or \code{"percentage"}, which
 adds 2 to the decimal count, as in \code{\link[=grim]{grim()}}.}
 
-\item{rounding, threshold}{The rounding method and, for the \code{"*_from"}
-methods, its threshold, as in \code{\link[=grim]{grim()}}. Defaults are \code{"up_or_down"} and
-\code{5}. The count depends on the method: \code{"up_or_down"} accepts a mean on a
-tie in both directions, and \code{"ceiling_or_floor"} admits a range two steps
-wide. \code{"even"} and its synonym \code{"ties_even"} count a tie on either bound
-as consistent, like \code{"up_or_down"}, although \code{\link[base:Round]{base::round()}} may round
-it the other way; see \code{\link[roundwork:unround]{roundwork::unround()}}.
-\code{\link[=grim_map]{grim_map()}} passes its own \code{rounding} and \code{threshold} on.}
+\item{rounding, threshold}{As in \code{\link[=grim]{grim()}}. The count depends on the
+method; \code{"even"} counts a tie on either bound as consistent, as \code{\link[=grim]{grim()}}
+does. \code{\link[=grim_map]{grim_map()}} passes its own on.}
 
 \item{percent}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Replaced by \code{x_meaning}:
 use \code{x_meaning = "percentage"} instead of \code{percent = TRUE}.}
@@ -70,24 +63,29 @@ return \code{NA} if \code{x} is missing or infinite, if \code{digits_x} is missi
 \code{n} or \code{items_averaged} is missing or not a positive whole number. These
 include every case that \code{\link[=grim]{grim()}} cannot decide, and some that it can: a
 mean may pass whatever \code{n} is, but how many fail depends on it. For
-continuous data, they return 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}. They are never
-negative. A count above 2^53, which only \code{digits_x} of 14 or more with
-\code{x_meaning = "percentage"} can reach, is the nearest number a double can hold.
+continuous data, they return 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}. They
+are never negative. A count above 2^53, which only \code{digits_x} of 14 or
+more with \code{x_meaning = "percentage"} can reach, is the nearest number a
+double can hold.
 }
 \description{
 These functions quantify how informative a GRIM test is for a
 given sample size and number of decimal places:
 \itemize{
 \item \code{grim_exp_incon()} returns the probability that a mean or percentage
-with \code{digits_x} decimal places that is otherwise random is
-GRIM-inconsistent with \code{n}. It is the \code{exp_incon} column of
-\code{\link[=grim_map]{grim_map()}}.
+with \code{digits_x} random decimal digits is GRIM-inconsistent with \code{n}. It
+is the \code{exp_incon} column of \code{\link[=grim_map]{grim_map()}}.
 \item \code{grim_total()} returns the number of such inconsistent values between
 two whole numbers, out of \code{10^digits_x} (\code{10^(digits_x + 2)} with
 \code{x_meaning = "percentage"}).
 }
 
 See \code{vignette("grim-in-depth")}, section \emph{GRIM statistics}.
+}
+\details{
+\code{x}, \code{n}, \code{digits_x}, \code{items_averaged}, and \code{data_type} are
+recycled to a common length by the tidyverse rules: an argument has
+length 1 or the length of the longest.
 }
 \examples{
 # Many value sets are inconsistent here:

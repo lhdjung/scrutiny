@@ -22,26 +22,25 @@ grim_plot_line(
 }
 \arguments{
 \item{x, n, digits_x, items_averaged, x_meaning, rounding, threshold, symmetric}{The
-same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, and \code{items_averaged} must have
-length 1.}
+same as in \code{\link[=grim]{grim()}}, but \code{x}, \code{n}, \code{digits_x}, and \code{items_averaged}
+must have length 1.}
 
 \item{data_type}{String. \code{"integer"} if the values are whole numbers,
 as in \code{\link[=grim]{grim()}}. There is no default, so that every call states
 this assumption. \code{"continuous"} and \code{NA} are errors: if the data may
 be continuous, there are no values to draw.}
 
-\item{zoom}{String. How much of the row to show: \code{"close"} (the default)
-shows the values around \code{x}, so that the marker and the strip behind it
-stand out, \code{"medium"} widens this to the nearest attainable value on
-either side, and \code{"wide"} shows a whole unit. See \emph{Details}.}
+\item{zoom}{String. How much of the row to show: \code{"close"} (the default),
+\code{"medium"}, or \code{"wide"}; see \emph{Details}.}
 
 \item{color_con, color_incon}{Strings. Color of the marker, the strip behind
 the squares, and the square at the reported value if it is consistent.
-\code{color_con} applies if the value is consistent, \code{color_incon} if not.}
+\code{color_con} applies if the value is consistent, \code{color_incon} if not.
+Defaults are \code{"#0047ff"} and \code{"#ff2a00"}.}
 
 \item{color_attainable}{String. Color of the squares for attainable values
-that were not reported, as of the consistent cells of \code{\link[=grim_plot_grid]{grim_plot_grid()}}'s
-raster.}
+that were not reported, like the consistent cells of
+\code{\link[=grim_plot_grid]{grim_plot_grid()}}'s raster. Default is \code{"grey75"}.}
 }
 \value{
 A ggplot object.
@@ -59,8 +58,9 @@ marked above the row and labeled as consistent or inconsistent.
 one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
 }
 \details{
-By default, the row shows 10 values on either side of \code{x}. If \code{x}
-is inconsistent, it widens until the nearest attainable value is in view,
+With \code{zoom = "close"}, the row shows 10 values on either side of
+\code{x}, so that the marker and the strip behind it stand out. If \code{x} is
+inconsistent, it widens until the nearest attainable value is in view,
 but no farther than the row with \code{zoom = "wide"} is wide. It does not
 widen further for the nearest one on the other side: attainable
 percentages in particular can be dozens of values apart, so the squares
@@ -83,8 +83,8 @@ the next one up. With \code{items_averaged = 1}, about \code{n} of the values in
 this unit are attainable, or all if \code{n} exceeds \code{10 ^ digits_x}. With
 \code{x_meaning = "percentage"}, the unit is that of the proportion GRIM
 tests, so the row runs from 0\% to 100\%, and about \code{n + 1} values are
-attainable, or all if \code{n} exceeds \code{10 ^ (digits_x + 2)}. Squares too narrow to be seen as such are drawn as ticks of
-the same height.
+attainable, or all if \code{n} exceeds \code{10 ^ (digits_x + 2)}. Squares too
+narrow to be seen as such are drawn as ticks of the same height.
 
 The strip behind the squares is the range of unrounded means that would
 have been reported as \code{x}, from \code{\link[roundwork:unround]{roundwork::unround()}}. The value is

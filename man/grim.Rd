@@ -37,13 +37,12 @@ No default.}
 \item \code{"integer"}: whole numbers, such as answers on a rating scale, counts,
 or yes/no answers for a percentage.
 \item \code{"continuous"}: anything else, such as body mass index or a visual
-analogue scale. The test does not apply, and the result is \code{TRUE}
-unless the value set describes no data, as with \code{n = 0}, which is \code{NA}
-as it is for whole numbers.
+analogue scale. The test does not apply, so the result is \code{TRUE}, or
+\code{NA} for a value set that describes no data, such as one with \code{n = 0}.
 }
 
-If it is \code{NA}, the result is the one for whole numbers if it is the same
-for continuous data, and \code{NA} otherwise.}
+If \code{data_type} is \code{NA}, the result is \code{NA} unless both types give the
+same one.}
 
 \item{x_meaning}{String. What \code{x} is: \code{"mean"} (the default) or
 \code{"percentage"}. A percentage is divided by 100 and tested with two more
@@ -65,7 +64,7 @@ otherwise.}
 
 \item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
-\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be \code{TRUE} with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 
@@ -87,9 +86,6 @@ compose the mean. The mean of \code{n * items_averaged} integers is a whole
 number divided by \code{n * items_averaged}, so only certain values are
 possible; the test asks whether any of them would have been reported as
 \code{x}.
-
-Set \code{x_meaning} to \code{"percentage"} if \code{x} is a percentage. It is then
-divided by 100 and tested with two more decimal places.
 
 The function is vectorized, but \code{\link[=grim_map]{grim_map()}} is more convenient for
 testing many cases.

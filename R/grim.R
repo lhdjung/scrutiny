@@ -303,9 +303,6 @@ grim_all_means_pass <- function(
 #'   possible; the test asks whether any of them would have been reported as
 #'   `x`.
 #'
-#'   Set `x_meaning` to `"percentage"` if `x` is a percentage. It is then
-#'   divided by 100 and tested with two more decimal places.
-#'
 #'   The function is vectorized, but [`grim_map()`] is more convenient for
 #'   testing many cases.
 #'
@@ -340,12 +337,11 @@ grim_all_means_pass <- function(
 #'   - `"integer"`: whole numbers, such as answers on a rating scale, counts,
 #'   or yes/no answers for a percentage.
 #'   - `"continuous"`: anything else, such as body mass index or a visual
-#'   analogue scale. The test does not apply, and the result is `TRUE`
-#'   unless the value set describes no data, as with `n = 0`, which is `NA`
-#'   as it is for whole numbers.
+#'   analogue scale. The test does not apply, so the result is `TRUE`, or
+#'   `NA` for a value set that describes no data, such as one with `n = 0`.
 #'
-#'   If it is `NA`, the result is the one for whole numbers if it is the same
-#'   for continuous data, and `NA` otherwise.
+#'   If `data_type` is `NA`, the result is `NA` unless both types give the
+#'   same one.
 #' @param x_meaning String. What `x` is: `"mean"` (the default) or
 #'   `"percentage"`. A percentage is divided by 100 and tested with two more
 #'   decimal places, as the proportion it is. See *Defaults* in [`grim()`].
@@ -365,7 +361,7 @@ grim_all_means_pass <- function(
 #'   otherwise.
 #' @param symmetric Logical. If `TRUE`, negative numbers are rounded like
 #'   their absolute values (`-2.5` like `2.5`) under `"up"`, `"down"`, and the
-#'   `"*_from"` methods. Default is `FALSE`. Must not be given with a
+#'   `"*_from"` methods. Default is `FALSE`. Must not be `TRUE` with a
 #'   `"ties_*"` rounding method, which already fixes the direction; see
 #'   [`roundwork::reround()`].
 #'

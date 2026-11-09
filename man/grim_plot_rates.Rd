@@ -25,7 +25,7 @@ places. This helps spot both problematic studies and problems in GRIM
 usage. See \emph{Details}.
 
 Correctly reported means are always consistent. Thus, any study not on the
-dotted line at zero indicates some problem; either with the study itself or
+dotted line at zero indicates a problem: either with the study itself or
 with the GRIM analysis. The dashed diagonal marks studies where
 GRIM inconsistencies are as frequent as expected if the means' digits were
 random.
@@ -42,10 +42,10 @@ many as random means. Studies under the diagonal are above 1, in darker
 colors.
 
 No systematic factor tends to increase the GRIM inconsistency rate above
-chance. Therefore, large points (= many value sets) clearly below the
-diagonal are a warning sign for errors in the GRIM analysis. However,
-studies with few value sets, represented by small dots, could have such
-high ratios by chance.
+chance. Therefore, large points, which stand for many value sets,
+clearly below the diagonal are a warning sign for errors in the GRIM
+analysis. However, studies with few value sets, represented by small
+dots, could have such high ratios by chance.
 }
 \examples{
 \dontshow{if (rlang::is_installed("ggrepel")) withAutoprint(\{ # examplesIf}

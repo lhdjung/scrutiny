@@ -31,11 +31,6 @@
 #'   of such vectors. Each becomes a column, as in [`disperse_total()`], and its
 #'   values stay with their groups in both directions. Default is `NULL`.
 #' @inheritParams disperse_total
-#' @param items_averaged Integer. As in [`grim_map()`]: the number of items
-#'   averaged into each score, given as an argument or as a column of `data`.
-#'   There is no default.
-#' @param ... These dots must be empty. Every argument after them must be
-#'   named in full.
 #' @inheritParams grim_map
 #'
 #' @include function-map-total-n.R

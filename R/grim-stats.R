@@ -4,14 +4,17 @@
 #'   given sample size and number of decimal places:
 #'
 #'   - `grim_exp_incon()` returns the probability that a mean or percentage
-#'   with `digits_x` decimal places that is otherwise random is
-#'   GRIM-inconsistent with `n`. It is the `exp_incon` column of
-#'   [`grim_map()`].
+#'   with `digits_x` random decimal digits is GRIM-inconsistent with `n`. It
+#'   is the `exp_incon` column of [`grim_map()`].
 #'   - `grim_total()` returns the number of such inconsistent values between
 #'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
 #'   `x_meaning = "percentage"`).
 #'
 #'   See `vignette("grim-in-depth")`, section *GRIM statistics*.
+#'
+#' @details `x`, `n`, `digits_x`, `items_averaged`, and `data_type` are
+#'   recycled to a common length by the tidyverse rules: an argument has
+#'   length 1 or the length of the longest.
 #'
 #' @param x Numeric. The mean or percentage. Its value only matters if it is
 #'   missing or infinite, which makes the result `NA`; the argument mirrors
@@ -20,22 +23,15 @@
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
 #' @param n Integer. The sample size.
-#' @param items_averaged Integer. As in [`grim()`]. Like `x`, `n`, and
-#'   `digits_x`, it is recycled under the tidyverse rules: all four must have
-#'   the same length, or length 1.
-#' @param data_type String. As in [`grim()`], and recycled like `x`. No
-#'   default. For `"continuous"` data, which GRIM can't find inconsistent,
-#'   the result is 0, or `NA` where [`grim()`] is `NA`.
+#' @param items_averaged Integer. As in [`grim()`].
+#' @param data_type String. As in [`grim()`]. No default. For `"continuous"`
+#'   data, which GRIM can't find inconsistent, the result is 0, or `NA` where
+#'   [`grim()`] is `NA`.
 #' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
 #'   adds 2 to the decimal count, as in [`grim()`].
-#' @param rounding,threshold The rounding method and, for the `"*_from"`
-#'   methods, its threshold, as in [`grim()`]. Defaults are `"up_or_down"` and
-#'   `5`. The count depends on the method: `"up_or_down"` accepts a mean on a
-#'   tie in both directions, and `"ceiling_or_floor"` admits a range two steps
-#'   wide. `"even"` and its synonym `"ties_even"` count a tie on either bound
-#'   as consistent, like `"up_or_down"`, although [`base::round()`] may round
-#'   it the other way; see [`roundwork::unround()`].
-#'   [`grim_map()`] passes its own `rounding` and `threshold` on.
+#' @param rounding,threshold As in [`grim()`]. The count depends on the
+#'   method; `"even"` counts a tie on either bound as consistent, as [`grim()`]
+#'   does. [`grim_map()`] passes its own on.
 #'
 #' @inheritParams grim
 #'
@@ -46,9 +42,10 @@
 #'   `n` or `items_averaged` is missing or not a positive whole number. These
 #'   include every case that [`grim()`] cannot decide, and some that it can: a
 #'   mean may pass whatever `n` is, but how many fail depends on it. For
-#'   continuous data, they return 0, or `NA` where [`grim()`] is `NA`. They are never
-#'   negative. A count above 2^53, which only `digits_x` of 14 or more with
-#'   `x_meaning = "percentage"` can reach, is the nearest number a double can hold.
+#'   continuous data, they return 0, or `NA` where [`grim()`] is `NA`. They
+#'   are never negative. A count above 2^53, which only `digits_x` of 14 or
+#'   more with `x_meaning = "percentage"` can reach, is the nearest number a
+#'   double can hold.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -428,7 +425,8 @@ grim_total <- function(
 #' @description `r lifecycle::badge("deprecated")`
 #'
 #'   `grim_probability()` was renamed to [`grim_exp_incon()`] in scrutiny
-#'   1.0.0, which also takes new `digits_x` and `rounding` arguments.
+#'   1.0.0, which also requires `digits_x` and `data_type`, takes
+#'   `items_averaged` instead of `items`, and has a `rounding` argument.
 #'
 #' @param ... Passed on to [`grim_exp_incon()`].
 #'

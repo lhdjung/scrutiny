@@ -13,6 +13,7 @@ grim_probability(...)
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
 \code{grim_probability()} was renamed to \code{\link[=grim_exp_incon]{grim_exp_incon()}} in scrutiny
-1.0.0, which also takes new \code{digits_x} and \code{rounding} arguments.
+1.0.0, which also requires \code{digits_x} and \code{data_type}, takes
+\code{items_averaged} instead of \code{items}, and has a \code{rounding} argument.
 }
 \keyword{internal}

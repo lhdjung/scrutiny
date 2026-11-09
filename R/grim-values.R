@@ -272,12 +272,9 @@ grim_closest_scalar <- function(
 #'   among those that would be reported as `x`, or, if there are none, the
 #'   closest one overall. Of two equally close values, it returns the smaller.
 #'
-#'   Both are vectorized like [`grim()`] and return a tibble in which `case`
-#'   says which value set a row belongs to. A reported mean may correspond to
-#'   one achievable mean, to several, or to none, so `grim_values()` has one
-#'   row per achievable mean, and `grim_closest()` one row per value set.
-#'   [`grimmer_values()`] and [`grimmer_closest()`] are the counterparts for
-#'   GRIMMER.
+#'   Both are vectorized like [`grim()`]; `case` says which value set a row
+#'   belongs to. [`grimmer_values()`] and [`grimmer_closest()`] are the
+#'   counterparts for GRIMMER.
 #'
 #' @details The achievable means are the whole numbers in the range that
 #'   [`grim_map()`] shows as `sum_lower` and `sum_upper` under `show_rec`, each

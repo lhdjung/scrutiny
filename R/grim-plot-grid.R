@@ -1,10 +1,10 @@
 #' Visualize GRIM test results
 #'
 #' @description `grim_plot_grid()` plots the output of [`grim_map()`] or
-#'   [`grimmer_map()`]. Each value set is placed by its sample size and the
-#'   fractional part of its mean, in blue if consistent and red if not, on a
-#'   background raster that shows which combinations are GRIM-consistent at
-#'   all.
+#'   [`grimmer_map()`]. Each value set is placed by `n * items_averaged` (the
+#'   sample size for single items) and the fractional part of its mean, in
+#'   blue if consistent and red if not, on a background raster that shows
+#'   which combinations are GRIM-consistent at all.
 #'
 #' @section Background raster: For one or two decimal places, the raster
 #'   shows every combination of sample size and fractional part that is
@@ -26,7 +26,7 @@
 #'   as the proportions they were tested as, with two more decimal places.
 #'
 #'   Set `show_data = FALSE` to plot the raster alone, controlled by `digits_x`,
-#'   `rounding`, and `n`.
+#'   `rounding`, `threshold`, and `n`.
 #'
 #'   Under the default `rounding = "up_or_down"`, fewer values are
 #'   inconsistent at sample sizes 40 and 80 than at their neighbors with two
@@ -57,8 +57,8 @@
 #' @param digits_x Integer. Number of decimal places for the raster. Default is
 #'   `NULL`, in which case it is read from the `digits_x` column that every
 #'   mapper adds, or, if that was removed, inferred from `x`, which loses
-#'   trailing zeros. For percentages, give the number of decimal places as
-#'   reported; 2 are added.
+#'   trailing zeros. With `show_data = FALSE`, `NULL` means 2. For percentages,
+#'   give the number of decimal places as reported; 2 are added.
 #' @param n Integer. Maximal value on the x-axis. Default is `NULL`, in which
 #'   case the axis spans the raster and the data.
 #' @param rounding,threshold The same as in [`grim()`], for the raster. Only
@@ -743,7 +743,8 @@ drop_continuous <- function(data, test, ...) {
 #' @param digits,raster_color The old names of `grim_plot_grid()`'s `digits_x`
 #'   and `color_raster`.
 #' @param color_cons,color_incons,tile_alpha,raster_alpha No longer have any
-#'   effect: `grim_plot_grid()` draws its tiles in fixed colors.
+#'   effect. To recolor the tiles, add a color scale, as in the examples of
+#'   [`grim_plot_grid()`].
 #' @param ... Other arguments of [`grim_plot_grid()`], such as
 #'   `split_by_digits`.
 #'

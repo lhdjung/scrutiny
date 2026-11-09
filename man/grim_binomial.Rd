@@ -20,7 +20,7 @@ hypothetical value sets, not reported ones.}
 
 \item{alpha}{Numeric (length 1). Significance level of the test. The
 interval around \code{estimate} has a confidence level of \code{1 - alpha}. Default
-is \code{0.05}, as in \code{\link[=grim_binomial_power]{grim_binomial_power()}}.}
+is \code{0.05}.}
 }
 \value{
 Tibble with the columns \code{estimate} (observed consistency rate),
@@ -40,14 +40,14 @@ care.
 Under the null hypothesis, the decimal digits of each mean are
 random, so its probability of consistency is \code{1 - exp_incon}, with
 \code{exp_incon} from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value
-sets, the test
-uses the Poisson binomial distribution rather than averaging the
-probabilities. Value sets whose \code{consistency} or \code{exp_incon} is \code{NA} are
-left out: \code{exp_incon} is \code{NA} if \code{n}, \code{items_averaged}, \code{digits_x}, or
-\code{data_type} is missing, even where the value set has a definite result.
-Value sets with \code{data_type = "continuous"} have an \code{exp_incon} of 0, so they count as
-certain successes: they leave the p-value unchanged but raise \code{estimate}
-and the interval. Filter them out first to compare only the others.
+sets, the test uses the Poisson binomial distribution rather than
+averaging the probabilities. Value sets whose \code{consistency} or \code{exp_incon}
+is \code{NA} are left out: \code{exp_incon} is \code{NA} if \code{x}, \code{n}, \code{items_averaged},
+\code{digits_x}, or \code{data_type} is missing, even where the value set has a
+definite result. Value sets with \code{data_type = "continuous"} have an
+\code{exp_incon} of 0, so they count as certain successes: they leave the
+p-value unchanged but raise \code{estimate} and the interval. Filter them out
+first to compare only the others.
 
 The two-sided p-value is twice the smaller one-sided one, capped at 1.
 

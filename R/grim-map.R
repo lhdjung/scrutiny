@@ -9,10 +9,11 @@
 #'   Call these functions on the output of `grim_map()`:
 #'   - [`audit()`] for summary statistics.
 #'   - [`grim_plot_grid()`] to visualize the results.
-#'   - [`explain_print()`] to learn about the math of GRIM.
+#'   - [`explain_print()`] to explain each result in plain words.
 #'
 #' @param data Data frame with columns `x` and `n`, and optionally
-#'   `items_averaged`. Any other columns are returned alongside the results.
+#'   `items_averaged`, `data_type`, and `digits_x`. Any other columns are
+#'   returned alongside the results.
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not keep
 #'   them (`1.40` is `1.4`). Either a single number for the whole column or
@@ -30,11 +31,9 @@
 #' @param x_meaning String. What the `x` values are: `"mean"` (the default) or
 #'   `"percentage"`. Percentages are divided by 100 and tested with two more
 #'   decimal places. It applies to the whole call, so test a table that mixes
-#'   means and percentages part by part, as in the examples of
-#'   [`grim_map()`]. Each part records
-#'   its own settings, which [`grim_plot_grid()`], [`audit()`], and others
-#'   read, so the parts can't be combined with [`dplyr::bind_rows()`]: keep
-#'   them apart. See *Defaults* in [`grim()`].
+#'   means and percentages in parts, as in the examples of [`grim_map()`].
+#'   The parts record different settings, so they can't be combined with
+#'   [`dplyr::bind_rows()`]. See *Defaults* in [`grim()`].
 #' @param show_rec Logical. If `TRUE`, the reconstructed numbers are returned
 #'   as columns; see *Reconstructed numbers* in [`grim_map()`]. Default is
 #'   `FALSE`.
@@ -69,9 +68,11 @@
 #'   and does not measure how far off the reported values are.
 #' - `rec_x_upper`, `rec_x_lower`: the two achievable means closest to `x`,
 #'   i.e., `rec_sum` rounded up and down, divided by `n` (times
-#'   `items_averaged`). With `x_meaning = "percentage"`, these are percentages
-#'   like `x`;
-#'   the sum columns are not affected.
+#'   `items_averaged`).
+#'
+#' With `x_meaning = "percentage"`, `rec_sum` is `x / 100` times `n` (times
+#' `items_averaged`), and `rec_x_upper` and `rec_x_lower` are percentages like
+#' `x`.
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `grim_map()` output
 #'   returns a tibble with one row and these columns:
@@ -83,9 +84,6 @@
 #' 5. `exp_incon`: mean probability of GRIM inconsistency.
 #' 6. `ratio`: ratio of `emp_incon` to `exp_incon`, both computed over the
 #'    value sets that could be decided.
-#'
-#' @seealso [`explain_map()`] and [`explain_print()`] to explain each row's
-#'   result in plain words.
 #'
 #' @include audit.R grim.R grim-stats.R function-map.R restore-zeros.R
 #'
@@ -124,8 +122,7 @@
 #'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
 #'   explain_print(1:2)
 #'
-#' # A table of means and percentages, tested part by part. Each part records
-#' # its own settings, so the two are kept apart:
+#' # A table of means and percentages, tested in parts:
 #' df <- tibble::tibble(
 #'   x = c(5.19, 71),
 #'   n = c(32, 43),
