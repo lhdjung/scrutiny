@@ -122,7 +122,12 @@ check_consistency_not_in_colnames <- function(
 
 #' Check that a mapper's input has the right column names
 #'
-#' @description `check_mapper_input_colnames()` is called within mappers. It
+#' @description `r lifecycle::badge("superseded")`
+#'
+#'   `check_mapper_input_colnames()` is superseded by [`function_map()`],
+#'   whose mappers check their input columns themselves.
+#'
+#'   `check_mapper_input_colnames()` is called within mappers. It
 #'   errors if `data` lacks a key column, or if it already has a column named
 #'   like the key result column (`"consistency"` by default).
 #'
@@ -196,7 +201,12 @@ check_cols_needed <- function(data, cols, ...) {
 
 #' Manage a helper column
 #'
-#' @description A helper column is a column of a mapper's input that is not
+#' @description `r lifecycle::badge("superseded")`
+#'
+#'   `manage_helper_col()` is superseded by the `.cols_helper` argument of
+#'   [`function_map()`].
+#'
+#'   A helper column is a column of a mapper's input that is not
 #'   itself tested but enters the test, such as `items_averaged` in
 #'   [`grim_map()`]. It can be given either as a column of `data` or as an
 #'   argument of the same name. `manage_helper_col()` checks that the two

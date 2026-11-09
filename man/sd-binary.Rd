@@ -65,6 +65,10 @@ different inputs:
 }
 
 These are the SDs that \code{\link[=debit]{debit()}} tests under the same \code{sd_meaning}.
+
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}} \code{sd_binary_0_n()} and \code{sd_binary_1_n()}
+are superseded by \code{sd_binary_groups()}: \code{sd_binary_0_n(group_0, n)} is
+\code{sd_binary_groups(group_0, n - group_0)}.
 }
 \examples{
 # 127 values are 0 and 153 are 1, so n = 280:

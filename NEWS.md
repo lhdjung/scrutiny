@@ -256,6 +256,12 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 - `is_numeric_like()` is deprecated, since scrutiny no longer takes numbers as strings, and so are `is_seq_linear()`, `is_seq_ascending()`, `is_seq_descending()`, and `is_seq_dispersed()`, which scrutiny no longer uses: the sequence mappers record how far each value was moved in `diff_var`. These functions may be removed in a future version.
 
+### Superseded
+
+- `sd_binary_0_n()` and `sd_binary_1_n()` are superseded by `sd_binary_groups()`: `sd_binary_0_n(group_0, n)` is `sd_binary_groups(group_0, n - group_0)`.
+
+- `absorb_key_args()`, `check_mapper_input_colnames()`, and `manage_helper_col()` are superseded by `function_map()`, whose mappers do what these helpers do for a handwritten one, such as managing helper columns through `.cols_helper`.
+
 ### Removed
 
 - Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.

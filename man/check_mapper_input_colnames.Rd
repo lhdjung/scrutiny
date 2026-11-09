@@ -27,6 +27,11 @@ the mapper adds. Default is \code{"consistency"}.}
 No return value; might throw an error.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+\code{check_mapper_input_colnames()} is superseded by \code{\link[=function_map]{function_map()}},
+whose mappers check their input columns themselves.
+
 \code{check_mapper_input_colnames()} is called within mappers. It
 errors if \code{data} lacks a key column, or if it already has a column named
 like the key result column (\code{"consistency"} by default).

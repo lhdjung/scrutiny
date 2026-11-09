@@ -10,6 +10,10 @@
 #'
 #' These are the SDs that [`debit()`] tests under the same `sd_meaning`.
 #'
+#' `r lifecycle::badge("superseded")` `sd_binary_0_n()` and `sd_binary_1_n()`
+#' are superseded by `sd_binary_groups()`: `sd_binary_0_n(group_0, n)` is
+#' `sd_binary_groups(group_0, n - group_0)`.
+#'
 #' @param group_0 Integer. Count of 0s.
 #' @param group_1 Integer. Count of 1s.
 #' @param n Integer. Total sample size.

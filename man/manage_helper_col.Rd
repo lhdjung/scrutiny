@@ -32,6 +32,11 @@ from \code{arg}? Default is \code{TRUE}.}
 \code{data}, possibly with the helper column added.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
+\code{manage_helper_col()} is superseded by the \code{.cols_helper} argument of
+\code{\link[=function_map]{function_map()}}.
+
 A helper column is a column of a mapper's input that is not
 itself tested but enters the test, such as \code{items_averaged} in
 \code{\link[=grim_map]{grim_map()}}. It can be given either as a column of \code{data} or as an

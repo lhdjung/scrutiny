@@ -235,7 +235,7 @@ Some points about this mode:
 
 ## Writing mappers manually
 
-All of scrutiny's mappers are made by `function_map()`, and there is rarely a reason to write one by hand. If you need a check or transformation that `function_map()` doesn't provide, the requirements below are what the rest of the infrastructure relies on. If not, skip to section 4.
+All of scrutiny's mappers are made by `function_map()`, and there is rarely a reason to write one by hand. For the same reason, the helpers used below, `absorb_key_args()`, `check_mapper_input_colnames()`, and `manage_helper_col()`, are superseded. If you need a check or transformation that `function_map()` doesn't provide, the requirements below are what the rest of the infrastructure relies on. If not, skip to section 4.
 
 ### Terminology
 
