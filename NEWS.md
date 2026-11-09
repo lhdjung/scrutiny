@@ -296,6 +296,7 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 - The GRIM and GRIMMER vignettes were each split in two. `vignette("grim")` and `vignette("grimmer")` cover the basics, including how to explain a result with `explain_print()`; `vignette("grim-in-depth")` and `vignette("grimmer-in-depth")` cover the values behind a result, the sequence and total-n mappers, and, for GRIM, the GRIM statistics.
 
 - `vignette("consistency-tests-in-depth")` was updated (#74), the GRIMMER documentation was improved (#66), and "Related software" has new entries.
+- `vignette("consistency-tests-simple")` was removed, since `vignette("consistency-tests-in-depth")` covers the same steps. `vignette("devtools")` was split up: the SDs of binary data are now in `vignette("debit")`, and `decimal_places()`, `seq_disperse()`, and `disperse_total()` in `vignette("consistency-tests-in-depth")`.
 
 # scrutiny 0.6.1
 

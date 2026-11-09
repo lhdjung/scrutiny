@@ -24,7 +24,7 @@ library(scrutiny)
 
 # Introduction
 
-This vignette describes scrutiny's infrastructure for implementing new consistency tests. For a short version, see `vignette("consistency-tests-simple")`.
+This vignette describes scrutiny's infrastructure for implementing new consistency tests.
 
 A consistency test is implemented at several levels, most of them created from the previous one by a function factory. Since the factories work the same way for every test, all test functions share one interface: anyone who knows the `grim_*()` functions can use the `grimmer_*()` functions as well.
 
@@ -64,6 +64,22 @@ schlim_scalar(y = 2, n = 7)
 ```
 
 If the test reconstructs rounded numbers, give the function a `rounding` argument with the default `"up_or_down"`, and pass it on to `roundwork::reround()` or `roundwork::unround()`; see `vignette("rounding-in-depth", package = "roundwork")`. To compare the range of a rounded value with whole numbers, as GRIM does, use `roundwork::bound_numerators()` or `roundwork::sum_range()`, which keep the comparison exact; see *Exact arithmetic* in `vignette("technical-notes")`. Take the number of decimal places as an argument without a default, like `digits_x` in `grim()`, rather than counting them: a numeric value has lost any trailing zeros.
+
+`decimal_places()` counts the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
+
+```{r}
+decimal_places("2.80")
+
+decimal_places(c(55.1, 6.493, 8))
+```
+
+Numeric values drop trailing zeros, whereas strings preserve them. This is why the consistency tests take the number of decimal places as an argument rather than counting it:
+
+```{r}
+decimal_places(7.200)
+
+decimal_places("7.200")
+```
 
 Name the function after the test in lowercase, followed by `_scalar`. If R's own vectorization already makes it work on vectors in every argument, leave out `_scalar`, export it, and skip section 2.
 
@@ -372,6 +388,22 @@ df1 |>
 
 `audit()` summarizes this output without a method of its own; the summaries differ between tests only in the key columns. Document them on the page of your `*_map_seq()` function as `?grim_map_seq` does, in a section called *Summaries with `audit()`*. To export a function made by `function_map_seq()`, see section 3.
 
+## Dispersing single values
+
+Sequence mappers build on `seq_disperse()`, which creates a numeric sequence centered around `from`. It takes the step size from the decimal places of `from`, so that a sequence around `4.1` proceeds in steps of `0.1`. A number loses trailing zeros, so for a value like `5.30`, state the step size with `by` or give `from` as a string:
+
+```{r}
+seq_disperse(from = 4.1, dispersion = 1:3)
+
+# Default for `dispersion` is `1:5`:
+seq_disperse(from = 4.1)
+
+seq_disperse(from = 5.30, by = 0.01, dispersion = 1:3)
+seq_disperse(from = "5.30", dispersion = 1:3)
+```
+
+`seq_disperse_df()` embeds the sequence as a tibble column.
+
 # 7. Total-n mapper
 
 ## Introduction
@@ -393,7 +425,15 @@ grimmer_map_total_n <- function_map_total_n(
 
 `.n_min` is the smallest group size. Like `.var_bounds` in `function_map_seq()`, it can be a function of the settings of the call: a group of 1 has no sample SD, but it does have a population SD.
 
-`.reported` names the group statistics, each of which appears as two columns in the input, such as `x1` and `x2`. `.dispersion`, `.n_min`, `.n_max`, and `.constant` are passed on to `disperse_total()`, which disperses the group sizes from half the total.
+`.reported` names the group statistics, each of which appears as two columns in the input, such as `x1` and `x2`. `.dispersion`, `.n_min`, `.n_max`, and `.constant` are passed on to `disperse_total()`. It splits a total into pairs of hypothetical group sizes that add up to it, starting from half (or, for an odd total, from the two integers closest to half) and moving outward. It calls `disperse()` or `disperse2()` depending on parity; the two can also be called directly.
+
+```{r}
+# With an even total...
+disperse_total(n = 70)
+
+# ...and with an odd total:
+disperse_total(n = 83)
+```
 
 For SCHLIM:
 

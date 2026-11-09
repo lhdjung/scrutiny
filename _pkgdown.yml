@@ -31,9 +31,7 @@ articles:
 - title: Implementing tests
   navbar: Implementing tests
   contents:
-  - consistency-tests-simple
   - consistency-tests-in-depth
-  - devtools
 - title: Other
   navbar: Other
   contents:

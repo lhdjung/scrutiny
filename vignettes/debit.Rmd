@@ -108,6 +108,15 @@ Only seven ones give a mean of 0.35 here, so the closest SD is the same 0.49 as 
 debit_plot_line(x = 0.35, sd = 0.41, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
+`sd_binary_groups()` computes the SD of binary data from the numbers of zeros and ones, and `sd_binary_mean_n()` from the mean and the sample size:
+
+```{r}
+sd_binary_groups(group_0 = 13, group_1 = 7)
+sd_binary_mean_n(x = 0.35, n = 20)
+```
+
+Both take `sd_meaning`, as `debit()` does, for a population SD or a standard error.
+
 ## Summaries with `audit()`
 
 ```{r}

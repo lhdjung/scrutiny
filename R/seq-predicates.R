@@ -160,7 +160,7 @@ is_seq_basic <- function(
     # sequence in question, only keep it from being proven:
     x <- x[not_na[1L]:not_na[length(not_na)]]
 
-    # As in `vignette("devtools")`: are the known values consistent with each
+    # Are the known values consistent with each
     # other, given their positions? For linearity, every pair of neighboring
     # known values must imply the same step per index, so `c(1, NA, 5, 7)` can
     # be linear:

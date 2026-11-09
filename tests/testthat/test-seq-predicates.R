@@ -185,7 +185,7 @@ test_that("gaps are judged by the step the known values imply", {
   c("NA", "NA", "NaN")   |> is_seq_dispersed(from = 2)   |> expect_na()
   c("NA", "NA", "NaN")   |> is_seq_dispersed(from = NA)  |> expect_na()
 
-  # The examples from `vignette("devtools")`:
+  # Known values around missing ones:
   c(1, 2, NA, 4)             |> is_seq_linear()    |> expect_na()
   c(1, 2, NA, NA, NA, 6)     |> is_seq_linear()    |> expect_na()
   c(1, 2, NA, 10)            |> is_seq_linear()    |> expect_false()
