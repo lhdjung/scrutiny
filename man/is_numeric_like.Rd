@@ -13,6 +13,11 @@ is_numeric_like(x)
 Logical (length 1).
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{is_numeric_like()} is deprecated because scrutiny no longer takes numbers
+as strings. It may be removed in a future version.
+
 \code{is_numeric_like()} tests whether an object contains numbers, by
 scrutiny's standards:
 \itemize{
@@ -52,3 +57,4 @@ is_numeric_like(x = as.character(c(NA, NA, NA)))
 is_numeric_like(x = as.numeric(c(NA, NA, NA)))
 is_numeric_like(x = c(NA, NA, NA))
 }
+\keyword{internal}

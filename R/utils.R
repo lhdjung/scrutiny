@@ -1855,7 +1855,7 @@ check_length_disperse_n <- function(n, msg_single) {
 #'
 #' @noRd
 check_type_numeric_like <- function(x) {
-  if (isFALSE(is_numeric_like(x))) {
+  if (isFALSE(numeric_like(x))) {
     name <- deparse(substitute(x))
 
     if (rlang::is_vector(x)) {

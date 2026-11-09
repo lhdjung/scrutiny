@@ -88,7 +88,7 @@ is_seq_basic <- function(
       return(FALSE)
     }
 
-    if (!is_numeric_like(from)) {
+    if (!numeric_like(from)) {
       return(FALSE)
     }
 
@@ -124,7 +124,7 @@ is_seq_basic <- function(
     x <- numeric()
   }
 
-  if (isFALSE(is_numeric_like(x))) {
+  if (isFALSE(numeric_like(x))) {
     return(FALSE)
   }
 
@@ -281,7 +281,13 @@ is_seq_basic <- function(
 
 #' Is a vector a certain kind of sequence?
 #'
-#' @description Predicates for numeric vectors, or vectors coercible to
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   These functions are deprecated because scrutiny no longer uses them: the
+#'   sequence mappers record how far each value was moved, in `diff_var`. They
+#'   may be removed in a future version.
+#'
+#'   Predicates for numeric vectors, or vectors coercible to
 #'   numeric:
 #'
 #'   - `is_seq_linear()`: do all consecutive elements differ by the same
@@ -321,11 +327,10 @@ is_seq_basic <- function(
 #'
 #'   A missing `from` is handled the same way.
 #'
-#'   See `vignette("devtools")`, section *NA handling*.
-#'
 #' @seealso `validate::is_linear_sequence()`, which is more permissive with
 #'   `NA` and supports date-times.
 #'
+#' @keywords internal
 #' @export
 #'
 #' @name seq-predicates
@@ -350,6 +355,11 @@ is_seq_basic <- function(
 #' is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 
 is_seq_linear <- function(x, tolerance = .Machine$double.eps^0.5) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "is_seq_linear()",
+    details = DETAILS_MAY_BE_REMOVED
+  )
   is_seq_basic(x, tolerance, test_linear = TRUE)
 }
 
@@ -362,6 +372,11 @@ is_seq_ascending <- function(
   test_linear = TRUE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "is_seq_ascending()",
+    details = DETAILS_MAY_BE_REMOVED
+  )
   is_seq_basic(
     x,
     tolerance,
@@ -380,6 +395,11 @@ is_seq_descending <- function(
   test_linear = TRUE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "is_seq_descending()",
+    details = DETAILS_MAY_BE_REMOVED
+  )
   is_seq_basic(
     x,
     tolerance,
@@ -399,6 +419,11 @@ is_seq_dispersed <- function(
   test_linear = TRUE,
   tolerance = .Machine$double.eps^0.5
 ) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "is_seq_dispersed()",
+    details = DETAILS_MAY_BE_REMOVED
+  )
   check_seq_type(x, "x")
   if (missing(from)) {
     abort_in_export(
@@ -413,7 +438,7 @@ is_seq_dispersed <- function(
   # center. A dispersed sequence is centered on each mirrored pair of its
   # values, so the first known such center is the only candidate. The strings
   # `"NA"` and `"NaN"` are missing, as in `is_numeric_like()`:
-  if (is.na(from) || is.na(is_numeric_like(from))) {
+  if (is.na(from) || is.na(numeric_like(from))) {
     x_num <- if (is.factor(x)) as.character(x) else x
     x_num <- as_numeric_seq(x_num)
     centers <- (x_num + rev(x_num)) / 2
@@ -423,7 +448,14 @@ is_seq_dispersed <- function(
         !any(is.infinite(x_num)) &&
         !isFALSE(is_seq_basic(x, tolerance, test_linear, min_length = 3L))
     } else {
-      is_seq_dispersed(x, candidate, test_linear, tolerance)
+      is_seq_basic(
+        x,
+        tolerance,
+        test_linear,
+        test_special = "dispersed",
+        min_length = 3L,
+        from = candidate
+      )
     }
     return(if (isFALSE(out)) FALSE else NA)
   }

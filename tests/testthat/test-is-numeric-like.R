@@ -2,6 +2,9 @@
 # `lifecycle_verbosity` in every `test_that()`, so these wrappers silence them:
 restore_zeros_df  <- function(...) rlang::with_options(scrutiny::restore_zeros_df(...),  lifecycle_verbosity = "quiet") # fmt: skip
 decimal_places_df <- function(...) rlang::with_options(scrutiny::decimal_places_df(...), lifecycle_verbosity = "quiet") # fmt: skip
+is_numeric_like   <- function(...) rlang::with_options(scrutiny::is_numeric_like(...),   lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_linear     <- function(...) rlang::with_options(scrutiny::is_seq_linear(...),     lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_dispersed  <- function(...) rlang::with_options(scrutiny::is_seq_dispersed(...),  lifecycle_verbosity = "quiet") # fmt: skip
 
 test_that("`is_numeric_like()` handles base types correctly", {
   75.5 |> is_numeric_like() |> expect_true()

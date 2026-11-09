@@ -131,7 +131,6 @@ reference:
 - contents:
   - seq_disperse
   - disperse
-  - is_seq_linear
 - subtitle: Consistency test helpers
   desc: Call these helpers inside of your own functions that implement consistency
     tests at various levels
@@ -142,8 +141,6 @@ reference:
 - subtitle: Data frame predicates
   desc: Test for mapper function output
 - contents: is_map_df
-- subtitle: Testing for numeric-like vectors
-- contents: is_numeric_like
 - title: Data wrangling
   desc: Automate formatting tasks with a special relevance to error detection
 - contents:

@@ -55,10 +55,14 @@ would, as any one or two values are linear.
 }
 
 A missing \code{from} is handled the same way.
-
-See \code{vignette("devtools")}, section \emph{NA handling}.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+These functions are deprecated because scrutiny no longer uses them: the
+sequence mappers record how far each value was moved, in \code{diff_var}. They
+may be removed in a future version.
+
 Predicates for numeric vectors, or vectors coercible to
 numeric:
 \itemize{
@@ -95,3 +99,4 @@ is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 \code{validate::is_linear_sequence()}, which is more permissive with
 \code{NA} and supports date-times.
 }
+\keyword{internal}

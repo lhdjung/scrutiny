@@ -3,6 +3,7 @@
 restore_zeros     <- function(...) rlang::with_options(scrutiny::restore_zeros(...),     lifecycle_verbosity = "quiet") # fmt: skip
 restore_zeros_df  <- function(...) rlang::with_options(scrutiny::restore_zeros_df(...),  lifecycle_verbosity = "quiet") # fmt: skip
 decimal_places_df <- function(...) rlang::with_options(scrutiny::decimal_places_df(...), lifecycle_verbosity = "quiet") # fmt: skip
+is_numeric_like   <- function(...) rlang::with_options(scrutiny::is_numeric_like(...),   lifecycle_verbosity = "quiet") # fmt: skip
 
 round_to <- rnorm(50, 2, 1) |>
   censor(1, 4) |>

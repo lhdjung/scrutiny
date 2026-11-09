@@ -1,3 +1,11 @@
+# Deprecated, but tested until removed; testthat resets
+# `lifecycle_verbosity` in every `test_that()`, so these wrappers silence them:
+is_numeric_like   <- function(...) rlang::with_options(scrutiny::is_numeric_like(...),   lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_linear     <- function(...) rlang::with_options(scrutiny::is_seq_linear(...),     lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_ascending  <- function(...) rlang::with_options(scrutiny::is_seq_ascending(...),  lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_descending <- function(...) rlang::with_options(scrutiny::is_seq_descending(...), lifecycle_verbosity = "quiet") # fmt: skip
+is_seq_dispersed  <- function(...) rlang::with_options(scrutiny::is_seq_dispersed(...),  lifecycle_verbosity = "quiet") # fmt: skip
+
 # Basic linear testing function -------------------------------------------
 
 test_that("`is_seq_linear()` returns `TRUE` when it should", {
@@ -428,4 +436,23 @@ test_that("a missing value between an infinity and the end can't make a sequence
 
 test_that("`is_seq_dispersed()` says that `from` is required", {
   1:3 |> is_seq_dispersed() |> expect_error("Need to specify `from`", fixed = TRUE)
+})
+
+test_that("`is_numeric_like()` and the `is_seq_*()` functions are deprecated", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  "1.5" |> scrutiny::is_numeric_like()             |> expect_warning(class = "lifecycle_warning_deprecated")
+  1:3   |> scrutiny::is_seq_linear()               |> expect_warning(class = "lifecycle_warning_deprecated")
+  1:3   |> scrutiny::is_seq_ascending()            |> expect_warning(class = "lifecycle_warning_deprecated")
+  3:1   |> scrutiny::is_seq_descending()           |> expect_warning(class = "lifecycle_warning_deprecated")
+  1:3   |> scrutiny::is_seq_dispersed(from = 2)    |> expect_warning(class = "lifecycle_warning_deprecated")
+  # A missing `from` once took a second call of the export, which warned again:
+  count <- 0L
+  withCallingHandlers(
+    scrutiny::is_seq_dispersed(1:3, from = NA),
+    lifecycle_warning_deprecated = function(w) {
+      count <<- count + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
+  count |> expect_equal(1L)
 })

@@ -244,3 +244,6 @@ DETAILS_RESTORE_ZEROS <- paste(
   "To format numbers for display, use",
   "`formatC(x, format = \"f\", digits = 2)`."
 )
+
+# Deprecation details for exports that scrutiny no longer needs:
+DETAILS_MAY_BE_REMOVED <- "It may be removed in a future version of scrutiny."

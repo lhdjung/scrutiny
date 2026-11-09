@@ -1,6 +1,11 @@
 #' Test whether a vector is numeric or coercible to numeric
 #'
-#' @description `is_numeric_like()` tests whether an object contains numbers, by
+#' @description `r lifecycle::badge("deprecated")`
+#'
+#'   `is_numeric_like()` is deprecated because scrutiny no longer takes numbers
+#'   as strings. It may be removed in a future version.
+#'
+#'   `is_numeric_like()` tests whether an object contains numbers, by
 #'   scrutiny's standards:
 #'
 #'   - Integer and double vectors are `TRUE`.
@@ -24,6 +29,7 @@
 #'
 #' @return Logical (length 1).
 #'
+#' @keywords internal
 #' @export
 #'
 #' @examples
@@ -44,6 +50,17 @@
 #' is_numeric_like(x = c(NA, NA, NA))
 
 is_numeric_like <- function(x) {
+  lifecycle::deprecate_soft(
+    "1.0.0",
+    "is_numeric_like()",
+    details = DETAILS_MAY_BE_REMOVED
+  )
+  numeric_like(x)
+}
+
+
+# The body of `is_numeric_like()`, which scrutiny still uses internally:
+numeric_like <- function(x) {
   if (is.numeric(x)) {
     return(TRUE)
   }
@@ -74,7 +91,7 @@ is_numeric_like <- function(x) {
     # A plain `NA` is logical, but missing all the same:
     is_empty <- function(e) is.null(e) || (is.logical(e) && all(is.na(e)))
     out <- x[!vapply(x, is_empty, logical(1L), USE.NAMES = FALSE)] |>
-      vapply(is_numeric_like, logical(1L), USE.NAMES = FALSE)
+      vapply(numeric_like, logical(1L), USE.NAMES = FALSE)
     # Nothing but plain `NA`s is a logical vector, which is not numeric-like:
     if (length(out) == 0L || any(!out, na.rm = TRUE)) {
       return(FALSE)
@@ -110,5 +127,5 @@ is_numeric_like_col <- function(x, sep = ".") {
   if (sep != "." && (is.character(x) || is.factor(x))) {
     x <- sub(sep, ".", as.character(x), fixed = TRUE)
   }
-  !isFALSE(is_numeric_like(x))
+  !isFALSE(numeric_like(x))
 }
