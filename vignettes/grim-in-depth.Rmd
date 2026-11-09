@@ -158,6 +158,14 @@ out_seq2 <- grim_map_seq(
 audit(out_seq2)
 ```
 
+`explain_print()` explains the rows of this output like those of `grim_map()`, so you can see why a nearby value passes:
+
+```{r}
+out_seq1 |>
+  dplyr::filter(consistency) |>
+  explain_print(1)
+```
+
 ### Plotting dispersed values
 
 `grim_plot_grid()` accepts this output. Each reported value set appears as a cross: the horizontal arm consists of the dispersed `n` values, the vertical arm of the dispersed `x` values:
@@ -198,7 +206,7 @@ Each row is one mean with one hypothetical group size. `n_change` is how far tha
 
 The two means were reported with different numbers of decimal places, so `digits_x` has one value per group. Testing 5.3 as if it were 5.30 would be stricter than the test Bauer and Francis conducted.
 
-`grim_map_total_n()` tests both ways of pairing the means with the group sizes. Bauer and Francis only paired 4.71 with the smaller group; the reverse pairing yields two more hits, at 19/21 and 16/24. In the summary, `hits_forth` counts the hits from the first pairing, `hits_back` those from the reverse one, and `hits_total` their sum. `scenarios_total` is the number of splits tested, and `hit_rate` the share of them that are hits.
+`grim_map_total_n()` tests both ways of pairing the means with the group sizes. Bauer and Francis only paired 4.71 with the smaller group; the reverse pairing yields two more hits, at 19/21 and 16/24. In the summary, `hits_forth` counts the hits from the first pairing, `hits_back` those from the reverse one, and `hits_total` their sum. `scenarios_total` is the number of scenarios tested, each a split with one pairing of the means, and `hit_rate` the share of them that are hits. The even split is the same scenario under both pairings, so it counts once: six splits make 11 scenarios here.
 
 ## GRIM statistics
 

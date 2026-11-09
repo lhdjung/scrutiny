@@ -36,7 +36,7 @@ These are the levels, with GRIM as the example. If you implement a valid consist
 
 3.  A mapper that applies the single-case function to each row of a data frame, such as `grim_map()`.
 
-4.  An `audit()` method that summarizes the output of number 3.
+4.  An `audit()` method that summarizes the output of number 3, and an `explain_map()` method that explains it.
 
 5.  A function that plots the output of number 3, such as `grim_plot_grid()`.
 
@@ -241,7 +241,9 @@ Some points about this mode:
 
 -   Such a mapper cannot be wrapped by `function_map_seq()` or `function_map_total_n()`, which derive their arguments from `.reported`.
 
-# 4. `audit()` method
+`add_up_to_map()` is made this way; see `vignette("percentages-and-sums")`.
+
+# 4. `audit()` and `explain_map()` methods
 
 ## Basics
 
@@ -282,6 +284,28 @@ audit(iris)
 
 Document each `audit()` method on the page of its mapper, in a section called *Summaries with `audit()`* that lists the columns of its output. See `?grim_map` for an example.
 
+## Explanations
+
+`explain_map()` is a generic, too. Its method adds an `explanation` column, one string per row, which `explain_print()` prints:
+
+```{r}
+explain_map.scrutiny_schlim_map <- function(data, ...) {
+  verdict <- ifelse(data$consistency, "greater", "not greater")
+  data$explanation <- paste0(
+    data$y, " / 3 = ", round(data$y / 3, 2), ", which is ", verdict,
+    " than ", data$n, "."
+  )
+  data
+}
+
+df1_tested |>
+  dplyr::slice(4:5) |>
+  explain_map() |>
+  dplyr::pull(explanation)
+```
+
+A real explanation should give every number needed to check the result by hand, as `grim_explain()` does. Sequence and total-n output keeps the class of the basic mapper, so the method covers it as well.
+
 # 5. Visualization function
 
 How best to plot test results depends on the test: compare `grim_plot_grid()` and `debit_plot()`. (Granularity is crucial for GRIM but not for DEBIT.) Still, some conventions apply:
@@ -289,8 +313,8 @@ How best to plot test results depends on the test: compare `grim_plot_grid()` an
 1.  Plots are based on ggplot2, following its advice on [using ggplot2 in packages](https://ggplot2.tidyverse.org/articles/ggplot2-in-packages.html).
 2.  The name is that of the test in lowercase, followed by `_plot`, and optionally a description, as in `grim_plot_grid()`. This doesn't apply to methods for generics like `ggplot2::autoplot()`.
 3.  A function that plots mapper output takes it as its first argument, `data`, and checks that `data` has the mapper's class, such as `"scrutiny_debit_map"`.
-4.  Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its values are `"#0047ff"` (blue) for consistent value sets and `"#ff2a00"` (red) for inconsistent ones, as in scrutiny's own plots. Users change the colors by adding a scale of their own, not through arguments.
-5.  Optional layers are controlled by logical arguments that start on `show_`, such as `show_data` in `grim_plot_grid()` or `show_labels` in `debit_plot()`. Only arguments of this kind start on `show_`, and they have defaults.
+4.  Map the key result column, such as `consistency`, to `colour` and `fill`, and add one `ggplot2::scale_colour_manual()` for both with `aesthetics = c("colour", "fill")`. Its values are `"#0047ff"` (blue) for consistent value sets and `"#ff2a00"` (red) for inconsistent ones, as in scrutiny's own plots. Users change the colors by adding a scale of their own, not through arguments. (Plots of a single value set, such as `grim_plot_line()`, have no column to map, so they take the colors as `color_*` arguments.)
+5.  Optional layers are controlled by logical arguments that start with `show_`, such as `show_data` in `grim_plot_grid()` or `show_labels` in `debit_plot()`. Only arguments of this kind start with `show_`, and they have defaults.
 
 # 6. Sequence mapper
 
@@ -399,7 +423,7 @@ As for sequence mappers, `audit()` needs no new method, but document its summari
 
 # Wrap-up
 
-This vignette generated five functions from a single-case test, three of them with scrutiny's function factories. The diagram below shows how they derive from each other. Fields with bold margins are function factories; an arrow passing through one means that a new function is generated from an earlier one.
+This vignette generated four functions from a single-case test, three of them with scrutiny's function factories, and added `audit()` and `explain_map()` methods by hand. The diagram below shows how the four derive from each other. Fields with bold margins are function factories; an arrow passing through one means that a new function is generated from an earlier one.
 
 ```{r include=FALSE, eval=FALSE}
 # Note: The diagram was made on diagrams.net. The bold margins were created as follows: (1) selecting the respective field, (2) clicking on the `View` symbol at the upper left, (3) selecting `Format Panel`, and (4) setting the line thickness from 1 to 3 pt.

@@ -51,7 +51,7 @@ grim(
 A few cases are still `NA` although every value would give the same result:
 
 - GRIMMER with `n` or `items_averaged` missing is only `TRUE` if data that are all the same value fit, and only `FALSE` if the SD is negative or, with `items_averaged` known, below the smallest that whole numbers with the mean can have. An SE is never below such a floor.
-- DEBIT with `n` missing tries each `n` up to 1,000 for a sample SD that is too large for a population SD, or for an SE, and is `NA` if that is not enough.
+- DEBIT with `n` missing, and an SD larger than any population SD with that mean, needs a small `n` to pass as a sample SD or an SE. It tries each `n` that could work, and is `NA` if these go beyond 1,000.
 - GRIMMER and DEBIT with `x` or `sd` missing are never `TRUE`.
 - A missing `digits_*` value is never `TRUE` if settling it takes more decimal places than exact arithmetic allows (see below), as for a large `n`, nor under DEBIT's `formula = "mean_n"`.
 - GRIM with `x` missing is undecided for some `n` if `digits_x` is 4 or more, or 2 or more for a percentage.

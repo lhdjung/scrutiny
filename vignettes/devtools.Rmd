@@ -54,7 +54,7 @@ seq_disperse(from = "5.30", dispersion = 1:3)
 
 `seq_disperse_df()` embeds the sequence as a tibble column. `seq_disperse()` is a hybrid between `base::seq()` and the `disperse*()` functions introduced below.
 
-## Disperse from (around) half with `disperse_total()`
+## Hypothetical group sizes
 
 `disperse_total()` splits a total sample size into pairs of hypothetical group sizes that add up to it, starting from half (or, for an odd total, from the two integers closest to half) and moving outward. It calls `disperse()` or `disperse2()` depending on parity; the two can also be called directly.
 

@@ -94,7 +94,7 @@ flights2 |>
   split_by_parens(transform = TRUE)
 ```
 
-From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations). The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to count the decimal places of each value. Do this before converting, and store the counts in `digits_x` and `digits_sd` columns, which `debit_map()` reads if the arguments of these names are not given:
+If these are means and SDs of binary data, `debit_map()` can test them almost right away. The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to count the decimal places of each value. Do this before converting, and store the counts in `digits_x` and `digits_sd` columns, which `debit_map()` reads if the arguments of these names are not given:
 
 ```{r}
 flights2 |>
@@ -111,7 +111,7 @@ flights2 |>
 
 Count the decimal places per value, as here, rather than taking the largest count for a whole column: the mean reported as `"0.5"` would otherwise be tested as if it were `0.50`, which can make a consistent value look inconsistent.
 
-If your strings look like `"2.65 [0.27]"`, specify the `delim` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `delim = "braces"`. What about other delimiters, as in `"2.65 <0.27>"`? Specify `delim` as those two substrings, like `delim = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
+For strings like `"2.65 [0.27]"`, set `delim = "brackets"`, and for `"2.65 {0.27}"`, `delim = "braces"`. Any other pair of delimiters is given as two strings, such as `delim = c("<", ">")` for `"2.65 <0.27>"`. The output is the same as for `"2.65 (0.27)"` with the default.
 
 ### Column name suffixes
 

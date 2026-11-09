@@ -100,6 +100,8 @@ An SD of 0.41 with the same mean is inconsistent, so `debit_values()` would retu
 debit_closest(x = 0.35, sd = 0.41, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
+Only seven ones give a mean of 0.35 here, so the closest SD is the same 0.49 as above, far from the reported 0.41.
+
 `debit_plot_line()` draws the SDs that `n` binary values with the reported mean can have, around the reported SD:
 
 ```{r, fig.width=7, fig.height=2}
