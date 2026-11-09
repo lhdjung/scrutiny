@@ -113,7 +113,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own. Otherwise, the raster follows the mapper call, and a `rounding` or `threshold` that disagrees with it is an error.
 
-- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means. This is related to #59 but doesn't conclude the questions raised there.
+- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means, and `debit_closest()` does the same for binary data. This is related to #59 but doesn't conclude the questions raised there.
 
 - `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test.
 

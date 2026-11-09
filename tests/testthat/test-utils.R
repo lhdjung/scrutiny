@@ -307,11 +307,11 @@ test_that("every `sd_meaning` and `formula` default spells out its constant", {
   }
   # `sd_meaning` in the scalar, vectorized, and explain functions of GRIMMER and
   # DEBIT, `grimmer_plot_line()` and `debit_plot_line()`, `grimmer_values()`,
-  # `grimmer_closest()`, and `debit_values()` and their scalar functions, the
-  # four `sd_binary_*()` functions, and all six mappers; `formula` in DEBIT's
-  # three functions, `debit_plot_line()`, `debit_values()` and its scalar
-  # function, and three mappers:
-  n_checked |> expect_equal(33L)
+  # `grimmer_closest()`, `debit_values()`, and `debit_closest()` and their
+  # scalar functions, the four `sd_binary_*()` functions, and all six mappers;
+  # `formula` in DEBIT's three functions, `debit_plot_line()`, `debit_values()`
+  # and `debit_closest()` and their scalar functions, and three mappers:
+  n_checked |> expect_equal(37L)
 })
 
 test_that("roundwork accepts every value in `ROUNDING_METHODS`", {

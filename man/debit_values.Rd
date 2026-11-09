@@ -2,9 +2,24 @@
 % Please edit documentation in R/debit-values.R
 \name{debit_values}
 \alias{debit_values}
+\alias{debit_closest}
 \title{Achievable means and SDs of binary data}
 \usage{
 debit_values(
+  x,
+  sd,
+  n,
+  digits_x,
+  digits_sd,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  formula = c("exact", "mean_n"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE
+)
+
+debit_closest(
   x,
   sd,
   n,
@@ -55,6 +70,10 @@ the value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \co
 values, \code{n} the reported sample size, and \code{sum} the number of ones. An
 inconsistent value set has no rows, and one that cannot be decided has
 one row of \code{NA} but for \code{n}, as in \code{\link[=debit]{debit()}}.
+
+\code{debit_closest()} returns the same columns with exactly one row per value
+set: of \code{NA} but for \code{n} if a value is missing or the value set cannot be
+decided.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -63,6 +82,12 @@ one row of \code{NA} but for \code{n}, as in \code{\link[=debit]{debit()}}.
 values (0 and 1) can have and that would be reported as \code{x} and \code{sd}. It
 is the counterpart of \code{\link[=grim_values]{grim_values()}} and \code{\link[=grimmer_values]{grimmer_values()}} for
 \code{\link[=debit]{debit()}}, which is \code{TRUE} exactly if there is at least one such pair.
+
+\code{debit_closest()} returns the single achievable pair whose SD is closest
+to \code{sd}, like \code{\link[=grimmer_closest]{grimmer_closest()}}. If \code{x} and \code{sd} are consistent, it
+is one of the pairs that \code{debit_values()} returns. Otherwise, it is
+closest among the pairs whose mean would be reported as \code{x}, or, if there
+are none, it is the pair whose mean \code{\link[=grim_closest]{grim_closest()}} returns.
 
 With \code{k} ones, the mean is \code{k / n}, and \code{k} is returned as \code{sum}, the sum
 of the values.
@@ -74,6 +99,9 @@ default \code{formula = "exact"}.
 More than a million numbers of ones whose mean would be reported as \code{x}
 is an error, since they are listed before the SD narrows them down. That
 takes an \code{n} far beyond any study's.
+
+In \code{debit_closest()}, pairs whose SDs are equally close go by the mean
+closer to \code{x}, then by the smaller number of ones.
 }
 \examples{
 # A mean of 0.35 and an SD of 0.49 are consistent with 20 binary values,
@@ -104,6 +132,16 @@ debit_values(
   n = 300,
   digits_x = 1,
   digits_sd = 1,
+  data_type = "integer"
+)
+
+# The closest pair to an inconsistent one:
+debit_closest(
+  x = 0.35,
+  sd = 0.41,
+  n = 20,
+  digits_x = 2,
+  digits_sd = 2,
   data_type = "integer"
 )
 }
