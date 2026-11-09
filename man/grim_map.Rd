@@ -83,8 +83,13 @@ with means (or percentages) and sample sizes.
 
 Set \code{x_meaning} to \code{"percentage"} if \code{x} contains percentages, and
 \code{show_rec} to \code{TRUE} to see the reconstructed values behind each result.
-Call \code{\link[=audit]{audit()}} on the output for summary statistics and
-\code{\link[=grim_plot_grid]{grim_plot_grid()}} to visualize it.
+
+Call these functions on the output of \code{grim_map()}:
+\itemize{
+\item \code{\link[=audit]{audit()}} for summary statistics.
+\item \code{\link[=grim_plot_grid]{grim_plot_grid()}} to visualize the results.
+\item \code{\link[=explain_print]{explain_print()}} to learn about the math of GRIM.
+}
 }
 \section{Reconstructed numbers}{
  With \code{show_rec = TRUE}, the output has these
@@ -154,9 +159,11 @@ df <- tibble::tibble(
   n = c(32, 43),
   is_percent = c(FALSE, TRUE)
 )
+
 df |>
   dplyr::filter(!is_percent) |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+
 df |>
   dplyr::filter(is_percent) |>
   grim_map(

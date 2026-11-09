@@ -5,8 +5,11 @@
 #'
 #'   Set `x_meaning` to `"percentage"` if `x` contains percentages, and
 #'   `show_rec` to `TRUE` to see the reconstructed values behind each result.
-#'   Call [`audit()`] on the output for summary statistics and
-#'   [`grim_plot_grid()`] to visualize it.
+#'
+#'   Call these functions on the output of `grim_map()`:
+#'   - [`audit()`] for summary statistics.
+#'   - [`grim_plot_grid()`] to visualize the results.
+#'   - [`explain_print()`] to learn about the math of GRIM.
 #'
 #' @param data Data frame with columns `x` and `n`, and optionally
 #'   `items_averaged`. Any other columns are returned alongside the results.
@@ -128,9 +131,11 @@
 #'   n = c(32, 43),
 #'   is_percent = c(FALSE, TRUE)
 #' )
+#'
 #' df |>
 #'   dplyr::filter(!is_percent) |>
 #'   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+#'
 #' df |>
 #'   dplyr::filter(is_percent) |>
 #'   grim_map(
