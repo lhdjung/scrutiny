@@ -1,16 +1,18 @@
 # scrutiny 1.0.0
 
-scrutiny 1.0.0 is a major release with many new features and bugfixes, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code; the error messages say how.
+scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code. You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, although I don't recommend reading the entire release notes.
 
-The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all basic mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package. Under the default settings, GRIM's results for testable value sets are unchanged, GRIMMER no longer flags many consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" below for details.
+The consistency tests now use exact integer arithmetic, several rounding procedures were corrected, and all basic mappers are made by `function_map()`. The rounding functions moved to the [roundwork](https://lhdjung.github.io/roundwork/) package, so go there if you need these functions themselves. Under the default settings, GRIM's results for testable value sets are unchanged, GRIMMER no longer flags consistent value sets and catches some it used to miss, and DEBIT is now exact. See "Test results" below for details.
 
-The tests, their three mapper tiers, and `audit()` are the stable core of this release. Every function newly added in 1.0.0 is experimental, marked by a badge on its help page, and may change in a minor release. The same applies to the developer tools, such as `function_map()`.
+The tests, their three mapper tiers, and `audit()` constitute the stable core of this release. Every function newly added in 1.0.0 is experimental and may change in a minor or major release later on. The same applies to the developer tools, such as `function_map()`.
 
 ## Breaking changes
 
 ### Numeric inputs
 
-- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic and sequence mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1, data_type = "integer")`, and must be whole numbers from 0 to 15. If they are left out, the mappers read them from `digits_x` and `digits_sd` columns of `data`, with one value per row, which in the total-n mappers applies to both groups. (See "Function interfaces" below on `items_averaged` and `data_type`.) Together with the integer digits of `x` or `sd`, they may not exceed about 15 significant digits, the precision of a double; `?grim` has the exact limits, and a `threshold` that roundwork can't scale to whole numbers is an error. Beyond that, GRIMMER and DEBIT get exact results for large means, SDs, and sample sizes. Apart from the limit on `x` with `n` that they share with GRIM, and one of 2^52 on `n` with `x` missing, GRIMMER only refuses an SD from about 5e5 to 1e6 on, or an SE from about 3e5 to 7e5 on, for `n` from 2 to 4, and value sets with more than a million candidate sums; see `?grimmer` and `?debit`.
+- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic and sequence mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1, data_type = "integer")`, and must be whole numbers from 0 to 15. Alternatively, you can add `digits_x` and `digits_sd` columns to your input `data`. The total-n mappers will apply them to both groups. (See "Function interfaces" below on `items_averaged` and `data_type`.)
+
+- `digits_*` arguments or columns, as well as the integer digits of `x` or `sd`, may not exceed about 15 significant digits. This is the precision of the double data type. Beyond that, GRIMMER and DEBIT get exact results for large means, SDs, and sample sizes. Apart from the limit on `x` with `n` that they share with GRIM, and one of 2^52 on `n` with `x` missing, GRIMMER only refuses an SD from about 5e5 to 1e6 on, or an SE from about 3e5 to 7e5 on, for `n` from 2 to 4, and value sets with more than a million candidate sums; see `?grimmer` and `?debit`.
 
 - Mappers return `digits_x` and `digits_sd` as integer columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
 
@@ -54,9 +56,7 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - The settings of GRIM, GRIMMER, and DEBIT come in one order in every function: what the reported values mean (`x_meaning`, `sd_meaning`, and DEBIT's `formula`), then `rounding`, `threshold`, and `symmetric`, then `show_rec`.
 
-- scrutiny uses the base pipe `|>`, no longer exports `%>%`, and requires R >= 4.1.0.
-
-- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `debit_map(formula)`. A `digits_*` column of `data` that disagrees with the argument is an error. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(x_meaning = "percentage")` keeps `x` as a percentage instead of converting it to a proportion with a message.
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `formula` in `debit_map()`. A `digits_*` column of `data` that disagrees with the argument is an error. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(x_meaning = "percentage")` keeps `x` as a percentage instead of converting it to a proportion with a message.
 
 - The sequence and total-n mappers, such as `grim_map_seq()`, have an explicit argument for every setting of their basic mapper, such as `rounding` or `sd_meaning`, with the same default. These used to be passed through the dots, which must now be empty. Existing calls are unaffected.
 
@@ -91,9 +91,11 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 
 - `decimal_places()` and `decimal_places_df()` match `sep` literally, as `restore_zeros()` and `restore_zeros_df()` match `sep_in`, and the defaults are `"."` instead of `"\\."`.
 
-- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1 (undo it with `ggplot2::theme(aspect.ratio = NULL)`) and a new `split_by_digits` argument that returns one plot per number of decimal places. `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
+- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1, which can be undone with `ggplot2::theme(aspect.ratio = NULL)`. It also has a new `split_by_digits` argument that returns one plot per number of decimal places.
 
 - The background raster in `grim_plot_grid()` shows consistent cells in grey and inconsistent cells in white, the inverse of `grim_plot()`'s former default. I acknowledge that this might confuse long-time users at first, and that it departs from the color scheme of [Brown and Heathers (2017, Fig. 1)](https://doi.org/10.1177/1948550616673876) that was the key inspiration for `grim_plot_grid()`. However, it matches the broader emerging ecosystem of forensic meta-science software that ties in with GRIM. In this related work, relatively few dark points signify possible value sets against a white background. See, e.g., [Hussey (2026) on combining granularity and bounds methods](https://trustworthyresear.ch/chapters/combined_granularity_and_bounds_methods.html).
+
+- `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
 
 - `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
 
@@ -240,6 +242,8 @@ The tests, their three mapper tiers, and `audit()` are the stable core of this r
 - `function_map()` lost `.col_control` and `.col_filler`, which never worked.
 
 - `disperse()`, `disperse2()`, `disperse_total()`, and the `*_map_total_n()` functions lost `constant_index`, and `function_map_total_n()` lost `.constant_index`. The `constant` columns always follow `n_change`; move them with `dplyr::relocate()`.
+
+- scrutiny uses the base pipe `|>`, no longer exports the magrittr pipe `%>%`, and requires R >= 4.1.0.
 
 - scrutiny requires purrr >= 1.0.0 (#87), dplyr >= 1.1.0, ggplot2 >= 3.4.0, and cli >= 3.4.0. It no longer depends on corrr, and it suggests ggrepel instead of importing it. When using ggrepel, it needs a version >= 0.9.3.
 
