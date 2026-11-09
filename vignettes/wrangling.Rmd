@@ -87,7 +87,7 @@ flights2 |>
   split_by_parens()
 ```
 
-Optionally, transform these values into a more useful format:
+With `transform = TRUE`, the output has one row per pair of values instead, and the column each pair came from is kept in `.origin`:
 
 ```{r}
 flights2 |>
@@ -169,4 +169,4 @@ flights1_with_issues |>
   row_to_colnames()
 ```
 
-All columns are still strings, as in any table extracted from PDF, so convert them with `as.numeric()` before testing.
+All columns are still strings, as in any table extracted from PDF. Count their decimal places with `decimal_places()` while the trailing zeros are still there, then convert them with `as.numeric()`, as in the `debit_map()` example above.

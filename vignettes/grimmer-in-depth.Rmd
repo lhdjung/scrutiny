@@ -25,11 +25,28 @@ This vignette builds on `vignette("grimmer")`, which covers the basics of GRIMME
 
 ## Sample or population SD
 
-GRIMMER takes the SD to be a sample SD, which divides by $n - 1$, as in R, SPSS, and Stata. Some software, such as NumPy's `np.std()` or Excel's `STDEV.P`, reports the population SD, which divides by $n$. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
+GRIMMER takes the SD to be a sample SD, which divides by $n - 1$. A population SD, as from NumPy's `np.std()` or Excel's `STDEV.P`, divides by $n$. At small $n$, such an SD often fails the test as a sample SD. The values 2, 4, 4, 5, and 7 have a mean of 4.4 and a population SD of 1.62:
 
 ```{r}
-grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")
-grimmer(x = 4.4, sd = 1.62, n = 5, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop")
+grimmer(
+  x = 4.4,
+  sd = 1.62,
+  n = 5,
+  digits_x = 1,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+grimmer(
+  x = 4.4,
+  sd = 1.62,
+  n = 5,
+  digits_x = 1,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer",
+  sd_meaning = "sd_pop"
+)
 ```
 
 `sd_meaning = "sd_sample_or_pop"` accepts a value set that is consistent under either convention, and the `reason` column of `grimmer_map()` says which one. It accepts more SDs than either convention alone, and a study has most likely computed all its SDs the same way, so testing under `"sd_sample"` and `"sd_pop"` separately tells you more.
@@ -45,8 +62,24 @@ GRIMMER does not use the bounds of a scale. For data on a bounded scale, such as
 `grimmer_values()` returns every pair of a mean and an SD that a sample of `n` integers can have and that would be reported as `x` and `sd`, with the sum and sum of squares behind each. It is the counterpart of `grim_values()`, and like it, it returns one row per achievable pair, with `case` for the value set, and none if the value set is inconsistent:
 
 ```{r}
-grimmer_values(x = 5.3, sd = 0.7, n = 30, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer")
-grimmer_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+grimmer_values(
+  x = 5.3,
+  sd = 0.7,
+  n = 30,
+  digits_x = 1,
+  digits_sd = 1,
+  items_averaged = 1,
+  data_type = "integer"
+)
+grimmer_values(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 ```
 
 With the sum and sum of squares of each group, a statistic that combines several groups, such as a *t*-value, can be recomputed for every possible sample and compared with the reported one. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
@@ -54,7 +87,15 @@ With the sum and sum of squares of each group, a statistic that combines several
 `grimmer_closest()` returns the one pair whose SD is closest to the reported one, like `grim_closest()` for means. For an inconsistent value set, this shows how far off the SD is:
 
 ```{r}
-grimmer_closest(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+grimmer_closest(
+  x = 5.23,
+  sd = 2.55,
+  n = 35,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 ```
 
 ## A single value set: `grimmer_plot_line()`
@@ -62,7 +103,15 @@ grimmer_closest(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_
 `grimmer_plot_line()` draws the test for a single value set, like `grim_plot_line()` does for means; it helps to explain a result. It shows the SDs that could have been reported around the reported one and marks those that a sample with the given mean and size can have:
 
 ```{r, fig.width=7, fig.height=2}
-grimmer_plot_line(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer")
+grimmer_plot_line(
+  x = 7.3,
+  sd = 2.51,
+  n = 12,
+  digits_x = 1,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 ```
 
 ## Many value sets: `grim_plot_grid()`
@@ -80,7 +129,13 @@ pigs5 |>
 `grimmer_map_seq()` varies `x`, `sd`, and `n` around the reported values, by default only for inconsistent value sets:
 
 ```{r}
-out_seq1 <- grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+out_seq1 <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 out_seq1
 
 audit(out_seq1)
@@ -103,8 +158,15 @@ audit(out_seq2)
 `grim_plot_grid()` accepts this output as well, and `var` restricts the dispersion to one variable:
 
 ```{r, fig.width=6, fig.height=5.5}
-grimmer_map_seq(pigs5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = "n") |>
-  grim_plot_grid()
+out_seq1_only_n <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer",
+  var = "n"
+)
+grim_plot_grid(out_seq1_only_n)
 ```
 
 ## Unknown group sizes: `grimmer_map_total_n()`
@@ -118,7 +180,13 @@ flying_pigs4 <- tibble::tribble(
   3.77 , 4.37 , 1.74 , 1.44 , 65
 )
 
-out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+out_total_n <- grimmer_map_total_n(
+  flying_pigs4,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
 out_total_n
 
 audit(out_total_n)

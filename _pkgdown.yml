@@ -28,19 +28,16 @@ articles:
   navbar: Plausibility checks
   contents:
   - duplicates
-- title: Quick guides
-  navbar: Quick guides
+- title: Implementing tests
+  navbar: Implementing tests
   contents:
   - consistency-tests-simple
-- title: Developer tools
-  navbar: Developer tools
-  contents:
   - consistency-tests-in-depth
   - devtools
-  - wrangling
 - title: Other
   navbar: Other
   contents:
+  - wrangling
   - technical-notes
   - related
 reference:

@@ -194,11 +194,11 @@ df_tested
 audit(df_tested)
 ```
 
-A hit is a split in which both means are consistent with their hypothetical group sizes. The default `dispersion = 0:5` goes five steps away from the even split.
+Each row is one mean with one hypothetical group size. `n_change` is how far that size is from half the total, `both_consistent` says whether both means of the split are consistent, and `dir` says which way the means were paired with the groups (see below). A hit is a split in which both means are consistent with their hypothetical group sizes. The default `dispersion = 0:5` goes five steps away from the even split.
 
 The two means were reported with different numbers of decimal places, so `digits_x` has one value per group. Testing 5.3 as if it were 5.30 would be stricter than the test Bauer and Francis conducted.
 
-`grim_map_total_n()` tests both ways of pairing the means with the group sizes. Bauer and Francis only paired 4.71 with the smaller group; the reverse pairing yields two more hits, at 19/21 and 16/24. In the summary, `hits_forth` counts the hits from the first pairing, `hits_back` those from the reverse one, and `hits_total` their sum.
+`grim_map_total_n()` tests both ways of pairing the means with the group sizes. Bauer and Francis only paired 4.71 with the smaller group; the reverse pairing yields two more hits, at 19/21 and 16/24. In the summary, `hits_forth` counts the hits from the first pairing, `hits_back` those from the reverse one, and `hits_total` their sum. `scenarios_total` is the number of splits tested, and `hit_rate` the share of them that are hits.
 
 ## GRIM statistics
 

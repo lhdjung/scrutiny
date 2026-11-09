@@ -55,7 +55,7 @@ flying_pigs |>
   debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
-With `show_rec = TRUE`, the output also has the reconstructed values: the rounding bounds of `sd` and `x`, and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`. `pigs3` is an example dataset that comes with scrutiny:
+With `show_rec = TRUE`, the output also has the reconstructed values: the rounding bounds of `sd` and `x` (`sd_incl_lower` and `sd_incl_upper` say whether the bounds of `sd` are included), and `sum_lower` and `sum_upper`, the smallest and largest numbers of ones whose mean would be reported as `x`. `pigs3` is an example dataset that comes with scrutiny:
 
 ```{r}
 pigs3
@@ -159,7 +159,7 @@ out_seq2 <- debit_map_seq(
 audit(out_seq2)
 ```
 
-`debit_plot()` is not well suited to this output.
+`debit_plot()` accepts this output, but the dispersed value sets overlap into a cross around each case, and their labels crowd each other out.
 
 ## Unknown group sizes: `debit_map_total_n()`
 

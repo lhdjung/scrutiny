@@ -79,7 +79,15 @@ schlim <- Vectorize(schlim_scalar)
 schlim(y = 10:15, n = 4)
 ```
 
-`Vectorize()` loops over every argument. This is wrong for two kinds of arguments: those that only the mapper should set, such as `show_rec` in `grim_scalar()`, which makes the function return a list; and those that describe the test as a whole, such as `rounding`. This is why `grim()`, `grimmer()`, and `debit()` have handwritten signatures instead. If your single-case function has such arguments, do the same.
+`Vectorize()` loops over every argument. This is wrong for two kinds of arguments: those that only the mapper should set, such as `show_rec` in `grim_scalar()`, which makes the function return a list; and those that describe the test as a whole, such as `rounding`. This is why `grim()`, `grimmer()`, and `debit()` have handwritten signatures instead. If your single-case function has such arguments, do the same: loop over the reported values only, and pass the other arguments on as they are. Suppose `schlim_scalar()` took a `rounding` argument:
+
+```{r, eval=FALSE}
+schlim <- function(y, n, rounding = "up_or_down") {
+  purrr::map2_lgl(y, n, schlim_scalar, rounding = rounding)
+}
+```
+
+`purrr::map2_lgl()` recycles only values of length 1, so `y` and `n` must otherwise have the same length. Use `purrr::pmap_lgl()` for three or more reported values.
 
 The rest of the vignette builds on the mapper, not on the vectorized function.
 
@@ -369,7 +377,7 @@ grimmer_map_seq <- function_map_seq(
 )
 ```
 
-`.var_bounds` sets the least and greatest values to which each variable may be dispersed, with `NA` for an unbounded side. `n` always has a minimum of 1. A bound may also be a function of the mapper's arguments, as with `n` here. `.dispersion`, `.out_min`, `.out_max`, `.include_reported`, and `.include_consistent` set the defaults of the corresponding arguments of the new function; see `?function_map_seq`.
+`.var_bounds` sets the least and greatest values to which each variable may be dispersed, with `NA` for an unbounded side. `n` always has a minimum of 1. A bound may also be a function of the mapper's arguments, as with `n` here. `.var`, `.dispersion`, `.out_min`, `.out_max`, `.include_reported`, and `.include_consistent` set the defaults of the corresponding arguments of the new function; see `?function_map_seq`.
 
 A sequence mapper can be created in the same way from any basic mapper that meets the requirements of section 3. For SCHLIM:
 
