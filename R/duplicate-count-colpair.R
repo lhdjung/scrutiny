@@ -17,9 +17,9 @@
 #' - `total_x`, `total_y`: the number of values in `x` and `y` that are
 #'   neither missing nor ignored.
 #' - `rate_x`: the proportion of `x` values that occur in `y`, i.e., `count /
-#'   total_x`, or `NA` if `total_x` is 0. `rate_y`: the proportion of `y`
-#'   values that occur in `x`. This
-#'   differs from `count / total_y` if a value repeats within a column.
+#'   total_x`, or `NA` if `total_x` is 0.
+#' - `rate_y`: the same for `y`. It differs from `count / total_y` if a value
+#'   repeats within a column.
 #'
 #' @section Summaries with [`audit()`]: `audit()` on
 #'   `duplicate_count_colpair()` output returns summary statistics for the

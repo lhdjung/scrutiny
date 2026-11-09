@@ -20,7 +20,8 @@ check_parens_delim <- function(delim) {
 #' Match the `delim` keyword to actual delimiters
 #'
 #' @description `translate_delim_keywords()` replaces the keywords
-#'   `"parens"`, `"brackets"`, or `"braces"` with the characters they describe.
+#'   `"parens"`, `"brackets"`, or `"braces"` (or their opening character) with
+#'   the characters they describe.
 #'   A length-2 `delim` is returned as it is. Anything else is an error.
 #'
 #'   The delimiters are literal characters, not regular expressions: they are

@@ -23,9 +23,9 @@ A tibble with these columns:
 ignored values are not counted.
 \item \code{total_x}, \code{total_y}: the number of values in \code{x} and \code{y} that are
 neither missing nor ignored.
-\item \code{rate_x}: the proportion of \code{x} values that occur in \code{y}, i.e., \code{count / total_x}, or \code{NA} if \code{total_x} is 0. \code{rate_y}: the proportion of \code{y}
-values that occur in \code{x}. This
-differs from \code{count / total_y} if a value repeats within a column.
+\item \code{rate_x}: the proportion of \code{x} values that occur in \code{y}, i.e., \code{count / total_x}, or \code{NA} if \code{total_x} is 0.
+\item \code{rate_y}: the same for \code{y}. It differs from \code{count / total_y} if a value
+repeats within a column.
 }
 }
 \description{

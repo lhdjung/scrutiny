@@ -55,8 +55,8 @@ add_up_to_scalar <- function(summands, total) {
 #' @param total Integer. The reported total, one per case.
 #'
 #' @return Logical. `TRUE` if the counts add up to `total`, `FALSE` if not,
-#'   and `NA` if a value is missing, negative, or not a whole number, or if the
-#'   counts or the total reach `2^53`, beyond which a sum is no longer exact.
+#'   and `NA` if a value is missing, negative, or not a whole number, or if their
+#'   sum or the total reaches `2^53`, beyond which a sum is no longer exact.
 #'
 #' @include utils.R
 #'

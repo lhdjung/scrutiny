@@ -26,9 +26,10 @@ Default is \code{everything()}, restricted by \code{check_delim}.}
 
 \item{check_delim}{Logical. If \code{TRUE} (the default), columns whose values
 do not all contain the delimiters are skipped. Missing values, blank
-strings, \code{"NA"}, and \code{"NaN"} don't count. A column skipped causes a
-warning if \code{cols} is given, and any column split although it lacks the
-delimiters does, unless it has no values at all.}
+strings, \code{"NA"}, and \code{"NaN"} don't count. If \code{cols} is given, each
+column skipped causes a warning. Under \code{check_delim = FALSE}, so does each
+column split although it lacks the delimiters, unless all its values are
+missing.}
 
 \item{keep}{Logical. Should the original columns be kept? Default is
 \code{FALSE}.}

@@ -10,7 +10,7 @@
 #'   `iris`, 99% of values have a duplicate. Duplicates are more meaningful when
 #'   there are fewer values and they have more characters.
 #'
-#'   All values are compared as strings, and the output returns them as such.
+#'   Values are compared as strings and returned as strings.
 #'   So `1` and `"1"` are duplicates, but `2` and `"2.0"` are not. Numbers
 #'   lose trailing zeros when converted: `2.0` becomes `"2"`.
 #'
@@ -20,7 +20,8 @@
 #'   `NA`, as is that of missing values.
 #' @param colname_end String. Suffix of the tally columns. Default is `"n"`.
 #'
-#' @return A tibble with the columns of `x`, each followed by its tally column.
+#' @return A tibble with the columns of `x` (a `value` column if `x` is a
+#'   vector), each followed by its tally column.
 #'   It has the class `scrutiny_dup_tally`, which is recognized by [`audit()`].
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `duplicate_tally()` output

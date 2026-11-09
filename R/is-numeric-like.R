@@ -21,11 +21,7 @@
 #'
 #' @param x Object to be tested.
 #'
-#' @details scrutiny often works with number-strings, since only strings (and
-#'   factors) preserve trailing zeros. This function asks whether a vector
-#'   displays numbers, not how it is stored. Logical vectors are `FALSE` because
-#'   they display as `TRUE` and `FALSE`, and factors are tested as strings
-#'   because that is what they display.
+#' @details It asks whether a vector displays numbers, not how it is stored.
 #'
 #' @return Logical (length 1).
 #'

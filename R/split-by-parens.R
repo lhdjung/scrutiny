@@ -12,9 +12,10 @@
 #'   Default is `everything()`, restricted by `check_delim`.
 #' @param check_delim Logical. If `TRUE` (the default), columns whose values
 #'   do not all contain the delimiters are skipped. Missing values, blank
-#'   strings, `"NA"`, and `"NaN"` don't count. A column skipped causes a
-#'   warning if `cols` is given, and any column split although it lacks the
-#'   delimiters does, unless it has no values at all.
+#'   strings, `"NA"`, and `"NaN"` don't count. If `cols` is given, each
+#'   column skipped causes a warning. Under `check_delim = FALSE`, so does each
+#'   column split although it lacks the delimiters, unless all its values are
+#'   missing.
 #' @param keep Logical. Should the original columns be kept? Default is
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer

@@ -16,16 +16,13 @@ body measures of the fictional pigs. The columns are:
 \usage{
 pigs4
 }
-\value{
-A tibble (data frame).
-}
 \description{
 A fictional dataset with observations of flying pigs. It contains multiple
-duplicates. The dataset can be used to demonstrate the functionality of
-\verb{duplicate_*()} functions such as \code{duplicate_count()}.
+duplicates. For demonstrating the \verb{duplicate_*()} functions, such as
+\code{\link[=duplicate_count]{duplicate_count()}}.
 }
 \seealso{
 \code{\link{pigs1}} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
-percentages, \code{\link{pigs3}} for using DEBIT, and \code{\link{pigs5}} for GRIMMER-testing.
+percentages, \code{\link{pigs3}} for DEBIT-testing, and \code{\link{pigs5}} for GRIMMER-testing.
 }
 \keyword{datasets}

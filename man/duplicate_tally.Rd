@@ -16,7 +16,8 @@ duplicate_tally(x, ignore = NULL, colname_end = "n")
 \item{colname_end}{String. Suffix of the tally columns. Default is \code{"n"}.}
 }
 \value{
-A tibble with the columns of \code{x}, each followed by its tally column.
+A tibble with the columns of \code{x} (a \code{value} column if \code{x} is a
+vector), each followed by its tally column.
 It has the class \code{scrutiny_dup_tally}, which is recognized by \code{\link[=audit]{audit()}}.
 }
 \description{
@@ -31,7 +32,7 @@ Values with few characters are often duplicated by chance: in
 \code{iris}, 99\% of values have a duplicate. Duplicates are more meaningful when
 there are fewer values and they have more characters.
 
-All values are compared as strings, and the output returns them as such.
+Values are compared as strings and returned as strings.
 So \code{1} and \code{"1"} are duplicates, but \code{2} and \code{"2.0"} are not. Numbers
 lose trailing zeros when converted: \code{2.0} becomes \code{"2"}.
 }

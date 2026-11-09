@@ -209,6 +209,9 @@ percentage_of_any_n <- function(
 #'   `percentage`, `n`, and `digits_percentage` are vectorized; all other
 #'   arguments must have length 1.
 #'
+#'   An `absolute` above `n` is tested like any other, as for answers to a
+#'   question that allows several, whose percentages can sum to more than 100.
+#'
 #' @section Causes of inconsistencies: A `FALSE` result means that the three
 #'   values cannot all be correct as reported, not why. The cause is often
 #'   trivial: the percentage may be based on another denominator than `n`,
@@ -223,17 +226,19 @@ percentage_of_any_n <- function(
 #' @param digits_percentage Integer. The number of decimal places in
 #'   `percentage`, including trailing zeros. There is no default, since a
 #'   numeric value does not keep them (`1.40` is `1.4`).
+#' @param rounding String. The rounding method assumed to have produced
+#'   `percentage`. Default is `"up_or_down"`, which accepts either direction.
+#'   See [`grim()`] for the other methods.
 #' @inheritParams grim
 #'
 #' @return Logical. `TRUE` if the three values are consistent, `FALSE` if not,
 #'   and `NA` if the case cannot be decided: if a value is infinite, if
 #'   `absolute` is not a non-negative whole number, if `n` is not a positive
 #'   whole number, or if a missing value could decide the case either way. A
-#'   missing `absolute` is `FALSE` if no count gives `percentage`, and a
-#'   missing `n` if `absolute` is no such share of any `n`. A missing
-#'   `digits_percentage` is treated as in [`grim()`]. An `absolute` above `n` is tested like any other, as for
-#'   answers to a question that allows several, whose percentages can sum to
-#'   more than 100.
+#'   missing `absolute` gives `FALSE` if no count out of `n` has the
+#'   percentage, and a missing `n` gives `FALSE` if no `n` makes `absolute`
+#'   that percentage. A missing `digits_percentage` is treated as in
+#'   [`grim()`].
 #'
 #' @seealso [`grim()`] with `x_meaning = "percentage"`, for a percentage without a count.
 #'

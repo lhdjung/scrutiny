@@ -2,9 +2,8 @@
 
 #' Means and sample sizes for GRIM-testing
 #'
-#' A fictional dataset with means and sample sizes of flying pigs. It can be
-#' used to demonstrate the functionality of [`grim_map()`] and functions
-#' built on it.
+#' A fictional dataset with means and sample sizes of flying pigs. For
+#' demonstrating [`grim_map()`] and functions built on it.
 
 #' @include utils.R grim-map.R
 #'
@@ -14,8 +13,6 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
-#' @return A tibble (data frame).
-#'
 #' @seealso [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
 #'   for DEBIT-testing, [`pigs4`] for detecting duplicates, and [`pigs5`] for
 #'   GRIMMER-testing.
@@ -25,9 +22,9 @@
 
 #' Percentages and sample sizes for GRIM-testing
 #'
-#' A fictional dataset with percentages and sample sizes of flying pigs. It can
-#' be used to demonstrate the functionality of `grim_map()`, particularly with
-#' `x_meaning = "percentage"`, and functions built on it.
+#' A fictional dataset with percentages and sample sizes of flying pigs. For
+#' demonstrating [`grim_map()`] and functions built on it, with
+#' `x_meaning = "percentage"`.
 
 #' @include utils.R grim.R
 #'
@@ -37,8 +34,6 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
-#' @return A tibble (data frame).
-#'
 #' @seealso [`pigs1`] for GRIM-testing means instead of percentages, [`pigs3`]
 #'   for DEBIT-testing, [`pigs4`] for detecting duplicates, and [`pigs5`] for
 #'   GRIMMER-testing.
@@ -46,11 +41,11 @@
 "pigs2"
 
 
-#' Binary means and standard deviations for using DEBIT
+#' Binary means and standard deviations for DEBIT-testing
 #'
 #' A fictional dataset with means and standard deviations from a binary
-#' distribution related to flying pigs. It can be used to demonstrate the
-#' functionality of `debit_map()` and functions built on it.
+#' distribution related to flying pigs. For demonstrating [`debit_map()`] and
+#' functions built on it.
 
 #' @include utils.R debit-map.R
 #'
@@ -61,8 +56,6 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
-#' @return A tibble (data frame).
-#'
 #' @seealso [`pigs1`] for GRIM-testing means, [`pigs2`] for GRIM-testing
 #'   percentages instead of means, [`pigs4`] for detecting duplicates, and
 #'   [`pigs5`] for GRIMMER-testing.
@@ -73,8 +66,8 @@
 #' Data with duplications
 #'
 #' A fictional dataset with observations of flying pigs. It contains multiple
-#' duplicates. The dataset can be used to demonstrate the functionality of
-#' `duplicate_*()` functions such as `duplicate_count()`.
+#' duplicates. For demonstrating the `duplicate_*()` functions, such as
+#' [`duplicate_count()`].
 
 #' @include utils.R duplicate-tally.R
 #'
@@ -86,10 +79,8 @@
 #'  \item{wings}{Numeric. Wingspan.}
 #' }
 
-#' @return A tibble (data frame).
-#'
 #' @seealso [`pigs1`] for GRIM-testing means, [`pigs2`] for GRIM-testing
-#'   percentages, [`pigs3`] for using DEBIT, and [`pigs5`] for GRIMMER-testing.
+#'   percentages, [`pigs3`] for DEBIT-testing, and [`pigs5`] for GRIMMER-testing.
 #'
 "pigs4"
 
@@ -97,8 +88,8 @@
 #' Means, SDs, and sample sizes for GRIMMER-testing
 #'
 #' A fictional dataset with means, standard deviations (SDs), and sample sizes
-#' of flying pigs. It can be used to demonstrate the functionality of
-#' `grimmer_map()` and functions built on it.
+#' of flying pigs. For demonstrating [`grimmer_map()`] and functions built on
+#' it.
 
 #' @include utils.R grimmer-map.R
 #'
@@ -109,10 +100,8 @@
 #'  \item{n}{Numeric. Sample sizes.}
 #' }
 
-#' @return A tibble (data frame).
-#'
-#' @seealso [`pigs1`] for (only) GRIM-testing the same means as here, [`pigs2`]
-#'   for GRIM-testing percentages instead of means, [`pigs3`] for DEBIT-testing,
-#'   and [`pigs4`] for detecting duplicates.
+#' @seealso [`pigs1`] for GRIM-testing the same means, with other sample
+#'   sizes, [`pigs2`] for GRIM-testing percentages instead of means, [`pigs3`]
+#'   for DEBIT-testing, and [`pigs4`] for detecting duplicates.
 #'
 "pigs5"

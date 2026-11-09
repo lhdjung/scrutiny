@@ -34,11 +34,7 @@ are \code{FALSE} otherwise. A logical element other than \code{NA} makes a list
 }
 }
 \details{
-scrutiny often works with number-strings, since only strings (and
-factors) preserve trailing zeros. This function asks whether a vector
-displays numbers, not how it is stored. Logical vectors are \code{FALSE} because
-they display as \code{TRUE} and \code{FALSE}, and factors are tested as strings
-because that is what they display.
+It asks whether a vector displays numbers, not how it is stored.
 }
 \examples{
 is_numeric_like(x = 1:5)

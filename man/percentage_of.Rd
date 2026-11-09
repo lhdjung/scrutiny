@@ -26,14 +26,9 @@ is said to be, e.g., \code{33.3}.}
 \code{percentage}, including trailing zeros. There is no default, since a
 numeric value does not keep them (\code{1.40} is \code{1.4}).}
 
-\item{rounding}{String. The rounding method assumed to have produced \code{x}.
-Default is \code{"up_or_down"}, which accepts either direction; see
-\emph{Defaults} in \code{\link[=grim]{grim()}}. The others are \code{"up_from_or_down_from"},
-\code{"ceiling_or_floor"}, \code{"up"}, \code{"down"}, \code{"even"},
-\code{"up_from"}, \code{"down_from"}, \code{"ceiling"}, \code{"floor"}, \code{"trunc"},
-\code{"anti_trunc"}, \code{"ties_up"}, \code{"ties_down"}, \code{"ties_away"}, \code{"ties_zero"},
-and \code{"ties_even"}. See
-\code{vignette("rounding-options", package = "roundwork")}.}
+\item{rounding}{String. The rounding method assumed to have produced
+\code{percentage}. Default is \code{"up_or_down"}, which accepts either direction.
+See \code{\link[=grim]{grim()}} for the other methods.}
 
 \item{threshold}{Numeric. For \code{rounding = "up_from"}, \code{"down_from"}, or
 \code{"up_from_or_down_from"}, the point within a step at which rounding
@@ -42,7 +37,7 @@ otherwise.}
 
 \item{symmetric}{Logical. If \code{TRUE}, negative numbers are rounded like
 their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"down"}, and the
-\code{"*_from"} methods. Default is \code{FALSE}. Must not be given with a
+\code{"*_from"} methods. Default is \code{FALSE}. Must not be \code{TRUE} with a
 \code{"ties_*"} rounding method, which already fixes the direction; see
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
@@ -51,11 +46,10 @@ Logical. \code{TRUE} if the three values are consistent, \code{FALSE} if not,
 and \code{NA} if the case cannot be decided: if a value is infinite, if
 \code{absolute} is not a non-negative whole number, if \code{n} is not a positive
 whole number, or if a missing value could decide the case either way. A
-missing \code{absolute} is \code{FALSE} if no count gives \code{percentage}, and a
-missing \code{n} if \code{absolute} is no such share of any \code{n}. A missing
-\code{digits_percentage} is treated as in \code{\link[=grim]{grim()}}. An \code{absolute} above \code{n} is tested like any other, as for
-answers to a question that allows several, whose percentages can sum to
-more than 100.
+missing \code{absolute} gives \code{FALSE} if no count out of \code{n} has the
+percentage, and a missing \code{n} gives \code{FALSE} if no \code{n} makes \code{absolute}
+that percentage. A missing \code{digits_percentage} is treated as in
+\code{\link[=grim]{grim()}}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -75,6 +69,9 @@ convenient for testing many cases.
 The test runs in exact integer arithmetic. \code{absolute},
 \code{percentage}, \code{n}, and \code{digits_percentage} are vectorized; all other
 arguments must have length 1.
+
+An \code{absolute} above \code{n} is tested like any other, as for answers to a
+question that allows several, whose percentages can sum to more than 100.
 }
 \section{Causes of inconsistencies}{
  A \code{FALSE} result means that the three

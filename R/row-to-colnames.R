@@ -1,6 +1,6 @@
 #' Turn row values into column names
 #'
-#' @description Tables extracted from PDF, e.g. with tabulizer, sometimes have
+#' @description Tables extracted from PDFs, e.g. with tabulapdf, sometimes have
 #'   their column names in the first row (or rows) and nondescript names
 #'   above. `row_to_colnames()` replaces the column names by the values of
 #'   those rows and drops the rows.

@@ -23,7 +23,8 @@ other columns are returned alongside the results.}
 \item{digits_percentage}{Integer. The number of decimal places in
 \code{percentage}, including trailing zeros. There is no default, since a
 numeric value does not keep them (\code{1.40} is \code{1.4}). Either a single
-number for the whole column or one number per row of \code{data}.}
+number for the whole column or one number per row of \code{data}. If left out,
+it is taken from a \code{digits_percentage} column of \code{data}.}
 
 \item{absolute, percentage, n}{Optionally, the names of the columns in \code{data}
 that contain these values, if they differ from the defaults.}

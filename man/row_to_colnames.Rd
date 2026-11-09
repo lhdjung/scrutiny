@@ -22,7 +22,7 @@ Default is \code{" "}.}
 a tibble if \code{data} was a matrix.
 }
 \description{
-Tables extracted from PDF, e.g. with tabulizer, sometimes have
+Tables extracted from PDFs, e.g. with tabulapdf, sometimes have
 their column names in the first row (or rows) and nondescript names
 above. \code{row_to_colnames()} replaces the column names by the values of
 those rows and drops the rows.

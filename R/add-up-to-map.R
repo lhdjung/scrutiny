@@ -3,8 +3,8 @@
 #' @description `r lifecycle::badge("experimental")`
 #'
 #'   `add_up_to_map()` applies [`add_up_to()`] to every row of a data
-#'   frame. `summands` selects the columns to add up with tidyselect, so any
-#'   number of columns can be added up.
+#'   frame. `summands` selects any number of columns to add up, using
+#'   tidyselect.
 #'
 #'   Call [`audit()`] on the output for summary statistics.
 #'

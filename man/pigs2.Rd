@@ -14,13 +14,10 @@ A tibble (data frame) with 6 rows and 2 columns. The columns are:
 \usage{
 pigs2
 }
-\value{
-A tibble (data frame).
-}
 \description{
-A fictional dataset with percentages and sample sizes of flying pigs. It can
-be used to demonstrate the functionality of \code{grim_map()}, particularly with
-\code{x_meaning = "percentage"}, and functions built on it.
+A fictional dataset with percentages and sample sizes of flying pigs. For
+demonstrating \code{\link[=grim_map]{grim_map()}} and functions built on it, with
+\code{x_meaning = "percentage"}.
 }
 \seealso{
 \code{\link{pigs1}} for GRIM-testing means instead of percentages, \code{\link{pigs3}}

@@ -14,13 +14,9 @@ A tibble (data frame) with 12 rows and 2 columns. The columns are:
 \usage{
 pigs1
 }
-\value{
-A tibble (data frame).
-}
 \description{
-A fictional dataset with means and sample sizes of flying pigs. It can be
-used to demonstrate the functionality of \code{\link[=grim_map]{grim_map()}} and functions
-built on it.
+A fictional dataset with means and sample sizes of flying pigs. For
+demonstrating \code{\link[=grim_map]{grim_map()}} and functions built on it.
 }
 \seealso{
 \code{\link{pigs2}} for GRIM-testing percentages instead of means, \code{\link{pigs3}}
