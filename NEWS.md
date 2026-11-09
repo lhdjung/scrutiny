@@ -1,8 +1,10 @@
 # scrutiny 1.0.0
 
-scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code. You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, but I don't recommend reading the entire release notes.
+scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code.
 
-## In short
+You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, but I don't recommend reading the entire release notes.
+
+## Key changes
 
 Most calls to `grim_map()` or `grim()` need three new arguments:
 
@@ -154,6 +156,8 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 - `function_map()` gains `.args_by_row`, `.args_fixed`, `.cols_helper`, `.cols_derived`, a working `.col_names`, and `.reported_variadic` for tests in which the data determine the number of key columns (#42). `function_map_seq()` gains `.var_bounds`, which sets the dispersion limits per variable, so that a mean can go below zero while `n` stays at least 1.
 
+- Last but not least, the package gained a hex logo. It is a reference to the topos of flying pigs in [Brown and Heathers (2017)](https://doi.org/10.1177/1948550616673876), which the authors continued as a running joke in their later joint work. Like value sets that fail a consistency test, assertions about flying pigs may raise concerns about trustworthiness.
+
 ## Bug fixes
 
 ### Consistency tests
@@ -234,7 +238,7 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 ## Lifecycle changes
 
-- The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see roundwork's NEWS for their changes. `vignette("rounding-options", package = "roundwork")` and `vignette("rounding-in-depth", package = "roundwork")` moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
+- The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see [roundwork's changelog](https://lhdjung.github.io/roundwork/news/index.html) for their changes. The vignettes [Rounding options](https://lhdjung.github.io/roundwork/articles/rounding-options.html) and [Rounding in depth](https://lhdjung.github.io/roundwork/articles/rounding-in-depth.html) moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
 
 ### Deprecated
 
@@ -262,7 +266,7 @@ The tests, their three mapper tiers, and `audit()` constitute the stable core of
 
 - `seq_length()` and `seq_length<-` were removed; their names clashed with `seq_len()`. So were `seq_endpoint()`, `seq_distance()`, `seq_endpoint_df()`, `seq_distance_df()`, and `seq_test_ranking()`, which made decimal strings for mappers that no longer take strings. Use `seq(from, to, by = 10^-digits)`.
 
-- Removed after their deprecation in 0.3.1: `seq_disperse()`'s `track_var_change` and `seq_disperse_df()`'s `.track_var_change`. `restore_zeros_df()` and `split_by_parens()` lost `...`, which only caught argument names from before 0.2.4.
+- Removed after their deprecation in 0.3.1: `seq_disperse()`'s `track_var_change` and `seq_disperse_df()`'s `.track_var_change`. Also, `restore_zeros_df()` and `split_by_parens()` lost `...`, which only caught argument names from before 0.2.4.
 
 - `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` lost `tolerance` as both tests now compare whole numbers exactly. GRIMMER's test 2 no longer rounds reconstructed SDs, since every sum of squares that passes test 1 passes it, so `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
 
