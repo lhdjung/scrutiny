@@ -101,7 +101,25 @@ roundwork checks `rounding`, `threshold`, and `symmetric`, but its errors would 
 
 ## Exact arithmetic
 
-A value set that sits right on a rounding bound passes or fails by the bound alone. If the comparison were made in floating-point numbers, representation error would decide it instead, so all three tests compare whole numbers. A double holds them exactly below 2^53, about 9e15.
+A value set that sits right on a rounding bound passes or fails by the bound alone. If the comparison were made in floating-point numbers, representation error would decide it instead. Take a mean of 1.03 from 40 integers. Their sum must be 41: 41 / 40 is 1.025, which rounds up to 1.03. But in floating-point numbers, the lower bound times 40 comes out a little above 41, so the sum would seem to be 42 or more, and the mean inconsistent:
+
+```{r}
+(1.03 - 0.005) * 40 > 41
+```
+
+scrutiny never computes this product. roundwork gives the bounds as whole numbers over a common denominator, here 1025 and 1035 over 1000 (see above), and GRIM asks whether some whole number `k` meets `1025 * 40 <= 1000 * k <= 1035 * 40`. Every number in this comparison is whole, so it is exact:
+
+```{r}
+grim(
+  x = 1.03,
+  n = 40,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+```
+
+All three tests compare whole numbers in this way. A double holds them exactly below 2^53, about 9e15.
 
 GRIM's products stay below that for any realistic value set. Beyond it, GRIM refuses the value set rather than return a result it can't vouch for:
 
