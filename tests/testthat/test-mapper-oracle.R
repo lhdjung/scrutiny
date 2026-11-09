@@ -110,3 +110,22 @@ test_that("every DEBIT mapper tier agrees with `debit()` row by row", {
   settings <- list(formula = "mean_n", rounding = "up_from", threshold = 3, sd_meaning = "sd_pop")
   grid |> expect_tiers_agree(debit_map, debit_map_seq, debit_map_total_n, debit, list(digits_x = 2, digits_sd = 2, data_type = "integer"), settings)
 })
+
+test_that("every mapper tier agrees row by row with `digits_*` columns that vary by row", {
+  grid <- dplyr::bind_rows(
+    tidyr::expand_grid(x = round(seq(1, 3, by = 0.1), 1), n = c(2:30, 40L), digits_x = 1L),
+    tidyr::expand_grid(x = round(seq(1, 1.5, by = 0.01), 2), n = c(2:30, 40L), digits_x = 2L)
+  )
+  settings <- list(rounding = "up_from", threshold = 3)
+  grid |> expect_tiers_agree(grim_map, grim_map_seq, grim_map_total_n, grim, list(items_averaged = 1, data_type = "integer"), settings)
+  # The rows picked above may all have one decimal level, so the sequence
+  # mapper gets rows of both, each dispersed on its own:
+  picked <- grid[seq(1, nrow(grid), by = 97), ]
+  picked$digits_x |> unique() |> length() |> expect_equal(2L)
+  out <- do.call(grim_map_seq, c(list(picked, items_averaged = 1, data_type = "integer", include_consistent = TRUE), settings))
+  out$consistency |> expect_equal(verdicts(out, grim, settings))
+  out |> dplyr::filter(var == "x") |> dplyr::summarise(step = min(diff(sort(x))), .by = c(case, digits_x)) |> call_on(\(d) d$step - 10^-d$digits_x) |> abs() |> max() |> expect_lt(1e-9)
+  grid <- grid |> dplyr::filter(n <= 12) |> dplyr::mutate(sd = 0.8, digits_sd = c(1L, 2L)[digits_x], .after = x)
+  settings <- list(rounding = "up_from", threshold = 3, sd_meaning = "sd_pop")
+  grid |> expect_tiers_agree(grimmer_map, grimmer_map_seq, grimmer_map_total_n, grimmer, list(items_averaged = 1, data_type = "integer"), settings)
+})

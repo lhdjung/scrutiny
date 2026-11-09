@@ -13,7 +13,8 @@
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not keep
 #'   them (`1.40` is `1.4`). Either a single number for the whole column or
-#'   one number per row of `data`.
+#'   one number per row of `data`. If left out, it is taken from a `digits_x`
+#'   column of `data`.
 #' @param x,n Optionally, the names of the columns in `data` that contain these
 #'   values, if they differ from the defaults.
 #' @param items_averaged Integer. As in [`grim()`]: the number of items

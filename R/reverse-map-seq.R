@@ -74,13 +74,14 @@ reverse_map_seq <- function(data) {
   # place as given by a `digits_*` column, not guessed from the values. A
   # whole-number variable, such as `n` or `absolute`, steps by 1. Anything else
   # falls back to `index_case_from_diff()`'s inference from the sequence:
-  step_by_var <- function(var_name) {
+  # The `digits_*` values may differ by case, so `d` is a case's rows:
+  step_by_var <- function(var_name, d) {
     if (var_name %in% ARGS_WHOLE) {
       return(1)
     }
     digits_col <- paste0("digits_", var_name)
-    if (any(digits_col == colnames(data))) {
-      return(1 / (10^data[[digits_col]][[1L]]))
+    if (any(digits_col == colnames(d))) {
+      return(1 / (10^d[[digits_col]][[1L]]))
     }
     NULL
   }
@@ -94,13 +95,13 @@ reverse_map_seq <- function(data) {
   cases <- split(data, data$case)
 
   cols <- lapply(var, function(v) {
-    by <- step_by_var(v)
     cases |>
       lapply(function(d) {
         untouched <- d$var != v
         if (any(untouched)) {
           d[[v]][untouched][[1L]]
         } else {
+          by <- step_by_var(v, d)
           index_case_from_diff(x = d[[v]], diff_var = d$diff_var, by = by)
         }
       }) |>

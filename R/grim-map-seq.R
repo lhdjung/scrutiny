@@ -8,10 +8,11 @@
 #'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data A data frame that [`grim_map()`] could take.
-#' @param digits_x Integer (length 1). The number of decimal places in `x`,
-#'   including trailing zeros. There is no default, since a numeric value does
-#'   not keep them (`1.40` is `1.4`). It also sets the step size for
-#'   dispersing `x`.
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default, since a numeric value does not keep
+#'   them (`1.40` is `1.4`). Either a single number for the whole column or
+#'   one number per row of `data`. If left out, it is taken from a `digits_x`
+#'   column of `data`. It also sets the step size for dispersing `x`.
 #' @param x,n Optionally, the names of the columns in `data` that contain these
 #'   values, if they differ from the defaults.
 #' @param var String. The variables to disperse. Default is `c("x", "n")`.

@@ -28,10 +28,11 @@ grim_map_seq(
 \arguments{
 \item{data}{A data frame that \code{\link[=grim_map]{grim_map()}} could take.}
 
-\item{digits_x}{Integer (length 1). The number of decimal places in \code{x},
-including trailing zeros. There is no default, since a numeric value does
-not keep them (\code{1.40} is \code{1.4}). It also sets the step size for
-dispersing \code{x}.}
+\item{digits_x}{Integer. The number of decimal places in \code{x}, including
+trailing zeros. There is no default, since a numeric value does not keep
+them (\code{1.40} is \code{1.4}). Either a single number for the whole column or
+one number per row of \code{data}. If left out, it is taken from a \code{digits_x}
+column of \code{data}. It also sets the step size for dispersing \code{x}.}
 
 \item{x, n}{Optionally, the names of the columns in \code{data} that contain these
 values, if they differ from the defaults.}

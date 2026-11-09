@@ -907,6 +907,10 @@ error_digits_missing <- function(x) {
     "i" = "For example, with {example_x[1]} (two decimal places): \
       `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
       {name_digits_arg} = 2{part_digits_sd}{part_items}{part_data_type})`",
+    "i" = if (grepl("_map", name_fn)) {
+      "Or give `data` a `{name_digits_arg}` column for values that differ \\
+      by row."
+    },
     msg_history
   )
 }

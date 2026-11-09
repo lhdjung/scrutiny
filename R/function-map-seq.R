@@ -18,34 +18,45 @@ function_map_seq_proto <- function(
     # out, as in `grimmer(x = 5.19, sd = NA, n = 28)`. There is nothing to
     # disperse that value from, but the others still are:
     has_var <- !is.na(data[[.var]])
+    if (!any(has_var)) {
+      return(NULL)
+    }
     data <- data[has_var, ]
     .cases <- .cases[has_var]
+
+    # A `digits_*` argument is a single value or one per row of `data`:
+    dots <- list(...)
+    names_digits <- grep("^digits_", names(dots), value = TRUE)
+    for (name in names_digits) {
+      if (length(dots[[name]]) > 1L) {
+        dots[[name]] <- dots[[name]][has_var]
+      }
+    }
 
     # The step size comes from the caller's `digits_*` argument, not from the
     # values: a mean reported as 5.30 is stored as `5.3`, so `seq_disperse()`
     # would step by 0.1 instead of 0.01, and only in the rows that lost a
     # trailing zero. There is no `digits_n`, so `n` steps by whole numbers.
-    by_var <- list(...)[[paste0("digits_", .var)]]
-    if (!is.null(by_var)) {
-      by_var <- 1 / (10^by_var)
-    }
+    digits_var <- dots[[paste0("digits_", .var)]]
+    by_var <- if (is.null(digits_var)) list(NULL) else 1 / (10^digits_var)
 
     # One data frame with a dispersed `.var` sequence per value set:
-    df_var <- data[.var][[1L]] |>
-      lapply(
-        seq_disperse_df_internal,
-        by = by_var,
-        dispersion = dispersion,
-        offset_from = 0,
-        out_min = .out_min,
-        out_max = .out_max,
-        include_reported = include_reported,
-        track_diff_var = TRUE
-      )
-
-    if (length(df_var) == 0L) {
-      return(NULL)
-    }
+    df_var <- Map(
+      function(from, by) {
+        seq_disperse_df_internal(
+          from,
+          by = by,
+          dispersion = dispersion,
+          offset_from = 0,
+          out_min = .out_min,
+          out_max = .out_max,
+          include_reported = include_reported,
+          track_diff_var = TRUE
+        )
+      },
+      data[[.var]],
+      by_var
+    )
 
     nrow_list_var <- vapply(df_var, nrow, integer(1L), USE.NAMES = FALSE)
 
@@ -73,9 +84,16 @@ function_map_seq_proto <- function(
 
     cases_seq <- rep(as.integer(.cases), nrow_list_var)
 
+    # One `digits_*` value per dispersed row, from that of its case:
+    for (name in names_digits) {
+      if (length(dots[[name]]) > 1L) {
+        dots[[name]] <- rep(dots[[name]], nrow_list_var)
+      }
+    }
+
     # A row of `data_seq` is a dispersed value set, not a row of the user's
     # `data`:
-    fn(data_seq, ...) |>
+    do.call(fn, c(list(data_seq), dots)) |>
       with_rows_of_data(cases_seq) |>
       dplyr::mutate(
         diff_var = as_integer_if_lossless(df_var$diff_var),
@@ -411,30 +429,6 @@ function_map_seq <- function(
         }
       }
 
-      # Unlike the basic and total-n mappers, sequence mappers need a single
-      # `digits_*` value per column: it sets the decimal level that each value
-      # is dispersed on, it has to survive the filtering of consistent cases,
-      # and it becomes a `digits_*` output column:
-      for (digits_name in names(digits_vals)) {
-        digits_length <- length(digits_vals[[digits_name]])
-        if (digits_length > 1L || anyNA(digits_vals[[digits_name]])) {
-          digits_what <- if (digits_length > 1L) {
-            paste0("has length ", digits_length)
-          } else {
-            "is `NA`"
-          }
-          abort_in_export(
-            "`{(digits_name)}` must be a single number here.",
-            "x" = "It {(digits_what)}.",
-            "i" = "Sequence mappers disperse every value on the decimal level \\
-            given by `{(digits_name)}`, so it has to be the same for the whole \\
-            column.",
-            "i" = "Basic mappers such as `{name_fn}()` do accept one value \\
-            per row."
-          )
-        }
-      }
-
       # `name_test` is required: without it, cli fails to evaluate the message
       # of `check_consistency_not_in_colnames()`:
       check_mapper_input_colnames(data, reported, name_test, name_key_result)
@@ -450,6 +444,15 @@ function_map_seq <- function(
       )
       meta_fn <- attr(data, "scrutiny", exact = TRUE)
       args_fn <- scrutiny_args(data)
+
+      # The `digits_*` values that `fn()` tested, one per row, which may have
+      # come from columns of `data`. Each sets the decimal level that its row's
+      # value is dispersed on:
+      for (digits_name in `!!`(digits_args_names)) {
+        if (digits_name %in% colnames(data)) {
+          digits_vals[[digits_name]] <- data[[digits_name]]
+        }
+      }
 
       # Mapper and sequence mapper must have the same `.name_key_result`. Catch
       # a mismatch here, not as a `NULL` further down:
@@ -480,6 +483,21 @@ function_map_seq <- function(
       results <- data[[name_key_result]]
       cases <- which(if (include_consistent) !is.na(results) else !results)
       data <- data[cases, ]
+
+      # A case decided with its `digits_*` value missing has no decimal level
+      # to disperse on:
+      for (digits_name in names(digits_vals)) {
+        digits_cases <- rep_len(digits_vals[[digits_name]], nrow(data))
+        if (anyNA(digits_cases)) {
+          cases_na <- cases[is.na(digits_cases)]
+          abort_in_export(
+            "`{(digits_name)}` is missing in a case to disperse.",
+            "x" = "It is `NA` in row{?s} {cases_na} of `data`.",
+            "i" = "Sequence mappers disperse each value on the decimal level \
+            given by `{(digits_name)}`."
+          )
+        }
+      }
 
       # With no variable, nothing would be dispersed, and the warning would name
       # a variable "``":
@@ -523,7 +541,10 @@ function_map_seq <- function(
       # Forwarded to `fn()` via `map_seq_proto()`. Helper arguments are not
       # among them: the re-tests read them from the columns that the first
       # `fn()` call returned:
-      fn_args <- c(digits_vals, setting_vals, list(...))
+      digits_cases <- lapply(digits_vals, function(vals) {
+        if (length(vals) > 1L) vals[cases] else vals
+      })
+      fn_args <- c(digits_cases, setting_vals, list(...))
 
       # `out_min` and `out_max` are resolved per variable, since the dispersed
       # variables have different domains. An explicit value applies to every
@@ -625,7 +646,12 @@ function_map_seq <- function(
       # argument has a default and was not given, `fn()`'s output decides
       # whether there is a column.
       for (digits_arg in names(digits_vals)) {
-        out[[digits_arg]] <- digits_vals[[digits_arg]]
+        vals <- digits_vals[[digits_arg]]
+        out[[digits_arg]] <- if (length(vals) > 1L) {
+          vals[out$case]
+        } else {
+          rep_len(vals, nrow(out))
+        }
       }
       out <- out |>
         dplyr::relocate(

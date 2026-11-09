@@ -759,6 +759,7 @@ function_map_total_n <- function(
       meta$values_reported <- c(
         as.list(data)[c(reported_reduplicated, "n")],
         lapply(digits_vals, rep_len, length.out = 2L),
+        as.list(data)[intersect(`!!`(digits_args_names), colnames(data))],
         as.list(data)[intersect(`!!`(args_helper_fn), colnames(data))],
         lapply(Filter(Negate(is.null), helper_vals), rep, times = nrow(data))
       )

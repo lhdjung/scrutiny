@@ -32,9 +32,11 @@ does not matter, since both pairings with the group sizes are tested.}
 \item{digits_x}{Integer. The number of decimal places in \code{x1} and \code{x2},
 including trailing zeros. There is no default, since a numeric value does
 not keep them (\code{1.40} is \code{1.4}). Either a single number for both groups,
-or two numbers, one for \code{x1} and one for \code{x2}. They apply to every row of
-\code{data}; if the decimal places of a group differ by row, call the function
-on each set of rows separately.}
+or two numbers, one for \code{x1} and one for \code{x2}, which apply to every row of
+\code{data}. If left out, it is taken from a \code{digits_x} column of \code{data}, with
+one number per row for both groups. If the decimal places differ both by
+group and by row, call the function on each set of rows separately and
+\code{\link[=audit]{audit()}} each output.}
 
 \item{x1, x2, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}

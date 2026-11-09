@@ -28,7 +28,8 @@ returned alongside the results.}
 \item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
 \code{sd}, including trailing zeros. There are no defaults, since a numeric
 value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
-whole column or one number per row of \code{data}.}
+whole column or one number per row of \code{data}. If left out, they are
+taken from \code{digits_x} and \code{digits_sd} columns of \code{data}.}
 
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
 these values, if they differ from the defaults.}

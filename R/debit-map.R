@@ -11,7 +11,8 @@
 #' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
 #'   `sd`, including trailing zeros. There are no defaults, since a numeric
 #'   value does not keep them (`1.40` is `1.4`). Either a single number for the
-#'   whole column or one number per row of `data`.
+#'   whole column or one number per row of `data`. If left out, they are
+#'   taken from `digits_x` and `digits_sd` columns of `data`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.
 #' @param data_type String. As in [`debit()`]. Give it as an argument or as a

@@ -632,10 +632,11 @@ function_map <- function(
       }
 
       for (arg in args_by_row) {
-        # An argument with a default that was not given takes its values from
-        # a column by its name, if `data` has one:
+        # An argument that was not given takes its values from a column by its
+        # name, if `data` has one. A required one, such as `digits_x`, is then
+        # stated by the column:
         arg_given <- !eval(call("missing", as.name(arg)))
-        if (!arg_given && !arg %in% args_required && arg %in% colnames(data)) {
+        if (!arg_given && arg %in% colnames(data)) {
           args_vals[[arg]] <- data[[arg]]
         }
         if (!is.null(args_vals[[arg]])) {

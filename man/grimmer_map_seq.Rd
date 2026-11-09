@@ -29,9 +29,11 @@ grimmer_map_seq(
 \arguments{
 \item{data}{A data frame that \code{\link[=grimmer_map]{grimmer_map()}} could take.}
 
-\item{digits_x, digits_sd}{Integer (length 1). The number of decimal places in
-\code{x} and \code{sd}, including trailing zeros. There are no defaults, since a
-numeric value does not keep them (\code{1.40} is \code{1.4}). They also set the step
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
+whole column or one number per row of \code{data}. If left out, they are taken
+from \code{digits_x} and \code{digits_sd} columns of \code{data}. They also set the step
 sizes for dispersing \code{x} and \code{sd}.}
 
 \item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain

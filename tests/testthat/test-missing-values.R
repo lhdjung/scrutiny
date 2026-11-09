@@ -329,11 +329,11 @@ test_that("a missing `digits_*` makes a case undecidable, like a missing value",
   out$consistency |> expect_equal(c(FALSE, NA))
   out$exp_incon |> expect_equal(c(0.72, NA))
 
-  # A sequence mapper disperses every value on one decimal level, so it needs a
-  # number there:
+  # A sequence mapper disperses each value on its decimal level, so a case to
+  # disperse needs a number there:
   tibble::tibble(x = 5.19, n = 28L) |>
     grim_map_seq(digits_x = NA, items_averaged = 1, data_type = "integer") |>
-    expect_error("single number")
+    expect_error("missing in a case to disperse")
 })
 
 test_that("a value set that is inconsistent with the decimal places it shows is so without `digits_*`", {

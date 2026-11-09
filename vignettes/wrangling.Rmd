@@ -142,20 +142,22 @@ flights2 |>
   split_by_parens(transform = TRUE)
 ```
 
-From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations). The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to determine `digits_x` and `digits_sd`:
+From here, you can call `debit_map()` almost right away (supposing you deal with binary distributions' means and standard deviations). The `x` and `sd` columns are strings because they were extracted from strings, so convert them to numeric first. They still have their trailing zeros at this point, which makes `decimal_places()` a reliable way to count the decimal places of each value. Do this before converting, and store the counts in `digits_x` and `digits_sd` columns, which `debit_map()` reads if the arguments of these names are not given:
 
 ```{r}
-flights2_split <- flights2 |>
+flights2 |>
   split_by_parens(transform = TRUE) |>
-  dplyr::mutate(n = 80)
-
-digits <- max(decimal_places(flights2_split$x))
-digits
-
-flights2_split |>
-  dplyr::mutate(x = as.numeric(x), sd = as.numeric(sd)) |>
-  debit_map(digits_x = digits, digits_sd = digits, data_type = "integer")
+  dplyr::mutate(
+    n = 80,
+    digits_x = decimal_places(x),
+    digits_sd = decimal_places(sd),
+    x = as.numeric(x),
+    sd = as.numeric(sd)
+  ) |>
+  debit_map(data_type = "integer")
 ```
+
+Count the decimal places per value, as here, rather than taking the largest count for a whole column: a mean reported as `"0.5"` would otherwise be tested as if it were `0.50`, which can make a consistent value look inconsistent.
 
 If your strings look like `"2.65 [0.27]"`, specify the `delim` argument as `"brackets"`. Likewise for `"2.65 {0.27}"` and `delim = "braces"`. What about other delimiters, as in `"2.65 <0.27>"`? Specify `delim` as those two substrings, like `delim = c("<", ">")`. In all of these cases, the output will be the same as the default would be if the strings were like `"2.65 (0.27)"`.
 

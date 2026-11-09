@@ -8,9 +8,11 @@
 #'   Call [`audit()`] on the output for summary statistics.
 #'
 #' @param data A data frame that [`debit_map()`] could take.
-#' @param digits_x,digits_sd Integer (length 1). The number of decimal places in
-#'   `x` and `sd`, including trailing zeros. There are no defaults, since a
-#'   numeric value does not keep them (`1.40` is `1.4`). They also set the step
+#' @param digits_x,digits_sd Integer. The number of decimal places in `x` and
+#'   `sd`, including trailing zeros. There are no defaults, since a numeric
+#'   value does not keep them (`1.40` is `1.4`). Either a single number for the
+#'   whole column or one number per row of `data`. If left out, they are taken
+#'   from `digits_x` and `digits_sd` columns of `data`. They also set the step
 #'   sizes for dispersing `x` and `sd`.
 #' @param x,sd,n Optionally, the names of the columns in `data` that contain
 #'   these values, if they differ from the defaults.

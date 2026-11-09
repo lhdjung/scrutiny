@@ -101,10 +101,31 @@ test_that("total-n mappers reject a `digits_*` vector that isn't length 2", {
 })
 
 
-test_that("sequence mappers reject a `digits_*` vector", {
-  df_grim |>
-    grim_map_seq(digits_x = c(2, 1), items_averaged = 1, data_type = "integer", dispersion = 1:2) |>
-    expect_error("must be a single number here")
+test_that("sequence mappers disperse each case on its own decimal level", {
+  out <- df_grim |> grim_map_seq(digits_x = c(2, 1), items_averaged = 1, data_type = "integer", dispersion = 1:2, include_consistent = TRUE)
+  out |> dplyr::filter(case == 1, var == "x") |> _$x |> expect_equal(c(4.69, 4.70, 4.72, 4.73))
+  out |> dplyr::filter(case == 2, var == "x") |> _$x |> expect_equal(c(-0.1, 0.0, 0.2, 0.3))
+  out |> dplyr::distinct(case, digits_x) |> _$digits_x |> expect_equal(c(2L, 1L))
+  out |> with(grim(x, n, digits_x, items_averaged, data_type)) |> expect_equal(out$consistency)
+  # The same from a column:
+  df_grim |> dplyr::mutate(digits_x = c(2, 1)) |> grim_map_seq(items_averaged = 1, data_type = "integer", dispersion = 1:2, include_consistent = TRUE) |> unclass_scr() |> expect_equal(unclass_scr(out))
+  # A case to disperse needs its decimal level:
+  df_grim |> dplyr::mutate(x = c(5.19, 0.1)) |> grim_map_seq(digits_x = c(NA, 1), items_averaged = 1, data_type = "integer") |> expect_error("missing in a case to disperse")
+})
+
+
+test_that("mappers take `digits_*` from columns of `data`", {
+  df_grim  |> dplyr::mutate(digits_x = c(2, 1)) |> grim_map(items_averaged = 1, data_type = "integer") |> unclass_scr() |>
+    expect_equal(df_grim |> grim_map(digits_x = c(2, 1), items_averaged = 1, data_type = "integer") |> unclass_scr())
+  df_grimmer |> dplyr::mutate(digits_x = 1:2, digits_sd = 2) |> grimmer_map(items_averaged = 1, data_type = "integer") |> _$consistency |>
+    expect_equal(df_grimmer |> grimmer_map(digits_x = 1:2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> _$consistency)
+  # In a total-n mapper, a row's value applies to both groups:
+  df <- tibble::tibble(x1 = c(4.71, 5.3), x2 = c(5.38, 4.9), n = c(40, 40))
+  out <- df |> dplyr::mutate(digits_x = c(2, 1)) |> grim_map_total_n(items_averaged = 1, data_type = "integer")
+  out |> dplyr::distinct(case, digits_x) |> _$digits_x |> expect_equal(c(2L, 1L))
+  out |> with(grim(x, n, digits_x, items_averaged, data_type)) |> expect_equal(out$consistency)
+  # Without either, the error says that a column would do:
+  df_grim |> grim_map(items_averaged = 1, data_type = "integer") |> expect_error("`digits_x` column")
 })
 
 

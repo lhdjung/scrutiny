@@ -128,3 +128,10 @@ test_that("a whole-number variable other than `n` is recovered from a single dis
   out |> reverse_map_seq() |> expect_equal(tibble::tibble(absolute = 0L, percentage = 5, n = 20L))
   out |> audit() |> _$hits_absolute |> expect_equal(1L)
 })
+
+
+test_that("each case is reconstructed on its own decimal level", {
+  df <- tibble::tibble(x = c(4.71, 0.1), n = 28)
+  out <- df |> grim_map_seq(digits_x = c(2, 1), items_averaged = 1, data_type = "integer", var = "x", include_consistent = TRUE, include_reported = FALSE)
+  out |> reverse_map_seq() |> _$x |> expect_equal(df$x)
+})
