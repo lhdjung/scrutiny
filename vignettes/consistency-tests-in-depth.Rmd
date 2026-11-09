@@ -54,7 +54,7 @@ Please follow the [tidyverse style guide](https://style.tidyverse.org/) and the 
 
 This function contains the test itself. It is not exported, but every other level builds on it.
 
-It takes one value for each statistic that is tested for consistency with the others. It returns `TRUE` if they are consistent, `FALSE` if they aren't, and `NA` if the case can't be decided, as with a missing value.
+It takes one value for each statistic that is tested for consistency with the others. It returns `TRUE` if they are consistent, `FALSE` if they aren't, and `NA` if the case can't be decided, as with a missing value. In scrutiny's own tests, a missing value only makes the result `NA` if some value in its place would make the case consistent and another would not; see *Missing values* in `vignette("technical-notes")`.
 
 ```{r}
 schlim_scalar <- function(y, n) {
@@ -65,7 +65,7 @@ schlim_scalar(y = 30, n = 4)
 schlim_scalar(y = 2, n = 7)
 ```
 
-If the test reconstructs rounded numbers, give the function a `rounding` argument with the default `"up_or_down"`, and pass it on to `roundwork::reround()` or `roundwork::unround()`; see `vignette("rounding-in-depth", package = "roundwork")`. Take the number of decimal places as an argument without a default, like `digits_x` in `grim()`, rather than counting them: a numeric value has lost any trailing zeros.
+If the test reconstructs rounded numbers, give the function a `rounding` argument with the default `"up_or_down"`, and pass it on to `roundwork::reround()` or `roundwork::unround()`; see `vignette("rounding-in-depth", package = "roundwork")`. To compare the range of a rounded value with whole numbers, as GRIM does, use `roundwork::bound_numerators()` or `roundwork::sum_range()`, which keep the comparison exact; see *Exact arithmetic* in `vignette("technical-notes")`. Take the number of decimal places as an argument without a default, like `digits_x` in `grim()`, rather than counting them: a numeric value has lost any trailing zeros.
 
 Name the function after the test in lowercase, followed by `_scalar`. If R's own vectorization already makes it work on vectors in every argument, leave out `_scalar`, export it, and skip section 2.
 
@@ -346,7 +346,7 @@ How best to plot test results depends on the test: compare `grim_plot_grid()` an
 
 ## Introduction
 
-A consistency test shows that reported values cannot all be correct, but not why. One common reason is a small error in computing or reporting: when @brown2017 reanalyzed data sets behind GRIM inconsistencies, they often found "a straightforward explanation, such as a minor error in the reported sample sizes, or a failure to report the exclusion of a participant" (p. 368).
+A consistency test shows that reported values cannot all be correct, but not why. One common reason is a small error in computing or reporting: when @brown_grim_2017 reanalyzed data sets behind GRIM inconsistencies, they often found "a straightforward explanation, such as a minor error in the reported sample sizes, or a failure to report the exclusion of a participant" (p. 368).
 
 Sequence mappers test for such errors. `grim_map_seq()`, `grimmer_map_seq()`, and `debit_map_seq()` vary each reported value by a few steps up and down and test the resulting value sets, so that consistent values near the reported ones are found without testing each candidate by hand.
 

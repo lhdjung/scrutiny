@@ -23,7 +23,7 @@ options(pillar.sigfig = 4)
 library(scrutiny)
 ```
 
-This vignette builds on `vignette("grim")`, which covers the basics of GRIM testing with `grim()` and `grim_map()`. Here are the numbers behind a test result, the values around the reported ones with `grim_map_seq()` and `grim_map_total_n()`, and the GRIM statistics behind the `exp_incon` column.
+This vignette builds on `vignette("grim")`, which covers the basics of GRIM testing with `grim()` and `grim_map()`. Here are the numbers behind a test result, the settings recorded with it, the values around the reported ones with `grim_map_seq()` and `grim_map_total_n()`, and the GRIM statistics behind the `exp_incon` column.
 
 ## Behind a test result
 
@@ -34,12 +34,24 @@ With `show_rec = TRUE`, the output includes the numbers on which the test result
 ```{r}
 pigs1 |>
   grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", show_rec = TRUE) |>
-  dplyr::select(4:10) # output cut down for printing
+  dplyr::select(x, n, consistency, rec_sum:rec_x_lower)
 ```
 
 - `rec_sum` is `x * n * items_averaged`, the sum implied by the reported mean. The sum of integer data is a whole number, which `rec_sum` generally is not.
 - `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would have been reported as `x`. A value set is consistent if and only if `sum_lower <= sum_upper`. If it is inconsistent, they are the whole numbers just above and below `rec_sum`, so their difference is always 1 and says nothing about how far off the mean is.
 - `rec_x_upper` and `rec_x_lower` are the two achievable means closest to `x`: `rec_sum` rounded up and down, divided by `n * items_averaged`. They show how far the reported mean is from an achievable one. With `x_meaning = "percentage"`, they are percentages like `x`.
+
+### Recorded settings
+
+A mapper records the settings of its call on its output, so that a report can state the conditions of each result. `scrutiny_meta()` returns them:
+
+```{r}
+pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer", rounding = "up") |>
+  scrutiny_meta()
+```
+
+`default` says whether a setting was left at its default. `explain_map()` and `grim_plot_grid()` read the settings from there, so they apply the same rounding method as the call. For the same reason, `dplyr::bind_rows()` refuses to combine the output of calls with different settings, whose rows would otherwise be read under the first call's settings.
 
 ### Achievable means
 
@@ -96,6 +108,8 @@ With `n = 26`, the same mean is consistent:
 ```{r, fig.width=7, fig.height=2}
 grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
+
+By default, the plot shows the reported value and the nearest achievable one. `zoom = "medium"` widens it to the nearest achievable value on either side, and `zoom = "wide"` to a whole unit.
 
 `grimmer_plot_line()` is the same figure over standard deviations; see `vignette("grimmer-in-depth")`.
 

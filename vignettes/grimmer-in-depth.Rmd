@@ -49,7 +49,7 @@ grimmer_values(x = 5.3, sd = 0.7, n = 30, digits_x = 1, digits_sd = 1, items_ave
 grimmer_values(x = 5.23, sd = 2.55, n = 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
 ```
 
-Through the integers, a statistic computed from several groups, such as a *t*-value, can be compared exactly with its reported value. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
+With the sum and sum of squares of each group, a statistic that combines several groups, such as a *t*-value, can be recomputed for every possible sample and compared with the reported one. `sd_meaning = "sd_sample_or_pop"` is not allowed here: the same sum of squares gives a different SD under each premise, so call the function once for each.
 
 `grimmer_closest()` returns the one pair whose SD is closest to the reported one, like `grim_closest()` for means. For an inconsistent value set, this shows how far off the SD is:
 
@@ -67,7 +67,7 @@ grimmer_plot_line(x = 7.3, sd = 2.51, n = 12, digits_x = 1, digits_sd = 2, items
 
 ## Many value sets: `grim_plot_grid()`
 
-`grim_plot_grid()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER result:
+`grim_plot_grid()` accepts `grimmer_map()` output. The raster shows the GRIM part of the test, and each value set is colored by its GRIMMER result. A red value set on a grey cell passed GRIM but failed GRIMMER, and a message counts these:
 
 ```{r, fig.width=6, fig.height=5.5}
 pigs5 |>
@@ -114,8 +114,8 @@ If only the total sample size of two groups is known, `grimmer_map_total_n()` te
 ```{r}
 flying_pigs4 <- tibble::tribble(
   ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
-  3.43 , 5.28 , 1.09 , 2.12 , 70 ,
-  2.97 , 4.42 , 0.43 , 1.65 , 65
+  3.91 , 3.89 , 1.38 , 1.47 , 70 ,
+  3.77 , 4.37 , 1.74 , 1.44 , 65
 )
 
 out_total_n <- grimmer_map_total_n(flying_pigs4, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")

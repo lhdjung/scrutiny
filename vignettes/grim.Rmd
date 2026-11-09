@@ -74,6 +74,8 @@ grim_map(flying_pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
 
 `x` and `n` are the inputs, `digits_x` is the stated number of decimal places, and `consistency` is the test result. `exp_incon` is the probability that a random mean with that many decimal places would be inconsistent with `n`; see *GRIM statistics* in `vignette("grim-in-depth")`.
 
+The line above the column names lists any settings that differ from their defaults, such as `rounding = "up"`. Here, there are none.
+
 ### Scale items
 
 If a mean is the average of several items, it is a multiple of $1 / (n \cdot \text{items})$ rather than of $1 / n$. Give the number of items, not of scale points, as `items_averaged`: a mean over three 7-point items has `items_averaged = 3`. Taken as single items, half of these means from a three-item scale are wrongly flagged:
@@ -165,6 +167,17 @@ flying_pigs1 |>
 - `incon_cases`, `emp_incon`: the number and proportion of inconsistent value sets.
 - `exp_incon`: the mean probability of GRIM inconsistency.
 - `ratio`: the ratio of `emp_incon` to `exp_incon`, computed over the cases with a test result.
+
+If the value sets come from several studies or tables, `.by` summarizes each one separately:
+
+```{r}
+flying_pigs1 |>
+  dplyr::mutate(study = c("A", "A", "A", "B", "B", "B", "B")) |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+  audit(.by = study)
+```
+
+Columns that play no role in the test, such as `study` here, are kept to the right of `consistency`.
 
 ## Visualization with `grim_plot_grid()`
 

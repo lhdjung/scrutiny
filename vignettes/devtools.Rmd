@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{Developer tools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-bibliography: references.bib
 ---
 
 ```{r, include = FALSE}
@@ -23,7 +22,7 @@ scrutiny exports the helper functions on which its error detection techniques ar
 
 ## Count decimal places
 
-`seq_disperse()` is based on `decimal_places()`, which counts decimal places, i.e., the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
+`decimal_places()` counts the digits after the decimal point or another separator. It takes numbers and strings, and it is vectorized:
 
 ```{r}
 decimal_places("2.80")
@@ -76,4 +75,13 @@ disperse_total(n = 70)
 disperse_total(n = 83)
 ```
 
-# References
+## SDs of binary data
+
+In binary data, the SD follows from the numbers of zeros and ones, which is what DEBIT builds on. `sd_binary_groups()` computes it from these counts, and `sd_binary_mean_n()` from the mean and the sample size:
+
+```{r}
+sd_binary_groups(group_0 = 13, group_1 = 7)
+sd_binary_mean_n(x = 0.35, n = 20)
+```
+
+Both take `sd_meaning`, as `debit()` does, for a population SD or a standard error.
