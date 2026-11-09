@@ -514,6 +514,7 @@ round_whole <- function(x) {
   name <- if (is.symbol(name)) as.character(name)
   check_not_integer64(x, name)
   check_not_factor(x, name)
+  x <- na_as_integer(x)
 
   if (is.double(x)) {
     whole <- which(is_whole_number(x))
@@ -582,6 +583,7 @@ check_not_factor <- function(x, name = NULL) {
 #'
 #' @noRd
 as_integer_if_lossless <- function(n) {
+  n <- na_as_integer(n)
   if (
     is.numeric(n) &&
       all(is_whole_number(n) | is.na(n)) &&
@@ -590,6 +592,48 @@ as_integer_if_lossless <- function(n) {
     as.integer(round_whole(n))
   } else {
     n
+  }
+}
+
+
+# A vector of nothing but `NA`, of any type, is `NA` of the type the argument
+# calls for: a logical `NA`, or an `NA_character_` column from a text file, is
+# a missing value like any other. A vector with values of the wrong type is
+# left for the type checks, and so is an empty one: `NULL` means "none" to
+# `disperse_total(n_max)`. `round_whole()` and `as_integer_if_lossless()` call
+# the first for the whole-number arguments, `function_map()` the second for
+# `data_type` (`ARGS_STRING`).
+na_as_integer <- function(x) {
+  if (length(x) > 0L && !is.numeric(x) && all(is.na(x))) {
+    return(rep(NA_integer_, length(x)))
+  }
+  x
+}
+
+na_as_character <- function(x) {
+  if (length(x) > 0L && !is.character(x) && all(is.na(x))) {
+    return(rep(NA_character_, length(x)))
+  }
+  x
+}
+
+
+# A `digits_*` value must be a number. The `*_scalar()` function checks each
+# row's, but a column of strings fails in every row, so no row would be blamed,
+# and its message would call the column "a single whole number":
+check_digits_numeric <- function(digits, name, from_column) {
+  check_not_factor(digits, name)
+  if (!is.numeric(digits)) {
+    msg_what <- if (from_column) {
+      "The `{name}` column of `data` is {.obj_type_friendly {digits}}."
+    } else {
+      "It is {.obj_type_friendly {digits}}."
+    }
+    abort_in_export(
+      "`{name}` must be numeric.",
+      "x" = msg_what,
+      "i" = "Give the number of decimal places as a whole number from 0 to 15."
+    )
   }
 }
 

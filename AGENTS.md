@@ -294,7 +294,7 @@ matter (e.g., `"3.70"` gives 2; `3.70` gives 1).
 | File | Content |
 |------------------------------------|------------------------------------|
 | `R/aaa.R` | `WHOLE_NUMBER_TOLERANCE`, `SD_MEANINGS`, `DEBIT_FORMULAS`, `VALUES_MAX`, and every other package-level constant |
-| `R/utils.R` | `error_digits_missing()`, `check_newly_numeric()`, `write_code_col_key_result()`, `recycle_digits()`, misc helpers |
+| `R/utils.R` | `error_digits_missing()`, `check_newly_numeric()`, `check_digits_numeric()`, `write_code_col_key_result()`, `recycle_digits()`, `na_as_integer()`, misc helpers |
 | `R/mapper-function-helpers.R` | `check_mapper_input_colnames()`, `manage_helper_col()`, `split_result_cols()`, `rethrow_row_error()` |
 | `R/function-factory-helpers.R` | `insert_key_args()`, `absorb_key_args()`, `check_factory_dots()`, `check_factory_arg_names()`, `write_result_cols()`, `check_args_disabled()` |
 | `R/data-frame-predicates.R` | `is_map_df()`, `is_map_seq_df()`, `is_map_total_n_df()` |
@@ -634,6 +634,23 @@ under immediate focus.
     `"5.30%"`, whose two decimal places are the documented answer.
     `decimal_places_scalar()` has to agree with it; a generated corpus in
     `test-decimal-places.R` checks that they do.
+
+    Two rules say which strings are missing, by what a function reads
+    (`R/aaa.R`, at `NON_FINITE_TOKENS`): functions that read *numbers* from
+    strings follow `as.numeric()`, so `"nan"` and `"inf"` in any letter case
+    are non-finite; functions that read *any text*, such as
+    `duplicate_count()`, take only `"NaN"` as R writes it, via
+    `is_value_missing()`, because `"Nan"` is a name. Don't unify them.
+
+    An all-`NA` vector of any type is `NA` of the argument's type:
+    `na_as_integer()` (`R/utils.R`), called from `round_whole()` and
+    `as_integer_if_lossless()`, turns a logical or character `NA` column of
+    `n`, `items_averaged`, or `digits_x` into `NA_integer_`, and
+    `na_as_character()` does the same for `data_type` (`ARGS_STRING`). A
+    `NULL` or an empty vector is left alone: `NULL` means "none" to
+    `disperse_total(n_max)`. A `digits_*` column of strings is refused up
+    front by `check_digits_numeric()`, since every row would fail and the
+    per-row error would blame none.
 
 10.  **`absorb_key_args()`** modifies `data` before any other processing.
      If you add pre-processing that reads column names, it must happen

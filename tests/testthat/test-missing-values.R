@@ -630,3 +630,23 @@ test_that("an item count the test can't take is named even if `n` is missing", {
   grim_explain(5.19, 0, 2, NA, "integer")             |> text() |> expect_match("needs n to be a positive integer")
   grimmer_explain(5.19, 1, NA, 2, 0, 0, "integer")    |> text() |> expect_match("number of items to be a positive integer")
 })
+
+
+test_that("an all-`NA` column of any type is read as the argument's type", {
+  df <- tibble::tibble(x = c(5.2, 5.19), n = 28)
+  for (na in list(NA, NA_character_, NA_real_)) {
+    out <- df |> dplyr::mutate(items_averaged = na) |> grim_map(digits_x = 2, data_type = "integer")
+    out$items_averaged |> expect_identical(c(NA_integer_, NA_integer_))
+    out$consistency |> expect_identical(grim(df$x, df$n, 2, items_averaged = NA, data_type = "integer"))
+    out$exp_incon |> expect_identical(c(NA_real_, NA_real_))
+    out <- df |> dplyr::mutate(n = na) |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+    out$n |> expect_identical(c(NA_integer_, NA_integer_))
+    out <- df |> dplyr::mutate(data_type = na) |> grim_map(digits_x = 2, items_averaged = 1)
+    out$data_type |> expect_identical(c(NA_character_, NA_character_))
+    out$consistency |> expect_identical(grim(df$x, df$n, 2, items_averaged = 1, data_type = NA))
+  }
+  # The same in the single-case functions and the ones built on them:
+  grim(5.2, 28, 2, items_averaged = NA_character_, data_type = "integer") |> expect_na()
+  grim_exp_incon(5.2, 28, 2, items_averaged = NA_character_, data_type = "integer") |> expect_na()
+  grim_values(5.2, NA_character_, 2, items_averaged = 1, data_type = "integer")$n |> expect_identical(NA_integer_)
+})

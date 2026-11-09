@@ -32,6 +32,11 @@ ARGS_WHOLE <- c(
   "digits_percentage"
 )
 
+# The arguments that are strings and may vary by row. An all-`NA` column of
+# any type is read as `NA_character_`, as the whole numbers above are read as
+# `NA_integer_`; see `na_as_integer()`.
+ARGS_STRING <- "data_type"
+
 
 # The values of `sd_meaning` in GRIMMER and DEBIT: what a value reported as an
 # SD really is. The sample SD divides by `n - 1`, the population SD by `n`,

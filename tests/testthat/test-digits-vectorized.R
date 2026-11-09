@@ -156,3 +156,25 @@ test_that("`*_map_seq()` steps on the decimal level given by `digits_*`", {
     all() |>
     expect_true()
 })
+
+
+test_that("an all-`NA` `digits_*` column of any type is an integer `NA`", {
+  df <- tibble::tibble(x = c(5.19, 4.2), n = c(28, 25))
+  for (na in list(NA, NA_character_, NA_real_)) {
+    out <- df |> dplyr::mutate(digits_x = na) |> grim_map(items_averaged = 1, data_type = "integer")
+    out$digits_x |> expect_identical(c(NA_integer_, NA_integer_))
+    out$consistency |> expect_identical(grim(df$x, df$n, NA, items_averaged = 1, data_type = "integer"))
+  }
+  out <- df |> grim_map(digits_x = NA, items_averaged = 1, data_type = "integer")
+  out$digits_x |> expect_identical(c(NA_integer_, NA_integer_))
+})
+
+
+test_that("a `digits_*` column or argument of strings is an error that names it", {
+  df <- tibble::tibble(x = c(5.19, 4.2), n = c(28, 25))
+  df |> dplyr::mutate(digits_x = "2") |> grim_map(items_averaged = 1, data_type = "integer") |> expect_error("`digits_x` column of `data` is a character vector")
+  df |> grim_map(digits_x = "2", items_averaged = 1, data_type = "integer") |> expect_error("`digits_x` must be numeric")
+  df |> dplyr::mutate(digits_x = factor("2")) |> grim_map(items_averaged = 1, data_type = "integer") |> expect_error("not a factor")
+  # One bad value among numbers is still blamed on its row:
+  df |> grim_map(digits_x = c(2, 1.5), items_averaged = 1, data_type = "integer") |> expect_error("In row 2")
+})

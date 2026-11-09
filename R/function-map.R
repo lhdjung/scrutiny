@@ -613,6 +613,11 @@ function_map <- function(
 
       for (arg in args_helper) {
         cols_tested[[arg]] <- data[[arg]]
+        # An all-`NA` column of any type as `NA_character_`; see
+        # `na_as_integer()`, which does the same for the whole numbers below:
+        if (arg %in% ARGS_STRING) {
+          cols_tested[[arg]] <- na_as_character(cols_tested[[arg]])
+        }
       }
 
       # A number with a class, as from `tibble::num()`, is tested as a plain
@@ -646,6 +651,9 @@ function_map <- function(
           vals <- args_vals[[arg]]
           if (arg %in% ARGS_WHOLE || startsWith(arg, "digits_")) {
             vals <- as_integer_if_lossless(vals)
+          }
+          if (startsWith(arg, "digits_")) {
+            check_digits_numeric(vals, arg, from_column = !arg_given)
           }
           cols_tested[[arg]] <- recycle_digits(vals, nrow(data), arg)
           # A column of `data` by the same name is replaced by the argument's
