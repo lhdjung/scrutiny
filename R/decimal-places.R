@@ -339,7 +339,7 @@ trim_space <- function(x) {
 }
 
 # Whether each value is missing: `NA`, or a string that is one of
-# `STRINGS_MISSING` once trimmed, or that `as.numeric()` reads as `NaN`. Each
+# `STRINGS_MISSING` or `NAN_TOKENS` once trimmed. Each
 # distinct string is checked once, which is much faster for the repeated values
 # of a data frame:
 is_value_missing <- function(x) {
@@ -352,8 +352,7 @@ is_value_missing <- function(x) {
   unique_x <- unique(x)
   trimmed <- trim_space(unique_x)
   is_missing <- is.na(unique_x) |
-    trimmed %in% STRINGS_MISSING |
-    chartr("AN", "an", trimmed) %in% NAN_TOKENS
+    trimmed %in% c(STRINGS_MISSING, NAN_TOKENS)
   is_missing[match(x, unique_x)]
 }
 

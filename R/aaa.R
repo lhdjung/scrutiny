@@ -71,9 +71,10 @@ NON_FINITE_TOKENS <- c(outer(
   paste0
 ))
 
-# The ones among them for `NaN`, which is a missing value everywhere in
-# scrutiny; see `is_value_missing()`:
-NAN_TOKENS <- c("nan", "+nan", "-nan")
+# How R writes `NaN`, which is a missing value everywhere in scrutiny. Only
+# this spelling is missing in `is_value_missing()`, which reads any text:
+# "Nan" is a name.
+NAN_TOKENS <- c("NaN", "+NaN", "-NaN")
 
 
 # Placeholder data for `grim_plot_grid()`'s tile layer when there is no
