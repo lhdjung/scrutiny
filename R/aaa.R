@@ -111,6 +111,7 @@ PTYPE_GRIM_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
   n = double(),
+  items_averaged = double(),
   sum = double()
 )
 PTYPE_GRIMMER_VALUES <- tibble::tibble(
@@ -118,6 +119,7 @@ PTYPE_GRIMMER_VALUES <- tibble::tibble(
   x = double(),
   sd = double(),
   n = double(),
+  items_averaged = double(),
   sum = double(),
   sum_squares = double()
 )

@@ -7,11 +7,11 @@ expect_undecidable <- function(object) {
   if (!tibble::is_tibble(act$val) || nrow(act$val) != 1L) {
     return(testthat::fail(paste(act$lab, "must be a tibble with one row.")))
   }
-  values <- act$val[setdiff(names(act$val), c("case", "n"))]
+  values <- act$val[setdiff(names(act$val), c("case", "n", "items_averaged"))]
   if (!identical(act$val$case, 1L) || !all(is.na(unlist(values)))) {
     return(testthat::fail(paste(
       act$lab,
-      "must be `NA` but for `case = 1` and `n`."
+      "must be `NA` but for `case = 1`, `n`, and `items_averaged`."
     )))
   }
 

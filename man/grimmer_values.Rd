@@ -84,14 +84,15 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \value{
 A tibble with one row per achievable pair. \code{case} is the index of
 the value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \code{sd} are the achievable
-values, \code{n} the reported sample size, and \code{sum} and \code{sum_squares} the
-whole numbers behind them. An inconsistent value set has no rows, and one
-that cannot be decided has one row of \code{NA} but for \code{n}, as in
-\code{\link[=grimmer]{grimmer()}}.
+values, \code{n} the reported sample size, \code{items_averaged} as given, and \code{sum}
+and \code{sum_squares} the whole numbers behind them, from each person's total
+over the \code{items_averaged} items. An inconsistent value set has no rows, and
+one that cannot be decided has one row of \code{NA} but for \code{n} and
+\code{items_averaged}, as in \code{\link[=grimmer]{grimmer()}}.
 
 \code{grimmer_closest()} returns the same columns with exactly one row per
-value set: of \code{NA} but for \code{n} if a value is missing or the value set
-cannot be decided.
+value set: of \code{NA} but for \code{n} and \code{items_averaged} if a value is missing
+or the value set cannot be decided.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}

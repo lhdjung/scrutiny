@@ -79,6 +79,7 @@ grim_sums_scalar <- function(
   list(
     sums = sums,
     n = as.numeric(n),
+    items_averaged = as.numeric(items_averaged),
     n_items = n_items,
     is_integer = is_integer,
     # Values are returned on the scale of `x`, so that they can be read against
@@ -151,12 +152,13 @@ grim_values_scalar <- function(
 
 
 # The means, on the scale of `x`, that whole-number sums give. One row of `NA`
-# but for `n` for an undecidable value set, so that it still has a row in the
-# output.
+# but for `n` and `items_averaged` for an undecidable value set, so that it
+# still has a row in the output.
 grim_values_tibble <- function(sums, parts) {
   tibble::tibble(
     x = sums * parts$scale / parts$n_items,
     n = parts$n,
+    items_averaged = parts$items_averaged,
     sum = sums
   )
 }
@@ -317,14 +319,15 @@ grim_closest_scalar <- function(
 #'   the index of the value set, i.e., the position in the inputs after they
 #'   are recycled to a common length, so it also counts through `n` if `x` is
 #'   a single value. `x` is the achievable value, `n` the reported sample size,
-#'   and `sum` the whole number behind `x`. An inconsistent value set has no
-#'   rows, and one that cannot be decided has one row of `NA` but for `n`, as
-#'   in [`grim()`]. So does one with a missing `digits_x` that is consistent
+#'   `items_averaged` as given, and `sum` the whole number behind `x`, the sum
+#'   of all `n * items_averaged` item scores. An inconsistent value set has no
+#'   rows, and one that cannot be decided has one row of `NA` but for `n` and
+#'   `items_averaged`, as in [`grim()`]. So does one with a missing `digits_x` that is consistent
 #'   whatever it is: how many values would be reported as `x` still depends on
 #'   it.
 #' - For `grim_closest()`, a tibble with the same columns and exactly one row
 #'   per value set: the closest achievable mean, or a row of `NA` but for `n`
-#'   if the value set cannot be decided.
+#'   and `items_averaged` if the value set cannot be decided.
 #'
 #' @seealso [`grim()`], [`grim_map()`], [`grimmer_values()`], and
 #'   [`grim_exp_incon()`].

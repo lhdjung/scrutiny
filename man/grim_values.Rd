@@ -57,14 +57,15 @@ list. Under \code{NA}, a value set is undecidable unless no data can have it.}
 the index of the value set, i.e., the position in the inputs after they
 are recycled to a common length, so it also counts through \code{n} if \code{x} is
 a single value. \code{x} is the achievable value, \code{n} the reported sample size,
-and \code{sum} the whole number behind \code{x}. An inconsistent value set has no
-rows, and one that cannot be decided has one row of \code{NA} but for \code{n}, as
-in \code{\link[=grim]{grim()}}. So does one with a missing \code{digits_x} that is consistent
+\code{items_averaged} as given, and \code{sum} the whole number behind \code{x}, the sum
+of all \code{n * items_averaged} item scores. An inconsistent value set has no
+rows, and one that cannot be decided has one row of \code{NA} but for \code{n} and
+\code{items_averaged}, as in \code{\link[=grim]{grim()}}. So does one with a missing \code{digits_x} that is consistent
 whatever it is: how many values would be reported as \code{x} still depends on
 it.
 \item For \code{grim_closest()}, a tibble with the same columns and exactly one row
 per value set: the closest achievable mean, or a row of \code{NA} but for \code{n}
-if the value set cannot be decided.
+and \code{items_averaged} if the value set cannot be decided.
 }
 }
 \description{

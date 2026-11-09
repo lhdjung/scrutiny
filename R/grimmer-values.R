@@ -214,8 +214,9 @@ grimmer_values_scalar <- function(
 
 
 # The mean and SD that a sum and a sum of squared deviations of `n` integers give;
-# see `sd_square_term()` for the formula. One row of `NA` but for `n` for an
-# undecidable value set, so that it still has a row in the output.
+# see `sd_square_term()` for the formula. One row of `NA` but for `n` and
+# `items_averaged` for an undecidable value set, so that it still has a row in
+# the output.
 grimmer_values_tibble <- function(
   sums,
   sums_squares,
@@ -229,6 +230,7 @@ grimmer_values_tibble <- function(
     x = sums / (as.numeric(n) * items_averaged),
     sd = sqrt(deviations / n_dev) / items_averaged,
     n = as.numeric(n),
+    items_averaged = as.numeric(items_averaged),
     sum = sums,
     sum_squares = sums_squares
   )
@@ -819,14 +821,15 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'
 #' @return A tibble with one row per achievable pair. `case` is the index of
 #'   the value set, as in [`grim_values()`]. `x` and `sd` are the achievable
-#'   values, `n` the reported sample size, and `sum` and `sum_squares` the
-#'   whole numbers behind them. An inconsistent value set has no rows, and one
-#'   that cannot be decided has one row of `NA` but for `n`, as in
-#'   [`grimmer()`].
+#'   values, `n` the reported sample size, `items_averaged` as given, and `sum`
+#'   and `sum_squares` the whole numbers behind them, from each person's total
+#'   over the `items_averaged` items. An inconsistent value set has no rows, and
+#'   one that cannot be decided has one row of `NA` but for `n` and
+#'   `items_averaged`, as in [`grimmer()`].
 #'
 #'   `grimmer_closest()` returns the same columns with exactly one row per
-#'   value set: of `NA` but for `n` if a value is missing or the value set
-#'   cannot be decided.
+#'   value set: of `NA` but for `n` and `items_averaged` if a value is missing
+#'   or the value set cannot be decided.
 #'
 #' @seealso [`grimmer()`], [`grimmer_map()`], [`grim_values()`], and
 #'   [`grimmer_plot_line()`].

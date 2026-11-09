@@ -1,6 +1,6 @@
 test_that("`grimmer_values()` returns the achievable pairs", {
   out <- 5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
-  out |> names() |> expect_equal(c("case", "x", "sd", "n", "sum", "sum_squares"))
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "items_averaged", "sum", "sum_squares"))
   out |> nrow() |> expect_equal(1L)
   out$case |> expect_equal(1L)
   out$x  |> expect_equal(out$sum / 31)
@@ -10,7 +10,7 @@ test_that("`grimmer_values()` returns the achievable pairs", {
   # No achievable pair at all if the value set is inconsistent:
   out <- 5.23 |> grimmer_values(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
   out |> nrow()  |> expect_equal(0L)
-  out |> names() |> expect_equal(c("case", "x", "sd", "n", "sum", "sum_squares"))
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "items_averaged", "sum", "sum_squares"))
 })
 
 
@@ -104,7 +104,7 @@ test_that("`grimmer_values()` is vectorized like `grimmer()`", {
   out |> tibble::is_tibble() |> expect_true()
   out$case |> expect_equal(1L)
 
-  numeric(0) |> grimmer_values(numeric(0), 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(tibble::tibble(case = integer(), x = double(), sd = double(), n = double(), sum = double(), sum_squares = double()))
+  numeric(0) |> grimmer_values(numeric(0), 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(tibble::tibble(case = integer(), x = double(), sd = double(), n = double(), items_averaged = double(), sum = double(), sum_squares = double()))
   5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = c("up", "floor")) |> expect_error("must be length 1")
   c(5.23, 5.1) |> grimmer_values(2.55, c(31, 35, 40), digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error()
 })
@@ -278,7 +278,7 @@ test_that("`grimmer_closest()` returns the pair whose SD is closest to `sd`", {
   abs(out$sd - 0.7) |> expect_equal(min(abs(values$sd - 0.7)))
   # Inconsistent: 4, 5, 5, 7 have a mean of 5.25 and an SD of 1.258, closer to
   # 1.11 than the 0.957 of 4, 5, 6, 6:
-  5.21 |> grimmer_closest(1.11, 4, 2, 2, 1, "integer") |> expect_equal(tibble::tibble(case = 1L, x = 5.25, sd = sqrt(4.75 / 3), n = 4, sum = 21, sum_squares = 115))
+  5.21 |> grimmer_closest(1.11, 4, 2, 2, 1, "integer") |> expect_equal(tibble::tibble(case = 1L, x = 5.25, sd = sqrt(4.75 / 3), n = 4, items_averaged = 1, sum = 21, sum_squares = 115))
   # A negative SD is closest to the least SD there is:
   5.23 |> grimmer_closest(-1, 35, 2, 2, 1, "integer") |> _$sd |> expect_equal(sqrt(8 * 27 / 35 / 34))
   # A single value has an SD of 0 only:
