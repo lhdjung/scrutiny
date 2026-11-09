@@ -44,8 +44,6 @@ These are the levels, with GRIM as the example. If you implement a valid consist
 
 7.  A total-n mapper for studies with two groups that only report the total sample size, such as `grim_map_total_n()`.
 
-8.  Documentation of what `audit()` returns for the output of numbers 6 and 7, which it already summarizes.
-
 The examples use a mock test called SCHLIM, which has no meaning in itself. A real implementation will usually be more complex than the snippets below.
 
 Please follow the [tidyverse style guide](https://style.tidyverse.org/) and the conventions below. To write a new package, see [*R Packages*](https://r-pkgs.org/) [@wickham2023].
@@ -68,6 +66,8 @@ schlim_scalar(y = 2, n = 7)
 If the test reconstructs rounded numbers, give the function a `rounding` argument with the default `"up_or_down"`, and pass it on to `roundwork::reround()` or `roundwork::unround()`; see `vignette("rounding-in-depth", package = "roundwork")`. To compare the range of a rounded value with whole numbers, as GRIM does, use `roundwork::bound_numerators()` or `roundwork::sum_range()`, which keep the comparison exact; see *Exact arithmetic* in `vignette("technical-notes")`. Take the number of decimal places as an argument without a default, like `digits_x` in `grim()`, rather than counting them: a numeric value has lost any trailing zeros.
 
 Name the function after the test in lowercase, followed by `_scalar`. If R's own vectorization already makes it work on vectors in every argument, leave out `_scalar`, export it, and skip section 2.
+
+Exported scrutiny functions often call internal helpers, most of which are documented in [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R). To reuse one, copy its source code, which `scrutiny:::helper_name` (without parentheses) prints. Don't call it with `:::` in your code: internals can change or vanish without notice. See [this blogpost](https://tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen.
 
 # 2. Vectorized
 
@@ -155,7 +155,7 @@ grim_map <- function_map(
 )
 ```
 
-The arguments of a call that apply to all rows, such as `rounding`, are recorded on the output; see `scrutiny_meta()`.
+The output has the key columns first, then any helper columns that were given, any columns of `.args_by_row` arguments, and `consistency`. Other columns of `data` follow it. Functions built on the mapper, such as `function_map_seq()`, read the columns left of `consistency` as the input to the test. The arguments of a call that apply to all rows, such as `rounding`, are recorded on the output; see `scrutiny_meta()`.
 
 ### Context and export
 
@@ -241,64 +241,6 @@ Some points about this mode:
 
 -   Such a mapper cannot be wrapped by `function_map_seq()` or `function_map_total_n()`, which derive their arguments from `.reported`.
 
-## Writing mappers manually
-
-All of scrutiny's mappers are made by `function_map()`, and there is rarely a reason to write one by hand. For the same reason, the helpers used below, `absorb_key_args()`, `check_mapper_input_colnames()`, and `manage_helper_col()`, are superseded. If you need a check or transformation that `function_map()` doesn't provide, the requirements below are what the rest of the infrastructure relies on. If not, skip to section 4.
-
-### Terminology
-
-*Key columns* hold the values that are tested for consistency with each other, such as `x` and `n` in `grim_map()`. Each has the same name as the corresponding argument of the `*_scalar()` function.
-
-A *helper column* is not a key column, but still factors into the test, such as `items_averaged` in `grim_map()`. It may also be given as an argument.
-
-### Requirements
-
-1.  The mapper's name is that of the `*_scalar()` function with `_map` instead of `_scalar`.
-
-2.  Its first argument, `data`, is a data frame with the key columns. Other columns are permitted, but not one named `consistency`. A helper column can always be replaced by an argument of the same name; giving both with different values is an error.
-
-3.  Arguments named like the key columns only let the user name the columns that hold these values, as in `grim_map(df, x = mean)`. They default to `NULL` and are handled by `absorb_key_args()`.
-
-4.  It returns a tibble whose columns are, from the left: the key columns, with the same types as in the input (a whole-number `n` may become integer); any helper columns that were given; any columns of per-row arguments, such as `digits_x`; and a logical `consistency` column with the test results. Any other columns go to the right of `consistency`. Functions built on the mapper, such as `function_map_seq()` and `reverse_map_seq()`, read the columns left of `consistency` as the input to the test.
-
-5.  Arguments that apply to all rows, such as `rounding`, are arguments of the mapper with the same defaults as in the `*_scalar()` function, and are passed down to it.
-
-6.  The output has a class named `"scrutiny_"` plus the mapper's name, such as `"scrutiny_grim_map"`, so that `is_map_df()` and `is_map_basic_df()` return `TRUE`. Any other classes start with `"scrutiny_"` but don't end on `"_map"`. Classes are for method dispatch only, not for recording settings. The output is not grouped or rowwise.
-
-### Practical steps
-
-Apply the `*_scalar()` function to the input data frame using `purrr::pmap_lgl()`:
-
-```{r}
-schlim_map_alt <- function(data, y = NULL, n = NULL, ...) {
-  data <- scrutiny::absorb_key_args(data, c("y", "n"))
-  scrutiny::check_mapper_input_colnames(data, c("y", "n"), "SCHLIM")
-
-  out <- tibble::tibble(
-    y = data$y,
-    n = data$n,
-    consistency = purrr::pmap_lgl(data[c("y", "n")], schlim_scalar, ...)
-  )
-
-  class(out) <- c("scrutiny_schlim_map", class(out))
-  out
-}
-
-df1 |>
-  dplyr::rename(score = y) |>
-  schlim_map_alt(y = score)
-```
-
-`absorb_key_args()` renames a column that the user named through a key argument. `check_mapper_input_colnames()` is optional, but reports a missing key column or an existing `consistency` column clearly. For a helper column, add an argument by its name and call `manage_helper_col()`. `dplyr::rowwise()` would work instead of `purrr::pmap_lgl()`, but is much slower.
-
-### Testing
-
-Check that your mapper returns the same output as an equivalent one made by `function_map()`, using `waldo::compare()` or `testthat::expect_equal()` with `ignore_attr = "scrutiny"`: `function_map()` records the settings of each call in that attribute. Remove any columns that your mapper creates without deriving them from the `*_scalar()` function.
-
-### Internal helpers
-
-Exported scrutiny functions often call internal helpers, most of which are documented in [utils.R](https://github.com/lhdjung/scrutiny/blob/main/R/utils.R). To reuse one, copy its source code, which `scrutiny:::helper_name` (without parentheses) prints. Don't call it with `:::` in your code: internals can change or vanish without notice. See [this blogpost](https://tidyverse.org/blog/2022/09/playing-on-the-same-team-as-your-dependecy/) by Thomas Lin Pedersen.
-
 # 4. `audit()` method
 
 ## Basics
@@ -379,7 +321,7 @@ grimmer_map_seq <- function_map_seq(
 
 `.var_bounds` sets the least and greatest values to which each variable may be dispersed, with `NA` for an unbounded side. `n` always has a minimum of 1. A bound may also be a function of the mapper's arguments, as with `n` here. `.var`, `.dispersion`, `.out_min`, `.out_max`, `.include_reported`, and `.include_consistent` set the defaults of the corresponding arguments of the new function; see `?function_map_seq`.
 
-A sequence mapper can be created in the same way from any basic mapper that meets the requirements of section 3. For SCHLIM:
+A sequence mapper can be created in the same way from any other basic mapper. For SCHLIM:
 
 ```{r}
 schlim_map_seq <- function_map_seq(
@@ -404,7 +346,7 @@ df1 |>
   audit()
 ```
 
-To export a function made by `function_map_seq()`, see section 3.
+`audit()` summarizes this output without a method of its own; the summaries differ between tests only in the key columns. Document them on the page of your `*_map_seq()` function as `?grim_map_seq` does, in a section called *Summaries with `audit()`*. To export a function made by `function_map_seq()`, see section 3.
 
 # 7. Total-n mapper
 
@@ -453,13 +395,7 @@ out_total_n
 audit(out_total_n)
 ```
 
-To export such a function from a package, see section 3.
-
-# 8. Documenting the summaries of sequence and total-n output
-
-`audit()` summarizes the output of any function made by `function_map_seq()` or `function_map_total_n()`, so there is nothing to implement.
-
-What remains is to document the summaries for your test. The summaries differ between tests only in the names and number of the key columns. Document them on the pages of your `*_map_seq()` and `*_map_total_n()` functions as `?grim_map_seq` and `?grim_map_total_n` do, in a section called *Summaries with `audit()`*.
+As for sequence mappers, `audit()` needs no new method, but document its summaries on the page of your `*_map_total_n()` function, as `?grim_map_total_n` does. To export such a function from a package, see section 3.
 
 # Wrap-up
 

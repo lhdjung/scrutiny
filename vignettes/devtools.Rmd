@@ -28,15 +28,6 @@ scrutiny exports the helper functions on which its error detection techniques ar
 decimal_places("2.80")
 
 decimal_places(c(55.1, 6.493, 8))
-
-vec1 <- iris |>
-  dplyr::slice(1:10) |>
-  dplyr::pull(Sepal.Length)
-
-vec1
-
-vec1 |>
-  decimal_places()
 ```
 
 Numeric values drop trailing zeros, whereas strings preserve them. This is why the consistency tests take the number of decimal places as an argument rather than counting it:

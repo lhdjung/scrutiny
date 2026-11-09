@@ -46,7 +46,5 @@ value to \code{data} as a column if \code{data} has none.
 
 Mappers made by \code{\link[=function_map]{function_map()}} call it for every \code{.cols_helper}
 argument. Call it yourself in a handwritten mapper, once per helper
-column, and reassign the result to \code{data}. See
-\code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
-manually}.
+column, and reassign the result to \code{data}.
 }

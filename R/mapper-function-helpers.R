@@ -215,9 +215,7 @@ check_cols_needed <- function(data, cols, ...) {
 #'
 #'   Mappers made by [`function_map()`] call it for every `.cols_helper`
 #'   argument. Call it yourself in a handwritten mapper, once per helper
-#'   column, and reassign the result to `data`. See
-#'   `vignette("consistency-tests-in-depth")`, section *Writing mappers
-#'   manually*.
+#'   column, and reassign the result to `data`.
 #'
 #' @param data The mapper's input data frame.
 #' @param arg The mapper argument named like the helper column.
