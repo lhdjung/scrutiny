@@ -10,8 +10,8 @@
 #'   `restore_zeros()` formats numbers as strings with a given number
 #'   of decimal places, padding with zeros. By default, the target is the number
 #'   of decimal places of the value that has the most. Do not rely on this
-#'   default without checking it, since the longest mantissa may itself have
-#'   lost trailing zeros.
+#'   default without checking it, since the value with the most decimal places
+#'   may itself have lost trailing zeros.
 #'
 #'   `restore_zeros_df()` applies it to the columns of a data frame, by default
 #'   all those coercible to numeric.
@@ -34,8 +34,8 @@
 #' @param width Integer. Number of decimal places the output should have, up
 #'   to 100,000. Length 1 or the length of `x`. Default is `NULL`, the largest number of
 #'   decimal places in `x`.
-#' @param sep_in String. The separator between integer part and mantissa in
-#'   the input, matched literally. Default is `"."`.
+#' @param sep_in String. The separator between the integer part and the
+#'   decimal places in the input, matched literally. Default is `"."`.
 #' @param sep_out String. The separator in the output. Default is `sep_in`.
 #' @param check_width String (length 1). What to do if a value has more decimal
 #'   places than `width`? `"capped"` (the default) throws an error; `"never"`
@@ -46,10 +46,9 @@
 #'   Default is `everything()`, restricted by `check_numeric_like`. Only in
 #'   `restore_zeros_df()`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
-#'   that [`is_numeric_like()`] accepts are processed. A column left out
-#'   causes a warning if `cols` is given, and any column processed although
-#'   it isn't numeric-like does, unless it has no values at all. Only in
-#'   `restore_zeros_df()`.
+#'   that [`is_numeric_like()`] accepts are processed. A column that isn't
+#'   numeric-like gets a warning if `cols` is given and selects it, or if it is
+#'   processed anyway, unless it is empty. Only in `restore_zeros_df()`.
 #' @param check_decimals Logical. If `TRUE`, columns without any decimal places
 #'   are skipped. Default is `FALSE`. Only in `restore_zeros_df()`.
 #'
@@ -65,7 +64,7 @@
 #' @examples
 #' vec <- c(212, 75.38, 4.9625)
 #'
-#' # By default, pad to the longest mantissa:
+#' # By default, pad to the most decimal places in `vec`:
 #' restore_zeros(vec)
 #'
 #' # Or to a given width:

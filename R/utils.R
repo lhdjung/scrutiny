@@ -62,10 +62,8 @@ utils::globalVariables(c(
 #' @param f A function that takes exactly one (required) argument.
 #'
 #' @examples
-#' # From tests/testthat/test-digits-vectorized.R
-#' out$n[out$var == "n"] |>
-#'   call_on(\(x) x %% 1 == 0) |>
-#'   all()
+#' # From tests/testthat/test-row-to-colnames.R
+#' df_fixed |> purrr::pluck(1L, 1L) |> call_on(\(x) x == "a")
 #'
 #' @noRd
 call_on <- function(x, f) {
@@ -152,22 +150,6 @@ an_a_type <- function(x) {
 }
 
 
-#' Check whether numbers are whole
-#'
-#' @description Tests each element of `x` for being a whole number, whatever
-#'   its type. Adapted from `is.wholenumber()` in the examples of `?integer`.
-#'
-#' @param x Numeric.
-#' @param tolerance Numeric. Differences from the nearest whole number below
-#'   this are ignored. Default is about `1.5e-8`.
-#'
-#' @return Logical vector of the same length as `x`.
-#'
-#' @author R Core Team, Lukas Jung
-#'
-#' @noRd
-# `is_decidable_n_items()` and `check_newly_numeric()` write this test out
-# rather than calling it, because they run once per row; keep them in step.
 # A logical setting such as `show_rec` or `include_consistent` is checked here
 # so that a missing value, a string, or a vector fails with a clear message,
 # not with `if ()`'s.
@@ -203,6 +185,22 @@ nan_to_na <- function(x) {
 }
 
 
+#' Check whether numbers are whole
+#'
+#' @description Tests each element of `x` for being a whole number, whatever
+#'   its type. Adapted from `is.wholenumber()` in the examples of `?integer`.
+#'
+#' @param x Numeric.
+#' @param tolerance Numeric. Differences from the nearest whole number below
+#'   this are ignored. Default is about `1.5e-8`.
+#'
+#' @return Logical vector of the same length as `x`.
+#'
+#' @author R Core Team, Lukas Jung
+#'
+#' @noRd
+# `is_decidable_n_items()` and `check_newly_numeric()` write this test out
+# rather than calling it, because they run once per row; keep them in step.
 is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
   abs(x - round(x)) < tolerance
 }
@@ -214,13 +212,16 @@ is_whole_number <- function(x, tolerance = WHOLE_NUMBER_TOLERANCE) {
 #'   mean admits, about `n * items_averaged / 10^digits_x` of them, but no more
 #'   than `n`, so a huge `n` (e.g., a typo) would run for a very long time. With
 #'   the mean unknown, it loops over up to `n` remainders. The limit is far
-#'   above any published summary statistic.
+#'   above any published summary statistic. `grimmer_closest()` uses the check
+#'   with its own `limit`.
 #'
 #' @param bounds Numeric. Pairs of `lower, upper` of the sums, as in
 #'   `grimmer_sums_pass()`.
 #' @param n,digits_x Numeric (length 1). For the message; `digits_x = NULL`
 #'   for an unknown mean.
 #' @param limit Numeric (length 1). The largest number of sums admitted.
+#' @param name String (length 1). The test or function named in the error.
+#'   Default is `"GRIMMER"`.
 #'
 #' @return No return value. Might throw an error.
 #'
@@ -255,14 +256,15 @@ check_enumeration_size <- function(
 }
 
 
-#' Check that `grim_values()` or `grimmer_values()` has few enough rows
+#' Check that a `*_values()` function has few enough rows
 #'
-#' @description Both return one row per achievable value, so a huge `n` (e.g.,
+#' @description They return one row per achievable value, so a huge `n` (e.g.,
 #'   a typo) would fill the memory rather than fail. The check runs before the
 #'   rows are allocated. The limit, `VALUES_MAX`, applies to each value set.
 #'
 #' @param size Numeric (length 1). The number of rows so far, or a lower bound.
-#' @param what String. What the rows are: `"means"` or `"pairs"`.
+#' @param what String. What the rows are: `"means"`, `"pairs"`, or `"samples"`
+#'   (numbers of ones, for `debit_values()`).
 #' @param values Named list of the reported values, to say which value set it
 #'   is in a vectorized call.
 #'
@@ -345,8 +347,8 @@ check_setting_length <- function(name, value, along, name_mapper) {
 #' @return Logical vector, recycled to the length of the longer of `n` and
 #'   `items_averaged`: `TRUE` where the test can decide the case, `FALSE` where
 #'   it cannot. Never `NA`: a missing `n` or `items_averaged` is undecidable.
-#'   The `*_scalar()` functions call this on single values,
-#'   `grim_exp_incon()` on columns.
+#'   The `*_scalar()` functions call this on single values, `grim_total()` on
+#'   columns.
 #'
 #' @noRd
 is_decidable_n_items <- function(n, items_averaged = 1, min_n = 1) {
@@ -1436,9 +1438,7 @@ add_class <- function(x, new_class) {
 
 #' Check length
 #'
-#' Make sure a vector `x` has length `l`, otherwise throw an informative error.
-#' For example, if a vector called `vals` must have length 1, run:
-#' `check_length(vals, 1)`.
+#' Errors unless `x` has length `l`.
 #'
 #' @param x Vector.
 #' @param l Numeric. Length that `x` should have.
@@ -1526,9 +1526,10 @@ check_class <- function(x, cl) {
 
 #' Coerce a user-supplied data frame to a tibble
 #'
-#' Any data frame is returned as a tibble; anything else is an error. Character
-#' row names, such as study labels, are kept as a `rowname` column, since a
-#' tibble has none. Integer row names, as left by `data[rows, ]`, are dropped.
+#' Any data frame whose columns all have distinct names is returned as a tibble;
+#' anything else is an error. Character row names, such as study labels, are
+#' kept as a `rowname` column, since a tibble has none. Integer row names, as
+#' left by `data[rows, ]`, are dropped.
 #'
 #' Assumes that the argument of the user-called function is named `data`.
 #'
@@ -1604,19 +1605,12 @@ as_tibble_input <- function(data) {
 
 #' Check that a number of decimal places is usable
 #'
-#' @description Called from `reround()` and `unround()`. A fractional `digits`
-#'   scales `x` by a non-power of ten, so the result sits on no decimal grid,
-#'   while [`base::round()`] rounds `digits` itself: the methods would disagree.
+#' @description Called from `grim_total()`, which takes `digits_x` as a
+#'   vector. A fractional `digits_x` would make `10^digits_x` no power of ten.
 #'
-#'   The `round_*()` primitives don't repeat the check because they run once
-#'   per candidate value. Even in `reround()`, it is a hot path, so the check
-#'   makes one pass over `digits` and touches `cli` only on failure. The
-#'   whole-number test is inlined for the same reason as in
-#'   `check_newly_numeric()`.
-#'
-#'   A missing `digits`, including a logical `NA`, passes and propagates to an
-#'   `NA` result. An infinite one, or one beyond 308 in either direction, fails:
-#'   `10^digits` would be `Inf` or `0`.
+#'   A missing value, including a logical `NA`, passes and gives `NA`. An
+#'   infinite one, or one beyond 308 in either direction, fails: `10^digits`
+#'   would be `Inf` or `0`.
 #'
 #' @param digits The `digits` argument of the calling function.
 #' @param name String (length 1). Name of that argument, for errors.
@@ -1656,9 +1650,7 @@ check_digits_whole <- function(digits, name = "digits") {
       "`{name}` must be whole numbers.",
       "x" = "It has {length(not_whole)} value{?s} that {?is/are} not: \\
         {not_whole}.",
-      "i" = "Each value is a number of decimal places, so a fractional one \\
-        would scale `x` by a non-power of ten and return a number on no \\
-        decimal grid."
+      "i" = "Each value is a number of decimal places, so it must be whole."
     )
   }
 
@@ -1725,12 +1717,7 @@ split_into_rows <- function(data) {
 
 #' Paste and enumerate with commas and `"and"`
 #'
-#' - If `x` is length 1, it is returned unchanged.
-#' - If `x` is length 2, its elements are pasted together but separated by word
-#'   "and".
-#' - If `x` is length > 2, all of its elements will be pasted into a string, but
-#' separated by commas within this string. The word "and" is inserted before the
-#' last element.
+#' Joins `x` into one string, as in `"a"`, `"a and b"`, and `"a, b, and c"`.
 #'
 #' @param x String (or coercible to string).
 #'
@@ -1844,47 +1831,6 @@ check_length_disperse_n <- function(n, msg_single) {
 }
 
 
-#' Check if a vector is numeric or coercible to numeric
-#'
-#' `check_type_numeric_like()` throws an error if `is_numeric_like()` returns
-#' `FALSE`, so it tolerates `NA`.
-#'
-#' @param x Object to be tested.
-#'
-#' @return No return value; might throw an error.
-#'
-#' @noRd
-check_type_numeric_like <- function(x) {
-  if (isFALSE(numeric_like(x))) {
-    name <- deparse(substitute(x))
-
-    if (rlang::is_vector(x)) {
-      length_non_na <- length(x[!is.na(x)])
-
-      if (length_non_na == 1L) {
-        msg_values <- "a non-`NA` value"
-        msg_elements <- "element"
-      } else {
-        msg_values <- "non-`NA` values"
-        msg_elements <- "elements"
-      }
-
-      abort_in_export(
-        "!" = "`{name}` must be numeric or coercible to numeric.",
-        "i" = "(This means that converting it to numeric \\
-        must return {msg_values} for its {length_non_na} \\
-        non-`NA` {msg_elements}.)"
-      )
-    } else {
-      abort_in_export(
-        "!" = "`{name}` must be numeric or coercible to numeric.",
-        "x" = "It is {an_a_type(x)}."
-      )
-    }
-  }
-}
-
-
 #' Recover the reported value a sequence was dispersed from
 #'
 #' @description A `*_map_seq()` output records, for every dispersed row, how far
@@ -1977,7 +1923,7 @@ index_central <- function(x) {
 #' - `.origin`: Names of the original columns of the data frame that
 #'   `split_by_parens()` took as an input.
 #' - Two columns named after the values of `split_by_parens()`'s `end1` and
-#'   `end2` arguments. Default are `"x"` and `"sd"`.
+#'   `end2` arguments. The defaults are `"x"` and `"sd"`.
 #'
 #' @noRd
 transform_split_parens <- function(data, origins, end1, end2) {
@@ -2007,8 +1953,8 @@ class_name_test <- function(name_test, suffix) {
 
 #' Select columns before `"consistency"`
 #'
-#' Selects the "tested" columns in the sense of
-#' `vignette("consistency-tests-in-depth")`: those that went into the test.
+#' Selects the columns left of `before`, the input to the test, without
+#' `digits_*` columns.
 #'
 #' @param data Data frame returned by a mapper such as `grim_map()`.
 #' @param before String (length 1). Name of the first column not to select.
@@ -2079,7 +2025,8 @@ wrap_in_quotes_or_backticks <- function(x) {
 
 #' Test numbers for near-equality, other objects for identity
 #'
-#' Uses `all(dplyr::near(x, y))` if both are numeric, `identical()` otherwise.
+#' For numbers, missing values must be in the same places and the others must
+#' be `dplyr::near()` each other. Other objects must be `identical()`.
 #'
 #' @param x,y Two objects to be compared.
 #'

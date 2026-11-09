@@ -29,14 +29,8 @@ values are \code{NA}. Any other type, such as a list or a data frame, is an
 error.}
 
 \item{tolerance}{Numeric. Tolerance for comparing values. Default is about
-\code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}. Any tolerance is widened to the
-rounding error of arithmetic on the values, at most about \code{4e-16} times
-the largest, so \code{0} allows that error only, and large values such as
-\code{123456789.01} are compared as precisely as doubles can. In
-\code{is_seq_dispersed()}, a central value that is missing is worked out from
-the known ones, step by step, and the error grows with each step, so the
-comparison with \code{from} allows about \code{4e-16} times the largest value per
-step to the center.}
+\code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}. It is never finer than the rounding
+error of arithmetic on the values, so \code{0} allows that error only.}
 
 \item{test_linear}{Logical. Should linearity be tested as well? Default is
 \code{TRUE}. Not in \code{is_seq_linear()}.}
@@ -48,10 +42,11 @@ step to the center.}
 Logical (length 1). If \code{x} contains \code{NA}:
 \itemize{
 \item \code{NA} if some values substituted for the \code{NA}s would make \code{x} the kind of
-sequence in question and others would not; \code{FALSE} if none would, e.g.,
-because \code{x} is too short for it (two values for \code{is_seq_ascending()} and
-\code{is_seq_descending()}, three for \code{is_seq_dispersed()}); and \code{TRUE} if all
-would, as any one or two values are linear.
+sequence in question and others would not.
+\item \code{FALSE} if none would, e.g., because \code{x} is too short for it (two values
+for \code{is_seq_ascending()} and \code{is_seq_descending()}, three for
+\code{is_seq_dispersed()}).
+\item \code{TRUE} if all would, as any one or two values are linear.
 }
 
 A missing \code{from} is handled the same way.

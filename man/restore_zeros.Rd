@@ -34,8 +34,8 @@ with an exponent so large that it can't be written out, such as
 to 100,000. Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
 decimal places in \code{x}.}
 
-\item{sep_in}{String. The separator between integer part and mantissa in
-the input, matched literally. Default is \code{"."}.}
+\item{sep_in}{String. The separator between the integer part and the
+decimal places in the input, matched literally. Default is \code{"."}.}
 
 \item{sep_out}{String. The separator in the output. Default is \code{sep_in}.}
 
@@ -51,10 +51,9 @@ Default is \code{everything()}, restricted by \code{check_numeric_like}. Only in
 \code{restore_zeros_df()}.}
 
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
-that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
-causes a warning if \code{cols} is given, and any column processed although
-it isn't numeric-like does, unless it has no values at all. Only in
-\code{restore_zeros_df()}.}
+that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column that isn't
+numeric-like gets a warning if \code{cols} is given and selects it, or if it is
+processed anyway, unless it is empty. Only in \code{restore_zeros_df()}.}
 
 \item{check_decimals}{Logical. If \code{TRUE}, columns without any decimal places
 are skipped. Default is \code{FALSE}. Only in \code{restore_zeros_df()}.}
@@ -76,8 +75,8 @@ for display, use \code{formatC(x, format = "f", digits = 2)}.
 \code{restore_zeros()} formats numbers as strings with a given number
 of decimal places, padding with zeros. By default, the target is the number
 of decimal places of the value that has the most. Do not rely on this
-default without checking it, since the longest mantissa may itself have
-lost trailing zeros.
+default without checking it, since the value with the most decimal places
+may itself have lost trailing zeros.
 
 \code{restore_zeros_df()} applies it to the columns of a data frame, by default
 all those coercible to numeric.
@@ -97,7 +96,7 @@ digits cannot be padded accurately; enter such numbers as strings.
 \examples{
 vec <- c(212, 75.38, 4.9625)
 
-# By default, pad to the longest mantissa:
+# By default, pad to the most decimal places in `vec`:
 restore_zeros(vec)
 
 # Or to a given width:

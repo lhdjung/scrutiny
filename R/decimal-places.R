@@ -20,9 +20,9 @@
 #'   accurately; enter such numbers as strings.
 #'
 #' @param x Numeric, or a string coercible to numeric.
-#' @param sep String. The separator between integer part and mantissa, matched
-#'   literally. Default is `"."`. Only applies to strings; numbers are always
-#'   written with a point.
+#' @param sep String. The separator between the integer part and the decimal
+#'   places, matched literally. Default is `"."`. Only applies to strings;
+#'   numbers are always written with a point.
 #'
 #' @return Integer. The number of decimal places of each element of `x`.
 #'
@@ -217,11 +217,11 @@ decimal_places_scalar <- function(x, sep = ".") {
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, restricted by `check_numeric_like`.
 #' @param check_numeric_like Logical. If `TRUE` (the default), only columns
-#'   that [`is_numeric_like()`] accepts are processed. A column left out
-#'   causes a warning if `cols` is given, and any column processed although
-#'   it isn't numeric-like does, unless it has no values at all.
-#' @param sep String. The separator between integer part and mantissa, matched
-#'   literally. Default is `"."`.
+#'   that [`is_numeric_like()`] accepts are processed. A column that isn't
+#'   numeric-like gets a warning if `cols` is given and selects it, or if it is
+#'   processed anyway, unless it is empty.
+#' @param sep String. The separator between the integer part and the decimal
+#'   places, matched literally. Default is `"."`.
 #'
 #' @return Data frame with the selected columns replaced by their counts of
 #'   decimal places.

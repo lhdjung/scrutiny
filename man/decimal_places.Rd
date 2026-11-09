@@ -9,9 +9,9 @@ decimal_places(x, sep = ".")
 \arguments{
 \item{x}{Numeric, or a string coercible to numeric.}
 
-\item{sep}{String. The separator between integer part and mantissa, matched
-literally. Default is \code{"."}. Only applies to strings; numbers are always
-written with a point.}
+\item{sep}{String. The separator between the integer part and the decimal
+places, matched literally. Default is \code{"."}. Only applies to strings;
+numbers are always written with a point.}
 }
 \value{
 Integer. The number of decimal places of each element of \code{x}.

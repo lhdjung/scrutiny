@@ -37,11 +37,12 @@
 #'
 #' @details Unlike [`base::seq()`], these functions need not return a regular
 #'   sequence: `dispersion` can be any non-negative whole numbers, in any
-#'   order, such as `c(1, 4, 9)`. Steps of 0 and repeated steps are dropped.
+#'   order, such as `c(1, 4, 9)`. The values follow that order, mirrored around
+#'   `from`. Steps of 0 and repeated steps are dropped.
 #'
 #' @return
 #'   - `seq_disperse()` returns a numeric vector, which is integer if `from`
-#'   is an integer and the steps are whole numbers. With `track_diff_var =
+#'   is an integer and every value is a whole number. With `track_diff_var =
 #'   TRUE`, it returns a list of that vector and an integer vector of steps.
 #'   - `seq_disperse_df()` returns a tibble with the sequence in the `x`
 #'   column, the steps in `diff_var` if requested, and any columns added via
@@ -49,8 +50,8 @@
 #'
 #' @export
 #'
-#' @seealso [`disperse()`], which `seq_disperse()` combines aspects of with
-#'   [`base::seq()`].
+#' @seealso [`disperse()`] and [`base::seq()`], whose ideas `seq_disperse()`
+#'   combines.
 #'
 #' @examples
 #' seq_disperse(from = 4.02)

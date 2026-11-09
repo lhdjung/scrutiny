@@ -309,21 +309,16 @@ is_seq_basic <- function(
 #' @param test_linear Logical. Should linearity be tested as well? Default is
 #'   `TRUE`. Not in `is_seq_linear()`.
 #' @param tolerance Numeric. Tolerance for comparing values. Default is about
-#'   `1.5e-8`, as in [`dplyr::near()`]. Any tolerance is widened to the
-#'   rounding error of arithmetic on the values, at most about `4e-16` times
-#'   the largest, so `0` allows that error only, and large values such as
-#'   `123456789.01` are compared as precisely as doubles can. In
-#'   `is_seq_dispersed()`, a central value that is missing is worked out from
-#'   the known ones, step by step, and the error grows with each step, so the
-#'   comparison with `from` allows about `4e-16` times the largest value per
-#'   step to the center.
+#'   `1.5e-8`, as in [`dplyr::near()`]. It is never finer than the rounding
+#'   error of arithmetic on the values, so `0` allows that error only.
 #'
 #' @return Logical (length 1). If `x` contains `NA`:
 #'   - `NA` if some values substituted for the `NA`s would make `x` the kind of
-#'   sequence in question and others would not; `FALSE` if none would, e.g.,
-#'   because `x` is too short for it (two values for `is_seq_ascending()` and
-#'   `is_seq_descending()`, three for `is_seq_dispersed()`); and `TRUE` if all
-#'   would, as any one or two values are linear.
+#'   sequence in question and others would not.
+#'   - `FALSE` if none would, e.g., because `x` is too short for it (two values
+#'   for `is_seq_ascending()` and `is_seq_descending()`, three for
+#'   `is_seq_dispersed()`).
+#'   - `TRUE` if all would, as any one or two values are linear.
 #'
 #'   A missing `from` is handled the same way.
 #'

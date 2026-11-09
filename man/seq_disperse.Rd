@@ -65,7 +65,7 @@ from \code{from} be returned as well? Default is \code{FALSE}. If \code{TRUE},
 \value{
 \itemize{
 \item \code{seq_disperse()} returns a numeric vector, which is integer if \code{from}
-is an integer and the steps are whole numbers. With \code{track_diff_var =   TRUE}, it returns a list of that vector and an integer vector of steps.
+is an integer and every value is a whole number. With \code{track_diff_var =   TRUE}, it returns a list of that vector and an integer vector of steps.
 \item \code{seq_disperse_df()} returns a tibble with the sequence in the \code{x}
 column, the steps in \code{diff_var} if requested, and any columns added via
 the dots.
@@ -84,7 +84,8 @@ of \code{seq_disperse()} with a leading dot.
 \details{
 Unlike \code{\link[base:seq]{base::seq()}}, these functions need not return a regular
 sequence: \code{dispersion} can be any non-negative whole numbers, in any
-order, such as \code{c(1, 4, 9)}. Steps of 0 and repeated steps are dropped.
+order, such as \code{c(1, 4, 9)}. The values follow that order, mirrored around
+\code{from}. Steps of 0 and repeated steps are dropped.
 }
 \examples{
 seq_disperse(from = 4.02)
@@ -102,6 +103,6 @@ seq_disperse(from = 4.02, dispersion = c(2, 3, 7))
 seq_disperse_df(.from = 4.02, n = 45)
 }
 \seealso{
-\code{\link[=disperse]{disperse()}}, which \code{seq_disperse()} combines aspects of with
-\code{\link[base:seq]{base::seq()}}.
+\code{\link[=disperse]{disperse()}} and \code{\link[base:seq]{base::seq()}}, whose ideas \code{seq_disperse()}
+combines.
 }

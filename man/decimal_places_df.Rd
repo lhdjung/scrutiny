@@ -19,12 +19,12 @@ decimal_places_df(
 Default is \code{everything()}, restricted by \code{check_numeric_like}.}
 
 \item{check_numeric_like}{Logical. If \code{TRUE} (the default), only columns
-that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column left out
-causes a warning if \code{cols} is given, and any column processed although
-it isn't numeric-like does, unless it has no values at all.}
+that \code{\link[=is_numeric_like]{is_numeric_like()}} accepts are processed. A column that isn't
+numeric-like gets a warning if \code{cols} is given and selects it, or if it is
+processed anyway, unless it is empty.}
 
-\item{sep}{String. The separator between integer part and mantissa, matched
-literally. Default is \code{"."}.}
+\item{sep}{String. The separator between the integer part and the decimal
+places, matched literally. Default is \code{"."}.}
 }
 \value{
 Data frame with the selected columns replaced by their counts of
