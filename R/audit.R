@@ -12,8 +12,8 @@
 #' @param ... These dots must be empty.
 #' @param .by Optionally, columns of `data` to summarize by, selected as in
 #'   [`dplyr::select()`], such as `.by = study`. Each group is summarized on
-#'   its own, and the output has a row for each, starting with the grouping
-#'   columns. Groups appear in the order of their first row. Use this rather
+#'   its own, and its rows start with the grouping columns. Groups appear in the
+#'   order of their first row. Use this rather
 #'   than [`dplyr::group_by()`], which removes the class that `audit()`
 #'   dispatches on.
 #'

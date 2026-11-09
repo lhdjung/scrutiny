@@ -16,15 +16,14 @@
 #'   with the key result first.
 #' @param .reported String. Names of the arguments of `.fn` that take the
 #'   reported values, such as `c("x", "n")`. These become the key columns. May
-#'   be `NULL` if `.reported_variadic` is specified. A key or helper column
-#'   named `n`, `items_averaged`, or `absolute`, like the decimal counts of
-#'   `.args_by_row`, are taken to be whole numbers: a value within
-#'   floating-point noise of one, such as `100 * 0.29`, is rounded to it before
-#'   `.fn` sees it.
+#'   be `NULL` if `.reported_variadic` is specified. Key and helper columns
+#'   named `n`, `items_averaged`, or `absolute` are taken to be whole numbers,
+#'   as are the decimal counts of `.args_by_row`: a value within floating-point
+#'   noise of one, such as `100 * 0.29`, is rounded to it before `.fn` sees it.
 #' @param .reported_variadic Optionally, a single string naming an argument of
-#'   `.fn` that takes the values of one row as a vector. The new function gets
-#'   an argument by that name, without a default, that selects any number of
-#'   columns with tidyselect syntax. See *Details*.
+#'   `.fn` that takes the values of one row as a vector. The factory-made
+#'   function gets an argument by that name, without a default, that selects
+#'   any number of columns with tidyselect syntax. See *Details*.
 #' @param .name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #' @param .name_key_result (Experimental) String (length 1). Name of the key
@@ -32,16 +31,17 @@
 #' @param .name_class String. Optionally, one or more classes to add to the
 #'   output. Default is `NULL`; see *Details* for the class that is always
 #'   added.
-#' @param .args_disabled Optionally, names of arguments of `.fn` that the new
-#'   function should not have. Specifying one of them is an error.
+#' @param .args_disabled Optionally, names of arguments of `.fn` that the
+#'   factory-made function should not have. Specifying one of them is an error.
 #' @param .args_by_row Optionally, names of arguments of `.fn` that may vary
-#'   by row, such as `"digits_x"`. The new function takes a single value or one
-#'   per row of `data` for each, and returns them as columns. One whose name
-#'   starts with `digits_` is a decimal count, rounded and returned as integer
-#'   like `digits_x`.
+#'   by row, such as `"digits_x"`. The factory-made function takes a single
+#'   value or one per row of `data` for each. If one is left out, it is read
+#'   from a column of `data` by that name, if there is one. They are returned
+#'   as columns. One whose name starts with `digits_` is a decimal count,
+#'   rounded and returned as integer like `digits_x`.
 #' @param .args_fixed Optionally, a named list of values that are always passed
-#'   to `.fn`, such as `list(show_reason = TRUE)`. The new function has no
-#'   arguments for them; specifying one is an error.
+#'   to `.fn`, such as `list(show_reason = TRUE)`. The factory-made function
+#'   has no arguments for them; specifying one is an error.
 #' @param .cols_helper Optionally, names of arguments of `.fn` that may also be
 #'   given as columns of `data`, such as `"items_averaged"`. A helper column is
 #'   returned after the key columns if it was given, as a column or as an
@@ -59,23 +59,20 @@
 #'   row's values. The columns follow the key result column.
 #' @param ... These dots must be empty.
 #'
-#' @details The new function has an argument for every argument of `.fn` that
-#'   is not named in `.reported`, `.reported_variadic`, `.args_disabled`, or
-#'   `.args_fixed`, with the same default.
+#' @details `.reported_variadic` is for a test whose number of key columns
+#'   depends on the data, such as whether the values in any number of columns
+#'   add up to the value in another one. `.fn` takes those values as a single
+#'   vector, and the factory-made function selects the columns with tidyselect;
+#'   see *Examples*. The selection must not be empty and must not include a
+#'   column that already has a role in the test. The selected columns are
+#'   returned as themselves. Such a mapper cannot be wrapped by
+#'   [`function_map_seq()`] or [`function_map_total_n()`], which derive their
+#'   arguments from `.reported`.
 #'
-#'   `.reported_variadic` is for a test whose number of key columns depends on
-#'   the data, such as whether the values in any number of columns add up to
-#'   the value in another one. `.fn` takes those values as a single vector,
-#'   and the new function selects the columns with tidyselect; see *Examples*.
-#'   The selection must not be empty and must not include a column that already
-#'   has a role in the test. The selected columns are returned as themselves.
-#'   Such a mapper cannot be wrapped by [`function_map_seq()`] or
-#'   [`function_map_total_n()`], which derive their arguments from `.reported`.
-#'
-#'   The output has the class `"scrutiny_{tolower(.name_test)}_map"`, e.g.,
-#'   `"scrutiny_grim_map"`, in addition to any `.name_class`. The arguments that
-#'   applied to the whole call, such as `rounding`, are recorded on the output;
-#'   see [`scrutiny_meta()`].
+#'   The output has the class `"scrutiny_{tolower(.name_test)}_map"`, with
+#'   spaces as underscores, e.g., `"scrutiny_grim_map"`, in addition to any
+#'   `.name_class`. The arguments that applied to the whole call, such as
+#'   `rounding`, are recorded on the output; see [`scrutiny_meta()`].
 #'
 #' @return A function with these arguments:
 #' - `data`: a data frame with the key columns. Other columns are permitted.
@@ -84,15 +81,17 @@
 #' - One argument per `.reported` value, for naming a column of `data` that
 #'   holds that value under another name.
 #' - `...`: must be empty. Every argument after it must be named in full.
-#' - The other arguments of `.fn`, with the same defaults; see *Details*.
+#' - The other arguments of `.fn`, i.e., those not named in `.reported`,
+#'   `.reported_variadic`, `.args_disabled`, or `.args_fixed`, with the same
+#'   defaults.
 #'
 #' @section Value returned by the factory-made function: A tibble with the
 #'   `.reported_variadic` columns, the `.reported` columns, the helper columns
 #'   that were given, the `.args_by_row` columns, and the key result column
-#'   (`consistency` by default), which is `TRUE` for consistent value sets and
-#'   `FALSE` for inconsistent ones. Any `.cols_derived` columns, any
-#'   `.col_names` columns, and the other columns of `data` follow, in that
-#'   order.
+#'   (`consistency` by default), which is `TRUE` for consistent value sets,
+#'   `FALSE` for inconsistent ones, and `NA` if the test can't decide. Any
+#'   `.cols_derived` columns, any `.col_names` columns, and the other columns
+#'   of `data` follow, in that order.
 #'
 #' @include grim.R debit.R function-factory-helpers.R bind-rows.R
 #'

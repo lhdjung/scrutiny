@@ -1,8 +1,9 @@
 #' Reconstruct the input of a sequence mapper
 #'
 #' @description `reverse_map_seq()` takes the output of a function made by
-#'   [`function_map_seq()`] and reconstructs the data frame it was called on.
-#'   [`audit()`] builds on it for sequence output.
+#'   [`function_map_seq()`] and reconstructs the tested columns of the cases it
+#'   dispersed, without `digits_*`. [`audit()`] builds on it for sequence
+#'   output.
 #'
 #' @param data Data frame with the `"scrutiny_map_seq"` class.
 #'
@@ -10,7 +11,7 @@
 #'
 #' @export
 #'
-#' @return A tibble with the tested columns, one row per case.
+#' @return A tibble with the tested columns, one row per case in `data`.
 #'
 #' @examples
 #' pigs1
@@ -91,7 +92,7 @@ reverse_map_seq <- function(data) {
   # leave it untouched, and only recovered from its own dispersion when there
   # are none. This keeps the cases aligned even if `out_min` or `out_max`
   # clipped a variable's dispersion to nothing for one case. A case without
-  # any rows is not in the output, as in `audit_seq()`.
+  # any rows is not in the output, as in `audit()`.
   cases <- split(data, data$case)
 
   cols <- lapply(var, function(v) {
@@ -115,8 +116,8 @@ reverse_map_seq <- function(data) {
 
 
 # Rows that occur twice, as from binding an output to itself, would be counted
-# twice by `audit_seq()` and `audit_total_n()`. No two rows of a mapper's
-# output agree on all of `cols`. Shared with `reverse_map_total_n()`:
+# twice by `audit()`. No two rows of a mapper's output agree on all of `cols`.
+# Shared with `reverse_map_total_n()`:
 check_rows_unique <- function(data, cols) {
   if (anyDuplicated(data[cols]) > 0L) {
     abort_in_export(

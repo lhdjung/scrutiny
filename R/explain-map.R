@@ -6,7 +6,7 @@
 #'   [`grimmer_map()`], or [`debit_map()`] and adds an `explanation` column: the
 #'   calculation behind each row's result in plain words, as printed by
 #'   [`grim_explain()`], [`grimmer_explain()`], and [`debit_explain()`] for a
-#'   single case. This includes the output of the sequence and total-n mappers
+#'   single case. It also takes the output of the sequence and total-n mappers
 #'   built on them, such as [`grim_map_seq()`].
 #'
 #'   To read the explanations, use [`explain_print()`].
@@ -19,8 +19,8 @@
 #'   DEBIT explanations cover `formula = "exact"` only.
 #'
 #' @param data Data frame returned by one of the mappers named above.
-#' @param ... These dots must be empty. They allow methods for other classes to
-#'   take further arguments.
+#' @param ... Must be empty for scrutiny's methods; methods for other classes
+#'   may use them.
 #'
 #' @return `data` with an `explanation` column, a string per row.
 #'

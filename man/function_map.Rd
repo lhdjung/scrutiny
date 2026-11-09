@@ -27,11 +27,10 @@ with the key result first.}
 
 \item{.reported}{String. Names of the arguments of \code{.fn} that take the
 reported values, such as \code{c("x", "n")}. These become the key columns. May
-be \code{NULL} if \code{.reported_variadic} is specified. A key or helper column
-named \code{n}, \code{items_averaged}, or \code{absolute}, like the decimal counts of
-\code{.args_by_row}, are taken to be whole numbers: a value within
-floating-point noise of one, such as \code{100 * 0.29}, is rounded to it before
-\code{.fn} sees it.}
+be \code{NULL} if \code{.reported_variadic} is specified. Key and helper columns
+named \code{n}, \code{items_averaged}, or \code{absolute} are taken to be whole numbers,
+as are the decimal counts of \code{.args_by_row}: a value within floating-point
+noise of one, such as \code{100 * 0.29}, is rounded to it before \code{.fn} sees it.}
 
 \item{.name_test}{String (length 1). Plain-text name of the test, such as
 \code{"GRIM"}.}
@@ -43,18 +42,19 @@ result column. Default is \code{"consistency"}.}
 output. Default is \code{NULL}; see \emph{Details} for the class that is always
 added.}
 
-\item{.args_disabled}{Optionally, names of arguments of \code{.fn} that the new
-function should not have. Specifying one of them is an error.}
+\item{.args_disabled}{Optionally, names of arguments of \code{.fn} that the
+factory-made function should not have. Specifying one of them is an error.}
 
 \item{.args_by_row}{Optionally, names of arguments of \code{.fn} that may vary
-by row, such as \code{"digits_x"}. The new function takes a single value or one
-per row of \code{data} for each, and returns them as columns. One whose name
-starts with \code{digits_} is a decimal count, rounded and returned as integer
-like \code{digits_x}.}
+by row, such as \code{"digits_x"}. The factory-made function takes a single
+value or one per row of \code{data} for each. If one is left out, it is read
+from a column of \code{data} by that name, if there is one. They are returned
+as columns. One whose name starts with \code{digits_} is a decimal count,
+rounded and returned as integer like \code{digits_x}.}
 
 \item{.args_fixed}{Optionally, a named list of values that are always passed
-to \code{.fn}, such as \code{list(show_reason = TRUE)}. The new function has no
-arguments for them; specifying one is an error.}
+to \code{.fn}, such as \code{list(show_reason = TRUE)}. The factory-made function
+has no arguments for them; specifying one is an error.}
 
 \item{.cols_helper}{Optionally, names of arguments of \code{.fn} that may also be
 given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
@@ -75,9 +75,9 @@ value per row; a \code{.reported_variadic} argument comes as a list of each
 row's values. The columns follow the key result column.}
 
 \item{.reported_variadic}{Optionally, a single string naming an argument of
-\code{.fn} that takes the values of one row as a vector. The new function gets
-an argument by that name, without a default, that selects any number of
-columns with tidyselect syntax. See \emph{Details}.}
+\code{.fn} that takes the values of one row as a vector. The factory-made
+function gets an argument by that name, without a default, that selects
+any number of columns with tidyselect syntax. See \emph{Details}.}
 
 \item{...}{These dots must be empty.}
 }
@@ -90,7 +90,9 @@ A function with these arguments:
 \item One argument per \code{.reported} value, for naming a column of \code{data} that
 holds that value under another name.
 \item \code{...}: must be empty. Every argument after it must be named in full.
-\item The other arguments of \code{.fn}, with the same defaults; see \emph{Details}.
+\item The other arguments of \code{.fn}, i.e., those not named in \code{.reported},
+\code{.reported_variadic}, \code{.args_disabled}, or \code{.args_fixed}, with the same
+defaults.
 }
 }
 \description{
@@ -106,32 +108,29 @@ mappers with \code{function_map()}}.
 with a NEWS entry.
 }
 \details{
-The new function has an argument for every argument of \code{.fn} that
-is not named in \code{.reported}, \code{.reported_variadic}, \code{.args_disabled}, or
-\code{.args_fixed}, with the same default.
+\code{.reported_variadic} is for a test whose number of key columns
+depends on the data, such as whether the values in any number of columns
+add up to the value in another one. \code{.fn} takes those values as a single
+vector, and the factory-made function selects the columns with tidyselect;
+see \emph{Examples}. The selection must not be empty and must not include a
+column that already has a role in the test. The selected columns are
+returned as themselves. Such a mapper cannot be wrapped by
+\code{\link[=function_map_seq]{function_map_seq()}} or \code{\link[=function_map_total_n]{function_map_total_n()}}, which derive their
+arguments from \code{.reported}.
 
-\code{.reported_variadic} is for a test whose number of key columns depends on
-the data, such as whether the values in any number of columns add up to
-the value in another one. \code{.fn} takes those values as a single vector,
-and the new function selects the columns with tidyselect; see \emph{Examples}.
-The selection must not be empty and must not include a column that already
-has a role in the test. The selected columns are returned as themselves.
-Such a mapper cannot be wrapped by \code{\link[=function_map_seq]{function_map_seq()}} or
-\code{\link[=function_map_total_n]{function_map_total_n()}}, which derive their arguments from \code{.reported}.
-
-The output has the class \code{"scrutiny_{tolower(.name_test)}_map"}, e.g.,
-\code{"scrutiny_grim_map"}, in addition to any \code{.name_class}. The arguments that
-applied to the whole call, such as \code{rounding}, are recorded on the output;
-see \code{\link[=scrutiny_meta]{scrutiny_meta()}}.
+The output has the class \code{"scrutiny_{tolower(.name_test)}_map"}, with
+spaces as underscores, e.g., \code{"scrutiny_grim_map"}, in addition to any
+\code{.name_class}. The arguments that applied to the whole call, such as
+\code{rounding}, are recorded on the output; see \code{\link[=scrutiny_meta]{scrutiny_meta()}}.
 }
 \section{Value returned by the factory-made function}{
  A tibble with the
 \code{.reported_variadic} columns, the \code{.reported} columns, the helper columns
 that were given, the \code{.args_by_row} columns, and the key result column
-(\code{consistency} by default), which is \code{TRUE} for consistent value sets and
-\code{FALSE} for inconsistent ones. Any \code{.cols_derived} columns, any
-\code{.col_names} columns, and the other columns of \code{data} follow, in that
-order.
+(\code{consistency} by default), which is \code{TRUE} for consistent value sets,
+\code{FALSE} for inconsistent ones, and \code{NA} if the test can't decide. Any
+\code{.cols_derived} columns, any \code{.col_names} columns, and the other columns
+of \code{data} follow, in that order.
 }
 
 \examples{

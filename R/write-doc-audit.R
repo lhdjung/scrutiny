@@ -10,7 +10,8 @@
 #'   empty lines around the pasted text.
 #'
 #' @param sample_output Data frame. The result of `audit()` on the mapper's
-#'   output, such as `audit(grim_map(pigs1, digits_x = 2, items_averaged = 1))`.
+#'   output, such as `audit(grim_map(pigs1, digits_x = 2, items_averaged = 1,
+#'   data_type = "integer"))`.
 #' @param name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
 #'
@@ -37,7 +38,7 @@ write_doc_audit <- function(sample_output, name_test) {
       "i" = "(These outputs always have at least three columns.)",
       "i" = "Create it like this:",
       "pigs1 |>
-           grim_map(digits_x = 2, items_averaged = 1) |>
+           grim_map(digits_x = 2, items_averaged = 1, data_type = \"integer\") |>
            audit() |>
            write_doc_audit(name_test = \"GRIM\")"
     )
@@ -106,6 +107,8 @@ write_doc_audit <- function(sample_output, name_test) {
 #'   function's output.
 #' @param name_test String (length 1). Plain-text name of the test, such as
 #'   `"GRIM"`.
+#' @param helpers String. Names of the helper columns, such as
+#'   `c("items_averaged", "data_type")`. Default is none.
 #'
 #' @include utils.R
 #'
@@ -117,44 +120,62 @@ write_doc_audit <- function(sample_output, name_test) {
 #'   `vignette("consistency-tests-in-depth")`.
 #'
 #' @examples
-#' write_doc_audit_seq(key_args = c("x", "n"), name_test = "GRIM")
+#' write_doc_audit_seq(
+#'   key_args = c("x", "n"),
+#'   name_test = "GRIM",
+#'   helpers = c("items_averaged", "data_type")
+#' )
 #'
-#' write_doc_audit_seq(key_args = c("x", "sd", "n"), name_test = "DEBIT")
+#' write_doc_audit_seq(
+#'   key_args = c("x", "sd", "n"),
+#'   name_test = "DEBIT",
+#'   helpers = "data_type"
+#' )
 
-write_doc_audit_seq <- function(key_args, name_test) {
+write_doc_audit_seq <- function(key_args, name_test, helpers = character()) {
   check_length(name_test, 1L)
 
   key_args_bt <- wrap_in_backticks(key_args)
   arg1 <- key_args[1L]
   hits <- paste(wrap_in_backticks(paste0("hits_", key_args)), collapse = ", ")
-  diff_others <- commas_and(wrap_in_backticks(paste0(
-    "diff_",
-    key_args[-1L],
-    "*"
-  )))
   vars <- commas_and(key_args_bt)
-  others <- commas_and(key_args_bt[-1L])
+  helpers_bt <- if (length(helpers) > 0L) wrap_in_backticks(helpers)
+  with_cols <- commas_and(c(helpers_bt, "their `consistency`"))
+  respectively <- if (length(key_args) > 1L) ", respectively" else ""
+
+  # One line per further variable, with its three columns spelled out:
+  diff_others <- vapply(
+    key_args[-1L],
+    function(var) {
+      cols <- paste0("diff_", var, c("", "_up", "_down"))
+      paste0(
+        "#'   - ",
+        paste(wrap_in_backticks(cols), collapse = ", "),
+        ": the same for `",
+        var,
+        "`.\n"
+      )
+    },
+    character(1L)
+  )
+  diff_lines <- paste(diff_others, collapse = "")
 
   glue::glue(
     "#' @section Summaries with [`audit()`]: `audit()` on\n",
     "#'   `{tolower(name_test)}_map_seq()` output returns a tibble with one row per case and\n",
     "#'   these columns:\n",
-    "#'   - {vars}: the reported values, with any helper columns, such as\n",
-    "#'   `items_averaged`, and their `consistency`.\n",
+    "#'   - {vars}: the reported values, with {with_cols}.\n",
     "#'   - `hits_total`: the number of {name_test}-consistent value sets found within\n",
     "#'   the `dispersion` range.\n",
-    "#'   - {hits}: the number found by varying each variable. If both\n",
+    "#'   - {hits}: the number found by varying {vars}{respectively}. If both\n",
     "#'   `include_reported` and `include_consistent` are `TRUE`, a consistent\n",
     "#'   reported value set is counted as well: once per variable here, and\n",
     "#'   once in `hits_total`.\n",
     "#'   - `diff_{arg1}`: the distance from `{arg1}` to the nearest consistent dispersed\n",
     "#'   value, in dispersion steps. `diff_{arg1}_up` and `diff_{arg1}_down` are the\n",
-    "#'   distances to the nearest consistent value above and below.\n",
-    if (length(key_args) > 1L) {
-      "#'   - {diff_others}: the same for {others}.\n"
-    } else {
-      ""
-    },
+    "#'   signed steps to the nearest consistent value above and below (`_down` is\n",
+    "#'   negative).\n",
+    "{diff_lines}",
     "#'\n",
     "#'   A count or distance is `NA` if it depends on a dispersed value set whose\n",
     "#'   consistency is `NA`, on a variable whose reported value is missing, which\n",
@@ -229,21 +250,21 @@ write_doc_audit_total_n <- function(key_args, name_test) {
     "#' @section Summaries with [`audit()`]: `audit()` on\n",
     "#'   `{tolower(name_test)}_map_total_n()` output returns a tibble with one row per case and\n",
     "#'   these columns:\n",
-    "#'  - {key_args_all}: the reported values.\n",
-    "#'  - `hits_total`: the number of splits in which both groups are\n",
-    "#'  {name_test}-consistent, summing `hits_forth` and `hits_back`.\n",
-    "#'  - `hits_forth`: the number of such splits with {key_args_num2} paired with\n",
-    "#'  the larger group.\n",
-    "#'  - `hits_back`: the same with {key_args_num1} paired with the larger group.\n",
-    "#'  - `scenarios_total`: the number of splits tested, leaving out those that\n",
-    "#'  could not be decided.\n",
-    "#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could\n",
-    "#'  be decided.\n",
+    "#'   - {key_args_all}: the reported values.\n",
+    "#'   - `hits_total`: the number of splits in which both groups are\n",
+    "#'   {name_test}-consistent, summing `hits_forth` and `hits_back`.\n",
+    "#'   - `hits_forth`: the number of such splits with {key_args_num2} paired with\n",
+    "#'   the larger group.\n",
+    "#'   - `hits_back`: the same with {key_args_num1} paired with the larger group.\n",
+    "#'   - `scenarios_total`: the number of splits tested, leaving out those that\n",
+    "#'   could not be decided.\n",
+    "#'   - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could\n",
+    "#'   be decided.\n",
     "#'\n",
-    "#'  A count is `NA` if it depends on a split that could not be decided, or on\n",
-    "#'  rows removed from the output, as by `filter()`.\n",
+    "#'   A count is `NA` if it depends on a split that could not be decided, or on\n",
+    "#'   rows removed from the output, as by `filter()`.\n",
     "#'\n",
-    "#'  Call `audit()` again on that summary to summarize these columns\n",
-    "#'  further.\n"
+    "#'   Call `audit()` again on that summary to summarize these columns\n",
+    "#'   further.\n"
   )
 }

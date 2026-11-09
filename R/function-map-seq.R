@@ -126,12 +126,12 @@ function_map_seq_proto <- function(
 #' @param .reported String. All variables the factory-made function can
 #'   disperse.
 #' @param .name_test String (length 1). Plain-text name of the test, such as
-#'   `"GRIM"`, for messages.
+#'   `"GRIM"`, for messages and the output's class.
 #' @param .name_key_result (Experimental) String (length 1). Name of the key
 #'   result column. Default is `"consistency"`. Must be the value that `.fn`
 #'   was created with.
-#' @param .name_class String. Optionally, a class to add to the output. Default
-#'   is `NULL`.
+#' @param .name_class String. Optionally, one or more classes to add to the
+#'   output. Default is `NULL`.
 #' @param .args_disabled String. Optionally, names of arguments of `.fn` that
 #'   the factory-made function should reject.
 #' @param .dispersion Numeric. Steps up and down from the reported values, in
@@ -160,9 +160,7 @@ function_map_seq_proto <- function(
 #'   overridden in each call.
 #'
 #'   Each variable in `var` is dispersed around its own reported value while
-#'   the others stay as reported. This is what distinguishes sequence mappers
-#'   from the `*_map_total_n()` family, which varies a pair of group sizes
-#'   jointly.
+#'   the others stay as reported.
 #'
 #'   To export a factory-made function from another package, follow the
 #'   [purrr FAQ on adverbs](https://purrr.tidyverse.org/reference/faq-adverbs-export.html);
@@ -171,7 +169,7 @@ function_map_seq_proto <- function(
 #'
 #' @return A function such as these:
 #'
-#'   | \strong{Manufactured function}   | \strong{Dispersed variables}         | \strong{Test vignette}
+#'   | \strong{Factory-made function}   | \strong{Dispersed variables}         | \strong{Test vignette}
 #'   | ---                              | ---                                  | ---
 #'   | [`grim_map_seq()`]               | `"x"`, `"n"`                         | `vignette("grim-in-depth")`
 #'   | [`grimmer_map_seq()`]            | `"x"`, `"sd"`, `"n"`                 | `vignette("grimmer-in-depth")`
@@ -188,9 +186,10 @@ function_map_seq_proto <- function(
 #' @export
 #'
 #' @section Conventions: Name the factory-made function after `.fn` with
-#'   `_seq` appended, as in [`grim_map_seq()`] from [`grim_map()`]. If you add
-#'   a class via `.name_class`, name it after the function with the package
-#'   name as prefix, as in `scrutiny_grim_map_seq`.
+#'   `_seq` appended, as in [`grim_map_seq()`] from [`grim_map()`]. The output
+#'   has the classes `"scrutiny_map_seq"` and
+#'   `"scrutiny_{tolower(.name_test)}_map_seq"`. Prefix any class you add via
+#'   `.name_class` with your package's name, as in `"mypkg_schlim_map_seq"`.
 #'
 #' @examples
 #' # Function definition of `grim_map_seq()`:

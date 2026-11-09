@@ -5,15 +5,21 @@
 #' must mirror `fn`'s, minus `show_rec` and `show_reason`:
 #'
 #' ```
-#' grim <- function(x, n, digits_x, items_averaged, x_meaning = c("mean", "percentage"), ...) {
-#'   map_value_sets(grim_scalar, c("x", "n", "digits_x", "items_averaged"))
+#' grim <- function(x, n, digits_x, items_averaged, data_type,
+#'                  x_meaning = c("mean", "percentage"),
+#'                  rounding = "up_or_down", threshold = 5, symmetric = FALSE) {
+#'   map_value_sets(
+#'     grim_scalar,
+#'     c("x", "n", "digits_x", "items_averaged", "data_type")
+#'   )
 #' }
 #' ```
 #'
 #' @param fn The `*_scalar()` function to apply, e.g. `grim_scalar()`.
 #' @param along String vector naming the arguments to vectorize over: the key
-#'   arguments, their `digits_*` arguments, and `items_averaged` where the test
-#'   has it. Every other argument must be length 1. This is the mapper tier's
+#'   arguments, their `digits_*` arguments, and the helper arguments
+#'   `items_averaged` and `data_type` where the test has them. Every other
+#'   argument must be length 1. This is the mapper tier's
 #'   split: `along` is what `function_map()` takes from `data`, the rest is
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the

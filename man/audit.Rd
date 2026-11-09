@@ -13,8 +13,8 @@ audit(data, ..., .by = NULL)
 
 \item{.by}{Optionally, columns of \code{data} to summarize by, selected as in
 \code{\link[dplyr:select]{dplyr::select()}}, such as \code{.by = study}. Each group is summarized on
-its own, and the output has a row for each, starting with the grouping
-columns. Groups appear in the order of their first row. Use this rather
+its own, and its rows start with the grouping columns. Groups appear in the
+order of their first row. Use this rather
 than \code{\link[dplyr:group_by]{dplyr::group_by()}}, which removes the class that \code{audit()}
 dispatches on.}
 }

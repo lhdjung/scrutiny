@@ -339,6 +339,8 @@ check_factory_arg_names <- function(names, formals_fn, fn_name, arg_name) {
 #' @param col_names String vector with the names of the columns that the
 #'   `*_scalar()` function's list of values unpacks into, key result first. It
 #'   is the `.col_names` argument of `function_map()`, and may be `NULL`.
+#' @param fn_name String (length 1). Name of the `*_scalar()` function, for
+#'   messages.
 #'
 #' @return Named list of columns.
 #'
@@ -439,7 +441,7 @@ check_fn_results <- function(keys, fn_name) {
 #'   set of columns that could be guessed at.
 #'
 #' @return Function `fn` with new arguments, named after `reported`, with
-#'   `NULL` as the default for each.
+#'   `NULL` as the default for each, led by `variadic` without a default.
 #'
 #' @noRd
 insert_key_args <- function(fn, reported, insert_after = 1L, variadic = NULL) {

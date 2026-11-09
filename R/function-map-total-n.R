@@ -197,16 +197,16 @@ function_map_total_n_proto <- function(
 #'   DEBIT. In the input of the factory-made function, each appears as two
 #'   columns with the suffixes `1` and `2`, such as `x1` and `x2`.
 #' @param .name_test String (length 1). Plain-text name of the test, such as
-#'   `"GRIM"`, for messages.
+#'   `"GRIM"`, for messages and the output's class.
 #' @param .name_key_result (Experimental) String (length 1). Name of the key
 #'   result column. Default is `"consistency"`. Must be the value that `.fn`
 #'   was created with.
-#' @param .name_class String. Optionally, a class to add to the output. Default
-#'   is `NULL`.
+#' @param .name_class String. Optionally, one or more classes to add to the
+#'   output. Default is `NULL`.
 #' @param .dispersion,.n_min,.n_max,.constant Passed on to
 #'   [`disperse_total()`], with the defaults from there. `.n_min` may also be
 #'   a function of the settings of `.fn`, as a named list, that returns the
-#'   default `n_min` for a call; the manufactured function's `n_min` then
+#'   default `n_min` for a call; the factory-made function's `n_min` then
 #'   defaults to `NULL`, which stands for that value.
 #' @param ... These dots must be empty.
 #'
@@ -222,7 +222,7 @@ function_map_total_n_proto <- function(
 #'
 #' @return A function such as these:
 #'
-#'   | \strong{Manufactured function}   | \strong{Reported statistics}  | \strong{Test vignette}
+#'   | \strong{Factory-made function}   | \strong{Reported statistics}  | \strong{Test vignette}
 #'   | ---                              | ---                           | ---
 #'   | [`grim_map_total_n()`]           | `"x"`                         | `vignette("grim-in-depth")`
 #'   | [`grimmer_map_total_n()`]        | `"x"`, `"sd"`                 | `vignette("grimmer-in-depth")`
@@ -235,9 +235,11 @@ function_map_total_n_proto <- function(
 #'   without `...` of its own.
 #'
 #' @section Conventions: Name the factory-made function after `.fn` with
-#'   `_total_n` appended, as in [`grim_map_total_n()`] from [`grim_map()`]. If
-#'   you add a class via `.name_class`, name it after the function with the
-#'   package name as prefix, as in `scrutiny_grim_map_total_n`.
+#'   `_total_n` appended, as in [`grim_map_total_n()`] from [`grim_map()`]. The
+#'   output has the classes `"scrutiny_map_total_n"` and
+#'   `"scrutiny_{tolower(.name_test)}_map_total_n"`. Prefix any class you add
+#'   via `.name_class` with your package's name, as in
+#'   `"mypkg_schlim_map_total_n"`.
 #'
 #' @seealso [`function_map_seq()`]
 #'

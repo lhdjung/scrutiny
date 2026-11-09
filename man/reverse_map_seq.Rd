@@ -10,12 +10,13 @@ reverse_map_seq(data)
 \item{data}{Data frame with the \code{"scrutiny_map_seq"} class.}
 }
 \value{
-A tibble with the tested columns, one row per case.
+A tibble with the tested columns, one row per case in \code{data}.
 }
 \description{
 \code{reverse_map_seq()} takes the output of a function made by
-\code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the data frame it was called on.
-\code{\link[=audit]{audit()}} builds on it for sequence output.
+\code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the tested columns of the cases it
+dispersed, without \verb{digits_*}. \code{\link[=audit]{audit()}} builds on it for sequence
+output.
 }
 \examples{
 pigs1

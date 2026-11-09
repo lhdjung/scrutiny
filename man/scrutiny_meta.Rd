@@ -38,7 +38,7 @@ mappers, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, add their own sett
 Printed output of \code{\link[=grim_map]{grim_map()}}, \code{\link[=grimmer_map]{grimmer_map()}}, \code{\link[=debit_map]{debit_map()}}, or
 \code{\link[=percentage_of_map]{percentage_of_map()}}, including sequence and total-n output, has a
 header line that names the settings that are not at their defaults, as in
-\verb{# GRIM: rounding = "up"}.
+\verb{# GRIM: rounding = "up"}, or says \verb{default settings}.
 
 Some dplyr verbs, such as \code{summarise()}, drop the record, and with it the
 header line; \code{filter()}, \code{arrange()}, and \code{mutate()} keep it.

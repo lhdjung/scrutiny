@@ -33,14 +33,14 @@ by default. Defaults to \code{.reported}.}
 disperse.}
 
 \item{.name_test}{String (length 1). Plain-text name of the test, such as
-\code{"GRIM"}, for messages.}
+\code{"GRIM"}, for messages and the output's class.}
 
 \item{.name_key_result}{(Experimental) String (length 1). Name of the key
 result column. Default is \code{"consistency"}. Must be the value that \code{.fn}
 was created with.}
 
-\item{.name_class}{String. Optionally, a class to add to the output. Default
-is \code{NULL}.}
+\item{.name_class}{String. Optionally, one or more classes to add to the
+output. Default is \code{NULL}.}
 
 \item{.args_disabled}{String. Optionally, names of arguments of \code{.fn} that
 the factory-made function should reject.}
@@ -71,7 +71,7 @@ dispersed as well? Default is \code{FALSE}.}
 }
 \value{
 A function such as these:\tabular{lll}{
-   \strong{Manufactured function} \tab \strong{Dispersed variables} \tab \strong{Test vignette} \cr
+   \strong{Factory-made function} \tab \strong{Dispersed variables} \tab \strong{Test vignette} \cr
    \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"x"}, \code{"n"} \tab \code{vignette("grim-in-depth")} \cr
    \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("grimmer-in-depth")} \cr
    \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"x"}, \code{"sd"}, \code{"n"} \tab \code{vignette("debit")} \cr
@@ -102,9 +102,7 @@ corresponding arguments of the factory-made function, which can be
 overridden in each call.
 
 Each variable in \code{var} is dispersed around its own reported value while
-the others stay as reported. This is what distinguishes sequence mappers
-from the \verb{*_map_total_n()} family, which varies a pair of group sizes
-jointly.
+the others stay as reported.
 
 To export a factory-made function from another package, follow the
 \href{https://purrr.tidyverse.org/reference/faq-adverbs-export.html}{purrr FAQ on adverbs};
@@ -113,9 +111,10 @@ export}.
 }
 \section{Conventions}{
  Name the factory-made function after \code{.fn} with
-\verb{_seq} appended, as in \code{\link[=grim_map_seq]{grim_map_seq()}} from \code{\link[=grim_map]{grim_map()}}. If you add
-a class via \code{.name_class}, name it after the function with the package
-name as prefix, as in \code{scrutiny_grim_map_seq}.
+\verb{_seq} appended, as in \code{\link[=grim_map_seq]{grim_map_seq()}} from \code{\link[=grim_map]{grim_map()}}. The output
+has the classes \code{"scrutiny_map_seq"} and
+\code{"scrutiny_{tolower(.name_test)}_map_seq"}. Prefix any class you add via
+\code{.name_class} with your package's name, as in \code{"mypkg_schlim_map_seq"}.
 }
 
 \examples{

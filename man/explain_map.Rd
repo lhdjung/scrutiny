@@ -9,8 +9,8 @@ explain_map(data, ...)
 \arguments{
 \item{data}{Data frame returned by one of the mappers named above.}
 
-\item{...}{These dots must be empty. They allow methods for other classes to
-take further arguments.}
+\item{...}{Must be empty for scrutiny's methods; methods for other classes
+may use them.}
 }
 \value{
 \code{data} with an \code{explanation} column, a string per row.
@@ -22,7 +22,7 @@ take further arguments.}
 \code{\link[=grimmer_map]{grimmer_map()}}, or \code{\link[=debit_map]{debit_map()}} and adds an \code{explanation} column: the
 calculation behind each row's result in plain words, as printed by
 \code{\link[=grim_explain]{grim_explain()}}, \code{\link[=grimmer_explain]{grimmer_explain()}}, and \code{\link[=debit_explain]{debit_explain()}} for a
-single case. This includes the output of the sequence and total-n mappers
+single case. It also takes the output of the sequence and total-n mappers
 built on them, such as \code{\link[=grim_map_seq]{grim_map_seq()}}.
 
 To read the explanations, use \code{\link[=explain_print]{explain_print()}}.

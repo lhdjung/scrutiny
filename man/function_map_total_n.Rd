@@ -28,26 +28,26 @@ DEBIT. In the input of the factory-made function, each appears as two
 columns with the suffixes \code{1} and \code{2}, such as \code{x1} and \code{x2}.}
 
 \item{.name_test}{String (length 1). Plain-text name of the test, such as
-\code{"GRIM"}, for messages.}
+\code{"GRIM"}, for messages and the output's class.}
 
 \item{.name_key_result}{(Experimental) String (length 1). Name of the key
 result column. Default is \code{"consistency"}. Must be the value that \code{.fn}
 was created with.}
 
-\item{.name_class}{String. Optionally, a class to add to the output. Default
-is \code{NULL}.}
+\item{.name_class}{String. Optionally, one or more classes to add to the
+output. Default is \code{NULL}.}
 
 \item{.dispersion, .n_min, .n_max, .constant}{Passed on to
 \code{\link[=disperse_total]{disperse_total()}}, with the defaults from there. \code{.n_min} may also be
 a function of the settings of \code{.fn}, as a named list, that returns the
-default \code{n_min} for a call; the manufactured function's \code{n_min} then
+default \code{n_min} for a call; the factory-made function's \code{n_min} then
 defaults to \code{NULL}, which stands for that value.}
 
 \item{...}{These dots must be empty.}
 }
 \value{
 A function such as these:\tabular{lll}{
-   \strong{Manufactured function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
+   \strong{Factory-made function} \tab \strong{Reported statistics} \tab \strong{Test vignette} \cr
    \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"x"} \tab \code{vignette("grim-in-depth")} \cr
    \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("grimmer-in-depth")} \cr
    \code{\link[=debit_map_total_n]{debit_map_total_n()}} \tab \code{"x"}, \code{"sd"} \tab \code{vignette("debit")} \cr
@@ -81,9 +81,11 @@ export}.
 }
 \section{Conventions}{
  Name the factory-made function after \code{.fn} with
-\verb{_total_n} appended, as in \code{\link[=grim_map_total_n]{grim_map_total_n()}} from \code{\link[=grim_map]{grim_map()}}. If
-you add a class via \code{.name_class}, name it after the function with the
-package name as prefix, as in \code{scrutiny_grim_map_total_n}.
+\verb{_total_n} appended, as in \code{\link[=grim_map_total_n]{grim_map_total_n()}} from \code{\link[=grim_map]{grim_map()}}. The
+output has the classes \code{"scrutiny_map_total_n"} and
+\code{"scrutiny_{tolower(.name_test)}_map_total_n"}. Prefix any class you add
+via \code{.name_class} with your package's name, as in
+\code{"mypkg_schlim_map_total_n"}.
 }
 
 \examples{

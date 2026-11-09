@@ -17,7 +17,7 @@
 #'   Printed output of [`grim_map()`], [`grimmer_map()`], [`debit_map()`], or
 #'   [`percentage_of_map()`], including sequence and total-n output, has a
 #'   header line that names the settings that are not at their defaults, as in
-#'   `# GRIM: rounding = "up"`.
+#'   `# GRIM: rounding = "up"`, or says `default settings`.
 #'
 #'   Some dplyr verbs, such as `summarise()`, drop the record, and with it the
 #'   header line; `filter()`, `arrange()`, and `mutate()` keep it.
