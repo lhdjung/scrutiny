@@ -51,6 +51,7 @@ grimmer_explain <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
+  check_args_given(c("x", "sd", "n"))
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)

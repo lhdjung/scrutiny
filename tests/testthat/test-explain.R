@@ -499,3 +499,11 @@ test_that("the population SD is mentioned under `\"sd_sample_or_pop\"` even if i
     gsub(pattern = "\\s+", replacement = " ") |>
     expect_match("population SD, which divides by n rather than n - 1. The same holds for it")
 })
+
+
+test_that("a missing argument without a default is named in order", {
+  5.19 |> grim_explain(digits_x = 2, items_averaged = 1, data_type = "integer") |> expect_error("Need to specify `n`")
+  0.3  |> debit_explain(n = 20)                                                  |> expect_error("Need to specify `sd`")
+  5.19 |> grim_plot_line()                                                       |> expect_error("Need to specify `n`")
+  5.19 |> grimmer_plot_line(n = 20)                                              |> expect_error("Need to specify `sd`")
+})

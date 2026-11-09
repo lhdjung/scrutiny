@@ -165,3 +165,23 @@ test_that("the example in the `percentage_of()` error is consistent", {
   1 |> percentage_of(20, 5) |> msg_error() |> gsub(pattern = "\\s+", replacement = " ") |> expect_match("percentage_of(absolute = 15, percentage = 12.5, n = 120, digits_percentage = 2)", fixed = TRUE)
   percentage_of(absolute = 15, percentage = 12.5, n = 120, digits_percentage = 2) |> expect_true()
 })
+
+
+test_that("only the exports of 0.6.1 tell the story of the quotes", {
+  5.19 |> grim(28, items_averaged = 1, data_type = "integer")        |> expect_error("replaces the quotes")
+  5.19 |> grim_values(28, items_averaged = 1, data_type = "integer") |> expect_error("Need to specify `digits_x`")
+  msg <- 5.19 |> grim_values(28, items_averaged = 1, data_type = "integer") |> tryCatch(error = conditionMessage)
+  msg |> grepl(pattern = "quotes|changelog") |> expect_false()
+  # The example for `digits_sd` shows an SD:
+  5.19 |> grimmer_closest(1.2, 28, 2, items_averaged = 1, data_type = "integer") |> expect_error("with 0.62 \\(two")
+  0.3  |> debit_explain(0.46, 28, 1, data_type = "integer")                       |> expect_error("with 0.48 \\(two")
+})
+
+
+test_that("a string `x` gets a hint at converting it, other types a plain error", {
+  "5.19" |> grim(28, 2, 1, "integer")        |> expect_error("as.numeric")
+  "5.19" |> grim_values(28, 2, 1, "integer") |> expect_error("as.numeric")
+  msg <- TRUE |> grim(28, 2, 1, "integer") |> tryCatch(error = conditionMessage)
+  msg |> grepl(pattern = "must be numeric\\.") |> expect_true()
+  msg |> grepl(pattern = "1.0.0|as.numeric") |> expect_false()
+})

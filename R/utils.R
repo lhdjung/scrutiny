@@ -748,15 +748,22 @@ check_newly_numeric <- function(
 }
 
 
-# The lifecycle message for the exports in `EXPORTS_STRING_NUMBERS`, a plain
-# one for the others:
+# The lifecycle message for a string given to an export in
+# `EXPORTS_STRING_NUMBERS`, a plain one otherwise:
 stop_string_number <- function(x, name_x, caller_name, caller_frame) {
   name_digits <- paste0("digits_", name_x)
-  if (!caller_name %in% EXPORTS_STRING_NUMBERS) {
+  # A string still shows its trailing zeros, so count them before converting:
+  msg_convert <- paste0(
+    "Count its decimal places with `decimal_places()` while it is still a ",
+    "string, give them as `",
+    name_digits,
+    "`, and convert it with `as.numeric()`."
+  )
+  if (!is.character(x) || !caller_name %in% EXPORTS_STRING_NUMBERS) {
     abort_in_export(
       "`{name_x}` must be numeric.",
       "x" = "It is {.obj_type_friendly {x}}.",
-      "i" = "Give its decimal places in `{name_digits}`."
+      "i" = if (is.character(x)) msg_convert
     )
   }
   name_fn <- paste0("scrutiny::", caller_name)
@@ -770,11 +777,7 @@ stop_string_number <- function(x, name_x, caller_name, caller_frame) {
     when = "1.0.0",
     what = msg_what,
     details = c(
-      paste0(
-        "Instead, use `",
-        name_digits,
-        "` to specify the number of decimal places."
-      ),
+      msg_convert,
       "This is to ensure a correct number of decimal places.
       Apologies for the inconvenience."
     ),
@@ -879,13 +882,22 @@ error_digits_missing <- function(x) {
     args_example <- "absolute = 15, percentage = 12.5, n = 120"
   }
 
-  msg_history <- if (is_percentage) {
+  # The example value is the one whose decimal places are missing:
+  if (name_digits_arg == "digits_sd") {
+    example_x <- if (is_debit) "0.48" else "0.62"
+  }
+
+  # Only the exports of 0.6.1 that took strings replaced them; see
+  # `EXPORTS_STRING_NUMBERS`:
+  msg_history <- if (is_percentage || !name_fn %in% EXPORTS_STRING_NUMBERS) {
     NULL
   } else {
     c(
       "i" = "This was introduced in scrutiny 1.0.0 to ensure the number \
       of decimal places is stated correctly.",
-      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}."
+      "i" = "It replaces the quotes around `{name_x}`{msg_key_arg}.",
+      "i" = "For more information, visit \\
+      {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
     )
   }
 
@@ -895,10 +907,20 @@ error_digits_missing <- function(x) {
     "i" = "For example, with {example_x[1]} (two decimal places): \
       `{name_fn}({part_tibble_open}{args_example}{part_tibble_close}, \
       {name_digits_arg} = 2{part_digits_sd}{part_items}{part_data_type})`",
-    msg_history,
-    "i" = "For more information, visit \\
-      {.href [scrutiny's changelog](https://lhdjung.github.io/scrutiny/news/index.html)}."
+    msg_history
   )
+}
+
+
+# "Need to specify `n`." for arguments without a default that have no error of
+# their own, as in `map_value_sets()`; R's error would suggest no fix. Called
+# first, so that a missing argument is reported before those after it:
+check_args_given <- function(names, env = parent.frame()) {
+  for (name in names) {
+    if (eval(call("missing", as.name(name)), env)) {
+      abort_in_export("Need to specify {.arg {name}}.")
+    }
+  }
 }
 
 

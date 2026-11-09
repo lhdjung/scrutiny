@@ -59,6 +59,7 @@ grim_explain <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
+  check_args_given(c("x", "n"))
   check_length(x, 1L)
   check_length(n, 1L)
   if (missing(items_averaged)) {

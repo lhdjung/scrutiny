@@ -72,6 +72,7 @@ grimmer_plot_line <- function(
   color_incon = "#ff2a00",
   color_attainable = "grey75"
 ) {
+  check_args_given(c("x", "sd", "n"))
   if (missing(digits_x)) {
     error_digits_missing(x)
   }

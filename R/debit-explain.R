@@ -50,6 +50,7 @@ debit_explain <- function(
   threshold = 5,
   symmetric = FALSE
 ) {
+  check_args_given(c("x", "sd", "n"))
   formula <- arg_match_in_export(formula, DEBIT_FORMULAS)
   sd_meaning <- arg_match_in_export(sd_meaning, SD_MEANINGS)
 
