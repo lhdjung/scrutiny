@@ -178,11 +178,25 @@ map_value_sets <- function(fn, along, type = "logical") {
 #' @param ptype Zero-row tibble with the output's columns, `case` first, for
 #'   the case of no value sets at all.
 #'
-#' @return Tibble with a `case` column, the index of the value set.
+#' @return Tibble with a `case` column, the index of the value set, and the
+#'   columns of `ptype` with its types, except that `n` and `items_averaged`
+#'   are integer only where they fit, as in the mappers.
 #'
 #' @noRd
 bind_cases <- function(results, ptype) {
-  purrr::list_rbind(results, names_to = "case", ptype = ptype)
+  out <- purrr::list_rbind(results, names_to = "case")
+  if (ncol(out) == 0L) {
+    return(ptype)
+  }
+  for (col in colnames(ptype)) {
+    out[[col]] <- if (col %in% ARGS_WHOLE) {
+      as_integer_if_lossless(out[[col]])
+    } else {
+      # E.g. a `sum` from `seq()` is integer, one from `sum_range()` double:
+      vctrs::vec_cast(out[[col]], ptype[[col]])
+    }
+  }
+  out
 }
 
 

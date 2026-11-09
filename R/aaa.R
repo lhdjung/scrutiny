@@ -111,20 +111,21 @@ COMB_ZOOMS <- c("close", "medium", "wide")
 WRITTEN_OUT_MAX <- 100000L
 
 # The columns of `grim_values()`, `grimmer_values()`, and `debit_values()`
-# output, for the zero-row case; see `bind_cases()`:
+# output, for the zero-row case; see `bind_cases()`. `n` and `items_averaged`
+# are integer as in the mappers, unless a value is too large for one:
 PTYPE_GRIM_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
-  n = double(),
-  items_averaged = double(),
+  n = integer(),
+  items_averaged = integer(),
   sum = double()
 )
 PTYPE_GRIMMER_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
   sd = double(),
-  n = double(),
-  items_averaged = double(),
+  n = integer(),
+  items_averaged = integer(),
   sum = double(),
   sum_squares = double()
 )
@@ -132,7 +133,7 @@ PTYPE_DEBIT_VALUES <- tibble::tibble(
   case = integer(),
   x = double(),
   sd = double(),
-  n = double(),
+  n = integer(),
   sum = double()
 )
 

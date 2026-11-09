@@ -215,3 +215,18 @@ test_that("`data_type` is required, and continuous data are an error", {
   5.19 |> grim_closest(c(28, 32), digits_x = 2, items_averaged = 1, data_type = NA) |> _$x |> expect_equal(c(NA_real_, NA_real_))
   5.19 |> grim_closest(28, digits_x = NA, items_averaged = 1, data_type = NA)       |> _$x |> expect_na()
 })
+
+
+test_that("`n` and `items_averaged` are integer, as in the mappers", {
+  out <- grim_values(c(5.19, 5.2), 28, 2, items_averaged = 1, data_type = "integer")
+  out$n |> expect_type("integer")
+  out$items_averaged |> expect_type("integer")
+  grim_closest(5.19, 28, 2, items_averaged = 1, data_type = "integer")$n |> expect_type("integer")
+  grimmer_values(5.2, 1.3, 28, 1, 1, items_averaged = 1, data_type = "integer")$n |> expect_type("integer")
+  grimmer_closest(5.2, 1.3, 28, 1, 1, items_averaged = 1, data_type = "integer")$items_averaged |> expect_type("integer")
+  debit_values(0.5, 0.5, 20, 2, 2, "integer")$n |> expect_type("integer")
+  debit_closest(0.5, 0.5, 20, 2, 2, "integer")$n |> expect_type("integer")
+  # No value set, and one with a sample size too large for an integer:
+  grim_values(numeric(0), 28, 2, items_averaged = 1, data_type = "integer")$n |> expect_type("integer")
+  grim_closest(0.5, 1e10, 1, items_averaged = 1, data_type = "integer")$n |> expect_type("double")
+})
