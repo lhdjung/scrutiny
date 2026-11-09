@@ -67,18 +67,22 @@ DATA_TYPES <- c("integer", "continuous")
 STRINGS_MISSING <- c("NA", "")
 
 
-# The strings that `as.numeric()` reads as an infinity or `NaN`, once their
-# letters are lowercased. `decimal_places()` and `decimal_places_scalar()` give
-# them `NA` decimal places, via `is_non_finite_token()`.
+# Two rules decide which other strings are missing, by what a function reads:
+#
+# - Functions that read numbers from strings -- `decimal_places()`,
+#   `restore_zeros()`, `is_numeric_like()` -- follow `as.numeric()`, which
+#   reads these tokens as an infinity or `NaN` in any letter case, as Python
+#   and C write them. They give `NA` decimal places, via
+#   `is_non_finite_token()`.
+# - Functions that read any text -- `duplicate_count()`, `split_by_parens()`,
+#   `row_to_colnames()` -- take only `NaN` as R writes it, via
+#   `is_value_missing()`: "Nan" is a name, and "inf" a word.
 NON_FINITE_TOKENS <- c(outer(
   c("", "+", "-"),
   c("inf", "infinity", "nan"),
   paste0
 ))
 
-# How R writes `NaN`, which is a missing value everywhere in scrutiny. Only
-# this spelling is missing in `is_value_missing()`, which reads any text:
-# "Nan" is a name.
 NAN_TOKENS <- c("NaN", "+NaN", "-NaN")
 
 
