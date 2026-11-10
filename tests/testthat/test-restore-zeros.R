@@ -231,8 +231,9 @@ test_that("a column named like an argument doesn't replace it", {
 
 
 test_that("a hexadecimal number with a fraction keeps its value", {
-  # It was written out to the decimal places of its spelling, which has none:
-  c("0x1p-2", "0x.4", "0x1A") |> restore_zeros(width = 2) |> expect_equal(c("0.25", "0.25", "26.00"))
+  # It was written out to the decimal places of its spelling, which has none.
+  # Not `"0x.4"`: R before 4.4.3 reads a hex fraction without exponent as 4.
+  c("0x1p-2", "0x1A") |> restore_zeros(width = 2) |> expect_equal(c("0.25", "26.00"))
 })
 
 
