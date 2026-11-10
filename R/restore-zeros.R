@@ -16,13 +16,9 @@
 #'   `restore_zeros_df()` applies it to the columns of a data frame, by default
 #'   all those coercible to numeric.
 #'
-#' @details Groups of reported values usually share a number of decimal places.
-#'   If that number is known but the values were entered as numbers, these
-#'   functions put the trailing zeros back.
-#'
-#'   Displayed numbers are often rounded, so a value may have more decimal
-#'   places than it shows. `x |> decimal_places() |> max()` gives the actual
-#'   maximum.
+#' @details Displayed numbers are often rounded, so a value may have more
+#'   decimal places than it shows. `x |> decimal_places() |> max()` gives the
+#'   actual maximum.
 #'
 #'   As in [`decimal_places()`], numeric values with more than 15 significant
 #'   digits cannot be padded accurately; enter such numbers as strings.
@@ -32,8 +28,8 @@
 #'   with an exponent so large that it can't be written out, such as
 #'   `"1e-999999"`. A blank string or `"NA"` becomes `NA` without a warning.
 #' @param width Integer. Number of decimal places the output should have, up
-#'   to 100,000. Length 1 or the length of `x`. Default is `NULL`, the largest number of
-#'   decimal places in `x`.
+#'   to 100,000. Length 1 or the length of `x`. Default is `NULL`, the largest
+#'   number of decimal places in `x`.
 #' @param sep_in String. The separator between the integer part and the
 #'   decimal places in the input, matched literally. Default is `"."`.
 #' @param sep_out String. The separator in the output. Default is `sep_in`.

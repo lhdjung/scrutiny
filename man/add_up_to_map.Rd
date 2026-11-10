@@ -14,22 +14,19 @@ other columns are returned alongside the results.}
 as \code{starts_with("n_")}. There is no default.}
 
 \item{total}{Optionally, the name of the column in \code{data} that contains the
-totals, if it differs from the default.}
+totals, if it isn't \code{total}.}
 
-\item{...}{These dots must be empty. Every argument after them must be
-named in full.}
+\item{...}{These dots must be empty.}
 }
 \value{
 A tibble with the \code{summands} columns, \code{total}, \code{consistency}, and
-any other columns from \code{data}. It has the class \code{scrutiny_add_up_to_map},
-which is recognized by \code{\link[=audit]{audit()}}.
+any other columns from \code{data}, with the class \code{scrutiny_add_up_to_map}.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 \code{add_up_to_map()} applies \code{\link[=add_up_to]{add_up_to()}} to every row of a data
-frame. \code{summands} selects any number of columns to add up, using
-tidyselect.
+frame.
 
 Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }

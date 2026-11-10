@@ -127,9 +127,9 @@ check_consistency_not_in_colnames <- function(
 #'   `check_mapper_input_colnames()` is superseded by [`function_map()`],
 #'   whose mappers check their input columns themselves.
 #'
-#'   `check_mapper_input_colnames()` is called within mappers. It
-#'   errors if `data` lacks a key column, or if it already has a column named
-#'   like the key result column (`"consistency"` by default).
+#'   Call it in a handwritten mapper. It errors if `data` lacks a key column, or
+#'   if it already has a column named like the key result column
+#'   (`"consistency"` by default).
 #'
 #' @param data Data frame. Input to the mapper.
 #' @param reported String. Names of the key columns that `data` must have,

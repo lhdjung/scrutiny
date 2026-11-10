@@ -17,7 +17,7 @@ a total-n mapper, such as \code{\link[=grim_map_total_n]{grim_map_total_n()}}.}
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
 
 \code{audit_seq()} and \code{audit_total_n()} were folded into \code{\link[=audit]{audit()}} in
-scrutiny 1.0.0, which returns the same summaries for the output of
-sequence and total-n mappers, and also has \code{.by}.
+scrutiny 1.0.0. It returns the same summaries for the output of sequence
+and total-n mappers, and also has \code{.by}.
 }
 \keyword{internal}

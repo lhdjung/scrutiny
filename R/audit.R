@@ -458,8 +458,8 @@ audit.scrutiny_map_total_n <- function(data, ...) {
 #' @description `r lifecycle::badge("deprecated")`
 #'
 #'   `audit_seq()` and `audit_total_n()` were folded into [`audit()`] in
-#'   scrutiny 1.0.0, which returns the same summaries for the output of
-#'   sequence and total-n mappers, and also has `.by`.
+#'   scrutiny 1.0.0. It returns the same summaries for the output of sequence
+#'   and total-n mappers, and also has `.by`.
 #'
 #' @param data Output of a sequence mapper, such as [`grim_map_seq()`], or of
 #'   a total-n mapper, such as [`grim_map_total_n()`].

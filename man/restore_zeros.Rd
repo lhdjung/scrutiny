@@ -31,8 +31,8 @@ with an exponent so large that it can't be written out, such as
 \code{"1e-999999"}. A blank string or \code{"NA"} becomes \code{NA} without a warning.}
 
 \item{width}{Integer. Number of decimal places the output should have, up
-to 100,000. Length 1 or the length of \code{x}. Default is \code{NULL}, the largest number of
-decimal places in \code{x}.}
+to 100,000. Length 1 or the length of \code{x}. Default is \code{NULL}, the largest
+number of decimal places in \code{x}.}
 
 \item{sep_in}{String. The separator between the integer part and the
 decimal places in the input, matched literally. Default is \code{"."}.}
@@ -82,13 +82,9 @@ may itself have lost trailing zeros.
 all those coercible to numeric.
 }
 \details{
-Groups of reported values usually share a number of decimal places.
-If that number is known but the values were entered as numbers, these
-functions put the trailing zeros back.
-
-Displayed numbers are often rounded, so a value may have more decimal
-places than it shows. \code{x |> decimal_places() |> max()} gives the actual
-maximum.
+Displayed numbers are often rounded, so a value may have more
+decimal places than it shows. \code{x |> decimal_places() |> max()} gives the
+actual maximum.
 
 As in \code{\link[=decimal_places]{decimal_places()}}, numeric values with more than 15 significant
 digits cannot be padded accurately; enter such numbers as strings.

@@ -2,12 +2,17 @@
 #'
 #' `map_value_sets()` applies `fn` once per value set, taking the arguments
 #' of the function that calls it, such as `grim()`. That wrapper's signature
-#' must mirror `fn`'s, minus `show_rec` and `show_reason`:
+#' must mirror `fn`'s, minus `show_rec` and `show_reason`, plus any
+#' deprecated argument it handles before calling `map_value_sets()`:
 #'
 #' ```
 #' grim <- function(x, n, digits_x, items_averaged, data_type,
 #'                  x_meaning = c("mean", "percentage"),
-#'                  rounding = "up_or_down", threshold = 5, symmetric = FALSE) {
+#'                  rounding = "up_or_down", threshold = 5, symmetric = FALSE,
+#'                  percent = deprecated()) {
+#'   if (lifecycle::is_present(percent)) {
+#'     stop_percent("grim")
+#'   }
 #'   map_value_sets(
 #'     grim_scalar,
 #'     c("x", "n", "digits_x", "items_averaged", "data_type")
@@ -23,8 +28,8 @@
 #'   split: `along` is what `function_map()` takes from `data`, the rest is
 #'   what it passes as constants for the whole call.
 #' @param type String. The type of the return value: `"logical"` for the
-#'   tests, `"list"` for `grim_values()` and the like, whose `fn` returns a tibble per value set, which
-#'   `bind_cases()` then stacks.
+#'   tests, `"list"` for `grim_values()` and the like, whose `fn` returns a
+#'   tibble per value set, which `bind_cases()` then stacks.
 #'
 #' @return Vector of `type`, as long as the recycled `along` arguments.
 #'

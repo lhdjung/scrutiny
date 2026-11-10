@@ -7,7 +7,7 @@
 decimal_places(x, sep = ".")
 }
 \arguments{
-\item{x}{Numeric, or a string coercible to numeric.}
+\item{x}{Numeric, or strings that contain numbers.}
 
 \item{sep}{String. The separator between the integer part and the decimal
 places, matched literally. Default is \code{"."}. Only applies to strings;
@@ -17,8 +17,8 @@ numbers are always written with a point.}
 Integer. The number of decimal places of each element of \code{x}.
 }
 \description{
-\code{decimal_places()} counts the decimal places of a numeric
-vector, or of a string vector coercible to numeric.
+\code{decimal_places()} counts the decimal places of numbers, or of
+numbers written as strings.
 }
 \details{
 The function counts the run of digits after the first \code{sep},

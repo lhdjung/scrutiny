@@ -50,7 +50,7 @@ by row, such as \code{"digits_x"}. The factory-made function takes a single
 value or one per row of \code{data} for each. If one is left out, it is read
 from a column of \code{data} by that name, if there is one. They are returned
 as columns. One whose name starts with \code{digits_} is a decimal count,
-rounded and returned as integer like \code{digits_x}.}
+returned as integer like \code{digits_x}.}
 
 \item{.args_fixed}{Optionally, a named list of values that are always passed
 to \code{.fn}, such as \code{list(show_reason = TRUE)}. The factory-made function

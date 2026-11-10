@@ -133,8 +133,8 @@ proto_split_parens <- function(string, delim = "parens") {
 #'
 #' @return String vector as long as `string`, with surrounding whitespace
 #'   removed. If a string has no opening delimiter, `before_parens()` returns
-#'   all of it and `inside_parens()` returns `NA`. A blank part, as of a blank
-#'   string or of empty delimiters, is `NA`, and so is a part `"NA"` or `"NaN"`.
+#'   all of it and `inside_parens()` returns `NA`. A blank part, such as the
+#'   inside of `"()"`, is `NA`, as is a part `"NA"` or `"NaN"`.
 #'
 #' @name parens-extractors
 #'

@@ -580,9 +580,9 @@ check_variadic_cols <- function(index, data, spoken_for, name) {
 #'   `absorb_key_args()` is superseded by [`function_map()`], whose mappers
 #'   rename key columns themselves.
 #'
-#'   `absorb_key_args()` is called within mappers. If a key argument such as
-#'   `x` names a column of `data`, it renames that column to the key
-#'   argument's name, so that the rest of the mapper finds it.
+#'   Call it in a handwritten mapper. If a key argument such as `x` names a
+#'   column of `data`, it renames that column to the key argument's name, so
+#'   that the rest of the mapper finds it.
 #'
 #' @param data Data frame passed to the mapper.
 #' @param reported String. Names of the key arguments.

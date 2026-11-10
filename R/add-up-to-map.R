@@ -3,8 +3,7 @@
 #' @description `r lifecycle::badge("experimental")`
 #'
 #'   `add_up_to_map()` applies [`add_up_to()`] to every row of a data
-#'   frame. `summands` selects any number of columns to add up, using
-#'   tidyselect.
+#'   frame.
 #'
 #'   Call [`audit()`] on the output for summary statistics.
 #'
@@ -13,13 +12,11 @@
 #' @param summands Columns of `data` to add up, selected with tidyselect, such
 #'   as `starts_with("n_")`. There is no default.
 #' @param total Optionally, the name of the column in `data` that contains the
-#'   totals, if it differs from the default.
-#' @param ... These dots must be empty. Every argument after them must be
-#'   named in full.
+#'   totals, if it isn't `total`.
+#' @param ... These dots must be empty.
 #'
 #' @return A tibble with the `summands` columns, `total`, `consistency`, and
-#'   any other columns from `data`. It has the class `scrutiny_add_up_to_map`,
-#'   which is recognized by [`audit()`].
+#'   any other columns from `data`, with the class `scrutiny_add_up_to_map`.
 #'
 #' @section Summaries with [`audit()`]: `audit()` on `add_up_to_map()` output
 #'   returns a tibble with one row and these columns:

@@ -58,9 +58,9 @@ that percentage. A missing \code{digits_percentage} is treated as in
 \code{absolute} out of \code{n} would have been reported as, given the number of
 decimal places and the rounding method.
 
-This is stricter than \code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, which only asks
-whether some count out of \code{n} produces the percentage. Here, the count is
-reported too.
+This is stricter than \code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, which
+only asks whether some count out of \code{n} produces the percentage. Here, the
+count is reported too.
 
 The function is vectorized, but \code{\link[=percentage_of_map]{percentage_of_map()}} is more
 convenient for testing many cases.
@@ -75,7 +75,7 @@ question that allows several, whose percentages can sum to more than 100.
 }
 \section{Causes of inconsistencies}{
  A \code{FALSE} result means that the three
-values cannot all be correct as reported, not why. The cause is often
+values cannot all be correct as reported, but not why. The cause is often
 trivial: the percentage may be based on another denominator than \code{n},
 such as the number of valid responses, or on an unconventional rounding
 method. \code{\link[=percentage_of_map_seq]{percentage_of_map_seq()}} with \code{var = "n"} shows which nearby
@@ -90,5 +90,6 @@ percentage_of(40, 33.3, 120, digits_percentage = 1)
 percentage_of(40, 34, 120, digits_percentage = 0)
 }
 \seealso{
-\code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, for a percentage without a count.
+\code{\link[=grim]{grim()}} with \code{x_meaning = "percentage"}, for a percentage without
+a count.
 }

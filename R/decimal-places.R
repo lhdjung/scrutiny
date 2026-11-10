@@ -1,7 +1,7 @@
 #' Count decimal places
 #'
-#' @description `decimal_places()` counts the decimal places of a numeric
-#'   vector, or of a string vector coercible to numeric.
+#' @description `decimal_places()` counts the decimal places of numbers, or of
+#'   numbers written as strings.
 #'
 #' @section Trailing zeros: A numeric value has lost its trailing zeros: `3.70`
 #'   is stored as `3.7` and has one decimal place. If trailing zeros matter,
@@ -19,7 +19,7 @@
 #'   Numeric values with more than 15 significant digits cannot be counted
 #'   accurately; enter such numbers as strings.
 #'
-#' @param x Numeric, or a string coercible to numeric.
+#' @param x Numeric, or strings that contain numbers.
 #' @param sep String. The separator between the integer part and the decimal
 #'   places, matched literally. Default is `"."`. Only applies to strings;
 #'   numbers are always written with a point.

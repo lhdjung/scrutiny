@@ -10,9 +10,8 @@
 #'   `iris`, 99% of values have a duplicate. Duplicates are more meaningful when
 #'   there are fewer values and they have more characters.
 #'
-#'   Values are compared as strings and returned as strings.
-#'   So `1` and `"1"` are duplicates, but `2` and `"2.0"` are not. Numbers
-#'   lose trailing zeros when converted: `2.0` becomes `"2"`.
+#'   Values are compared and returned as strings, so `1` and `"1"` are
+#'   duplicates, but `2` and `"2.0"` are not: `2.0` becomes `"2"`.
 #'
 #' @param x Vector, matrix, or data frame. Blank strings, `"NA"`, and
 #'   `"NaN"` count as missing.

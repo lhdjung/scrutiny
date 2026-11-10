@@ -2209,12 +2209,9 @@ audit_summary_stats <- function(data, selection, total = FALSE) {
 
 #' Resolve `"auto"` dispersion limits for one variable
 #'
-#' @description A sequence mapper disperses several variables, and they do not
-#'   share a domain: a sample size cannot go below 1, a standard deviation
-#'   cannot go below 0, a binary proportion is confined to `[0, 1]`, and a mean
-#'   is not bounded at all. `out_min` and `out_max` are single arguments applied
-#'   to every variable in turn, so `"auto"` has to mean something different for
-#'   each of them.
+#' @description `out_min` and `out_max` apply to every dispersed variable,
+#'   whose domains differ (`n` >= 1, an SD >= 0, a binary proportion in
+#'   `[0, 1]`, a mean unbounded), so `"auto"` is resolved per variable.
 #'
 #'   A variable with no declared bounds keeps a floor of 1 if it is `n`, and is
 #'   treated as unbounded otherwise.
@@ -2329,7 +2326,7 @@ abort_lost_settings <- function() {
 #' Generate code to process the `"consistency"` column
 #'
 #' @description Called within a function factory such as `function_map()`. It
-#'   returns an expression to be unquoted with ``!!!`()` at the end of the
+#'   returns an expression to be unquoted with `` `!!!`() `` at the end of the
 #'   manufactured function's body. That code processes the `"consistency"`
 #'   column of the output, `out`:
 #'

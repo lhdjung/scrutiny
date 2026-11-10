@@ -32,9 +32,9 @@ No return value; might throw an error.
 \code{check_mapper_input_colnames()} is superseded by \code{\link[=function_map]{function_map()}},
 whose mappers check their input columns themselves.
 
-\code{check_mapper_input_colnames()} is called within mappers. It
-errors if \code{data} lacks a key column, or if it already has a column named
-like the key result column (\code{"consistency"} by default).
+Call it in a handwritten mapper. It errors if \code{data} lacks a key column, or
+if it already has a column named like the key result column
+(\code{"consistency"} by default).
 }
 \seealso{
 \code{vignette("consistency-tests-in-depth")}.

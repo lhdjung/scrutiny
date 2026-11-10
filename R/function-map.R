@@ -38,7 +38,7 @@
 #'   value or one per row of `data` for each. If one is left out, it is read
 #'   from a column of `data` by that name, if there is one. They are returned
 #'   as columns. One whose name starts with `digits_` is a decimal count,
-#'   rounded and returned as integer like `digits_x`.
+#'   returned as integer like `digits_x`.
 #' @param .args_fixed Optionally, a named list of values that are always passed
 #'   to `.fn`, such as `list(show_reason = TRUE)`. The factory-made function
 #'   has no arguments for them; specifying one is an error.

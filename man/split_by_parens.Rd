@@ -18,7 +18,7 @@ split_by_parens(
 )
 }
 \arguments{
-\item{data}{Data frame.}
+\item{data}{Data frame or matrix.}
 
 \item{cols}{Columns to split, selected with
 \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
@@ -36,7 +36,8 @@ missing.}
 
 \item{transform}{Logical. Should the output be pivoted into a longer
 format, with one column per part and an \code{.origin} column naming the
-source? Default is \code{FALSE}.}
+source? Default is \code{FALSE}. Requires \code{keep = FALSE} and every column to
+be split.}
 
 \item{delim}{String. The pair of delimiters around the second part:
 \code{"parens"} (the default), \code{"brackets"}, or \code{"braces"}, or two custom
@@ -49,8 +50,8 @@ produces. Defaults are \code{"x"} and \code{"sd"}.}
 \code{check_delim} and \code{delim}.}
 }
 \value{
-An ungrouped data frame, a tibble if \code{data} is one or if
-\code{transform} is \code{TRUE}.
+An ungrouped data frame: a tibble unless \code{data} is a plain data
+frame and \code{transform} is \code{FALSE}.
 }
 \description{
 Summary statistics are often reported like \code{"2.65 (0.27)"}.

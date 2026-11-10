@@ -198,9 +198,9 @@ percentage_of_any_n <- function(
 #'   `absolute` out of `n` would have been reported as, given the number of
 #'   decimal places and the rounding method.
 #'
-#'   This is stricter than [`grim()`] with `x_meaning = "percentage"`, which only asks
-#'   whether some count out of `n` produces the percentage. Here, the count is
-#'   reported too.
+#'   This is stricter than [`grim()`] with `x_meaning = "percentage"`, which
+#'   only asks whether some count out of `n` produces the percentage. Here, the
+#'   count is reported too.
 #'
 #'   The function is vectorized, but [`percentage_of_map()`] is more
 #'   convenient for testing many cases.
@@ -213,7 +213,7 @@ percentage_of_any_n <- function(
 #'   question that allows several, whose percentages can sum to more than 100.
 #'
 #' @section Causes of inconsistencies: A `FALSE` result means that the three
-#'   values cannot all be correct as reported, not why. The cause is often
+#'   values cannot all be correct as reported, but not why. The cause is often
 #'   trivial: the percentage may be based on another denominator than `n`,
 #'   such as the number of valid responses, or on an unconventional rounding
 #'   method. [`percentage_of_map_seq()`] with `var = "n"` shows which nearby
@@ -240,7 +240,8 @@ percentage_of_any_n <- function(
 #'   that percentage. A missing `digits_percentage` is treated as in
 #'   [`grim()`].
 #'
-#' @seealso [`grim()`] with `x_meaning = "percentage"`, for a percentage without a count.
+#' @seealso [`grim()`] with `x_meaning = "percentage"`, for a percentage without
+#'   a count.
 #'
 #' @include utils.R
 #'

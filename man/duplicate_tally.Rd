@@ -32,9 +32,8 @@ Values with few characters are often duplicated by chance: in
 \code{iris}, 99\% of values have a duplicate. Duplicates are more meaningful when
 there are fewer values and they have more characters.
 
-Values are compared as strings and returned as strings.
-So \code{1} and \code{"1"} are duplicates, but \code{2} and \code{"2.0"} are not. Numbers
-lose trailing zeros when converted: \code{2.0} becomes \code{"2"}.
+Values are compared and returned as strings, so \code{1} and \code{"1"} are
+duplicates, but \code{2} and \code{"2.0"} are not: \code{2.0} becomes \code{"2"}.
 }
 \section{Summaries with \code{\link[=audit]{audit()}}}{
  \code{audit()} on \code{duplicate_tally()} output

@@ -6,7 +6,7 @@
 #'   that contains the delimiters. Set `transform` to `TRUE` to pivot the
 #'   result into a longer format.
 #'
-#' @param data Data frame.
+#' @param data Data frame or matrix.
 #' @param cols Columns to split, selected with
 #'   \href{https://tidyselect.r-lib.org/reference/language.html}{tidyselect}.
 #'   Default is `everything()`, restricted by `check_delim`.
@@ -20,7 +20,8 @@
 #'   `FALSE`.
 #' @param transform Logical. Should the output be pivoted into a longer
 #'   format, with one column per part and an `.origin` column naming the
-#'   source? Default is `FALSE`.
+#'   source? Default is `FALSE`. Requires `keep = FALSE` and every column to
+#'   be split.
 #' @param delim String. The pair of delimiters around the second part:
 #'   `"parens"` (the default), `"brackets"`, or `"braces"`, or two custom
 #'   strings, matched literally.
@@ -31,8 +32,8 @@
 #'
 #' @include utils.R before-inside-parens.R
 #'
-#' @return An ungrouped data frame, a tibble if `data` is one or if
-#'   `transform` is `TRUE`.
+#' @return An ungrouped data frame: a tibble unless `data` is a plain data
+#'   frame and `transform` is `FALSE`.
 #'
 #' @seealso
 #'  - [`before_parens()`] and [`inside_parens()`] for the two parts of a

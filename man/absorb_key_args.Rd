@@ -25,9 +25,9 @@ mapper.}
 \code{absorb_key_args()} is superseded by \code{\link[=function_map]{function_map()}}, whose mappers
 rename key columns themselves.
 
-\code{absorb_key_args()} is called within mappers. If a key argument such as
-\code{x} names a column of \code{data}, it renames that column to the key
-argument's name, so that the rest of the mapper finds it.
+Call it in a handwritten mapper. If a key argument such as \code{x} names a
+column of \code{data}, it renames that column to the key argument's name, so
+that the rest of the mapper finds it.
 }
 \examples{
 df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))

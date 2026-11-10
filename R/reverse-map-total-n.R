@@ -1,8 +1,8 @@
 #' Reconstruct the input of a total-n mapper
 #'
 #' @description `reverse_map_total_n()` takes the output of a function made by
-#'   [`function_map_total_n()`] and reconstructs the data frame it was called
-#'   on. [`audit()`] builds on it for total-n output.
+#'   [`function_map_total_n()`] and reconstructs the reported columns of the
+#'   data frame it was called on. [`audit()`] builds on it for total-n output.
 #'
 #' @param data Data frame with the `"scrutiny_map_total_n"` class.
 #'
