@@ -92,10 +92,10 @@ these columns:
 \code{data_type}, and their \code{consistency}.
 \item \code{hits_total}: the number of GRIMMER-consistent value sets found within
 the \code{dispersion} range.
-\item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying each
-variable. If both \code{include_reported} and \code{include_consistent} are \code{TRUE},
-a consistent reported value set is counted as well: once per variable
-here, and once in \code{hits_total}.
+\item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying \code{x}, \code{sd},
+and \code{n}, respectively. If both \code{include_reported} and \code{include_consistent}
+are \code{TRUE}, a consistent reported value set is counted as well: once per
+variable here, and once in \code{hits_total}.
 \item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
 value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the signed
 steps to the nearest consistent value above and below (\verb{_down} is
@@ -109,6 +109,9 @@ consistency is \code{NA}, on a variable whose reported value is missing, which
 is not dispersed, or on rows removed from the output, as by \code{filter()}.
 
 Call \code{audit()} again on that summary to summarize these columns further.
+\code{na_count} and \code{na_rate} there count the cases without a consistent value
+within the \code{dispersion} range, and those that a missing value leaves
+unknown.
 }
 
 \examples{

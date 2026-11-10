@@ -111,18 +111,19 @@ Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 these columns:
 \itemize{
 \item \code{x1}, \code{x2}, and \code{n}: the reported values.
-\item \code{hits_total}: the number of splits in which both \code{x1} and \code{x2} are
+\item \code{hits_total}: the number of scenarios in which both groups are
 GRIM-consistent, summing \code{hits_forth} and \code{hits_back}.
-\item \code{hits_forth}: the number of such splits with \code{x2} paired with the larger
-group.
+\item \code{hits_forth}: the number of such scenarios with \code{x2} paired with the
+larger group.
 \item \code{hits_back}: the same with \code{x1} paired with the larger group.
-\item \code{scenarios_total}: the number of splits tested, leaving out those that
-could not be decided.
-\item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no split could
+\item \code{scenarios_total}: the number of scenarios tested, each a split of \code{n}
+with one pairing of groups and statistics, leaving out those that could
+not be decided.
+\item \code{hit_rate}: \code{hits_total / scenarios_total}, or \code{NA} if no scenario could
 be decided.
 }
 
-A count is \code{NA} if it depends on a split that could not be decided, or on
+A count is \code{NA} if it depends on a scenario that could not be decided, or on
 rows removed from the output, as by \code{filter()}.
 
 Call \code{audit()} again on that summary to summarize these columns

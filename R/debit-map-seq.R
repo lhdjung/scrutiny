@@ -37,10 +37,10 @@
 #'   `consistency`.
 #'   - `hits_total`: the number of DEBIT-consistent value sets found within the
 #'   `dispersion` range.
-#'   - `hits_x`, `hits_sd`, `hits_n`: the number found by varying each
-#'   variable. If both `include_reported` and `include_consistent` are `TRUE`,
-#'   a consistent reported value set is counted as well: once per variable
-#'   here, and once in `hits_total`.
+#'   - `hits_x`, `hits_sd`, `hits_n`: the number found by varying `x`, `sd`,
+#'   and `n`, respectively. If both `include_reported` and `include_consistent`
+#'   are `TRUE`, a consistent reported value set is counted as well: once per
+#'   variable here, and once in `hits_total`.
 #'   - `diff_x`: the distance from `x` to the nearest consistent dispersed
 #'   value, in dispersion steps. `diff_x_up` and `diff_x_down` are the signed
 #'   steps to the nearest consistent value above and below (`_down` is
@@ -53,6 +53,9 @@
 #'   is not dispersed, or on rows removed from the output, as by `filter()`.
 #'
 #'   Call `audit()` again on that summary to summarize these columns further.
+#'   `na_count` and `na_rate` there count the cases without a consistent value
+#'   within the `dispersion` range, and those that a missing value leaves
+#'   unknown.
 #'
 #' @include function-map-seq.R
 #'

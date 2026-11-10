@@ -56,18 +56,22 @@
 #'   `grimmer_map_total_n()` output returns a tibble with one row per case and
 #'   these columns:
 #'  - `x1`, `x2`, `sd1`, `sd2`, and `n`: the reported values.
-#'  - `hits_total`: the number of splits in which both groups are
+#'  - `hits_total`: the number of scenarios in which both groups are
 #'  GRIMMER-consistent, summing `hits_forth` and `hits_back`.
-#'  - `hits_forth`: the number of such splits with `x2` and `sd2` paired with
-#'  the larger group.
+#'  - `hits_forth`: the number of such scenarios with `x2` and `sd2` paired
+#'  with the larger group.
 #'  - `hits_back`: the same with `x1` and `sd1` paired with the larger group.
-#'  - `scenarios_total`: the number of splits tested, leaving out those that
-#'  could not be decided.
-#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could
+#'  - `scenarios_total`: the number of scenarios tested, each a split of `n`
+#'  with one pairing of groups and statistics, leaving out those that could
+#'  not be decided.
+#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no scenario could
 #'  be decided.
 #'
-#'  A count is `NA` if it depends on a split that could not be decided, or on
+#'  A count is `NA` if it depends on a scenario that could not be decided, or on
 #'  rows removed from the output, as by `filter()`.
+#'
+#'  Call `audit()` again on that summary to summarize these columns
+#'  further.
 #'
 #' @export
 #'

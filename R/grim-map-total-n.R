@@ -30,7 +30,6 @@
 #'   their labels: a length-2 vector for the groups of `x1` and `x2`, or a list
 #'   of such vectors. Each becomes a column, as in [`disperse_total()`], and its
 #'   values stay with their groups in both directions. Default is `NULL`.
-#' @inheritParams disperse_total
 #' @inheritParams grim_map
 #'
 #' @include function-map-total-n.R
@@ -65,17 +64,18 @@
 #'   `grim_map_total_n()` output returns a tibble with one row per case and
 #'   these columns:
 #'  - `x1`, `x2`, and `n`: the reported values.
-#'  - `hits_total`: the number of splits in which both `x1` and `x2` are
+#'  - `hits_total`: the number of scenarios in which both groups are
 #'  GRIM-consistent, summing `hits_forth` and `hits_back`.
-#'  - `hits_forth`: the number of such splits with `x2` paired with the larger
-#'  group.
+#'  - `hits_forth`: the number of such scenarios with `x2` paired with the
+#'  larger group.
 #'  - `hits_back`: the same with `x1` paired with the larger group.
-#'  - `scenarios_total`: the number of splits tested, leaving out those that
-#'  could not be decided.
-#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no split could
+#'  - `scenarios_total`: the number of scenarios tested, each a split of `n`
+#'  with one pairing of groups and statistics, leaving out those that could
+#'  not be decided.
+#'  - `hit_rate`: `hits_total / scenarios_total`, or `NA` if no scenario could
 #'  be decided.
 #'
-#'  A count is `NA` if it depends on a split that could not be decided, or on
+#'  A count is `NA` if it depends on a scenario that could not be decided, or on
 #'  rows removed from the output, as by `filter()`.
 #'
 #'  Call `audit()` again on that summary to summarize these columns
