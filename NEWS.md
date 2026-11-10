@@ -1,8 +1,8 @@
 # scrutiny 1.0.0
 
-scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, expect to adjust your code.
+scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, you will need to adjust your code.
 
-You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, but I don't recommend reading the entire release notes.
+You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, but the release notes are not intended to be read all at once.
 
 ## Key changes
 
@@ -18,17 +18,17 @@ grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
 grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
 ```
 
-- `x` and `sd` are numbers, not strings. Numbers drop trailing zeros, so `digits_x` (and `digits_sd` for GRIMMER and DEBIT) states the number of decimal places.
-- `items_averaged` replaces `items`, which defaulted to 1 and so tested means of multi-item scales as single items without a word.
+- `x` and `sd` are no longer strings but numbers. Since numbers drop trailing zeros, `digits_x` states the number of decimal places. For GRIMMER and DEBIT functions, there is also `digits_sd`.
+- `items_averaged` replaces `items`, which defaulted to 1, so it silently tested means of multi-item scales as single items.
 - `data_type` states whether the data are whole numbers (`"integer"`), as the tests assume, or `"continuous"`, where they don't apply.
 
-Each of these can also be a column of `data`, for values that differ by row. If one is missing, the error says how to give it.
+Each of these can also be a column of `data`. This allows for their values to differ by row. If one is missing, the error will tell you how to provide it.
 
 You will also meet these changes:
 
 - `percent = TRUE` is now `x_meaning = "percentage"`.
 - The `probability` column of `grim_map()` is now `exp_incon`, and `audit()` renamed some columns, such as `incons_rate` to `emp_incon`. I had changed the name of that `grim_map()` column before, but the new name will remain.
-- Under the default settings, GRIM's results for testable value sets are unchanged. GRIMMER no longer flags some consistent value sets and catches some it used to miss, and DEBIT is now exact. All three tests use exact integer arithmetic, and several rounding procedures were corrected; see "Test results" below.
+- Under the default settings, GRIM's results for testable value sets are unchanged. GRIMMER no longer flags any consistent value sets and catches some inconsistent ones it used to miss. DEBIT is now exact. All three tests use exact integer arithmetic, and several rounding procedures were corrected; see "Test results" below.
 - `grim_plot()` is now `grim_plot_grid()`, which returns its plot instead of printing it.
 - The rounding functions, such as `reround()`, moved to the [roundwork](https://lhdjung.github.io/roundwork/) package.
 - New: `grim_explain()`, `grimmer_explain()`, and `debit_explain()` use plain words to explain a result, and `explain_print()` does so for mapper output.
