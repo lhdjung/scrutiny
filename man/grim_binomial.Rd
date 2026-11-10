@@ -24,8 +24,8 @@ is \code{0.05}.}
 }
 \value{
 Tibble with the columns \code{estimate} (observed consistency rate),
-\code{statistic} (number of consistent cases), \code{p.value}, \code{parameter} (number
-of cases), \code{conf.low}, \code{conf.high}, \code{conf.level} (\code{1 - alpha}), \code{method}, and
+\code{statistic} (number of consistent cases), \code{p.value}, \code{parameter} (number of
+cases), \code{conf.low}, \code{conf.high}, \code{conf.level} (\code{1 - alpha}), \code{method}, and
 \code{alternative}.
 }
 \description{
@@ -40,14 +40,12 @@ care.
 Under the null hypothesis, the decimal digits of each mean are
 random, so its probability of consistency is \code{1 - exp_incon}, with
 \code{exp_incon} from \code{\link[=grim_exp_incon]{grim_exp_incon()}}. Since this differs between value
-sets, the test uses the Poisson binomial distribution rather than
-averaging the probabilities. Value sets whose \code{consistency} or \code{exp_incon}
-is \code{NA} are left out: \code{exp_incon} is \code{NA} if \code{x}, \code{n}, \code{items_averaged},
-\code{digits_x}, or \code{data_type} is missing, even where the value set has a
-definite result. Value sets with \code{data_type = "continuous"} have an
-\code{exp_incon} of 0, so they count as certain successes: they leave the
-p-value unchanged but raise \code{estimate} and the interval. Filter them out
-first to compare only the others.
+sets, the test uses the Poisson binomial distribution rather than averaging
+the probabilities. Value sets whose \code{consistency} or \code{exp_incon} is \code{NA}
+are left out; \code{exp_incon} can be \code{NA} even where the value set has a
+definite result (see \code{\link[=grim_exp_incon]{grim_exp_incon()}}). Value sets with \code{data_type = "continuous"} have an \code{exp_incon} of 0, so they count as certain successes:
+they leave the p-value unchanged but raise \code{estimate} and the interval.
+Filter them out first to compare only the others.
 
 The two-sided p-value is twice the smaller one-sided one, capped at 1.
 
@@ -57,7 +55,8 @@ corresponding reason to expect fewer consistent sets than random, hence
 the one-sided default.
 
 The confidence interval is the exact Clopper-Pearson interval for the
-consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, one-sided like the test.
+consistency rate, as in \code{\link[stats:binom.test]{stats::binom.test()}}, with the same
+\code{alternative} as the test.
 It treats the value sets as sharing one probability, so it is an interval
 for their average. Compare it to the mean of \code{1 - exp_incon}.
 }

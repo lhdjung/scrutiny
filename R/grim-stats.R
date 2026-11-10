@@ -16,9 +16,8 @@
 #'   recycled to a common length by the tidyverse rules: an argument has
 #'   length 1 or the length of the longest.
 #'
-#' @param x Numeric. The mean or percentage. Its value only matters if it is
-#'   missing or infinite, which makes the result `NA`; the argument mirrors
-#'   [`grim()`].
+#' @param x Numeric. The mean or percentage. Only whether it is missing or
+#'   infinite matters; the argument mirrors [`grim()`].
 #' @param digits_x Integer. The number of decimal places in `x`, including
 #'   trailing zeros. There is no default, since a numeric value does not
 #'   keep them (`1.40` is `1.4`).
@@ -42,10 +41,10 @@
 #'   `n` or `items_averaged` is missing or not a positive whole number. These
 #'   include every case that [`grim()`] cannot decide, and some that it can: a
 #'   mean may pass whatever `n` is, but how many fail depends on it. For
-#'   continuous data, they return 0, or `NA` where [`grim()`] is `NA`. They
-#'   are never negative. A count above 2^53, which only `digits_x` of 14 or
-#'   more with `x_meaning = "percentage"` can reach, is the nearest number a
-#'   double can hold.
+#'   continuous data, they return 0, or `NA` where [`grim()`] is `NA`. Under
+#'   `data_type = NA`, they return `NA` unless the count is 0. A count above
+#'   2^53, which only `digits_x` of 14 or more with `x_meaning = "percentage"`
+#'   can reach, is the nearest number a double can hold.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -426,7 +425,8 @@ grim_total <- function(
 #'
 #'   `grim_probability()` was renamed to [`grim_exp_incon()`] in scrutiny
 #'   1.0.0, which also requires `digits_x` and `data_type`, takes
-#'   `items_averaged` instead of `items`, and has a `rounding` argument.
+#'   `items_averaged` instead of `items` and `x_meaning` instead of `percent`,
+#'   and has a `rounding` argument.
 #'
 #' @param ... Passed on to [`grim_exp_incon()`].
 #'

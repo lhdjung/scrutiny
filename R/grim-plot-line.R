@@ -485,7 +485,7 @@ check_comb_value <- function(value, digits, name) {
 #'   marked above the row and labeled as consistent or inconsistent.
 #'
 #'   [`grim_plot_grid()`] shows many results at once; this function explains
-#'   one. [`grim_values()`] returns the attainable values as numbers.
+#'   one. [`grim_values()`] lists the unrounded means behind a reported one.
 #'
 #' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
 #'   same as in [`grim()`], but `x`, `n`, `digits_x`, and `items_averaged`

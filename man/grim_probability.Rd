@@ -14,6 +14,7 @@ grim_probability(...)
 
 \code{grim_probability()} was renamed to \code{\link[=grim_exp_incon]{grim_exp_incon()}} in scrutiny
 1.0.0, which also requires \code{digits_x} and \code{data_type}, takes
-\code{items_averaged} instead of \code{items}, and has a \code{rounding} argument.
+\code{items_averaged} instead of \code{items} and \code{x_meaning} instead of \code{percent},
+and has a \code{rounding} argument.
 }
 \keyword{internal}

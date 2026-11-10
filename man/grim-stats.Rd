@@ -31,9 +31,8 @@ grim_total(
 )
 }
 \arguments{
-\item{x}{Numeric. The mean or percentage. Its value only matters if it is
-missing or infinite, which makes the result \code{NA}; the argument mirrors
-\code{\link[=grim]{grim()}}.}
+\item{x}{Numeric. The mean or percentage. Only whether it is missing or
+infinite matters; the argument mirrors \code{\link[=grim]{grim()}}.}
 
 \item{n}{Integer. The sample size.}
 
@@ -63,10 +62,10 @@ return \code{NA} if \code{x} is missing or infinite, if \code{digits_x} is missi
 \code{n} or \code{items_averaged} is missing or not a positive whole number. These
 include every case that \code{\link[=grim]{grim()}} cannot decide, and some that it can: a
 mean may pass whatever \code{n} is, but how many fail depends on it. For
-continuous data, they return 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}. They
-are never negative. A count above 2^53, which only \code{digits_x} of 14 or
-more with \code{x_meaning = "percentage"} can reach, is the nearest number a
-double can hold.
+continuous data, they return 0, or \code{NA} where \code{\link[=grim]{grim()}} is \code{NA}. Under
+\code{data_type = NA}, they return \code{NA} unless the count is 0. A count above
+2^53, which only \code{digits_x} of 14 or more with \code{x_meaning = "percentage"}
+can reach, is the nearest number a double can hold.
 }
 \description{
 These functions quantify how informative a GRIM test is for a

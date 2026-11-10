@@ -19,14 +19,13 @@
 #' @details Under the null hypothesis, the decimal digits of each mean are
 #'   random, so its probability of consistency is `1 - exp_incon`, with
 #'   `exp_incon` from [`grim_exp_incon()`]. Since this differs between value
-#'   sets, the test uses the Poisson binomial distribution rather than
-#'   averaging the probabilities. Value sets whose `consistency` or `exp_incon`
-#'   is `NA` are left out: `exp_incon` is `NA` if `x`, `n`, `items_averaged`,
-#'   `digits_x`, or `data_type` is missing, even where the value set has a
-#'   definite result. Value sets with `data_type = "continuous"` have an
-#'   `exp_incon` of 0, so they count as certain successes: they leave the
-#'   p-value unchanged but raise `estimate` and the interval. Filter them out
-#'   first to compare only the others.
+#'   sets, the test uses the Poisson binomial distribution rather than averaging
+#'   the probabilities. Value sets whose `consistency` or `exp_incon` is `NA`
+#'   are left out; `exp_incon` can be `NA` even where the value set has a
+#'   definite result (see [`grim_exp_incon()`]). Value sets with `data_type =
+#'   "continuous"` have an `exp_incon` of 0, so they count as certain successes:
+#'   they leave the p-value unchanged but raise `estimate` and the interval.
+#'   Filter them out first to compare only the others.
 #'
 #'   The two-sided p-value is twice the smaller one-sided one, capped at 1.
 #'
@@ -36,13 +35,14 @@
 #'   the one-sided default.
 #'
 #'   The confidence interval is the exact Clopper-Pearson interval for the
-#'   consistency rate, as in [`stats::binom.test()`], one-sided like the test.
+#'   consistency rate, as in [`stats::binom.test()`], with the same
+#'   `alternative` as the test.
 #'   It treats the value sets as sharing one probability, so it is an interval
 #'   for their average. Compare it to the mean of `1 - exp_incon`.
 #'
 #' @returns Tibble with the columns `estimate` (observed consistency rate),
-#'   `statistic` (number of consistent cases), `p.value`, `parameter` (number
-#'   of cases), `conf.low`, `conf.high`, `conf.level` (`1 - alpha`), `method`, and
+#'   `statistic` (number of consistent cases), `p.value`, `parameter` (number of
+#'   cases), `conf.low`, `conf.high`, `conf.level` (`1 - alpha`), `method`, and
 #'   `alternative`.
 #'
 #' @export

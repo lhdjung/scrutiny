@@ -55,7 +55,7 @@ of size \code{n} can have; the others are left out. The reported value is
 marked above the row and labeled as consistent or inconsistent.
 
 \code{\link[=grim_plot_grid]{grim_plot_grid()}} shows many results at once; this function explains
-one. \code{\link[=grim_values]{grim_values()}} returns the attainable values as numbers.
+one. \code{\link[=grim_values]{grim_values()}} lists the unrounded means behind a reported one.
 }
 \details{
 With \code{zoom = "close"}, the row shows 10 values on either side of
