@@ -33,10 +33,8 @@ blue if consistent and red if not, against the DEBIT line: the SD of
 binary data as a function of their mean, for the given sample size.
 }
 \details{
-The line is that of the sample SD unless \code{\link[=debit_map]{debit_map()}} was called
-with \code{sd_meaning = "sd_pop"}, which shows the population SD. Under
-\code{sd_meaning = "sd_sample_or_pop"}, the lines for both are drawn. Under
-\code{"se"}, the line is that of the SE.
+The line is that of the statistic \code{\link[=debit_map]{debit_map()}} was called with:
+the sample SD by default, the population SD under \code{sd_meaning = "sd_pop"}, both under \code{"sd_sample_or_pop"}, or the SE under \code{"se"}.
 
 Under \code{formula = "exact"}, the default of \code{\link[=debit_map]{debit_map()}}, the means
 \code{k / n} that would be reported as each value set's \code{x} are marked as

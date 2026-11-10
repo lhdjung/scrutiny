@@ -23,7 +23,8 @@ debit_plot_line(
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, sd_meaning, formula, rounding, threshold, symmetric}{The same as in \code{\link[=debit]{debit()}}, but \code{x}, \code{sd}, and \code{n} must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, sd_meaning, formula, rounding, threshold, symmetric}{The same as in \code{\link[=debit]{debit()}}, but \code{x}, \code{sd}, \code{n}, \code{digits_x}, and
+\code{digits_sd} must have length 1.}
 
 \item{data_type}{String. \code{"integer"} if the values are 0 and 1, as in
 \code{\link[=debit]{debit()}}. There is no default, so that every call states this
@@ -56,13 +57,12 @@ reported SD is marked above the row and labeled as consistent or
 inconsistent.
 
 For many value sets, \code{\link[=debit_plot]{debit_plot()}} shows the results of
-\code{\link[=debit_map]{debit_map()}}. \code{\link[=debit_values]{debit_values()}} returns the attainable values as
-numbers.
+\code{\link[=debit_map]{debit_map()}}. \code{\link[=debit_values]{debit_values()}} lists the unrounded means and SDs
+behind a reported pair.
 }
 \details{
-By default, the row shows the SDs around \code{sd}, as in
-\code{\link[=grim_plot_line]{grim_plot_line()}}, where squares are labeled the same way. With
-\code{zoom = "wide"}, it runs from 0 to 1, the range of \code{debit()}'s inputs.
+\code{zoom} works as in \code{\link[=grim_plot_line]{grim_plot_line()}}, but with
+\code{zoom = "wide"}, the row runs from 0 to 1, the range of \code{debit()}'s inputs.
 
 Under \code{formula = "mean_n"}, the squares are the SDs of every mean that
 would be reported as \code{x}, whether or not \code{n} binary values can have it.

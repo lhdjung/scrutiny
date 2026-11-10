@@ -10,20 +10,20 @@
 #'   inconsistent.
 #'
 #'   For many value sets, [`debit_plot()`] shows the results of
-#'   [`debit_map()`]. [`debit_values()`] returns the attainable values as
-#'   numbers.
+#'   [`debit_map()`]. [`debit_values()`] lists the unrounded means and SDs
+#'   behind a reported pair.
 #'
 #' @param x,sd,n,digits_x,digits_sd,sd_meaning,formula,rounding,threshold,symmetric
-#'   The same as in [`debit()`], but `x`, `sd`, and `n` must have length 1.
+#'   The same as in [`debit()`], but `x`, `sd`, `n`, `digits_x`, and
+#'   `digits_sd` must have length 1.
 #' @param data_type String. `"integer"` if the values are 0 and 1, as in
 #'   [`debit()`]. There is no default, so that every call states this
 #'   assumption. `"continuous"` and `NA` are errors: if the data may be
 #'   continuous, there are no values to draw.
 #' @inheritParams grim_plot_line
 #'
-#' @details By default, the row shows the SDs around `sd`, as in
-#'   [`grim_plot_line()`], where squares are labeled the same way. With
-#'   `zoom = "wide"`, it runs from 0 to 1, the range of `debit()`'s inputs.
+#' @details `zoom` works as in [`grim_plot_line()`], but with
+#'   `zoom = "wide"`, the row runs from 0 to 1, the range of `debit()`'s inputs.
 #'
 #'   Under `formula = "mean_n"`, the squares are the SDs of every mean that
 #'   would be reported as `x`, whether or not `n` binary values can have it.

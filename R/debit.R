@@ -998,14 +998,14 @@ debit_scalar <- function(
 #' @param data_type String. As in [`grim()`]: `"integer"` or `"continuous"`.
 #'   No default. For DEBIT, `"integer"` means the binary
 #'   values 0 and 1 that the test assumes. Continuous data can have any mean
-#'   and SD from 0 to 1, so the result is `TRUE`, unless the SD is the
-#'   population SD of a single value, which is 0. Values outside of 0 to 1 are
-#'   an error for either data type.
+#'   and SD from 0 to 1, so the result is `TRUE`, but a single value can only
+#'   have an SD of 0. Values outside of 0 to 1 are an error for either data
+#'   type.
 #' @param formula String. `"exact"` (the default) only considers means that
 #'   `n` binary values can have, i.e., `k / n` for a whole number `k`.
 #'   `"mean_n"` treats the mean as continuous, as in Heathers and Brown
 #'   (2019), and accepts some SDs that no binary sample of size `n` can have:
-#'   `debit(0.05, 0.21, 20, 2, 2, "integer")` is `TRUE` under `"mean_n"`,
+#'   `debit(0.05, 0.21, 20, 2, 2, "integer", formula = "mean_n")` is `TRUE`,
 #'   although a mean of 0.05 with `n = 20` means one 1 in 20, whose SD rounds
 #'   to 0.22.
 #' @param rounding String. The rounding method assumed to have produced `x`

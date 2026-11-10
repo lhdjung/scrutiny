@@ -82,12 +82,11 @@ their absolute values (\code{-2.5} like \code{2.5}) under \code{"up"}, \code{"do
 \code{\link[roundwork:reround]{roundwork::reround()}}.}
 }
 \value{
-A tibble with one row per achievable pair. \code{case} is the index of
-the value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \code{sd} are the achievable
-values, \code{n} the reported sample size, \code{items_averaged} as given, and \code{sum}
-and \code{sum_squares} the whole numbers behind them, from each person's total
-over the \code{items_averaged} items. An inconsistent value set has no rows, and
-one that cannot be decided has one row of \code{NA} but for \code{n} and
+A tibble with one row per achievable pair. \code{case} is the index of the
+value set, as in \code{\link[=grim_values]{grim_values()}}. \code{x} and \code{sd} are the achievable values,
+\code{n} the reported sample size, \code{items_averaged} as given, and \code{sum} and
+\code{sum_squares} the whole numbers behind them. An inconsistent value set has
+no rows, and one that cannot be decided has one row of \code{NA} but for \code{n} and
 \code{items_averaged}, as in \code{\link[=grimmer]{grimmer()}}.
 
 \code{grimmer_closest()} returns the same columns with exactly one row per
@@ -127,7 +126,7 @@ of squares of 2^53 or more, about 9e15, which a double can't hold exactly;
 \code{\link[=grimmer]{grimmer()}} tests such value sets all the same. \code{grimmer_closest()}
 stops at 2^48, about 3e14, beyond which it can miss the closest pair.
 With \code{n} from 2 to 4, both stop at 2^40, about 1.1e12, as \code{\link[=grimmer]{grimmer()}}
-does, \code{grimmer_closest()} even if \code{x} fails GRIM.
+does; \code{grimmer_closest()} stops there even if \code{x} fails GRIM.
 
 Under \code{rounding = "even"}, the pairs include ties that \code{\link[base:Round]{base::round()}}
 may round away from \code{x} or \code{sd}, as in \code{\link[=grim_values]{grim_values()}}.

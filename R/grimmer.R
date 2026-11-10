@@ -834,13 +834,12 @@ grimmer_n_missing <- function(
 #'   squares must be one that `n` whole numbers with the reconstructed sum can
 #'   have. For `n >= 5`, this means at least the smallest such sum of squares;
 #'   for smaller `n`, some larger ones are impossible, too. With this test,
-#'   `grimmer()` is `TRUE` if and only if a sample of whole numbers has the
-#'   reported mean and SD. The one exception is `rounding = "even"`, or its
-#'   synonym `"ties_even"`, which takes a value on a rounding bound to round
-#'   either way, as in
-#'   [`roundwork::unround()`], so it may also accept a value set that a sample
-#'   only rounds to if ties are broken the other way. GRIMMER was first
-#'   proposed by Anaya (2016).
+#'   `grimmer()` is `TRUE` if and only if a sample of whole numbers has a mean
+#'   and SD that would be reported as `x` and `sd`. The one exception is
+#'   `rounding = "even"`, or its synonym `"ties_even"`, which takes a value on a
+#'   rounding bound to round either way, as in [`roundwork::unround()`], so it
+#'   may also accept a value set that a sample only rounds to if ties are broken
+#'   the other way. GRIMMER was first proposed by Anaya (2016).
 #'
 #'   For data on a bounded scale, such as a Likert scale, see the
 #'   [strait](https://github.com/ianhussey/strait) package. Its `brimmest()`
@@ -878,7 +877,7 @@ grimmer_n_missing <- function(
 #'   Excel's `STDEV()` and `STDEV.S()`, and pandas' `.std()`. The main
 #'   exception is NumPy, whose `np.std()` returns the population SD unless
 #'   `ddof = 1` is given; so does Python's `statistics.pstdev()`. If the data
-#'   may have been analyzed that way, or a value set fails only at a small
+#'   may have been analyzed that way, or an inconsistent value set has a small
 #'   `n`, test it under `"sd_pop"` as well. See *SD meaning*.
 #'
 #'   The rounding defaults are explained in [`grim()`].
@@ -895,7 +894,7 @@ grimmer_n_missing <- function(
 #'   `"sd_pop"`. The `reason` column of [`grimmer_map()`] names the convention a
 #'   value set passed under, trying the sample SD first.
 #'
-#'   `"sd_sample_or_pop"` accepts far more SDs than either convention alone, so
+#'   `"sd_sample_or_pop"` accepts more SDs than either convention alone, so
 #'   it is not the default. It also judges each value set on its own, although a
 #'   single study usually computed all its SDs the same way. To tell which
 #'   convention fits a set of values, test them under `"sd_sample"` and

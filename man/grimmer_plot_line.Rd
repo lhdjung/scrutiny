@@ -23,8 +23,8 @@ grimmer_plot_line(
 )
 }
 \arguments{
-\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, and \code{items_averaged}
-must have length 1.}
+\item{x, sd, n, digits_x, digits_sd, items_averaged, rounding, threshold, symmetric, sd_meaning}{The same as in \code{\link[=grimmer]{grimmer()}}, but \code{x}, \code{sd}, \code{n}, \code{digits_x}, \code{digits_sd},
+and \code{items_averaged} must have length 1.}
 
 \item{data_type}{String. \code{"integer"} if the values are whole numbers,
 as in \code{\link[=grimmer]{grimmer()}}. There is no default, so that every call states
@@ -60,9 +60,8 @@ For many value sets, \code{\link[=grim_plot_grid]{grim_plot_grid()}} accepts \co
 and shows the GRIM part of the test.
 }
 \details{
-By default, the row shows the SDs around \code{sd}, as in
-\code{\link[=grim_plot_line]{grim_plot_line()}}, where squares are labeled the same way. With
-\code{zoom = "wide"}, it runs from the whole number at or below \code{sd} to the
+\code{zoom} works as in \code{\link[=grim_plot_line]{grim_plot_line()}}, but with
+\code{zoom = "wide"}, the row runs from the whole number at or below \code{sd} to the
 next one up. It never goes below zero.
 
 If \code{x} is GRIM-inconsistent with \code{n}, no SD is attainable and the row has

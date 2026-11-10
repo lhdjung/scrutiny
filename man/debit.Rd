@@ -32,9 +32,9 @@ value does not keep them (\code{1.40} is \code{1.4}).}
 \item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
 No default. For DEBIT, \code{"integer"} means the binary
 values 0 and 1 that the test assumes. Continuous data can have any mean
-and SD from 0 to 1, so the result is \code{TRUE}, unless the SD is the
-population SD of a single value, which is 0. Values outside of 0 to 1 are
-an error for either data type.}
+and SD from 0 to 1, so the result is \code{TRUE}, but a single value can only
+have an SD of 0. Values outside of 0 to 1 are an error for either data
+type.}
 
 \item{sd_meaning}{String. What \code{sd} really is: the sample SD,
 \code{"sd_sample"} (the default); the population SD, \code{"sd_pop"}; either one,
@@ -46,7 +46,7 @@ sample SD is the default and when to choose another.}
 \code{n} binary values can have, i.e., \code{k / n} for a whole number \code{k}.
 \code{"mean_n"} treats the mean as continuous, as in Heathers and Brown
 (2019), and accepts some SDs that no binary sample of size \code{n} can have:
-\code{debit(0.05, 0.21, 20, 2, 2, "integer")} is \code{TRUE} under \code{"mean_n"},
+\code{debit(0.05, 0.21, 20, 2, 2, "integer", formula = "mean_n")} is \code{TRUE},
 although a mean of 0.05 with \code{n = 20} means one 1 in 20, whose SD rounds
 to 0.22.}
 

@@ -5,10 +5,9 @@
 #'   blue if consistent and red if not, against the DEBIT line: the SD of
 #'   binary data as a function of their mean, for the given sample size.
 #'
-#' @details The line is that of the sample SD unless [`debit_map()`] was called
-#'   with `sd_meaning = "sd_pop"`, which shows the population SD. Under
-#'   `sd_meaning = "sd_sample_or_pop"`, the lines for both are drawn. Under
-#'   `"se"`, the line is that of the SE.
+#' @details The line is that of the statistic [`debit_map()`] was called with:
+#'   the sample SD by default, the population SD under `sd_meaning =
+#'   "sd_pop"`, both under `"sd_sample_or_pop"`, or the SE under `"se"`.
 #'
 #'   Under `formula = "exact"`, the default of [`debit_map()`], the means
 #'   `k / n` that would be reported as each value set's `x` are marked as

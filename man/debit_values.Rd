@@ -90,12 +90,9 @@ closest among the pairs whose mean would be reported as \code{x}, or, if there
 are none, it is the pair whose mean \code{\link[=grim_closest]{grim_closest()}} returns.
 }
 \details{
-The values are those of actual samples, so they follow \code{debit()}'s
-default \code{formula = "exact"}.
-
-More than a million numbers of ones whose mean would be reported as \code{x}
-is an error, since they are listed before the SD narrows them down. That
-takes an \code{n} of more than about \code{10^(digits_x + 6)}.
+More than a million numbers of ones whose mean would be reported as
+\code{x} is an error, since they are listed before the SD narrows them down.
+That takes an \code{n} of more than about \code{10^(digits_x + 6)}.
 
 In \code{debit_closest()}, pairs whose SDs are equally close go by the mean
 closer to \code{x}, then by the smaller number of ones.

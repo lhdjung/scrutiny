@@ -97,13 +97,12 @@ does \code{rsprite2::GRIMMER_test()}, with a stricter first test: the sum of
 squares must be one that \code{n} whole numbers with the reconstructed sum can
 have. For \code{n >= 5}, this means at least the smallest such sum of squares;
 for smaller \code{n}, some larger ones are impossible, too. With this test,
-\code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has the
-reported mean and SD. The one exception is \code{rounding = "even"}, or its
-synonym \code{"ties_even"}, which takes a value on a rounding bound to round
-either way, as in
-\code{\link[roundwork:unround]{roundwork::unround()}}, so it may also accept a value set that a sample
-only rounds to if ties are broken the other way. GRIMMER was first
-proposed by Anaya (2016).
+\code{grimmer()} is \code{TRUE} if and only if a sample of whole numbers has a mean
+and SD that would be reported as \code{x} and \code{sd}. The one exception is
+\code{rounding = "even"}, or its synonym \code{"ties_even"}, which takes a value on a
+rounding bound to round either way, as in \code{\link[roundwork:unround]{roundwork::unround()}}, so it
+may also accept a value set that a sample only rounds to if ties are broken
+the other way. GRIMMER was first proposed by Anaya (2016).
 
 For data on a bounded scale, such as a Likert scale, see the
 \href{https://github.com/ianhussey/strait}{strait} package. Its \code{brimmest()}
@@ -123,7 +122,7 @@ nearly all software reports by default: R's \code{sd()}, SPSS, Stata, SAS,
 Excel's \code{STDEV()} and \code{STDEV.S()}, and pandas' \code{.std()}. The main
 exception is NumPy, whose \code{np.std()} returns the population SD unless
 \code{ddof = 1} is given; so does Python's \code{statistics.pstdev()}. If the data
-may have been analyzed that way, or a value set fails only at a small
+may have been analyzed that way, or an inconsistent value set has a small
 \code{n}, test it under \code{"sd_pop"} as well. See \emph{SD meaning}.
 
 The rounding defaults are explained in \code{\link[=grim]{grim()}}.
@@ -142,7 +141,7 @@ no sample SD, so at \code{n = 1}, \code{"sd_sample_or_pop"} is the same as
 \code{"sd_pop"}. The \code{reason} column of \code{\link[=grimmer_map]{grimmer_map()}} names the convention a
 value set passed under, trying the sample SD first.
 
-\code{"sd_sample_or_pop"} accepts far more SDs than either convention alone, so
+\code{"sd_sample_or_pop"} accepts more SDs than either convention alone, so
 it is not the default. It also judges each value set on its own, although a
 single study usually computed all its SDs the same way. To tell which
 convention fits a set of values, test them under \code{"sd_sample"} and

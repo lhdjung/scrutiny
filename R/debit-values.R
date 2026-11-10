@@ -244,12 +244,9 @@ debit_values_tibble <- function(ones, n, sd_meaning) {
 #'   closest among the pairs whose mean would be reported as `x`, or, if there
 #'   are none, it is the pair whose mean [`grim_closest()`] returns.
 #'
-#' @details The values are those of actual samples, so they follow `debit()`'s
-#'   default `formula = "exact"`.
-#'
-#'   More than a million numbers of ones whose mean would be reported as `x`
-#'   is an error, since they are listed before the SD narrows them down. That
-#'   takes an `n` of more than about `10^(digits_x + 6)`.
+#' @details More than a million numbers of ones whose mean would be reported as
+#'   `x` is an error, since they are listed before the SD narrows them down.
+#'   That takes an `n` of more than about `10^(digits_x + 6)`.
 #'
 #'   In `debit_closest()`, pairs whose SDs are equally close go by the mean
 #'   closer to `x`, then by the smaller number of ones.

@@ -13,17 +13,16 @@
 #'   and shows the GRIM part of the test.
 #'
 #' @param x,sd,n,digits_x,digits_sd,items_averaged,rounding,threshold,symmetric,sd_meaning
-#'   The same as in [`grimmer()`], but `x`, `sd`, `n`, and `items_averaged`
-#'   must have length 1.
+#'   The same as in [`grimmer()`], but `x`, `sd`, `n`, `digits_x`, `digits_sd`,
+#'   and `items_averaged` must have length 1.
 #' @param data_type String. `"integer"` if the values are whole numbers,
 #'   as in [`grimmer()`]. There is no default, so that every call states
 #'   this assumption. `"continuous"` and `NA` are errors: if the data may
 #'   be continuous, there are no values to draw.
 #' @inheritParams grim_plot_line
 #'
-#' @details By default, the row shows the SDs around `sd`, as in
-#'   [`grim_plot_line()`], where squares are labeled the same way. With
-#'   `zoom = "wide"`, it runs from the whole number at or below `sd` to the
+#' @details `zoom` works as in [`grim_plot_line()`], but with
+#'   `zoom = "wide"`, the row runs from the whole number at or below `sd` to the
 #'   next one up. It never goes below zero.
 #'
 #'   If `x` is GRIM-inconsistent with `n`, no SD is attainable and the row has

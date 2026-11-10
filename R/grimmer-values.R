@@ -795,7 +795,7 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   [`grimmer()`] tests such value sets all the same. `grimmer_closest()`
 #'   stops at 2^48, about 3e14, beyond which it can miss the closest pair.
 #'   With `n` from 2 to 4, both stop at 2^40, about 1.1e12, as [`grimmer()`]
-#'   does, `grimmer_closest()` even if `x` fails GRIM.
+#'   does; `grimmer_closest()` stops there even if `x` fails GRIM.
 #'
 #'   Under `rounding = "even"`, the pairs include ties that [`base::round()`]
 #'   may round away from `x` or `sd`, as in [`grim_values()`].
@@ -818,12 +818,11 @@ square_attainable_below <- function(r, n, lower, upper) {
 #'   premise, so call `grimmer_values()` once for each. Under `"se"`, the `sd`
 #'   column holds the standard error.
 #'
-#' @return A tibble with one row per achievable pair. `case` is the index of
-#'   the value set, as in [`grim_values()`]. `x` and `sd` are the achievable
-#'   values, `n` the reported sample size, `items_averaged` as given, and `sum`
-#'   and `sum_squares` the whole numbers behind them, from each person's total
-#'   over the `items_averaged` items. An inconsistent value set has no rows, and
-#'   one that cannot be decided has one row of `NA` but for `n` and
+#' @return A tibble with one row per achievable pair. `case` is the index of the
+#'   value set, as in [`grim_values()`]. `x` and `sd` are the achievable values,
+#'   `n` the reported sample size, `items_averaged` as given, and `sum` and
+#'   `sum_squares` the whole numbers behind them. An inconsistent value set has
+#'   no rows, and one that cannot be decided has one row of `NA` but for `n` and
 #'   `items_averaged`, as in [`grimmer()`].
 #'
 #'   `grimmer_closest()` returns the same columns with exactly one row per
