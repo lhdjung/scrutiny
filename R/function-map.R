@@ -45,7 +45,7 @@
 #' @param .cols_helper Optionally, names of arguments of `.fn` that may also be
 #'   given as columns of `data`, such as `"items_averaged"`. A helper column is
 #'   returned after the key columns if it was given, as a column or as an
-#'   argument. See [`manage_helper_col()`].
+#'   argument. Giving both is an error if they disagree.
 #' @param .col_names Optionally, names of the columns that a list returned by
 #'   `.fn` unpacks into, as with `show_rec = TRUE`. The first name must be
 #'   `.name_key_result`. If `data` has no rows, the columns are those that

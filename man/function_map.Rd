@@ -59,7 +59,7 @@ has no arguments for them; specifying one is an error.}
 \item{.cols_helper}{Optionally, names of arguments of \code{.fn} that may also be
 given as columns of \code{data}, such as \code{"items_averaged"}. A helper column is
 returned after the key columns if it was given, as a column or as an
-argument. See \code{\link[=manage_helper_col]{manage_helper_col()}}.}
+argument. Giving both is an error if they disagree.}
 
 \item{.col_names}{Optionally, names of the columns that a list returned by
 \code{.fn} unpacks into, as with \code{show_rec = TRUE}. The first name must be
