@@ -392,3 +392,11 @@ test_that("`debit_plot_line()` checks its own arguments", {
   1.35 |> debit_plot_line(0.49, 20, 2, 2, "integer")                       |> expect_error()
   c(0.35, 0.4) |> debit_plot_line(0.49, 20, 2, 2, "integer")               |> expect_error("length 1")
 })
+
+test_that("a `digits_*` of the wrong length is an error that names it", {
+  5.19 |> grim_plot_line(28, c(2, 2), 1, "integer")                |> expect_error("`digits_x` must have length 1")
+  5.2  |> grimmer_plot_line(1.3, 20, c(1, 1), 1, 1, "integer")     |> expect_error("`digits_x` must have length 1")
+  5.2  |> grimmer_plot_line(1.3, 20, 1, c(1, 1), 1, "integer")     |> expect_error("`digits_sd` must have length 1")
+  0.35 |> debit_plot_line(0.49, 20, c(2, 2), 2, "integer")         |> expect_error("`digits_x` must have length 1")
+  0.35 |> debit_plot_line(0.49, 20, 2, c(2, 2), "integer")         |> expect_error("`digits_sd` must have length 1")
+})

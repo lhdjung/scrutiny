@@ -584,6 +584,7 @@ grim_plot_line <- function(
   }
   check_length(x, 1L)
   check_length(n, 1L)
+  check_length(digits_x, 1L)
   if (missing(items_averaged)) {
     error_items_missing()
   }

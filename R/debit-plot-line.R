@@ -79,6 +79,8 @@ debit_plot_line <- function(
   check_length(x, 1L)
   check_length(sd, 1L)
   check_length(n, 1L)
+  check_length(digits_x, 1L)
+  check_length(digits_sd, 1L)
   if (missing(data_type)) {
     error_data_type_missing()
   }
