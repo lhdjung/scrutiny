@@ -1,3 +1,303 @@
+# scrutiny 1.0.0
+
+scrutiny 1.0.0 is a major release with many bugfixes and new features, but also many breaking changes. If you have used GRIM, GRIMMER, or DEBIT before, you will need to adjust your code.
+
+You can let error messages guide you -- indeed, this will often be necessary. You may read up on individual items below, but the release notes are not intended to be read all at once.
+
+## Key changes
+
+Most calls to `grim_map()` or `grim()` need three new arguments:
+
+``` r
+# scrutiny 0.6.1
+grim_map(pigs1)
+grim(x = "5.19", n = 28)
+
+# scrutiny 1.0.0
+grim_map(pigs1, digits_x = 2, items_averaged = 1, data_type = "integer")
+grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
+```
+
+- `x` and `sd` are no longer strings but numbers. Since numbers drop trailing zeros, `digits_x` states the number of decimal places. For GRIMMER and DEBIT functions, there is also `digits_sd`.
+- `items_averaged` replaces `items`, which defaulted to 1, so it silently tested means of multi-item scales as single items.
+- `data_type` states whether the data are whole numbers (`"integer"`), as the tests assume, or `"continuous"`, where they don't apply.
+
+Each of these can also be a column of `data`. This allows for their values to differ by row. If one is missing, the error will tell you how to provide it.
+
+You will also meet these changes:
+
+- `percent = TRUE` is now `x_meaning = "percentage"`.
+- The `probability` column of `grim_map()` is now `exp_incon`, and `audit()` renamed some columns, such as `incons_rate` to `emp_incon`. I had changed the name of that `grim_map()` column before, but the new name will remain.
+- Under the default settings, GRIM's results for testable value sets are unchanged. GRIMMER no longer flags any consistent value sets and catches some inconsistent ones it used to miss. DEBIT is now exact. All three tests use exact integer arithmetic, and several rounding procedures were corrected; see "Test results" below.
+- `grim_plot()` is now `grim_plot_grid()`, which returns its plot instead of printing it.
+- The rounding functions, such as `reround()`, moved to the [roundwork](https://lhdjung.github.io/roundwork/) package.
+- New: `grim_explain()`, `grimmer_explain()`, and `debit_explain()` use plain words to explain a result, and `explain_print()` does so for mapper output.
+
+The tests, their three mapper tiers, and `audit()` constitute the stable core of this release. Every function newly added in 1.0.0 is experimental and may change in a minor or major release later on. The same applies to the developer tools, such as `function_map()`.
+
+## Breaking changes
+
+### Numeric inputs
+
+- `x` and `sd` are now numeric in `grim()`, `grimmer()`, `debit()`, and their mappers; strings are no longer accepted. Since numbers drop trailing zeros, the new `digits_x` and `digits_sd` arguments are required. They take one value per row in the basic and sequence mappers and one per group in the total-n mappers, as in `grim_map_total_n(df, digits_x = c(2, 1), items_averaged = 1, data_type = "integer")`, and must be whole numbers from 0 to 15. Alternatively, you can add `digits_x` and `digits_sd` columns to your input `data`. The total-n mappers will apply them to both groups. (See "Function interfaces" below on `items_averaged` and `data_type`.)
+
+- `digits_*` arguments or columns, as well as the integer digits of `x` or `sd`, may not exceed about 15 significant digits. This is the precision of the double data type. Beyond that, GRIMMER and DEBIT get exact results for large means, SDs, and sample sizes. Apart from the limit on `x` with `n` that they share with GRIM, and one of 2^52 on `n` with `x` missing, GRIMMER only refuses an SD from about 5e5 to 1e6 on, or an SE from about 3e5 to 7e5 on, for `n` from 2 to 4, and value sets with more than a million candidate sums; see `?grimmer` and `?debit`.
+
+- Mappers return `digits_x` and `digits_sd` as integer columns. `grim_plot_grid()` (formerly `grim_plot()`) reads the number of decimal places from them instead of inferring it from `x`.
+
+- The `n`, `items_averaged`, and `absolute` columns of mapper output are integer columns if all their values are whole numbers within the integer range.
+
+### Test results
+
+- GRIMMER tests every sum that rounds to the reported mean. Earlier versions only took the one nearest to `x * n`, so tests 1 and 3 could fail for a consistent value set whenever several sums round to the mean, which can happen once `n` reaches `10^digits_x`. In a grid of such value sets, a fifth of the inconsistencies that scrutiny 0.6.1 found for means with one decimal place were false positives, as were 3% of those for means with two decimal places. The warning about this was removed. Thanks to Nathanael Larigaldie and \@takua624 (#80, #84).
+
+- GRIMMER computes candidate sums and sums of squares in exact integer arithmetic. Floating-point comparisons could lose a candidate on a rounding bound, so some consistent value sets were reported as inconsistent, also for multi-item scales. For example, `grimmer(x = 0.03, sd = 0.18, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", n = 200)` was `FALSE`, although seven 1s and 193 0s have exactly these statistics. Thanks to Ian Hussey (#86) and Aurélien Allard.
+
+- GRIMMER rejects sums of squares below the minimum that whole numbers with the reconstructed sum can have. For example, `grimmer(x = 3.6, sd = 0.2, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer", n = 11)` was `TRUE`, but 11 whole numbers that sum to 40 cannot have an SD below 0.5.
+
+- For `n < 5`, GRIMMER also rejects sums of squares that are large enough but unattainable: `grimmer(x = 1.0, sd = 2.0, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer", n = 2)` was `TRUE`, but the values would be 1 ± √2. For `n >= 5`, the minimum and the parity test suffice, so `grimmer()` is `TRUE` if and only if a sample of whole numbers has the reported mean and SD, except under `rounding = "even"`, which lets a tie round either way. The `reason` for both new rejections is `"GRIMMER inconsistent (test 1)"`.
+
+- A rounding bound is exclusive whenever a value exactly on it would round away from the reported number. This already held for `"up"` and `"down"`, and now also for `"ceiling"`, `"floor"`, `"trunc"`, `"anti_trunc"`, and the `"*_from"` methods. Under `"even"`, both bounds stay inclusive, because whether `base::round()` sees a tie depends on the binary representation of the value.
+
+- `symmetric` now affects the results of `grim()` and `grimmer()`, not only the `show_rec` values. `threshold` no longer affects `"up"`, `"down"`, and `"up_or_down"`, which always round from 5.
+
+- `"down_from"` and `"up_from_or_down_from"` read `threshold` as `"up_from"` does: rounding goes down if the part cut off is at most `threshold` tenths of a rounding step. It used to switch at `10 - threshold`, so `"up_from_or_down_from"` could span up to 1.8 steps, and GRIM with `threshold = 9` accepted every mean at `n = 57`. Results at the default `threshold = 5` are unchanged.
+
+- `"anti_trunc"` no longer moves a value that already has the required number of decimal places: 8.42 rounded to two decimal places is 8.42, not 8.43, as with Excel's `ROUNDUP()`. A mean of `0.00` is therefore consistent under `"anti_trunc"`; it used to be `FALSE`.
+
+- DEBIT is exact by default. The mean of `n` binary values is `k / n` for a whole number `k`, but DEBIT treated it as continuous and accepted some SDs that no binary sample of size `n` can have. `formula` gains `"exact"`, the new default; `"mean_n"` is the old behavior. `"0_n"`, `"1_n"`, and `"groups"`, which always failed, were removed. With `show_rec = TRUE`, `debit_map()` also returns `sum_lower` and `sum_upper`, the smallest and largest `k` whose mean would be reported as `x`.
+
+- GRIM, GRIMMER, and DEBIT return `NA` for every case that cannot be decided: an infinite value, an `n` or `items_averaged` that is not a positive whole number, or a missing value that could decide the case either way. A missing value that could not is no obstacle: `grimmer()` with a missing `sd` is `FALSE` if `x` fails GRIM, and with a missing `x` if no sum of whole numbers admits `sd`; `debit()` likewise. A missing `digits_*` value gives `FALSE` if the value set fails with the decimal places the values show, and `TRUE` if it passes with so many that only these values pass: `grim(5.2, 5, NA, 1, "integer")` is `TRUE`. A missing `n` gives `TRUE` if data that are all the same value fit, and `FALSE` if no data of any size fit: `grimmer(3.2, 0.2, NA, 1, 1, 1, "integer")` is `FALSE`, since whole numbers with a mean of about 3.2 have an SD of at least 0.36. A few cases are still `NA`; see `vignette("technical-notes")`. GRIMMER and DEBIT also need `n >= 2`, since a sample SD divides by `n - 1`, unless `sd_meaning = "sd_pop"`. Such cases used to cause an error or return an arbitrary `TRUE` or `FALSE`. The renamed version of `grim_probability()`, `grim_exp_incon()` returns `NA` for them too.
+
+- `grim_exp_incon()`, `grim_total()`, and the `exp_incon` column of `grim_map()` take the rounding method into account via new `rounding` and `threshold` arguments. The old formula, `(10^D - N * L) / 10^D`, assumes that each reported value comes from a single range of unrounded values, one step wide. Under the default `"up_or_down"`, a tie is accepted both ways, so the probability is lower: `0.4` instead of `0.6` for `n = 40` and two decimal places.
+
+### Function interfaces
+
+- `grim_probability()` is now `grim_exp_incon()` (the old name is deprecated), and the `probability` column of `grim_map()` is now `exp_incon`, the expected rate of inconsistency. In every `audit()` method for mapper output, including `audit_cols_minimal()`, the first columns are now `all_cases`, `incon_cases` (formerly `incons_cases`), and `emp_incon` (formerly `incons_rate`), in this order. For `grim_map()` output, `testable_cases` follows `all_cases`, and `exp_incon` (formerly `mean_grim_prob`) and `ratio` (formerly `incons_to_prob`) come last. `testable_rate` was removed: it is `testable_cases / all_cases`.
+
+- `items` is now `items_averaged` and has no default (#94). It is the number of items averaged into each score; the old name was mistaken for the number of scale points, and the old default of 1 silently tested means of multi-item scales as single items. Give it wherever it applies, as in `grim()`, `grimmer()`, their mappers, and `grim_exp_incon()`; use `items_averaged = 1` for single items and percentages. Mappers also accept an `items_averaged` column. `grim_granularity()` keeps its default of 1.
+
+- GRIM, GRIMMER, and DEBIT have a new `data_type` argument without a default, since the tests only apply to whole numbers (for DEBIT, the binary values 0 and 1). `"integer"` data are tested as before. `"continuous"` data can have any mean and SD (for DEBIT, within 0 to 1), so the result is `TRUE` unless no data can have the value set, as with a negative SD, the `reason` of `grimmer_map()` is `"Continuous data"`, and `exp_incon` is 0. A `data_type` of `NA` gives the result for whole numbers if continuous data would get the same, and `NA` otherwise. Like `items_averaged`, `data_type` is vectorized and may be a column of `data`, and the mappers return it as a column. Give it in `grim()`, `grimmer()`, `debit()`, their mappers, `grim_exp_incon()`, and `grim_total()`, as in `grim(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")`. `grim_plot_grid()` and `debit_plot()` leave out continuous data with a warning.
+
+- GRIM's `percent` argument is now `x_meaning`, which takes `"mean"` (the default) or `"percentage"`, as in `grim(x = 71, n = 43, digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage")`. Like `sd_meaning` in GRIMMER and DEBIT, it says what the reported value is rather than switching a conversion on or off. In `grim()`, its mappers, `grim_exp_incon()`, and `grim_total()`, giving `percent` is an error that points to `x_meaning`.
+
+- In every mapper, the dots come right after the key arguments, so the arguments after them must be named in full. The total-n mappers gain an `n` argument for the column of totals, as in `grim_map_total_n(df, digits_x = c(2, 1), n = "total", items_averaged = 1, data_type = "integer")`.
+
+- The settings of GRIM, GRIMMER, and DEBIT come in one order in every function: what the reported values mean (`x_meaning`, `sd_meaning`, and DEBIT's `formula`), then `rounding`, `threshold`, and `symmetric`, then `show_rec`.
+
+- `grim_map()`, `grimmer_map()`, and `debit_map()` are made by `function_map()` and have an explicit argument for every argument of `grim()`, `grimmer()`, and `debit()`, such as `formula` in `debit_map()`. A `digits_*` column of `data` that disagrees with the argument is an error. `merge_items`, `extra`, and `testables_only` were removed: use `dplyr::select()` instead of `extra` and `dplyr::filter(exp_incon > 0)` instead of `testables_only`. `grim_map(x_meaning = "percentage")` keeps `x` as a percentage instead of converting it to a proportion with a message.
+
+- The sequence and total-n mappers, such as `grim_map_seq()`, have an explicit argument for every setting of their basic mapper, such as `rounding` or `threshold`, with the same default. These used to be passed through the dots, which must now be empty. Existing calls are unaffected.
+
+- `debit_map()`'s `show_rec` defaults to `FALSE`, as in `grim_map()`; `debit_plot()` reconstructs the values itself. `debit_map()` output no longer has a `rounding` column. `grimmer_map()` no longer has `show_reason`: the `reason` column is always returned. `audit()` on `grimmer_map()` output no longer has a `fail_test2` column.
+
+- `audit()` on sequence or total-n mapper output returns the per-case summary of `audit_seq()` or `audit_total_n()`. It used to apply the basic mapper's summary, which counted the dispersed rows as reported cases. `audit_seq()` and `audit_total_n()` are deprecated in favor of `audit()`, which returns the same summaries and also has `.by`. `audit_cols_minimal()` lost its `name_test` argument.
+
+- Mappers accept any data frame and return a tibble. Character row names, such as study labels, are kept as a `rowname` column, except by the sequence mappers, which drop all columns that play no role in the test; `case` joins them back.
+
+- `grim()`, `grimmer()`, and `debit()` lost `show_rec` and `show_reason`, which were only meant for the mappers. They are vectorized over `x`, `sd`, `n`, the `digits_*` arguments, `items_averaged`, and `data_type`; all other arguments must have length 1. Recycling follows the tidyverse rules, so `grim(x = c(5.19, 5.18, 5.17), n = c(28, 32), digits_x = 2, items_averaged = 1, data_type = "integer")` is an error.
+
+- `grim_map()` and `grimmer_map()` no longer multiply `items` into `n`: `n` is the sample size as reported, and `items_averaged` is a column of its own. `grim_plot_grid()` places tiles at `n * items_averaged`.
+
+- `grim_map(show_rec = TRUE)` returns the same five columns for every rounding method: `rec_sum`, `sum_lower`, `sum_upper`, `rec_x_upper`, and `rec_x_lower`. The `rec_x_*_rounded*` columns are gone. `sum_lower` and `sum_upper` are the smallest and largest whole-number sums that would be reported as `x`, and `consistency` is `TRUE` exactly if `sum_lower <= sum_upper`, so the columns cannot contradict the result. With `x_meaning = "percentage"`, `rec_x_upper` and `rec_x_lower` are percentages, like `x`.
+
+- The `sd_binary_*()` functions take `sd_meaning`, as in `debit()`, and return the population SD under `"sd_pop"` and the standard error under `"se"`. `sd_binary_mean_n()` takes the mean as `x` instead of `mean`, as the tests do; `mean` still works, with a warning.
+
+- `grim_plot_grid()` takes the number of decimal places as `digits_x`, as every other function does, and the color of the raster as `color_raster`, like the `color_*` arguments of `grim_plot_line()`. The deprecated `grim_plot()` keeps its old signature, including `digits` and `raster_color`; `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha` have no effect anymore.
+
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` take the pair of delimiters as `delim` instead of `sep`, which is the decimal mark in `decimal_places()`. `split_by_parens()`'s `check_sep` is now `check_delim`. The old names still work, with a warning.
+
+- S3 classes start with `scrutiny_` instead of `scr_`, as in `"scrutiny_grim_map"` (#39).
+
+- `function_map()`, `function_map_seq()`, and `function_map_total_n()` take the function to map as `.fn` instead of `.fun`.
+- `manage_helper_col()` takes the argument as `arg` instead of `var_arg`, and `add_col` instead of `affix`; the old names still work, with a warning.
+
+- Mapper settings that other functions need later, such as `rounding`, are recorded in a `"scrutiny"` attribute instead of S3 classes, which are now used for dispatch only. The `"scr_rounding_*"`, `"scr_percent_true"`, `"scr_map_seq_disp_nonlinear"`, `"scr_seq_df"`, and `"scr_seq_test"` classes are gone.
+
+- In `*_map_seq()` output, `case` is the row number of the value set in the input data; it used to count only the inconsistent rows. `n` and `items_averaged` are separate columns, also in `*_map_total_n()` output, and `n` is dispersed in steps of 1.
+
+- In every function, `rounding` must be a string and `symmetric` a single `TRUE` or `FALSE`; a numeric or logical `rounding` was silently read as a position in the list of rounding methods.
+
+- `decimal_places()` and `decimal_places_df()` match `sep` literally, as `restore_zeros()` and `restore_zeros_df()` match `sep_in`, and the defaults are `"."` instead of `"\\."`.
+
+- `grim_plot_grid()` and `debit_plot()` return their plot instead of printing it. `grim_plot_grid()` has an aspect ratio of 1, which can be undone with `ggplot2::theme(aspect.ratio = NULL)`. It also has a new `split_by_digits` argument that returns one plot per number of decimal places.
+
+- The background raster in `grim_plot_grid()` shows consistent cells in grey and inconsistent cells in white, the inverse of `grim_plot()`'s former default. I acknowledge that this might confuse long-time users at first, and that it departs from the color scheme of [Brown and Heathers (2017, Fig. 1)](https://doi.org/10.1177/1948550616673876) that was the key inspiration for `grim_plot_grid()`. However, it matches the broader emerging ecosystem of forensic meta-science software that ties in with GRIM. In this related work, relatively few dark points signify possible value sets against a white background. See, e.g., [Hussey (2026) on combining granularity and bounds methods](https://trustworthyresear.ch/chapters/combined_granularity_and_bounds_methods.html).
+
+- `debit_plot()` lost `line_size`, `show_outer_boxes`, and the `tile_*` arguments. Instead, each rectangle is drawn over a point at the reported mean and SD, so that value sets with tiny rectangles stay visible. Its labels are placed the same way on every run.
+
+- `duplicate_count_colpair()` requires at least two columns, and its `rate_y` is the proportion of `y` values that occur in `x`, as documented.
+
+## New features
+
+- `grim_explain()`, `grimmer_explain()`, and `debit_explain()` lay out the test of a single case in plain words. They are built from the numbers that decide the test, so they always agree with `grim()`, `grimmer()`, and `debit()`. `explain_map()` adds these explanations to mapper output as an `explanation` column, using the settings of the mapper call, and `explain_print()` prints them. Each one names the rounding method it assumes, and its first line lists `items_averaged` and `data_type`.
+
+- `grimmer()`, `debit()`, and their mappers, explanations, and plots have a new `sd_meaning` argument: what a value reported as an SD really is. `"sd_sample"`, the default, is a sample SD, which divides by `n - 1`. `"sd_pop"` is a population SD, which divides by `n`, as with NumPy's `np.std()` or Excel's `STDEV.P`. `"sd_sample_or_pop"` accepts a value set that is consistent under either; `grimmer_map()`'s `reason` column names the one that passed. `"se"` is a standard error reported as an SD. This test is weak: from about `n = 30` on, nearly every value set whose mean passes GRIM is consistent under `"se"`. Thanks to Ian Hussey (#95).
+
+- `percentage_of()`, `percentage_of_map()`, and `percentage_of_map_seq()` check whether a reported percentage matches a count out of a total. `add_up_to()` and `add_up_to_map()` check whether subgroup sizes sum to a total; `add_up_to_map()` selects any number of columns with tidyselect. `percentage_of_map()` and `add_up_to_map()` have `audit()` methods.
+
+- `grim_plot_line()`, `grimmer_plot_line()`, and `debit_plot_line()` visualize the test of a single value set. Among all means or SDs within a range that could be reported with the given number of decimal places, they draw a square for each value that is consistent with the reported sample size, leave the others out, and indicate the reported mean or SD value. Squares are labeled with their values if there is space. By default, `zoom = "close"` shows the reported value and the nearest attainable one; `zoom = "medium"` widens to the nearest attainable one on either side, and `zoom = "wide"` shows a whole unit, which is 0% to 100% for a percentage.
+
+- `grim_plot_rates()` plots each study's rate of GRIM-inconsistent value sets against the rate that random means would show.
+
+- `grim_values()` returns all means of `n` integers that would be reported as `x`, with the whole-number sum behind each, and `grim_closest()` the achievable mean closest to `x`. Both return a tibble with a `case` column and an `items_averaged` column, as `grimmer_values()` and `grimmer_closest()` do (#62).
+
+- `grim_grid()` tests every combination of sample size and fractional part of a mean with GRIM. It is primarily meant for studying GRIM itself. Its inconsistent cells are the background raster of `grim_plot_grid()`. `grim_plot_grid()` now also draws a raster for the `"up_from"` family of rounding methods instead of throwing an error, and has a `threshold` argument, like `rounding`, for the raster that `show_data = FALSE` draws on its own. Otherwise, the raster follows the mapper call, and a `rounding` or `threshold` that disagrees with it is an error.
+
+- `grimmer_values()` returns every pair of a mean and an SD of `n` integers that would be reported as `x` and `sd`, with the sum and sum of squares behind each. `debit_values()` does the same for binary data. `grimmer_closest()` returns the pair whose SD is closest to `sd`, like `grim_closest()` for means, and `debit_closest()` does the same for binary data. This is related to #59 but doesn't conclude the questions raised there. These functions and the `*_plot_line()` functions require `data_type`, and `"continuous"` is an error there, since they list or draw the values that whole numbers can have.
+
+- `grim_binomial()` tests whether the rate of GRIM-consistent value sets is above what random decimal digits would produce, and returns a Clopper-Pearson confidence interval. `grim_binomial_power()` computes the power of this test.
+
+- `audit()` has a `.by` argument for summaries by group, as in `audit(out, .by = study)`. Output grouped by `dplyr::group_by()` now gets an error that explains the problem, instead of "no applicable method". Methods in other packages need the dots: `audit.my_class <- function(data, ...)`.
+
+- `scrutiny_meta()` returns the settings that a mapper recorded on its output, such as `rounding` and `sd_meaning`, so that a report can state the conditions of a result. Printed mapper output names the settings that differ from the defaults in its header, as in `# GRIM: rounding = "up"`. Combining the output of two calls with different settings with `dplyr::bind_rows()` is an error, since the rows would be read under the first call's settings, and so is combining it with the rows of a plain data frame; adding columns, as with `dplyr::bind_cols()` or `tidyr::nest()`, works. `rbind()` and joins such as `dplyr::full_join()` are not covered and keep the first output's record; `audit()` on sequence and total-n output rejects the rows they add, and value sets that occur twice, as from binding an output to itself.
+
+- New `rounding` strings `"ties_up"`, `"ties_down"`, `"ties_away"`, `"ties_zero"`, and `"ties_even"`. Each names a complete tie-breaking rule (`"ties_away"` is `"up"` with `symmetric = TRUE`), so combining one of these strings with `symmetric` is an error.
+
+- `function_map()` gains `.args_by_row`, `.args_fixed`, `.cols_helper`, `.cols_derived`, a working `.col_names`, and `.reported_variadic` for tests in which the data determine the number of key columns (#42). `function_map_seq()` gains `.var_bounds`, which sets the dispersion limits per variable, so that a mean can go below zero while `n` stays at least 1.
+
+- Last but not least, the package gained a hex logo. It is a reference to the topos of flying pigs in [Brown and Heathers (2017)](https://doi.org/10.1177/1948550616673876), which the authors continued as a running joke in their later joint work. Like value sets that fail a consistency test, assertions about flying pigs may raise concerns about trustworthiness.
+
+## Bug fixes
+
+### Consistency tests
+
+- A count such as a sample size, item count, or decimal count within floating-point noise of a whole number, such as `100 * 0.29`, is used as that whole number, as the checks already took it to be. It used to be tested as is, which could flip a result, make a case untestable, or make `disperse_total()` and the total-n mappers treat an even total as odd: `40 - 1e-9` was split into 19.5 and 20.5 instead of 20 and 20. This applies to the tests and their mappers, `grim_exp_incon()`, `grim_total()`, the `sd_binary_*()` functions, `disperse()`, `disperse2()`, and `disperse_total()`, including their `dispersion` steps, and the steps of `seq_disperse()` and the sequence mappers.
+
+- `debit()` no longer reports consistent binary data with a mean of exactly `0.50` as inconsistent, and returns a result for means of exactly 0 and 1, which used to be `NA`. Under `formula = "mean_n"`, a bound of the mean's range that the rounding method excludes no longer counts as attained: `debit(0.05, 0.20, 25, 2, 2, "integer", formula = "mean_n", rounding = "ceiling")` is `FALSE`, since every mean above 0.04 has an SD above 0.20.
+
+- Under `rounding = "up"` or `"down"`, GRIMMER's SD check and parity check now apply to the same candidate sum of squares, so `grimmer(x = 0.11, sd = 0.87, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", n = 64, rounding = "up")` is `FALSE`. Thanks to Ian Hussey (#85).
+
+- `grimmer()` gives the reason `"Negative SD"` for a negative `sd`. It throws an error if it would have to test more than a million candidate sums, which takes an `n` of more than a million. Means of 1e7 and more used to get wrong results, since the sums of squares passed 2^53, beyond which a double no longer holds every whole number.
+
+- `audit()` no longer counts a case without a test result as inconsistent, and computes `exp_incon`, `ratio`, `mean_x`, and `mean_sd` over the cases with a result instead of returning `NA` if one has none. A rate or mean over no cases is `NA`, not `NaN`.
+
+### Sequence and total-n mappers
+
+- An error in a row of `data` names that row instead of coming wrapped in purrr's "In index" context. In the total-n mappers, the row is that of the reported values, not of a hypothetical scenario.
+
+- `reverse_map_seq()` and `audit()` on sequence output reconstruct the reported values from the `diff_var` column. They used to infer them from the gap in the sequence, which failed when `out_min` or `out_max` cut it short, so that `audit()` could report the opposite result. Both now accept any `dispersion`, not only a linearly increasing one.
+
+- `reverse_map_seq()` finds the tested columns by name. After `rename()`, it used to return a dispersed value as the reported one; a renamed or removed column is now an error.
+
+- `audit()` on sequence output reports the results that the mapper recorded instead of re-testing reconstructed data, which could drop `percent` (now `x_meaning`), `threshold`, or `symmetric` and flip the result. It works with a `dispersion` of length 1, with output that has no rows, and with cases whose sequence `out_min` or `out_max` emptied. A consistent reported value set included by `include_reported = TRUE` counts once in `hits_total`, not once per dispersed variable. A count or distance that depends on an `NA` result, on a variable whose reported value is missing and so was not dispersed, or on rows removed from the output, as by `filter()`, is `NA` rather than counting such value sets as misses. So does `audit()` on total-n output for rows removed from a direction. A `case` column turned into strings is read as case numbers again, so that the rows come out in the order 1, 2, ..., 10 rather than 1, 10, 2.
+
+- `*_map_seq()` functions disperse means and SDs down to zero, and means below it; they used to stop one decimal unit above zero. With `include_consistent = TRUE`, they skip cases without a test result. If there is nothing to disperse, they return a tibble with no rows but the usual columns, not one without columns.
+
+- `seq_disperse()` rounds its values to the decimal level of `by`, so that long sequences don't accumulate floating-point error (#83). It applies `out_min` and `out_max` to `from` as well, and no longer includes `from` twice when `dispersion` contains 0. `out_max = "auto"` is no maximum, like the default `NULL`, so that it works as in the sequence mappers.
+
+- `*_map_total_n()` functions use an `items_averaged` column, and `reverse_map_total_n()` reconstructs the correct total for any `dispersion`. Functions made by `function_map_total_n()` work when created in another package (#69). An even total split into two equal groups is tested once rather than twice, so `audit()` on total-n output no longer counts one split too many. It leaves undecidable splits out of `scenarios_total`, its hits are `NA` where an undecidable split might be one, and its `hit_rate` is `NA` for a case with no decidable split.
+
+- `*_map_total_n()` functions return the other columns of `data`, and warn about a total that leaves no pair of group sizes within `n_min` and `n_max` instead of failing. A helper argument such as `items_averaged` must be a single value there; a vector was paired with the wrong groups in the `"back"` direction. The `constant` values stay with their groups in the `"back"` direction, too. Input columns named like the result columns (`n_change`, `both_consistent`, `case`, `dir`, and `constant` if given) or the reported values (`x`, `sd`) are an error instead of being overwritten, and so is a `constant` named like a column of the output. Grouped input is tested like ungrouped input.
+
+- `grimmer_map_seq()` and `debit_map_seq()` no longer disperse `n` below 2, and `grimmer_map_total_n()` and `debit_map_total_n()` default to `n_min = 2`, since a group of 1 has no sample SD. Under `sd_meaning = "sd_pop"` or `"sd_sample_or_pop"`, where it has one, both tiers go down to 1.
+
+### Decimal places
+
+- `decimal_places()` handles scientific notation, counts numeric values correctly when `sep` is not `"."`, and returns `NA` for `NaN`, infinite values, and the string `"NA"`.
+
+- `restore_zeros()` handles scientific notation, no longer introduces floating-point noise at high widths, and returns `NA` instead of `"NA"`. It rejects a negative `width` and reports values that exceed a per-value `width`. `restore_zeros_df()` and `decimal_places_df()` handle columns that contain only `NA`, and recognize columns whose decimal separator is `sep_in` or `sep`. `restore_zeros_df()` no longer warns about a column without decimal places, such as `n`, or a single row.
+
+- `decimal_places()` no longer depends on `options(OutDec = )`. With a decimal comma, it used to count no decimal places in any number, which also misled `restore_zeros()`, `seq_disperse()`, the sequence mappers, and `duplicate_count()`.
+
+### Other
+
+- `split_by_parens()`, `before_parens()`, and `inside_parens()` split each string separately; a string with an unusual number of separators used to shift the values of all later rows. Custom separators are matched literally. `split_by_parens()` errors instead of overwriting a column, handles `NA` and input without rows or columns, only warns about unsplit columns if `cols` is given, but always about columns split under `check_delim = FALSE`, never about columns with no values, and keeps the column order with `transform = TRUE`.
+
+- `row_to_colnames()` keeps a one-column data frame a data frame, and rejects a header that repeats, such as "M, SD, M, SD". It skips blank header cells and trims whitespace, so that a blank cell above "Study" no longer gives the name " Study".
+
+- `duplicate_tally()` no longer counts missing values as matches of every other value, runs in linear rather than quadratic time, and treats `NaN` as missing. `audit()` finds its tally columns by the names `duplicate_tally()` gave them; it took every second column, so a selection or reordering summarized the wrong ones. `duplicate_count()` is linear rather than quadratic for named input, uses a named vector's names as `locations`, drops unused factor levels, and works on grouped tibbles. `duplicate_count_colpair()` compares values as strings. All `duplicate_*()` functions write numbers out in full, so `100000` is the same value as `100000L` and `"100000"`, not `"1e+05"`. A list-column or a matrix column is an error. `duplicate_count()` and `duplicate_tally()` keep the column names of a matrix, and `duplicate_count_colpair()` takes one. Blank strings, `"NA"`, and `"NaN"` are missing values there, as in the other string-reading functions, so the blank cells of a table read with `read.csv()` are not counted as duplicates.
+
+- `is_seq_linear()` returns `FALSE` for sequences such as `c(1, 2, 1)`. The `is_seq_*()` functions fill gaps left by `NA` values using the step size implied by the known values, return `NA` for a vector with `NA`s only if the answer depends on the missing values (any one or two values are linear), and test strings and factors by their numeric values. Anything other than a numeric, character, or factor vector is an error, such as a list, a data frame, or a logical vector with values other than `NA`. `tolerance = 0` no longer makes every comparison fail, and the tolerance is never finer than the rounding error of arithmetic on the values, so `seq_disperse()` output around values of 1e8 and more tests as linear and dispersed. A missing string counts as a missing number, as does the string `"NA"`.
+
+- `grim_plot_grid()` plots negative means at the fractional part of their absolute value, plots percentages with the decimal places they were tested with, works with `show_raster = FALSE`, extends its x-axis to the data when `n` is not given, and warns about any rows it leaves out instead of suppressing all warnings. It only says "Also visualizing" GRIMMER inconsistencies if there are GRIM inconsistencies as well.
+
+- `debit_plot()` draws the DEBIT lines for the smallest and largest sample size and shades the band between them; it used to draw a single line from a recycled `n` column. Its x-axis is labeled as the mean, and `data` without rows is an error.
+
+- A key column name such as `x = "mean"` can be passed in a variable or through `lapply()` and `purrr::map()`. `.name_key_result` works in all three function factories. `function_map_seq()` works for a mapper with a single reported variable. `is_map_df()` and the related predicates recognize only scrutiny's own classes; they used to accept any class ending in `_map`.
+
+- `reverse_map_total_n()` rejects mapper output with rows removed or reordered. `disperse()` rejects a missing `n_max`, and `disperse2()` applies `n_min` and `n_max` to the group sizes rather than to their midpoint, and disperses from two numbers that are not consecutive as given rather than from their mean, which made the group sizes fractional. `seq_disperse()` disperses a factor by its label. The `sd_binary_*()` functions return `NA` for `n` below 2 and for a fractional `n` or count, reject non-numeric input, and recycle their arguments by the tidyverse rules, as do `grim_granularity()` and `grim_items()`.
+
+- `grim()` and `grim_map()` no longer fail when `n` and `items_averaged` are integers whose product exceeds the integer range.
+
+- Errors about an invalid `rounding` or `symmetric` name the function that the user called. Many errors from base R or from internal code were replaced by messages that name the argument at fault. A factor where a number is expected, as from `read.csv(stringsAsFactors = TRUE)`, is an error that says how to convert it; it used to be read by its level codes, or gave `NA` with warnings. `audit()` and `grim_plot_grid()` name the columns they need if any were dropped.
+
+- `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()` ignore grouping and return ungrouped data; grouped input used to fail or leave columns unchanged. `is_numeric_like()` is `FALSE` for dates and times, which `restore_zeros_df()` used to turn into `NA`, reads a number next to a non-breaking space, and takes the strings `"NA"` and `"NaN"` as missing values, so that the `*_df()` functions no longer skip a column that has them. A blank string, as `read.csv()` leaves in a character column, is missing too: `restore_zeros_df()` used to skip a column with a blank cell without a word. `decimal_places()` gives it `NA` decimal places, not 0, and `restore_zeros()` makes it `NA` without a warning. `before_parens()` returns `NA` for a blank part, as `inside_parens()` does, so that `split_by_parens()` splits a blank cell into two missing values. Both take a part `"NA"` or `"NaN"` as missing, and `row_to_colnames()` skips it like a blank cell.
+
+- `decimal_places_df()` and `split_by_parens()` take a matrix, as `restore_zeros_df()` does, and name the function for vectors when given one.
+
+- `decimal_places_df()` and `restore_zeros_df()` warn about a column that isn't numeric-like if `cols` is given, not under the default, and always if it was processed under `check_numeric_like = FALSE`, but never about a column with no values.
+
+- A column named like an argument, such as `sep` or `width`, no longer replaces that argument in `restore_zeros_df()`, `decimal_places_df()`, and `split_by_parens()`. `seq_disperse_df()` finds a caller's variable named `x` or `diff_var`. The `is_seq_*()` functions test integers as doubles, so that their differences don't overflow.
+
+- A 64-bit integer (`integer64`) vector, as databases return for counts, is an error that points to `as.numeric()`. It used to be read as numbers near zero, so that every test returned `NA`.
+
+- The mappers test a numeric column with a class, such as one from `tibble::num()`, as plain numbers. The sequence mappers failed on such an `x`, and every mapper on such an `n`.
+
+- `grim_map()` is about 2.5 times as fast, and `grimmer_map()` about 80 times.
+
+## Lifecycle changes
+
+- The rounding functions moved to the roundwork package, which scrutiny now imports: `reround()`, `unround()`, `reround_to_fraction()`, `reround_to_fraction_level()`, `rounding_bias()`, `anti_trunc()`, and the `round_*()` functions. Call them from roundwork, as in `roundwork::round_up()`; see [roundwork's changelog](https://lhdjung.github.io/roundwork/news/index.html) for their changes. The vignettes [Rounding options](https://lhdjung.github.io/roundwork/articles/rounding-options.html) and [Rounding in depth](https://lhdjung.github.io/roundwork/articles/rounding-in-depth.html) moved with them. Errors about `rounding`, `threshold`, and `symmetric` still name the scrutiny function that was called, and are now raised even if `data` has no rows.
+
+### Deprecated
+
+- `grim_plot()` is deprecated in favor of `grim_plot_grid()`, which tells it apart from `grim_plot_line()` and `grim_plot_rates()`.
+
+- `grim_items()` is deprecated. It only computed `1 / (n * gran)`.
+
+- `grim_probability()` is deprecated in favor of `grim_exp_incon()`.
+
+- `audit_seq()` and `audit_total_n()` are deprecated in favor of `audit()`, which returns the same summaries.
+
+- `restore_zeros()` and `restore_zeros_df()` are deprecated. They put trailing zeros back into numbers as strings, which the tests no longer take. Give the number of decimal places as `digits_x` or `digits_sd` instead, and format numbers for display with `formatC(x, format = "f", digits = 2)`.
+
+- `decimal_places_df()` is deprecated, since it replaces the values by their counts, while the tests need both. Use `decimal_places()` in `dplyr::mutate()` instead, as in `mutate(digits_x = decimal_places(x))`.
+
+- `is_numeric_like()` is deprecated, since scrutiny no longer takes numbers as strings, and so are `is_seq_linear()`, `is_seq_ascending()`, `is_seq_descending()`, and `is_seq_dispersed()`, which scrutiny no longer uses: the sequence mappers record how far each value was moved in `diff_var`. These functions may be removed in a future version.
+
+### Superseded
+
+- `sd_binary_0_n()` and `sd_binary_1_n()` are superseded by `sd_binary_groups()`: `sd_binary_0_n(group_0, n)` is `sd_binary_groups(group_0, n - group_0)`.
+
+- `absorb_key_args()`, `check_mapper_input_colnames()`, and `manage_helper_col()` are superseded by `function_map()`, whose mappers do what these helpers do for a handwritten one, such as managing helper columns through `.cols_helper`.
+
+### Removed
+
+- Removed after their deprecation in 0.5.0: `grim_map()`'s `show_prob`, `grim_ratio_upper()`, and the 15 functions around `is_subset_of()`.
+
+- Removed: `grim_ratio()` (use `grim_exp_incon()`, which takes the rounding method into account), `manage_key_colnames()` (use `absorb_key_args()`), `unnest_consistency_cols()`, `write_doc_factory_map_conventions()`, and the re-exports of rlang's `enquo()`, `enquos()`, `as_name()`, `as_label()`, `.data`, and `:=`. `check_audit_special()` was removed, since `audit()` now reaches `audit_seq()` and `audit_total_n()` itself.
+
+- Removed in the sense of no longer exported: `check_factory_dots()`, `check_args_disabled()`, `decimal_places_scalar()`, `write_doc_audit()`, `write_doc_audit_seq()`, and `write_doc_audit_total_n()`.
+
+- `duplicate_detect()`, superseded since 0.3.0, was removed in favor of `duplicate_tally()`.
+
+- `debit_plot()` and `grim_plot_grid()` map `consistency` to one scale for `colour` and `fill`, so that `ggplot2::scale_colour_manual()` with `aesthetics = c("colour", "fill")` restyles them. Consistent and inconsistent value sets are a stronger blue and red than before, as in the new `grim_plot_line()` and `grimmer_plot_line()`. Values that are consistent but were not reported are grey, like the consistent cells of `grim_plot_grid()`'s raster. The arguments for fixed styles were removed: `debit_plot()`'s `color_cons`, `color_incons`, `rect_alpha`, `line_*`, and `label_*`, and `grim_plot_grid()`'s `color_cons`, `color_incons`, `tile_alpha`, and `raster_alpha`.
+
+- `seq_disperse()` and `seq_disperse_df()` return numbers, not strings, and lost their `string_output` argument. A string `from` still sets the step size by its decimal places, trailing zeros included.
+
+- `seq_length()` and `seq_length<-` were removed; their names clashed with `seq_len()`. So were `seq_endpoint()`, `seq_distance()`, `seq_endpoint_df()`, `seq_distance_df()`, and `seq_test_ranking()`, which made decimal strings for mappers that no longer take strings. Use `seq(from, to, by = 10^-digits)`.
+
+- Removed after their deprecation in 0.3.1: `seq_disperse()`'s `track_var_change` and `seq_disperse_df()`'s `.track_var_change`. Also, `restore_zeros_df()` and `split_by_parens()` lost `...`, which only caught argument names from before 0.2.4.
+
+- `grim()`, `grim_map()`, `grimmer()`, and `grimmer_map()` lost `tolerance` as both tests now compare whole numbers exactly. GRIMMER's test 2 no longer rounds reconstructed SDs, since every sum of squares that passes test 1 passes it, so `"GRIMMER inconsistent (test 2)"` is no longer a possible `reason`.
+
+- `function_map()` lost `.col_control` and `.col_filler`, which never worked.
+
+- `disperse()`, `disperse2()`, `disperse_total()`, and the `*_map_total_n()` functions lost `constant_index`, and `function_map_total_n()` lost `.constant_index`. The `constant` columns always follow `n_change`; move them with `dplyr::relocate()`.
+
+- scrutiny uses the base pipe `|>`, no longer exports the magrittr pipe `%>%`, and requires R >= 4.3.0.
+
+- scrutiny requires purrr >= 1.0.0 (#87), dplyr >= 1.1.0, ggplot2 >= 3.4.0, and cli >= 3.4.0. It no longer depends on corrr, and it suggests ggrepel instead of importing it. When using ggrepel, it needs a version >= 0.9.3.
+
+## Documentation
+
+- `vignette("technical-notes")` is new. It describes how the tests treat missing values, including the few cases that stay `NA` although every value would give the same result, and the rounding, exact arithmetic, and decimal places behind the results.
+- The GRIM and GRIMMER vignettes were each split in two. `vignette("grim")` and `vignette("grimmer")` cover the basics, including how to explain a result with `explain_print()`; `vignette("grim-in-depth")` and `vignette("grimmer-in-depth")` cover the values behind a result, the sequence and total-n mappers, and, for GRIM, the GRIM statistics.
+
+- `vignette("consistency-tests-in-depth")` was updated (#74), the GRIMMER documentation was improved (#66), and "Related software" has new entries.
+- `vignette("consistency-tests-simple")` was removed, since `vignette("consistency-tests-in-depth")` covers the same steps. `vignette("devtools")` was split up: the SDs of binary data are now in `vignette("debit")`, and `decimal_places()`, `seq_disperse()`, and `disperse_total()` in `vignette("consistency-tests-in-depth")`.
+
 # scrutiny 0.6.1
 
 This is a fix for compatibility with testthat 3.3.0. Also:

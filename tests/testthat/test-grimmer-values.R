@@ -1,0 +1,372 @@
+test_that("`grimmer_values()` returns the achievable pairs", {
+  out <- 5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "items_averaged", "sum", "sum_squares"))
+  out |> nrow() |> expect_equal(1L)
+  out$case |> expect_equal(1L)
+  out$x  |> expect_equal(out$sum / 31)
+  out$sd |> expect_equal(sqrt((out$sum_squares - out$sum^2 / 31) / 30))
+  out$x  |> round(2) |> expect_equal(5.23)
+  out$sd |> round(2) |> expect_equal(2.55)
+  # No achievable pair at all if the value set is inconsistent:
+  out <- 5.23 |> grimmer_values(2.55, 35, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+  out |> nrow()  |> expect_equal(0L)
+  out |> names() |> expect_equal(c("case", "x", "sd", "n", "items_averaged", "sum", "sum_squares"))
+})
+
+
+test_that("`grimmer_values()` agrees with a brute force", {
+  # Every (sum, sum of squares) pair that `n` whole numbers can have, for means
+  # from 1 to 5 and SDs up to 2.5; see `grimmer_reachable_pairs()`:
+  pairs <- grimmer_reachable_pairs()
+  eps <- 1e-9
+
+  expected <- function(x, sd, n, items, sd_meaning) {
+    s <- pairs[[n]]$s
+    q <- pairs[[n]]$q
+    sd_exact <- sqrt((q - s^2 / n) / sd_denominator(n, sd_meaning)) / items
+    keep <- abs(s / (n * items) - x) <= 0.05 + eps & abs(sd_exact - sd) <= 0.05 + eps
+    tibble::tibble(sum = s[keep], sum_squares = q[keep]) |> dplyr::arrange(sum, sum_squares)
+  }
+
+  n_checked <- 0L
+  n_consistent <- 0L
+
+  for (sd_meaning in c("sd_sample", "sd_pop", "se")) {
+    for (items in 1:2) {
+      # Means of totals from 1 to 5 and their SDs up to 2.5, which the pairs
+      # cover completely, at one decimal place:
+      grid <- expand.grid(
+        x = if (items == 1) seq(1, 5, by = 0.3) else seq(0.5, 2.5, by = 0.2),
+        sd = if (items == 1) seq(0, 2.4, by = 0.3) else seq(0, 1.2, by = 0.2),
+        n = 2:8
+      )
+      for (i in seq_len(nrow(grid))) {
+        x <- grid$x[i]
+        sd <- grid$sd[i]
+        n <- grid$n[i]
+        info <- paste0("x = ", x, ", sd = ", sd, ", n = ", n, ", items = ", items, ", ", sd_meaning)
+        truth <- expected(x, sd, n, items, sd_meaning)
+        out <- x |>
+          grimmer_values(sd, n, digits_x = 1, digits_sd = 1, items_averaged = items, data_type = "integer", sd_meaning = sd_meaning)
+        out |> dplyr::select(sum, sum_squares) |> expect_equal(truth, info = info)
+        out$x  |> expect_equal(out$sum / (n * items), info = info)
+        out$sd |> expect_equal(sqrt((out$sum_squares - out$sum^2 / n) / sd_denominator(n, sd_meaning)) / items, info = info)
+        n_checked <- n_checked + 1L
+        n_consistent <- n_consistent + (nrow(out) > 0L)
+      }
+    }
+  }
+
+  # Guard against the loops silently collapsing to nothing:
+  n_checked |> expect_gt(4000L)
+  n_consistent |> expect_gt(1000L)
+})
+
+
+test_that("`grimmer_values()` has a pair exactly where `grimmer()` is `TRUE`", {
+  # Not `"even"`: its bounds admit ties that `base::round()` sends the other
+  # way, as in `grim_values()`.
+  for (rounding in c("up_or_down", "up", "down", "ceiling", "floor", "trunc")) {
+    for (n in c(12, 30, 200)) {
+      for (sd in c(0.5, 0.7, 2.55)) {
+        info <- paste0("sd = ", sd, ", n = ", n, ", rounding = ", rounding)
+        out <- 5.3 |> grimmer_values(sd, n, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = rounding)
+        consistency <- 5.3 |> grimmer(sd, n, digits_x = 1, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = rounding)
+        out |> nrow() |> call_on(\(x) x > 0L) |> expect_equal(consistency, info = info)
+        # Every pair would be reported as `x` and `sd`:
+        for (value in out$x) {
+          value |> roundwork::reround(digits = 1, rounding = rounding) |> round(10L) |> expect_contains(5.3)
+        }
+        for (value in out$sd) {
+          value |> roundwork::reround(digits = 2, rounding = rounding) |> round(10L) |> expect_contains(sd)
+        }
+      }
+    }
+  }
+})
+
+
+test_that("the Guéguen (2012) value sets have the pairs found by brute force", {
+  # From `special-scripts/grimmest.md`: 7 pairs for 5.3 (0.7) and 4 for
+  # 5.9 (0.5), 15 combinations for 5.1 (0.6) and 5.6 (0.5), `n = 30` each:
+  values <- function(x, sd) {
+    x |> grimmer_values(sd, 30, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> nrow()
+  }
+  values(5.3, 0.7) |> expect_equal(7L)
+  values(5.9, 0.5) |> expect_equal(4L)
+  (values(5.1, 0.6) * values(5.6, 0.5)) |> expect_equal(15L)
+})
+
+
+test_that("`grimmer_values()` is vectorized like `grimmer()`", {
+  out <- c(5.23, 5.23) |> grimmer_values(2.55, c(31, 35), digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")
+  # One row for the first value set, none for the inconsistent second one:
+  out |> tibble::is_tibble() |> expect_true()
+  out$case |> expect_equal(1L)
+
+  numeric(0) |> grimmer_values(numeric(0), 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_equal(tibble::tibble(case = integer(), x = double(), sd = double(), n = double(), items_averaged = double(), sum = double(), sum_squares = double()))
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", rounding = c("up", "floor")) |> expect_error("must be length 1")
+  c(5.23, 5.1) |> grimmer_values(2.55, c(31, 35, 40), digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> expect_error()
+})
+
+
+test_that("`sd_meaning = \"sd_sample_or_pop\"` is an error", {
+  5.23 |>
+    grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "sd_sample_or_pop") |>
+    expect_error("sd_sample_or_pop")
+  5.23 |>
+    grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", sd_meaning = "foo") |>
+    expect_error()
+})
+
+
+test_that("a single value is decidable under `sd_meaning = \"sd_pop\"` only", {
+  out <- 3 |> grimmer_values(0, 1, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer", sd_meaning = "sd_pop")
+  out$sum         |> expect_equal(3)
+  out$sum_squares |> expect_equal(9)
+  3 |> grimmer_values(0, 1, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer") |> expect_undecidable()
+})
+
+
+test_that("undecidable cases give one row of `NA`", {
+  NA   |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")   |> expect_undecidable()
+  5.23 |> grimmer_values(NA,   31,   digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")   |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31.5, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer")   |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = 2, items_averaged = 1.5, data_type = "integer") |> expect_undecidable()
+  5.23 |> grimmer_values(2.55, 31,   digits_x = 2, digits_sd = NA, items_averaged = 1, data_type = "integer")  |> expect_undecidable()
+})
+
+
+test_that("a missing value that forces `TRUE` still leaves the pairs open", {
+  5 |> grimmer_values(2, 29, digits_x = 1,  digits_sd = NA, items_averaged = 1,  data_type = "integer") |> expect_undecidable()
+  5 |> grimmer_values(3, 27, digits_x = NA, digits_sd = 0,  items_averaged = 1,  data_type = "integer") |> expect_undecidable()
+  5 |> grimmer_values(0, 10, digits_x = 0,  digits_sd = 0,  items_averaged = NA, data_type = "integer") |> expect_undecidable()
+})
+
+
+test_that("`digits_*` and `items_averaged` are required, with the bespoke errors", {
+  5.23 |> grimmer_values(2.55, 31, digits_sd = 2, items_averaged = 1, data_type = "integer") |> suppressMessages() |> expect_error("digits_x")
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, items_averaged = 1, data_type = "integer")  |> suppressMessages() |> expect_error("digits_sd")
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, data_type = "integer")       |> suppressMessages() |> expect_error("items_averaged")
+})
+
+
+test_that("too many pairs is an error, not a huge allocation", {
+  # Would be 5e8 rows; `check_enumeration_size()` only caps the sums:
+  50 |> grimmer_values(20, 5000, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer") |> expect_error("Too many achievable pairs")
+  # Below the limit, the same shape of value set works. Enumerated independently
+  # in   # whole numbers: 100 values have a sum `s` from 4950 to 5050 for a mean of 50
+  # (ties either way), and a sum of squares `q` of the parity of `s` for an SD
+  # of 20 if `100 * q - s^2` is from `99 * 100 * 19.5^2` to `99 * 100 * 20.5^2`.
+  # That keeps `q` far above the least sum of squares, which does not bind:
+  expected <- 4950:5050 |>
+    lapply(\(s) {
+      q <- ceiling((s^2 + 99 * 100 * 19.5^2) / 100):floor((s^2 + 99 * 100 * 20.5^2) / 100)
+      q <- q[q %% 2 == s %% 2]
+      tibble::tibble(sum = rep(s, length(q)), sum_squares = q)
+    }) |>
+    dplyr::bind_rows()
+  50 |>
+    grimmer_values(20, 100, digits_x = 0, digits_sd = 0, items_averaged = 1, data_type = "integer") |>
+    dplyr::select(sum, sum_squares) |>
+    expect_equal(expected)
+
+  # Two numbers have few sums of squares in a wide range, which only an upper
+  # bound of 4e7 would count as too many. Two totals with the sum `s` and the
+  # difference `d` have the sum of squares `(s^2 + d^2) / 2`, so every pair of
+  # `s` and `d` of the same parity within the bounds is one achievable pair:
+  d <- 0:3000
+  d <- d[d^2 >= 2 * 19.5^2 * 100^2 & d^2 <= 2 * 20.5^2 * 100^2]
+  expected <- tidyr::expand_grid(sum = 9900:10100, d = d) |>
+    dplyr::filter(d %% 2 == sum %% 2) |>
+    dplyr::mutate(sum_squares = (sum^2 + d^2) / 2) |>
+    dplyr::select(-d) |>
+    dplyr::arrange(sum, sum_squares)
+  50 |>
+    grimmer_values(20, 2, digits_x = 0, digits_sd = 0, items_averaged = 100, data_type = "integer") |>
+    dplyr::select(sum, sum_squares) |>
+    expect_equal(expected)
+})
+
+
+test_that("`sum_squares_attainable_all()` agrees with every sample of fewer than five", {
+  # A sum of squares of at most 36 keeps every number within `-6:6`, so the
+  # brute force is complete there. Windows of 3 cross many boundaries, and
+  # `first` need not be attainable itself:
+  pairs <- grimmer_reachable_pairs(n_max = 4L)
+  for (n in 1:4) {
+    for (s in -12:12) {
+      attained <- sort(pairs[[n]]$q[pairs[[n]]$s == s & pairs[[n]]$q <= 36])
+      minimum <- sum_squares_min(s, n)
+      for (first in seq(minimum, max(minimum, 36), by = 2)) {
+        info <- paste0("n = ", n, ", s = ", s, ", first = ", first)
+        expected <- attained[attained >= first]
+        s |> sum_squares_attainable_all(n, first, 36, count_max = Inf, chunk = 3) |> expect_equal(expected,          info = info)
+        s |> sum_squares_attainable_all(n, first, 36, count_max = 1,   chunk = 3) |> expect_equal(head(expected, 2), info = info)
+      }
+    }
+  }
+})
+
+
+test_that("the limit admits exactly `VALUES_MAX` rows", {
+  # 7 pairs for five or more numbers, 4 and 3 for four and three, 1 for two,
+  # and 3 means:
+  5.3 |> grimmer_values(0.7, 30, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 7) |> nrow() |> expect_equal(7L)
+  5.3 |> grimmer_values(0.7, 30, digits_x = 1, digits_sd = 1, items_averaged = 1, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 6) |> expect_error("more than 6 pairs")
+  5.3 |> grimmer_values(0.7, 4,  digits_x = 1, digits_sd = 1, items_averaged = 3, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 4) |> nrow() |> expect_equal(4L)
+  5.3 |> grimmer_values(0.7, 4,  digits_x = 1, digits_sd = 1, items_averaged = 3, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 3) |> expect_error("more than 3 pairs")
+  5.3 |> grimmer_values(0.7, 3,  digits_x = 1, digits_sd = 1, items_averaged = 4, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 3) |> nrow() |> expect_equal(3L)
+  5.3 |> grimmer_values(0.7, 3,  digits_x = 1, digits_sd = 1, items_averaged = 4, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("more than 2 pairs")
+  5.3 |> grimmer_values(0.7, 2,  digits_x = 1, digits_sd = 1, items_averaged = 10, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 1) |> nrow() |> expect_equal(1L)
+  5.3 |> grimmer_values(0.7, 2,  digits_x = 1, digits_sd = 1, items_averaged = 10, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 0) |> expect_error("more than 0 pairs")
+  5.19 |> grim_values(300, digits_x = 2, items_averaged = 1, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 3) |> nrow() |> expect_equal(3L)
+  5.19 |> grim_values(300, digits_x = 2, items_averaged = 1, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("more than 2 means")
+  # In a vectorized call, the message says which value set it is:
+  c(5.19, 5.19) |> grim_values(c(30, 300), digits_x = 2, items_averaged = 1, data_type = "integer") |> with_mocked_bindings(VALUES_MAX = 2) |> expect_error("`x = 5.19`, `n = 300`, `items_averaged = 1`")
+})
+
+
+test_that("`loeschian_between()` agrees with `is_loeschian()`", {
+  expected <- (0:3000)[vapply(0:3000, is_loeschian, logical(1L))]
+  0    |> loeschian_between(3000) |> expect_equal(expected)
+  1000 |> loeschian_between(1200) |> expect_equal(expected[expected >= 1000 & expected <= 1200])
+  # Large values, where `sqrt()` is least exact near the ends of each run:
+  m <- 1e10 + 0:200
+  m[m |> vapply(is_loeschian, logical(1L))] |> expect_equal(loeschian_between(1e10, 1e10 + 200))
+})
+
+
+test_that("`sum_squares_attainable_all()` stops one past `count_max`", {
+  # Four numbers summing to 1 have every odd sum of squares from 1 on:
+  1 |> sum_squares_attainable_all(4, first = 1, upper = 1e9, count_max = 5) |> expect_equal(c(1, 3, 5, 7, 9, 11))
+  1 |> sum_squares_attainable_all(4, first = 1, upper = 7,   count_max = 5) |> expect_equal(c(1, 3, 5, 7))
+})
+
+test_that("integer `n` and `items_averaged` don't overflow in the output", {
+  out <- grimmer_values(NA, 1, 46341L, 0, 0, 46341L, data_type = "integer") |> expect_no_warning()
+  out |> nrow() |> expect_equal(1L)
+})
+
+
+test_that("only sums with a passing remainder are enumerated, and they are counted first", {
+  # These looped over 1e7 sums; the first one has 10,001 passing sums, the
+  # second, too many to list:
+  5 |> grimmer_values(0, 1000, digits_x = 0, digits_sd = 7, items_averaged = 1e4, data_type = "integer") |> nrow() |> expect_equal(10001)
+  5 |> grimmer_values(0, 10,   digits_x = 0, digits_sd = 7, items_averaged = 1e7, data_type = "integer") |> expect_error("Too many achievable pairs")
+})
+
+
+test_that("`data_type` is required, and continuous data are an error", {
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1)                           |> expect_error("only applies to whole numbers")
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "continuous") |> expect_error("`grimmer_values()` only applies", fixed = TRUE)
+  # Undecidable under `NA` if whole numbers can have the value set, but empty if
+  # no data can, as with a negative SD:
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = NA) |> nrow() |> expect_equal(1L)
+  5.23 |> grimmer_values(2.55, 31, digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = NA) |> _$x   |> expect_na()
+  5.23 |> grimmer_values(-1, 31, digits_x = 2, digits_sd = 0, items_averaged = 1, data_type = NA)   |> nrow() |> expect_equal(0L)
+})
+
+
+test_that("`grimmer_closest()` returns the pair whose SD is closest to `sd`", {
+  # Consistent: the closest of the pairs that `grimmer_values()` lists:
+  values <- 5.3 |> grimmer_values(0.7, 30, 1, 1, 1, "integer")
+  out    <- 5.3 |> grimmer_closest(0.7, 30, 1, 1, 1, "integer")
+  out |> nrow() |> expect_equal(1L)
+  out |> names() |> expect_equal(names(values))
+  out$sum_squares |> expect_in(values$sum_squares)
+  abs(out$sd - 0.7) |> expect_equal(min(abs(values$sd - 0.7)))
+  # Inconsistent: 4, 5, 5, 7 have a mean of 5.25 and an SD of 1.258, closer to
+  # 1.11 than the 0.957 of 4, 5, 6, 6:
+  5.21 |> grimmer_closest(1.11, 4, 2, 2, 1, "integer") |> expect_equal(tibble::tibble(case = 1L, x = 5.25, sd = sqrt(4.75 / 3), n = 4, items_averaged = 1, sum = 21, sum_squares = 115))
+  # A negative SD is closest to the least SD there is:
+  5.23 |> grimmer_closest(-1, 35, 2, 2, 1, "integer") |> _$sd |> expect_equal(sqrt(8 * 27 / 35 / 34))
+  # A single value has an SD of 0 only:
+  5 |> grimmer_closest(0.3, 1, 0, 1, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(0)
+})
+
+
+test_that("`grimmer_closest()` skips sums that fail test 3 and breaks ties as documented", {
+  # Consistent, with some remainders failing test 3, for fewer than five values:
+  5   |> grimmer_closest(1,   4, 0, 1, 1, "integer") |> _$sd  |> expect_equal(1)
+  4.3 |> grimmer_closest(0.2, 4, 1, 1, 3, "integer") |> nrow() |> expect_equal(1L)
+  # Mirror remainders have the same SD, so the mean closer to `x` wins:
+  5.7 |> grimmer_closest(0.6, 47, 1, 1, 3, "integer") |> _$sum |> expect_equal(800)
+  # With means equally close, too, the smaller sum wins:
+  5.5 |> grimmer_closest(0.6, 35, 1, 1, 1, "integer") |> _$sum |> expect_equal(191)
+  1.1 |> grimmer_closest(1.38, 55, 1, 2, 3, "integer") |> _$sum |> expect_equal(174)
+  # Even with two sums of one remainder in reach, where `8.3 * 30` is a little
+  # above 249, and `1.1 * 45` a little below 49.5:
+  # Two sums of squares around an exact square `k^2` have SDs whose distances
+  # to `k` differ by about `1 / (4 * k^3)`, which the roots don't show from
+  # `k` of about 100 on, so 16173 was taken for as close as 16175:
+  3.0 |> grimmer_closest(63.5, 5, 1, 1, 1, "integer") |> _$sum_squares |> expect_equal(16175)
+  # ...and two such sums with mirrored remainders tie exactly, so the smaller
+  # sum wins:
+  3.0 |> grimmer_closest(12.7, 101, 1, 1, 1, "integer") |> dplyr::select(sum, sum_squares) |> expect_equal(tibble::tibble(sum = 302, sum_squares = 17032))
+  8.3 |> grimmer_closest(0.1,  2, 1, 1, 15, "integer") |> _$sum |> expect_equal(248)
+  8.3 |> grimmer_closest(0.17, 2, 1, 2, 15, "integer") |> _$sum |> expect_equal(248)
+  1.1 |> grimmer_closest(0,    3, 1, 1, 15, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(48)
+  # SDs of 0 and 0.4 are equally close to 0.2:
+  4   |> grimmer_closest(0.2, 5, 0, 2, 1, "integer", sd_meaning = "sd_pop") |> _$sum |> expect_equal(20)
+  # With the sum the same, too, the smaller SD wins, not the noise in the roots:
+  2.5 |> grimmer_closest(2,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(1.5)
+  5.5 |> grimmer_closest(1,   2, 1, 0, 1, "integer", sd_meaning = "sd_pop") |> _$sd |> expect_equal(0.5)
+  3.4 |> grimmer_closest(0.5, 3, 1, 1, 1, "integer", sd_meaning = "se")     |> _$sd |> expect_equal(1 / 3)
+  # The closest SDs are 9e-12 and 0 away from `sd`, the runners-up 4e-8 and
+  # 6e-9. In the second case, `n` times the sums of squares passes 2^53:
+  512.3 |> grimmer_closest(1200.4, 20000, 1, 1, 1, "integer") |> _$sum |> expect_equal(10246547)
+  50.12 |> grimmer_closest(150.3,  1e6,   2, 1, 1, "integer") |> _$sum |> expect_equal(50119700)
+})
+
+
+test_that("`grimmer_closest()` agrees with a brute-force search", {
+  multisets <- function(n, values) {
+    combos <- utils::combn(length(values) + n - 1, n)
+    matrix(values[combos - (0:(n - 1))], n)
+  }
+  set.seed(sweep_seed(84L))
+  for (n in 2:5) {
+    # Means from 2 to 7 with an SD of at most 3 lie within these values:
+    samples <- multisets(n, -6:15)
+    sums <- colSums(samples)
+    squares <- colSums(samples^2)
+    for (i in 1:40) {
+      x <- round(runif(1, 2, 7), 2)
+      for (sd_meaning in c("sd_sample", "sd_pop", "se")) {
+        sd <- round(runif(1, 0, 3) / if (sd_meaning == "se") sqrt(n) else 1, 2)
+        sds <- sqrt(pmax(squares - sums^2 / n, 0) / sd_denominator(n, sd_meaning))
+        range <- roundwork::sum_range(x, n, 2, "up_or_down", 5, FALSE)
+        in_x <- sums >= range[1] & sums <= range[2]
+        if (!any(in_x)) {
+          in_x <- abs(sums / n - grim_closest(x, n, 2, 1, "integer")$x) < 1e-9
+        }
+        consistent <- grimmer(x, sd, n, 2, 2, 1, "integer", sd_meaning = sd_meaning)
+        pool <- if (consistent) in_x & abs(sds - sd) <= 0.005 + 1e-12 else in_x
+        out <- grimmer_closest(x, sd, n, 2, 2, 1, "integer", sd_meaning = sd_meaning)
+        abs(out$sd - sd) |> expect_equal(min(abs(sds[pool] - sd)), info = paste(x, sd, n, sd_meaning))
+      }
+    }
+  }
+})
+
+
+test_that("`grimmer_closest()` handles missing values and bad input", {
+  out <- c(5.23, NA) |> grimmer_closest(2.55, 35, 2, 2, 1, "integer")
+  out$case |> expect_equal(1:2)
+  out$x[2] |> expect_na()
+  out$n    |> expect_equal(c(35, 35))
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, NA) |> _$x |> expect_na()
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1)               |> expect_error("only applies to whole numbers")
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, "continuous") |> expect_error("`grimmer_closest()` only applies", fixed = TRUE)
+  5.23 |> grimmer_closest(2.55, 35, 2, 2, 1, "integer", sd_meaning = "sd_sample_or_pop") |> expect_error("grimmer_closest")
+  # Fast with a large `n`, where every remainder is tried:
+  3.51 |> grimmer_closest(9.99, 1e5, 2, 2, 1, "integer") |> nrow() |> expect_equal(1L)
+  # Too many sums to try one by one is an error rather than half a minute:
+  5.1  |> grimmer_closest(2.3, 9e6, 1, 1, 1, "integer") |> expect_error("`grimmer_closest()` checks 900,001 candidate sums", fixed = TRUE)
+  # Past 2^48, the double target can be off by 1 or more, and ...396 came back
+  # where ...398 is closer to the exact target of ...397.0456:
+  0    |> grimmer_closest(26074777.74, 7, 2, 2, 1, "integer") |> expect_error("too large to find the closest one")
+  # Just below, the closer neighbor is found (exact target 27993661689633.9864):
+  0    |> grimmer_closest(2160002.38,  7, 2, 2, 1, "integer") |> _$sum_squares |> expect_equal(27993661689634)
+})

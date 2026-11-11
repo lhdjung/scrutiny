@@ -22,59 +22,60 @@ is_seq_dispersed(
 )
 }
 \arguments{
-\item{x}{Numeric or coercible to numeric, as determined by
-\code{is_numeric_like()}. Vector to be tested.}
+\item{x}{Numeric, character, or factor vector. Strings and factor labels
+count as numbers as determined by \code{\link[=is_numeric_like]{is_numeric_like()}}; any that are not
+make the result \code{FALSE}. A logical vector is accepted only if all its
+values are \code{NA}. Any other type, such as a list or a data frame, is an
+error.}
 
-\item{tolerance}{Numeric. Tolerance of comparison between numbers when
-testing. Default is circa 0.000000015 (1.490116e-08), as in
-\code{dplyr::near()}.}
+\item{tolerance}{Numeric. Tolerance for comparing values. Default is about
+\code{1.5e-8}, as in \code{\link[dplyr:near]{dplyr::near()}}. It is never finer than the rounding
+error of arithmetic on the values, so \code{0} allows that error only.}
 
-\item{test_linear}{Logical. In functions other than \code{is_seq_linear()}, should
-\code{x} also be tested for linearity? Default is \code{TRUE}.}
+\item{test_linear}{Logical. Should linearity be tested as well? Default is
+\code{TRUE}. Not in \code{is_seq_linear()}.}
 
-\item{from}{Numeric or coercible to numeric. Only in \code{is_seq_dispersed()}. It
-will test whether \code{from} is at the center of \code{x}, and if every pair of
-other values is equidistant to it.}
+\item{from}{Numeric, character, or factor, like \code{x}. Only in
+\code{is_seq_dispersed()}. The value \code{x} should be centered on.}
 }
 \value{
-A single logical value. If \code{x} contains at least one \code{NA} element,
-the functions return either \code{NA} or \code{FALSE}:
+Logical (length 1). If \code{x} contains \code{NA}:
 \itemize{
-\item If all elements of \code{x} are \code{NA}, the functions return \code{NA}.
-\item If some but not all elements are \code{NA}, they check if \code{x} \emph{might} be a
-sequence of the kind in question: Is it a linear (and / or ascending, etc.)
-sequence after the \code{NA}s were replaced by appropriate values? If so, they
-return \code{NA}; otherwise, they return \code{FALSE}.
+\item \code{NA} if some values substituted for the \code{NA}s would make \code{x} the kind of
+sequence in question and others would not.
+\item \code{FALSE} if none would, e.g., because \code{x} is too short for it (two values
+for \code{is_seq_ascending()} and \code{is_seq_descending()}, three for
+\code{is_seq_dispersed()}).
+\item \code{TRUE} if all would, as any one or two values are linear.
 }
+
+A missing \code{from} is handled the same way.
 }
 \description{
-Predicate functions that test whether \code{x} is a numeric vector
-(or coercible to numeric) with some special properties:
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+These functions are deprecated because scrutiny no longer uses them: the
+sequence mappers record how far each value was moved, in \code{diff_var}. They
+may be removed in a future version.
+
+Predicates for numeric vectors, or vectors coercible to
+numeric:
 \itemize{
-\item \code{is_seq_linear()} tests whether every two consecutive elements of \code{x}
-differ by some constant amount.
-\item \code{is_seq_ascending()} and \code{is_seq_descending()} test whether the
-difference between every two consecutive values is positive or negative,
-respectively. \code{is_seq_dispersed()} tests whether \code{x} values are grouped
-around a specific central value, \code{from}, with the same distance to both
-sides per value pair. By default (\code{test_linear = TRUE}), these functions
-also test for linearity, like \code{is_seq_linear()}.
+\item \code{is_seq_linear()}: do all consecutive elements differ by the same
+amount?
+\item \code{is_seq_ascending()}, \code{is_seq_descending()}: is every difference
+positive, or negative?
+\item \code{is_seq_dispersed()}: is \code{x} centered on \code{from}, with each pair of
+values equidistant from it?
 }
 
-\code{NA} elements of \code{x} are handled in a nuanced way. See \emph{Value} section below
-and the examples in \code{vignette("devtools")}, section \emph{NA handling}.
+By default (\code{test_linear = TRUE}), the last three also test for linearity.
 }
 \examples{
-# These are linear sequences...
 is_seq_linear(x = 3:7)
-is_seq_linear(x = c(3:7, 8))
-
-# ...but these aren't:
 is_seq_linear(x = c(3:7, 9))
-is_seq_linear(x = c(10, 3:7))
 
-# All other `is_seq_*()` functions
-# also test for linearity by default:
+# The other predicates test for linearity by default:
 is_seq_ascending(x = c(2, 7, 9))
 is_seq_ascending(x = c(2, 7, 9), test_linear = FALSE)
 
@@ -84,15 +85,13 @@ is_seq_descending(x = c(9, 7, 2), test_linear = FALSE)
 is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5)
 is_seq_dispersed(x = c(2, 3, 5, 7, 8), from = 5, test_linear = FALSE)
 
-# These fail their respective
-# individual test even
-# without linearity testing:
+# These fail their own test regardless of linearity:
 is_seq_ascending(x = c(1, 7, 4), test_linear = FALSE)
 is_seq_descending(x = c(9, 15, 3), test_linear = FALSE)
 is_seq_dispersed(1:10, from = 5, test_linear = FALSE)
 }
 \seealso{
-\code{validate::is_linear_sequence()}, which is much like
-\code{is_seq_linear()} but more permissive with \code{NA} values. It comes with some
-additional features, such as support for date-times.
+\code{validate::is_linear_sequence()}, which is more permissive with
+\code{NA} and supports date-times.
 }
+\keyword{internal}

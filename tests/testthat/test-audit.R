@@ -1,46 +1,47 @@
-
 # `audit()` ---------------------------------------------------------------
 
-
 # `audit()` for GRIM
-data_grim  <- grim_map(pigs1)
-audit_grim <- audit(data_grim)
+data_grim <- pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+audit_grim <- data_grim |> audit()
 
 test_that("`audit()` summarizes GRIM tests accurately", {
-  expect_s3_class(audit_grim, "data.frame")
-  expect_equal(as.numeric(audit_grim$all_cases - audit_grim$incons_cases),
-               length(data_grim$consistency[data_grim$consistency]))
+  audit_grim |> expect_s3_class("data.frame")
+  (audit_grim$all_cases - audit_grim$incon_cases) |>
+    as.numeric() |>
+    expect_equal(length(data_grim$consistency[data_grim$consistency]))
 })
-
 
 
 # `audit()` for DEBIT
-data_debit  <- debit_map(pigs3)
-audit_debit <- audit(data_debit)
+data_debit <- pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
+audit_debit <- data_debit |> audit()
 
 test_that("`audit()` summarizes DEBIT tests accurately", {
-  expect_equal(as.numeric(audit_debit$incons_cases), 1)
-  expect_true(dplyr::near(as.numeric(audit_debit$all_cases), 7))
-  expect_true(dplyr::near(round(audit_debit$incons_rate, 3), 0.143))
+  audit_debit$incon_cases |> as.numeric() |> expect_equal(1)
+  audit_debit$all_cases    |> as.numeric() |> dplyr::near(7) |> expect_true()
+  audit_debit$emp_incon |> round(3) |> dplyr::near(0.143) |> expect_true()
 })
-
 
 
 # `audit_seq()` -----------------------------------------------------------
 
-data_grim_seq  <- grim_map_seq(pigs1)
-data_grimmer_seq <- grimmer_map_seq(pigs5)
-data_debit_seq <- debit_map_seq(pigs3)
+data_grim_seq    <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") # fmt: skip
+data_grimmer_seq <- pigs5 |> grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") # fmt: skip
+data_debit_seq   <- pigs3 |> debit_map_seq(digits_x = 2, digits_sd = 2, data_type = "integer") # fmt: skip
 
 # The scrutiny class is removed for the GRIM tibble because the latter is tested
 # as an example for equality with tibbles that don't have that class:
-audit_seq_grim    <- data_grim_seq    %>% audit_seq() %>% unclass_scr()
-audit_seq_grimmer <- data_grimmer_seq %>% audit_seq()
-audit_seq_debit   <- data_debit_seq   %>% audit_seq()
+audit_seq_grim <- data_grim_seq |> audit() |> unclass_scr()
+audit_seq_grimmer <- data_grimmer_seq |> audit()
+audit_seq_debit <- data_debit_seq |> audit()
 
 data_seq_grim_different_dispersion1 <- tibble::tibble(
-  x = "4.74",
+  x = 4.74,
   n = 25L,
+  items_averaged = 1,
+  data_type = "integer",
   consistency = FALSE,
   hits_total = 1L,
   hits_x = 0L,
@@ -51,12 +52,14 @@ data_seq_grim_different_dispersion1 <- tibble::tibble(
   diff_n = 9L,
   diff_n_up = 9L,
   diff_n_down = NA_integer_,
-) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+) |>
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
 data_seq_grim_different_dispersion2 <- tibble::tibble(
-  x = "5.23",
+  x = 5.23,
   n = 29L,
+  items_averaged = 1,
+  data_type = "integer",
   consistency = FALSE,
   hits_total = 3L,
   hits_x = 1L,
@@ -67,30 +70,31 @@ data_seq_grim_different_dispersion2 <- tibble::tibble(
   diff_n = 3L,
   diff_n_up = NA_integer_,
   diff_n_down = -3L,
-) %>%
-  structure(class = c("scr_audit_seq", "tbl_df", "tbl", "data.frame"))
+) |>
+  structure(class = c("scrutiny_audit_seq", "tbl_df", "tbl", "data.frame"))
 
-data_incons <- pigs1 %>%
-  grim_map() %>%
-  dplyr::filter(!consistency) %>%
+data_incon <- pigs1 |>
+  grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+  dplyr::filter(!consistency) |>
+  dplyr::select(x, n, items_averaged, data_type, consistency) |>
   unclass_scr()
 
 
 test_that("`audit_seq()` has correct output", {
-  audit_seq_grim %>% dim() %>% expect_equal(c(8, 12))
-  audit_seq_grim[1:3] %>% expect_equal(data_incons[1:3])
-  audit_seq_grim[[4]] %>% expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
-  audit_seq_grim[[5]] %>% expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
-  audit_seq_grim[[6]] %>% expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
-  audit_seq_grim[[7]] %>% expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
+  audit_seq_grim |> dim() |> expect_equal(c(8, 14))
+  audit_seq_grim[1:5] |> expect_equal(data_incon)
+  audit_seq_grim[[6]] |> expect_equal(c(4, 6, 6, 7, 3, 6, 8, 6))
+  audit_seq_grim[[7]] |> expect_equal(c(2, 3, 3, 3, 3, 3, 4, 3))
+  audit_seq_grim[[8]] |> expect_equal(c(2, 3, 3, 4, 0, 3, 4, 3))
+  audit_seq_grim[[9]] |> expect_equal(c(2, 1, 1, 1, 1, 1, 1, 1))
 })
 
 
 hits_total_is_correct <- function(audit_seq_output) {
-  expected <- audit_seq_output %>%
-    dplyr::rowwise() %>%
-    dplyr::select(starts_with("hits"), -hits_total) %>%
-    dplyr::mutate(hits_total_expected = sum(dplyr::c_across(everything()))) %>%
+  expected <- audit_seq_output |>
+    dplyr::rowwise() |>
+    dplyr::select(starts_with("hits"), -hits_total) |>
+    dplyr::mutate(hits_total_expected = sum(dplyr::c_across(everything()))) |>
     dplyr::pull(hits_total_expected)
   all(expected == audit_seq_output$hits_total)
 }
@@ -98,22 +102,284 @@ hits_total_is_correct <- function(audit_seq_output) {
 
 test_that("the `hits_total` column correctly sums up
           the other `hits_` columns", {
-  audit_seq_grim    %>% hits_total_is_correct() %>% expect_true()
-  audit_seq_grimmer %>% hits_total_is_correct() %>% expect_true()
-  audit_seq_debit   %>% hits_total_is_correct() %>% expect_true()
+  audit_seq_grim    |> hits_total_is_correct() |> expect_true()
+  audit_seq_grimmer |> hits_total_is_correct() |> expect_true()
+  audit_seq_debit   |> hits_total_is_correct() |> expect_true()
+})
+
+
+test_that("`audit_seq()` replays the original call's test arguments
+          when re-testing the reconstructed data", {
+  # 71% of 43 participants is GRIM-inconsistent. `x_meaning` changes the verdict
+  # but leaves no trace in the output columns, so it used to be dropped by
+  # `audit_seq()`, whose `consistency` column then wrongly said `TRUE`:
+  tibble::tibble(x = 71, n = 43) |>
+    grim_map_seq(digits_x = 0, items_averaged = 1, data_type = "integer", x_meaning = "percentage", include_consistent = TRUE) |>
+    audit() |>
+    dplyr::pull(consistency) |>
+    expect_false()
+
+  # Same for `threshold`: 0.24 with `n = 21` is consistent when rounding up
+  # from 5 but not when rounding up from 9:
+  tibble::tibble(x = 0.24, n = 21) |>
+    grim_map_seq(
+      digits_x = 2,
+      items_averaged = 1,
+      data_type = "integer",
+      rounding = "up_from",
+      threshold = 9,
+      include_consistent = TRUE
+    ) |>
+    audit() |>
+    dplyr::pull(consistency) |>
+    expect_false()
 })
 
 
 test_that("changing `dispersion` in the sequence mapper is
           correctly captured by `audit_seq()`", {
-  pigs1[1:2, ] %>%
-    grim_map_seq(dispersion = c(7, 8, 9)) %>%
-    audit_seq() %>%
+  pigs1[1:2, ] |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = c(7, 8, 9)) |>
+    audit() |>
     expect_equal(data_seq_grim_different_dispersion1)
 
-  tibble::tibble(x = "5.23", n = 29) %>%
-    grim_map_seq(dispersion = c(3, 5, 7)) %>%
-    audit_seq() %>%
+  tibble::tibble(x = 5.23, n = 29) |>
+    grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = c(3, 5, 7)) |>
+    audit() |>
     expect_equal(data_seq_grim_different_dispersion2)
 })
 
+
+test_that("`audit_seq()` and `reverse_map_seq()` take any order of steps", {
+  # Each row records its own step in `diff_var`, so neither order, repeats,
+  # nor a step of 0 matter:
+  ascending <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = c(1, 3, 7))
+  shuffled  <- pigs1[1:2, ] |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer", dispersion = c(7, 0, 1, 3, 3))
+  shuffled |> audit()           |> expect_equal(audit(ascending))
+  shuffled |> reverse_map_seq() |> expect_equal(reverse_map_seq(ascending))
+})
+
+
+test_that("`audit_seq()` orders its columns by `var`", {
+  # `split()` sorts its groups alphabetically, and undoing that sort takes
+  # `rank()`, not `order()`. The two are inverses of each other and agree only
+  # up to three variables that don't form a cycle.
+  out <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = c("sd", "x", "n")) |>
+    audit()
+  out |>
+    colnames() |>
+    grep(pattern = "^hits_", value = TRUE) |>
+    expect_equal(c("hits_total", "hits_sd", "hits_x", "hits_n"))
+})
+
+
+test_that("`audit_seq()` results don't depend on the order of `var`", {
+  a <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |>
+    audit()
+  b <- pigs5[1:3, ] |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer", var = c("n", "x", "sd")) |>
+    audit()
+  a[, sort(colnames(a))] |> expect_equal(b[, sort(colnames(b))])
+})
+
+
+# `audit_cols_minimal()` has always counted inconsistencies with `na.rm`,
+# because a case the test could not decide is not an inconsistent one. The
+# summaries built on top of it did not, so a single missing `n` turned
+# `exp_incon` -- and `ratio`, derived from it -- into `NA` for
+# the whole table.
+
+test_that("`audit()` summarizes the decidable cases despite an undecidable one", {
+  out <- tibble::tibble(x = c(7.22, 5.19), n = c(38, NA)) |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    audit()
+
+  out$exp_incon |> is.na() |> expect_false()
+  out$ratio |> is.na() |> expect_false()
+  out$all_cases |> expect_equal(2L)
+  out$incon_cases |> expect_equal(1L)
+})
+
+
+test_that("undecidable cases don't dilute `ratio`", {
+  df <- tibble::tibble(x = 5.19, n = c(28, 28, NA, NA))
+  expected <- df[1:2, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit() |> purrr::pluck("ratio")
+  df |>
+    grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+    audit() |>
+    purrr::pluck("ratio") |>
+    expect_equal(expected)
+})
+
+test_that("`audit()` on DEBIT output ignores missing values in its means", {
+  out <- tibble::tibble(x = c(0.53, NA), sd = c(0.5, 0.5), n = c(1683L, 1683L)) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+    audit()
+
+  out$mean_x |> is.na() |> expect_false()
+  out$mean_x |> expect_equal(0.53)
+})
+
+
+test_that("`audit()` ignores a missing `n` in DEBIT's `distinct_n`", {
+  tibble::tibble(x = c(0.5, 0.5), sd = c(0.51, 0.51), n = c(20, NA)) |>
+    debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+    audit() |>
+    dplyr::pull(distinct_n) |>
+    expect_equal(1L)
+})
+
+test_that("`audit()` on GRIMMER output without rows has zero counts", {
+  out <- pigs5[0, ] |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> audit() |> expect_silent()
+  out |> dplyr::select(dplyr::starts_with("fail_")) |> unlist(use.names = FALSE) |> expect_equal(rep(0L, 3))
+})
+
+test_that("`audit()` without rows has `NA` rates and means, not `NaN`", {
+  pigs1[0, ] |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit() |> dplyr::select(emp_incon:ratio)          |> unlist() |> is.nan() |> any() |> expect_false()
+  pigs3[0, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")     |> audit() |> dplyr::select(emp_incon, mean_x, mean_sd) |> unlist() |> is.na()  |> all() |> expect_true()
+  pigs3[0, ] |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")     |> audit() |> dplyr::select(emp_incon, mean_x, mean_sd) |> unlist() |> is.nan() |> any() |> expect_false()
+})
+
+test_that("`audit()` names the columns it lacks", {
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")                   |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency` and `exp_incon`")
+  pigs5 |> grimmer_map(digits_x = 2, digits_sd = 2, items_averaged = 1, data_type = "integer") |> dplyr::select(x)   |> audit() |> expect_error("Missing: `consistency`")
+  pigs3 |> debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")                       |> dplyr::select(-sd) |> audit() |> expect_error("Missing: `sd`")
+})
+
+
+# `audit()` on the other tiers -------------------------------------------
+
+test_that("`audit()` summarizes the other tiers by case", {
+  # The basic mapper's method used to be reached instead, which counted the
+  # dispersed rows as reported cases:
+  data_grim_seq    |> audit() |> class() |> expect_contains("scrutiny_audit_seq")
+  data_grimmer_seq |> audit() |> class() |> expect_contains("scrutiny_audit_seq")
+  data_debit_seq   |> audit() |> class() |> expect_contains("scrutiny_audit_seq")
+
+  data_total_n <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |>
+    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, data_type = "integer")
+  data_total_n |> audit() |> class() |> expect_contains("scrutiny_audit_total_n")
+})
+
+
+test_that("the deprecated `audit_seq()` and `audit_total_n()` warn and still work", {
+  rlang::local_options(lifecycle_verbosity = "warning")
+  data_total_n <- tibble::tibble(x1 = 4.71, x2 = 5.3, n = 40) |>
+    grim_map_total_n(digits_x = c(2, 1), items_averaged = 1, data_type = "integer")
+  data_grim_seq |> audit_seq()     |> expect_warning("deprecated")
+  data_total_n  |> audit_total_n() |> expect_warning("deprecated")
+  data_grim_seq |> audit_seq()     |> suppressWarnings() |> expect_equal(audit(data_grim_seq))
+  data_total_n  |> audit_total_n() |> suppressWarnings() |> expect_equal(audit(data_total_n))
+  # Not on output of another tier, which `audit()` would accept:
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit_seq()     |> expect_warning("deprecated") |> expect_error("Invalid `data`")
+  pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit_total_n() |> expect_warning("deprecated") |> expect_error("Invalid `data`")
+})
+
+
+test_that("`.by` summarizes each group on its own, in order of appearance", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> dplyr::mutate(study = rep(c("B", "A", "C"), each = 4))
+  by_study <- out |> audit(.by = study)
+  by_study$study |> expect_equal(c("B", "A", "C"))
+  by_study[-1L] |> expect_equal(dplyr::bind_rows(audit(out[1:4, ]), audit(out[5:8, ]), audit(out[9:12, ])))
+  out |> audit(.by = NULL) |> expect_equal(audit(out))
+  out[0L, ] |> audit(.by = study) |> colnames() |> expect_equal(c("study", colnames(audit(out))))
+  # A name that the summary uses as well, an unknown column, and dots:
+  pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit(.by = x) |> expect_error("would appear twice")
+  out |> audit(.by = nope) |> expect_error("doesn't exist")
+  out |> audit(1) |> expect_error("must be empty")
+})
+
+
+test_that("`audit()` says when `group_by()` removed the class", {
+  out <- pigs1 |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out |> dplyr::group_by(n) |> audit()       |> expect_error("before grouping")
+  out |> dplyr::group_by(n) |> explain_map() |> expect_error("before grouping")
+  iris |> audit() |> expect_error("no method")
+})
+
+test_that("`.by` on sequence output names what the output keeps", {
+  df <- tibble::tibble(study = c("a", "b"), x = c(5.19, 4.2), n = c(28, 30))
+  df |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit(.by = study) |> expect_error("`case` column numbers the input rows")
+  df |> grim_map(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit(.by = nope) |> expect_error("doesn't exist")
+})
+
+test_that("`audit_seq()` says `NA` for hits that a missing value leaves unknown", {
+  # `x` fails GRIM, so the case is inconsistent with `sd` missing. Dispersed
+  # values of `x` that pass GRIM have an `NA` verdict, and `sd` is not dispersed:
+  out <- tibble::tibble(x = 5.19, sd = NA, n = 28) |>
+    grimmer_map_seq(digits_x = 2, digits_sd = 1, items_averaged = 1, data_type = "integer") |>
+    audit()
+  out$consistency |> expect_false()
+  c(out$hits_total, out$hits_x, out$hits_sd, out$hits_n) |> expect_equal(rep(NA_integer_, 4L))
+  c(out$diff_x, out$diff_sd, out$diff_n) |> expect_equal(rep(NA_integer_, 3L))
+})
+
+
+test_that("`audit_seq()` reads `case` as case numbers, whatever its type", {
+  # Case 2 is consistent, so the cases are 1 and 3, and a factor has the codes
+  # 1 and 2:
+  out <- tibble::tibble(x = c(5.19, 2.50, 4.56), n = c(28, 10, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out |> dplyr::mutate(case = factor(case))       |> audit()     |> expect_equal(audit(out))
+  out |> dplyr::mutate(case = as.character(case)) |> audit()     |> expect_equal(audit(out))
+  out |> dplyr::mutate(case = letters[case])      |> audit()     |> expect_error("that the call didn't write")
+  # Strings came out in the order 1, 10, 11, 12, 2, ...:
+  out <- tibble::tibble(x = c(5.19, 5.22, 5.26, 5.30, 5.33, 5.37, 5.40, 5.44, 5.48, 5.51, 5.55, 5.58), n = 28) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out |> dplyr::mutate(case = as.character(case))                    |> audit() |> expect_equal(audit(out))
+  out |> dplyr::mutate(case = factor(case, levels = rev(unique(case)))) |> audit() |> expect_equal(audit(out))
+})
+
+test_that("a variable whose rows were filtered out has unknown hits", {
+  # They were counted as 0, like a variable that `out_max` left without any:
+  out <- tibble::tibble(x = c(5.19, 3.45), n = c(28, 30)) |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+  audited <- out |> dplyr::filter(var == "x") |> audit()
+  audited$hits_n     |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hits_total |> expect_equal(c(NA_integer_, NA_integer_))
+  audited$hits_x     |> expect_equal(c(3L, 4L))
+  # Removed from one case, or in part, too:
+  audited <- out |> dplyr::filter(!(case == 1 & var == "x")) |> audit()
+  audited$hits_x     |> expect_equal(c(NA, 4L))
+  audited$hits_total |> expect_equal(c(NA, audit(out)$hits_total[[2L]]))
+  audited <- out |> dplyr::filter(diff_var > -3) |> audit()
+  audited$hits_x     |> expect_equal(c(NA_integer_, NA_integer_))
+  # The pieces of one output, put together again, are complete:
+  out |> split(out$case) |> dplyr::bind_rows() |> audit() |> expect_equal(audit(out))
+})
+
+test_that("`audit_total_n()` leaves hits unknown that an undecided split could add to", {
+  out <- tibble::tibble(x1 = c(NA, 5.19), x2 = 4.06, n = 65) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |> audit()
+  out$hits_forth      |> expect_equal(c(NA, 2L))
+  out$hits_back       |> expect_equal(c(NA, 0L))
+  out$hits_total      |> expect_equal(c(NA, 2L))
+  out$scenarios_total |> expect_equal(c(6L, 12L))
+  out$hit_rate[1]     |> expect_na()
+})
+
+test_that("`.by` can't rename a column", {
+  # The new name was ignored:
+  pigs1 |> dplyr::mutate(s = rep(c("a", "b"), 6)) |> grim_map(2, items_averaged = 1, data_type = "integer") |> audit(.by = c(new = s)) |> expect_error("Can't rename")
+})
+
+
+test_that("the hint about dropped columns is only for sequence output", {
+  # Total-n output keeps the other columns of the input, but was told it
+  # doesn't:
+  df <- tibble::tibble(x1 = c(3.43, 2.97), x2 = c(5.28, 4.42), n = c(90, 103), study = c("a", "b"))
+  out_total_n <- df |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
+  out_seq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+
+  msg <- out_total_n |> audit(.by = stdy) |> tryCatch(error = conditionMessage)
+  msg |> expect_no_match("doesn't keep")
+  out_seq     |> audit(.by = stdy)  |> expect_error("Sequence output doesn't keep")
+  out_total_n |> audit(.by = study) |> nrow() |> expect_equal(2L)
+})
+
+
+test_that("`audit()` says so if `case` was relabeled", {
+  tn <- tibble::tibble(x1 = c(3.82, 4.11), x2 = c(4.15, 4.97), n = c(40, 50)) |> grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer")
+  sq <- pigs1 |> grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer")
+  tn |> dplyr::mutate(case = paste0("c", case)) |> audit() |> expect_error("2 values that the call didn't write") |> expect_no_warning()
+  sq |> dplyr::mutate(case = paste0("c", case)) |> audit() |> expect_error("that the call didn't write")
+  tn |> dplyr::mutate(case = as.character(case)) |> audit() |> expect_equal(audit(tn))
+})

@@ -6,28 +6,30 @@
 \alias{inside_parens}
 \title{Extract substrings from before and inside parentheses}
 \usage{
-before_parens(string, sep = "parens")
+before_parens(string, delim = "parens", sep = deprecated())
 
-inside_parens(string, sep = "parens")
+inside_parens(string, delim = "parens", sep = deprecated())
 }
 \arguments{
-\item{string}{Vector of strings with parentheses or similar.}
+\item{string}{String vector.}
 
-\item{sep}{String. What to split by. Either \code{"parens"}, \code{"brackets"},
-\code{"braces"}, or a length-2 vector of custom separators. See examples for
-\code{\link[=split_by_parens]{split_by_parens()}}. Default is \code{"parens"}.}
+\item{delim}{String. The pair of delimiters around the second part:
+\code{"parens"} (the default), \code{"brackets"}, or \code{"braces"}, or two custom
+strings, matched literally.}
+
+\item{sep}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old name of \code{delim}.}
 }
 \value{
-String vector of the same length as \code{string}. The part of \code{string}
-before or inside \code{sep}, respectively.
+String vector as long as \code{string}, with surrounding whitespace
+removed. If a string has no opening delimiter, \code{before_parens()} returns
+all of it and \code{inside_parens()} returns \code{NA}. A blank part, such as the
+inside of \code{"()"}, is \code{NA}, as is a part \code{"NA"} or \code{"NaN"}.
 }
 \description{
-\code{before_parens()} and \code{inside_parens()} extract substrings from
-before or inside parentheses, or similar separators like brackets or curly
-braces.
-
-See \code{\link[=split_by_parens]{split_by_parens()}} to split some or all columns in a data frame into
-both parts.
+\code{before_parens()} and \code{inside_parens()} extract the part of a
+string before or inside parentheses, brackets, braces, or custom
+delimiters. \code{\link[=split_by_parens]{split_by_parens()}} does the same for the columns of a data
+frame.
 }
 \examples{
 x <- c(
@@ -37,6 +39,5 @@ x <- c(
 )
 
 before_parens(string = x)
-
 inside_parens(string = x)
 }

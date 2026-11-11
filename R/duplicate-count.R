@@ -1,139 +1,272 @@
-
 #' Count duplicate values
 #'
-#' @description `duplicate_count()` returns a frequency table. When searching a
-#'   data frame, it includes values from all columns for each frequency count.
+#' @description `duplicate_count()` returns a frequency table of the values in
+#'   a vector or data frame. For a data frame, it pools the values of all
+#'   columns and records which columns each value appears in.
 #'
-#'   This function is a blunt tool designed for initial data checking. It is not
-#'   too informative if many values have few characters each.
+#'   This is a blunt tool for initial checks. If many values have few characters
+#'   each, duplicates occur by chance and mean little.
 #'
-#'   For summary statistics, call [`audit()`] on the results.
+#'   Call [`audit()`] on the output for summary statistics.
 #'
-#' @param x Vector or data frame.
-#' @param ignore Optionally, a vector of values that should not be counted.
-#' @param locations_type String. One of `"character"` or `"list"`. With
-#'   `"list"`, each `locations` value is a vector of column names, which is
-#'   better for further programming. By default (`"character"`), the column
-#'   names are pasted into a string, which is more readable.
-
-#' @return If `x` is a data frame or another named vector, a tibble with four
-#'   columns. If `x` isn't named, only the first two columns appear:
+#' @param x Vector, matrix, or data frame. Missing values are not counted, nor are
+#'   blank strings, `"NA"`, and `"NaN"`, which count as missing.
+#' @param ignore Optionally, a vector of values not to count.
+#' @param locations_type String. `"character"` (the default) pastes the column
+#'   names in `locations` into one string; `"list"` keeps them as a vector per
+#'   value, which is better for programming.
 #'
-#' - `value`: All the values from `x`.
-#' - `frequency`: Absolute frequency of each value in `x`, in descending order.
-#' - `locations`: Names of all columns from `x` in which `value` appears.
-#' - `locations_n`: Number of columns named in `locations`.
+#' @return A tibble with these columns, or only the first two if `x` is not
+#'   named:
 #'
-#' The tibble has the `scr_dup_count` class, which is recognized by the
-#' [`audit()`] generic.
-
-#' @section Summaries with [`audit()`]: There is an S3 method for the
-#'   [`audit()`] generic, so you can call [`audit()`] following
-#'   `duplicate_count()`. It returns a tibble with summary statistics for the
-#'   two numeric columns, `frequency` and `locations_n` (or, if `x` isn't named,
-#'   only for `frequency`).
+#' - `value`: the distinct values of `x`.
+#' - `frequency`: how often each occurs, in descending order.
+#' - `locations`: the names of the columns of `x` in which `value` appears.
+#' - `locations_n`: the number of such columns.
+#'
+#' The tibble has the class `scrutiny_dup_count`, which is recognized by
+#'   [`audit()`].
+#'
+#' @section Summaries with [`audit()`]: `audit()` on `duplicate_count()`
+#'   output returns summary statistics for `frequency` and `locations_n` (or
+#'   `frequency` alone if `x` is not named).
 #'
 #' @seealso
-#' - [`duplicate_count_colpair()`] to check each combination of columns for
-#' duplicates.
-#' - [`duplicate_tally()`] to show instances of a value next to each instance.
-#' - [`janitor::get_dupes()`] to search for duplicate rows.
+#' - [`duplicate_count_colpair()`] for duplicates between pairs of columns.
+#' - [`duplicate_tally()`] for counts next to each value.
+#' - [`janitor::get_dupes()`] for duplicate rows.
 #'
 #' @include utils.R
 #'
 #' @export
 #'
 #' @examples
-#' # Count duplicate values...
-#' iris %>%
+#' iris |>
 #'   duplicate_count()
 #'
-#' # ...and compute summaries:
-#' iris %>%
-#'   duplicate_count() %>%
+#' iris |>
+#'   duplicate_count() |>
 #'   audit()
 #'
-#' # Any values can be ignored:
-#' iris %>%
+#' # Ignore some values:
+#' iris |>
 #'   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 
-
-duplicate_count <- function(x, ignore = NULL,
-                            locations_type = c("character", "list")) {
-
+duplicate_count <- function(
+  x,
+  ignore = NULL,
+  locations_type = c("character", "list")
+) {
   locations_type <- rlang::arg_match(locations_type)
 
-  # Convert `x` to a data frame if needed (`x_was_named` will also be checked
-  # further below):
+  x <- matrix_to_cols(x)
+  check_duplicate_input(x)
   x_was_named <- rlang::is_named(x)
-  if (!x_was_named || !is.data.frame(x)) {
-    x <- tibble::as_tibble(
-      x, .name_repair = if (x_was_named) {
-        function(x) x
-      } else {
-        function(x) paste0("col", seq_along(x))
-      }
+
+  # Long format: one row per value and the name of its location. The names of
+  # a named atomic vector are its locations; `tibble::as_tibble()` would put all
+  # its values into one column named `value` instead:
+  if (x_was_named && is.atomic(x)) {
+    names_orig <- unique(names(x))
+    x <- tibble::tibble(
+      name = as.factor(names(x)),
+      value = value_to_factor(unname(x))
     )
-  } else if (!tibble::is_tibble(x)) {
-    x <- tibble::as_tibble(x)
-  }
-
-  names_orig <- colnames(x)
-
-  x <- x %>%
-    dplyr::mutate(dplyr::across(everything(), as.factor)) %>%
-    tidyr::pivot_longer(
-      cols = everything(),
-      names_to = "name",
-      values_to = "value"
-    ) %>%
-    dplyr::mutate("name" = as.factor(.data$name))
-
-  if (is.null(ignore)) {
-    x <- dplyr::filter(x, !is.na(.data$value))
   } else {
-    x <- dplyr::filter(x, !is.na(.data$value) & !.data$value %in% ignore)
+    if (!x_was_named || !is.data.frame(x)) {
+      x <- tibble::as_tibble(
+        x,
+        .name_repair = if (x_was_named) {
+          function(x) x
+        } else {
+          function(x) paste0("col", seq_along(x))
+        }
+      )
+    } else if (!tibble::is_tibble(x)) {
+      x <- tibble::as_tibble(x)
+    }
+
+    names_orig <- colnames(x)
+
+    # Groups are meaningless for a pooled frequency table, and `across()` would
+    # skip a grouping column, which then could not be pivoted with the factors:
+    x <- x |>
+      dplyr::ungroup() |>
+      dplyr::mutate(dplyr::across(everything(), value_to_factor)) |>
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "name",
+        values_to = "value"
+      ) |>
+      dplyr::mutate("name" = as.factor(.data$name))
   }
 
-  out <- x$value %>%
-    table() %>%
-    tibble::as_tibble(.name_repair = function(x) c("value", "frequency")) %>%
-    dplyr::filter(!.data$value %in% ignore) %>%
-    dplyr::arrange(dplyr::desc(.data$frequency)) %>%
-    add_class("scr_dup_count")
+  # Blank strings, `"NA"`, and `"NaN"` are missing, as everywhere in scrutiny:
+  is_missing <- is_value_missing(as.character(x$value))
+  if (!is.null(ignore)) {
+    is_missing <- is_missing | x$value %in% value_to_string(ignore)
+  }
+  x <- x[!is_missing, ]
 
-  # All code below is about the `locations` and `locations_n` columns, but they
-  # are only meant for data frames and other named vectors. If the `x` input was
-  # not named, there is nothing more to do:
+  # `tibble::as_tibble()` can't convert a table with no values, so the columns
+  # are built by hand. `table()` counts every level of a factor, including
+  # those of the values filtered out above, so only values that occur are kept:
+  counts <- table(x$value)
+  out <- tibble::tibble(
+    value = as.character(names(counts)),
+    frequency = as.integer(counts)
+  ) |>
+    dplyr::filter(.data$frequency > 0L) |>
+    dplyr::arrange(dplyr::desc(.data$frequency)) |>
+    add_class("scrutiny_dup_count")
+
+  # Unnamed input has no locations:
   if (!x_was_named) {
     return(out)
   }
 
-  # In the original `x` input data frame, count the columns in which each unique
-  # value appears. Store the names of those columns, and sort them by their
-  # order of appearance in the input data frame:
-  x$name <- as.character(x$name)
-  locations <- vector("list", nrow(out))
-  locations_n <- integer(nrow(out))
-  for (i in seq_along(locations)) {
-    temp <- unique(x[x$value == out$value[i], ]$name)
-    locations[i] <- list(temp[order(match(temp, names_orig))])
-    locations_n[i] <- length(locations[[i]])
-  }
-
-  # The user may specify `locations_type` to remain a list:
-  if (locations_type == "list") {
-    return(dplyr::mutate(out, locations, locations_n))
-  }
-
-  # By default (`locations_type == "character"`), collapse each list element --
-  # i.e., each vector of location names -- into a string:
-  dplyr::mutate(
-    out,
-    locations = vapply(
-      locations, function(x) paste(x, collapse = ", "),
-      character(1L), USE.NAMES = FALSE
-    ),
-    locations_n
+  # Location names in their order in `x`. Split once, rather than scanning `x`
+  # once per value, which took quadratic time:
+  names_by_value <- split(as.character(x$name), as.character(x$value))
+  locations <- lapply(
+    names_by_value[match(out$value, names(names_by_value))],
+    function(names) {
+      names <- unique(names)
+      names[order(match(names, names_orig))]
+    }
   )
+  names(locations) <- NULL
+  locations_n <- lengths(locations)
+
+  if (locations_type == "character") {
+    locations <- vapply(
+      locations,
+      function(x) paste(x, collapse = ", "),
+      character(1L),
+      USE.NAMES = FALSE
+    )
+  }
+
+  out |>
+    dplyr::mutate(locations, locations_n)
+}
+
+
+# Like `as.factor()`, with the levels in the same order -- numbers by size, so
+# that values with the same frequency keep their order -- but labeled by
+# `value_to_string()`, so that `100000` is `"100000"` rather than `"1e+05"`:
+value_to_factor <- function(x) {
+  levels <- x |> unique() |> sort() |> value_to_string() |> unique()
+  factor(value_to_string(x), levels = levels)
+}
+
+
+# `x` must be a vector, and the elements of a list are columns. A list or
+# data frame with no columns, or with a `NULL` one, would fail in tibble or
+# tidyr with an error about their own arguments. `tibble::as_tibble()` recycles
+# an element of length 1 to the length of the others, which would count its
+# value several times, so the columns must have the same length, too:
+# A matrix's column names are its `colnames()`, which `rlang::is_named()`
+# doesn't see. As a list of columns, it gets the checks and the names of a list:
+# repeated names are an error, and missing or blank ones fall back to `col1`
+# etc. A matrix without names gets `col1` etc. right away, as it did before it
+# was converted, so that a single column isn't taken for a vector:
+matrix_to_cols <- function(x) {
+  if (!is.matrix(x)) {
+    return(x)
+  }
+  names <- colnames(x)
+  if (is.null(names)) {
+    names <- paste0("col", seq_len(ncol(x)))
+  }
+  x |>
+    ncol() |>
+    seq_len() |>
+    lapply(function(j) x[, j]) |>
+    stats::setNames(names)
+}
+
+
+check_duplicate_input <- function(x) {
+  if (!rlang::is_vector(x)) {
+    abort_in_export(
+      "`x` must be a data frame or other type of vector.",
+      "x" = "It is {.obj_type_friendly {x}}."
+    )
+  }
+  # Raw bytes have no order, and `sort()` fails on them:
+  is_raw <- if (is.list(x)) {
+    vapply(x, is.raw, logical(1L), USE.NAMES = FALSE)
+  } else {
+    is.raw(x)
+  }
+  if (any(is_raw)) {
+    abort_in_export(
+      "`x` must not contain raw bytes.",
+      "i" = "Convert them with `as.integer()` or `as.character()` first."
+    )
+  }
+  if (!is.list(x)) {
+    return(invisible(NULL))
+  }
+  if (length(x) == 0L) {
+    abort_in_export(
+      "`x` must have at least one column.",
+      "x" = "It has none."
+    )
+  }
+  index_null <- which(vapply(x, is.null, logical(1L), USE.NAMES = FALSE))
+  if (length(index_null) > 0L) {
+    abort_in_export(
+      "The elements of `x` can't be `NULL`.",
+      "x" = "{cli::qty(length(index_null))}Element{?s} {as.character(index_null)} \\
+      {?is/are}."
+    )
+  }
+  check_atomic_cols(x, "x")
+  check_unique_names(x, "x")
+  if (is.data.frame(x)) {
+    return(invisible(NULL))
+  }
+  lengths_x <- lengths(x)
+  if (length(unique(lengths_x)) > 1L) {
+    abort_in_export(
+      "The elements of `x` must have the same length.",
+      "x" = "Their lengths are {lengths_x}.",
+      "i" = "A list is read as columns, one per element."
+    )
+  }
+}
+
+
+# Values are compared as strings, which a list-column has no single one of, so
+# `1:3` would become `"1:3"`, nor a matrix column, which has one per column.
+# Shared with `duplicate_count_colpair()`:
+check_atomic_cols <- function(x, name) {
+  is_vector <- function(col) is.atomic(col) && is.null(dim(col))
+  index_bad <- which(!vapply(x, is_vector, logical(1L), USE.NAMES = FALSE))
+  if (length(index_bad) > 0L) {
+    abort_in_export(
+      "The columns of `{name}` must be atomic vectors.",
+      "x" = "{cli::qty(length(index_bad))}Column{?s} {as.character(index_bad)} \\
+      {?is not one/are not}.",
+      "i" = "Lists and matrices can't be compared value by value."
+    )
+  }
+}
+
+
+# Columns are reported by name, and tibble would reject a repeated one with an
+# error of its own. Unnamed columns are named by position later. Shared with
+# `duplicate_count_colpair()`:
+check_unique_names <- function(x, name) {
+  names_x <- names(x)
+  repeated <- unique(names_x[duplicated(names_x) & !names_x %in% c("", NA)])
+  if (length(repeated) > 0L) {
+    abort_in_export(
+      "The columns of `{name}` must have unique names.",
+      "x" = "{cli::qty(length(repeated))}{wrap_in_backticks(repeated)} \\
+      occur{?s/} more than once."
+    )
+  }
 }

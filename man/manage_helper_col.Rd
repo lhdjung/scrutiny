@@ -2,38 +2,49 @@
 % Please edit documentation in R/mapper-function-helpers.R
 \name{manage_helper_col}
 \alias{manage_helper_col}
-\title{Helper column operations}
+\title{Manage a helper column}
 \usage{
-manage_helper_col(data, var_arg, default, affix = TRUE)
+manage_helper_col(
+  data,
+  arg,
+  default,
+  add_col = TRUE,
+  var_arg = deprecated(),
+  affix = deprecated()
+)
 }
 \arguments{
-\item{data}{The data frame that is the mapper function's first argument.}
+\item{data}{The mapper's input data frame.}
 
-\item{var_arg}{The argument to the mapper function that has the same name as
-the helper column you want to manage.}
+\item{arg}{The mapper argument named like the helper column.}
 
-\item{default}{The default for the argument that was specified in \code{var_arg}.}
+\item{default}{The default of that argument. Leave it out if the argument
+has none, like \code{items_averaged}: \code{data} is then returned unchanged if the
+argument is missing, and the test function reports that.}
 
-\item{affix}{Logical (length 1). If \code{data} doesn't include the helper column
-already, should \code{var_arg} be added to \code{data}, bearing its proper name?
-Default is \code{TRUE}.}
+\item{add_col}{Logical. If \code{data} has no such column, should one be added
+from \code{arg}? Default is \code{TRUE}.}
+
+\item{var_arg, affix}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} The old names of
+\code{arg} and \code{add_col}.}
 }
 \value{
-\code{data}, possibly modified (see \code{affix} argument).
+\code{data}, possibly with the helper column added.
 }
 \description{
-If your consistency test mapper function supports helper
-columns, call \code{manage_helper_col()} internally; once for every such column.
-It will check whether a helper column is compatible with its eponymous
-argument, i.e., if the argument was not specified by the user but has its
-default value.
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 
-By default (\code{affix = TRUE}), the function will add the column to the
-mapper's input data frame. It returns the input data frame, so reassign its
-output to that variable.
+\code{manage_helper_col()} is superseded by the \code{.cols_helper} argument of
+\code{\link[=function_map]{function_map()}}.
 
-All of this only works in mapper functions that were "handwritten" using
-\verb{function()}, as opposed to those produced by \code{function_map()}. See
-\code{vignette("consistency-tests-in-depth")}, section \emph{Writing mappers
-manually}.
+A helper column is a column of a mapper's input that is not
+itself tested but enters the test, such as \code{items_averaged} in
+\code{\link[=grim_map]{grim_map()}}. It can be given either as a column of \code{data} or as an
+argument of the same name. \code{manage_helper_col()} checks that the two
+don't disagree if both are given and, by default, adds the argument's
+value to \code{data} as a column if \code{data} has none.
+
+Mappers made by \code{\link[=function_map]{function_map()}} call it for every \code{.cols_helper}
+argument. Call it yourself in a handwritten mapper, once per helper
+column, and reassign the result to \code{data}.
 }

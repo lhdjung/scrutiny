@@ -8,24 +8,21 @@
 A tibble (data frame) with 5 rows and 3 columns, describing various
 body measures of the fictional pigs. The columns are:
 \describe{
-\item{snout}{String. Snout width.}
-\item{tail}{String. Tail length.}
-\item{wings}{String. Wingspan.}
+\item{snout}{Numeric. Snout width.}
+\item{tail}{Numeric. Tail length.}
+\item{wings}{Numeric. Wingspan.}
 }
 }
 \usage{
 pigs4
 }
-\value{
-A tibble (data frame).
-}
 \description{
 A fictional dataset with observations of flying pigs. It contains multiple
-duplicates. The dataset can be used to demonstrate the functionality of
-\verb{duplicate_*()} functions such as \code{duplicate_count()}.
+duplicates. For demonstrating the \verb{duplicate_*()} functions, such as
+\code{\link[=duplicate_count]{duplicate_count()}}.
 }
 \seealso{
-\code{pigs1} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
-percentages, \code{\link{pigs3}} for using DEBIT, and \code{\link{pigs5}} for GRIMMER-testing.
+\code{\link{pigs1}} for GRIM-testing means, \code{\link{pigs2}} for GRIM-testing
+percentages, \code{\link{pigs3}} for DEBIT-testing, and \code{\link{pigs5}} for GRIMMER-testing.
 }
 \keyword{datasets}

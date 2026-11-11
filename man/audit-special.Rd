@@ -2,59 +2,45 @@
 % Please edit documentation in R/audit.R
 \name{audit-special}
 \alias{audit-special}
-\alias{audit_seq}
-\alias{audit_total_n}
-\title{Summarize output of sequence mappers and total-n mappers}
-\usage{
-audit_seq(data)
-
-audit_total_n(data)
-}
-\arguments{
-\item{data}{A data frame that inherits one of the classes named below.}
-}
-\value{
-A tibble (data frame) with test summary statistics.
-}
+\title{Classes of sequence and total-n mapper output}
 \description{
-\code{audit_seq()} and \code{audit_total_n()} summarize the results of
-functions that end on \verb{_seq} and \verb{_total_n}, respectively.
+\code{\link[=audit]{audit()}} summarizes the output of functions made by
+\code{\link[=function_map_seq]{function_map_seq()}}, such as \code{\link[=grim_map_seq]{grim_map_seq()}}, and of those made by
+\code{\link[=function_map_total_n]{function_map_total_n()}}, such as \code{\link[=grim_map_total_n]{grim_map_total_n()}}, with one row
+per case. The columns of each summary are described in the documentation
+of the respective mapper.
 
-See below for a record of such functions. Go to the documentation of any of
-them to learn about the way its output is processed by \code{audit_seq()} or
-\code{audit_total_n()}.
+Such output carries the generic class \code{"scrutiny_map_seq"} or
+\code{"scrutiny_map_total_n"}, which \code{audit()} dispatches on, and a class for
+the particular mapper, listed below, so that you can write your own S3
+methods for it. The summaries have the class \code{"scrutiny_audit_seq"} or
+\code{"scrutiny_audit_total_n"}, which \code{audit()} summarizes further.
 }
-\details{
-All functions named below that end on \verb{_seq} were made by
-\code{function_map_seq()}. All that end on \verb{_total_n} were made by
-\code{function_map_total_n()}.
-}
-\section{Before \code{audit_seq()}}{
+\section{Sequence mappers}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_seq()} \tab \code{"scr_grim_map_seq"} \cr
-   \code{grimmer_map_seq()} \tab \code{"scr_grimmer_map_seq"} \cr
-   \code{debit_map_seq()} \tab \code{"scr_debit_map_seq"} \cr
+   \code{\link[=grim_map_seq]{grim_map_seq()}} \tab \code{"scrutiny_grim_map_seq"} \cr
+   \code{\link[=grimmer_map_seq]{grimmer_map_seq()}} \tab \code{"scrutiny_grimmer_map_seq"} \cr
+   \code{\link[=debit_map_seq]{debit_map_seq()}} \tab \code{"scrutiny_debit_map_seq"} \cr
+   \code{\link[=percentage_of_map_seq]{percentage_of_map_seq()}} \tab \code{"scrutiny_percentage_of_map_seq"} \cr
 }
 }
 
-\section{Before \code{audit_total_n()}}{
+\section{Total-n mappers}{
 \tabular{ll}{
    \strong{Function} \tab \strong{Class} \cr
-   \code{grim_map_total_n()} \tab \code{"scr_grim_map_total_n"} \cr
-   \code{grimmer_map_total_n()} \tab \code{"scr_grimmer_map_total_n"} \cr
-   \code{debit_map_total_n()} \tab \code{"scr_debit_map_total_n"} \cr
+   \code{\link[=grim_map_total_n]{grim_map_total_n()}} \tab \code{"scrutiny_grim_map_total_n"} \cr
+   \code{\link[=grimmer_map_total_n]{grimmer_map_total_n()}} \tab \code{"scrutiny_grimmer_map_total_n"} \cr
+   \code{\link[=debit_map_total_n]{debit_map_total_n()}} \tab \code{"scrutiny_debit_map_total_n"} \cr
 }
 }
 
 \examples{
-# For GRIM-testing with dispersed inputs:
-out <- pigs1 \%>\%
-  grim_map_seq() \%>\%
-  audit_seq()
+out <- pigs1 |>
+  grim_map_seq(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+  audit()
 out
 
-# Follow up on `audit_seq()` or
-# `audit_total_n()` with `audit()`:
+# `audit()` summarizes the summary:
 audit(out)
 }

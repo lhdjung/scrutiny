@@ -2,30 +2,32 @@
 % Please edit documentation in R/reverse-map-seq.R
 \name{reverse_map_seq}
 \alias{reverse_map_seq}
-\title{Reverse the \verb{*_map_seq()} process}
+\title{Reconstruct the input of a sequence mapper}
 \usage{
 reverse_map_seq(data)
 }
 \arguments{
-\item{data}{Data frame that inherits the \code{"scr_map_seq"} class.}
+\item{data}{Data frame with the \code{"scrutiny_map_seq"} class.}
 }
 \value{
-The reconstructed tibble (data frame) which a factory-made
-\verb{*_map_seq()} function took as its \code{data} argument.
+A tibble with the tested columns, one row per case in \code{data}.
 }
 \description{
-\code{reverse_map_seq()} takes the output of a function created by
-\code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the original data frame.
-
-See \code{\link[=audit_seq]{audit_seq()}}, which takes \code{reverse_map_seq()} as a basis.
+\code{reverse_map_seq()} takes the output of a function made by
+\code{\link[=function_map_seq]{function_map_seq()}} and reconstructs the tested columns of the cases it
+dispersed, without \verb{digits_*}. \code{\link[=audit]{audit()}} builds on it for sequence
+output.
 }
 \examples{
-# Originally reported summary data...
 pigs1
 
-# ...GRIM-tested with varying inputs...
-out <- grim_map_seq(pigs1, include_consistent = TRUE)
+out <- grim_map_seq(
+  pigs1,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer",
+  include_consistent = TRUE
+)
 
-# ...and faithfully reconstructed:
 reverse_map_seq(out)
 }

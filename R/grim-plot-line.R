@@ -1,0 +1,685 @@
+# The comb behind `grim_plot_line()` and `grimmer_plot_line()`: every value
+# a report could take within a window, drawn as a square where some sample can
+# produce it and left out where none can. The panel is a strip, so that the
+# squares are square in any device; the gaps between them make the point.
+#
+# `color_verdict` is the color of the verdict: the marker, the strip, and the
+# square at the reported value, if any. The other squares are attainable values
+# that were not reported, in `color_attainable`. Each square is labeled on the
+# axis unless they are too close together for that; then an inconsistent value
+# gets the nearest square on either side labeled above the strip, since "not
+# this one" begs the question of which ones instead. `label_value` formats a
+# value the way the caller reports it.
+
+plot_comb <- function(
+  values,
+  possible,
+  reported,
+  consistent,
+  label_value,
+  claim,
+  x_label,
+  color_verdict,
+  color_attainable
+) {
+  # Plus zero, which turns a negative zero, as from `round(-0.001, 2)`, into
+  # the zero it would otherwise be labeled "-0.00" as:
+  reported <- reported + 0
+  span <- diff(range(values))
+
+  # The panel's ranges are fixed rather than left to the scales, so that a value
+  # can be placed in the panel's npc units below. The panel ends just above the
+  # strip; everything over it is drawn into the top margin.
+  xlim <- range(values) + c(-1, 1) * span * 0.067
+  ylim <- c(0, 1)
+
+  # A square's side as a share of the panel's width: 80% of the step between
+  # values, but at most 8%, as with no decimal places. The panel's height is a
+  # share of its width as well, so the squares stay square on any device; it
+  # holds them with some room to spare, but not less than 3% of the width, to
+  # remain a strip for the marker to point at. Squares too thin to be seen, as
+  # with a percentage from 0% to 100%, are drawn as ticks instead: 40% of the
+  # strip high, like the largest squares, and no wider than the values they
+  # stand for, but with an outline of about one pixel so that they are drawn.
+  step <- min(diff(values))
+  side <- min(0.8 * step / diff(xlim), 0.08)
+  aspect <- max(2.5 * side, 0.03)
+  is_thin <- side < 0.003
+  attainable <- values[possible]
+  is_reported <- abs(attainable - reported) < step / 2
+  squares <- tibble::tibble(x = attainable, reported = is_reported)
+
+  # Each square gets its value as an axis label if all labels fit side by
+  # side: about 0.07 inches per character at the axis text size, plus some air,
+  # on a panel some 6 inches wide.
+  label_width <- (max(nchar(label_value(attainable)), 1L) * 0.07 + 0.15) / 6
+  show_labels <- length(attainable) > 0L &&
+    min(diff(attainable), Inf) / diff(xlim) >= label_width
+
+  # Without a label per square, the ticks are still at values that can be
+  # reported. ggplot2's own breaks may lie between them, as 0.25 does with one
+  # decimal place, where the label would be a rounded 0.2:
+  breaks_reportable <- function(limits) {
+    # In whole steps; rounded, as the division leaves floating-point noise:
+    # `pretty()` may go beyond the values, but no tick should:
+    range_units <- round(range(values) / step)
+    units <- pretty(range_units)
+    units <- units[
+      units == round(units) &
+        units >= range_units[1L] &
+        units <= range_units[2L]
+    ]
+    index <- vapply(
+      units * step,
+      function(value) which.min(abs(values - value)),
+      integer(1L)
+    )
+    values[unique(index)]
+  }
+
+  # The marker and, if the value is inconsistent and the squares are not
+  # labeled, labels for the nearest attainable values, each connected to its
+  # square by an elbow.
+  #
+  # Text and the arrowhead have a physical size, so no fixed data positions keep
+  # them apart at every plot size. The marker is therefore one grob in grid
+  # units: npc for where a value is, `strwidth`, `char`, and `lines` for spacing.
+  # Heights are counted in `lines` up from the top of the panel, and the top
+  # margin is sized from the same count.
+  neighbors <- if (consistent || show_labels) {
+    numeric(0)
+  } else {
+    c(
+      max(attainable[attainable < reported], -Inf),
+      min(attainable[attainable > reported], Inf)
+    )
+  }
+  neighbors <- neighbors[is.finite(neighbors)]
+  npc_x <- function(v) grid::unit((v - xlim[1L]) / diff(xlim), "npc")
+  above <- function(lines) grid::unit(1, "npc") + grid::unit(lines, "lines")
+
+  # Heights above the panel, in lines. `elbow` runs across above the
+  # arrowhead, whose base is at `arrow_tip` plus its length.
+  arrow_tip <- 0.4
+  arrow_head <- 0.6
+  elbow <- 1.25
+  label_base <- 2
+  arrow_top <- 2.1
+  verdict_base <- 2.3
+  # The verdict's two lines at `lineheight` 0.9, plus a little air:
+  stack_lines <- verdict_base + 2 * 0.9 + 0.3
+
+  text_size <- 4.2
+  fontsize <- text_size * ggplot2::.pt
+  lineheight <- 0.9
+
+  verdict <- paste0(
+    label_value(reported),
+    "\n",
+    if (consistent) "consistent" else "inconsistent"
+  )
+
+  reported_x <- npc_x(reported)
+
+  marker_grobs <- grid::gList(
+    grid::segmentsGrob(
+      x0 = reported_x,
+      y0 = above(arrow_top),
+      x1 = reported_x,
+      y1 = above(arrow_tip),
+      arrow = grid::arrow(
+        angle = 25,
+        length = grid::unit(arrow_head, "lines"),
+        type = "closed"
+      ),
+      gp = grid::gpar(
+        col = color_verdict,
+        fill = color_verdict,
+        lwd = 0.7 * ggplot2::.pt,
+        linejoin = "mitre"
+      ),
+      name = "arrow"
+    ),
+    grid::textGrob(
+      verdict,
+      x = reported_x,
+      y = above(verdict_base),
+      vjust = 0,
+      gp = grid::gpar(col = color_verdict),
+      name = "verdict"
+    )
+  )
+
+  # `strwidth` of a multi-line string is the width of its longest line.
+  verdict_half <- 0.5 * grid::unit(1, "strwidth", verdict)
+
+  neighbor_grobs <- neighbors |>
+    seq_along() |>
+    lapply(function(i) {
+      v <- neighbors[i]
+      label <- label_value(v)
+      offset <- grid::unit.pmax(
+        grid::unit(abs(v - reported) / diff(xlim), "npc") +
+          grid::unit(1.5, "char"),
+        verdict_half +
+          grid::unit(1, "char") +
+          0.5 * grid::unit(1, "strwidth", label)
+      )
+      label_x <- reported_x + sign(v - reported) * offset
+      grid::gList(
+        grid::textGrob(
+          label,
+          x = label_x,
+          y = above(label_base),
+          vjust = 0,
+          name = paste0("neighbor-label-", i)
+        ),
+        grid::polylineGrob(
+          x = grid::unit.c(label_x, label_x, npc_x(v), npc_x(v)),
+          y = grid::unit.c(
+            above(label_base - 0.25),
+            above(elbow),
+            above(elbow),
+            above(0.2)
+          ),
+          gp = grid::gpar(lwd = 0.4 * ggplot2::.pt),
+          name = paste0("neighbor-elbow-", i)
+        )
+      )
+    })
+
+  marker_children <- do.call(
+    grid::gList,
+    c(marker_grobs, unlist(neighbor_grobs, recursive = FALSE))
+  )
+
+  marker_grob <- grid::gTree(
+    children = marker_children,
+    gp = grid::gpar(
+      col = "grey20",
+      fontsize = fontsize,
+      lineheight = lineheight
+    )
+  )
+
+  ggplot2::ggplot() +
+    # The interval the reported value stands for, behind the squares: the
+    # values that would have been rounded to it. It is a fact about the
+    # reported value, not about the scale, so it takes the marker's color at
+    # low opacity.
+    ggplot2::annotate(
+      "rect",
+      # Within the panel, which is not clipped:
+      xmin = max(claim[1L], xlim[1L]),
+      xmax = min(claim[2L], xlim[2L]),
+      ymin = 0,
+      ymax = 1,
+      fill = color_verdict,
+      alpha = 0.18
+    ) +
+    ggplot2::annotate(
+      "segment",
+      x = min(values) - span * 0.03,
+      xend = max(values) + span * 0.03,
+      y = 0,
+      yend = 0,
+      colour = "grey60",
+      linewidth = 0.5
+    ) +
+    ggplot2::geom_tile(
+      data = squares,
+      mapping = ggplot2::aes(x = .data$x, y = 0.5),
+      width = side * diff(xlim),
+      height = if (is_thin) 0.4 * diff(ylim) else side * diff(ylim) / aspect,
+      fill = ifelse(squares$reported, color_verdict, color_attainable),
+      colour = if (is_thin) {
+        ifelse(squares$reported, color_verdict, color_attainable)
+      } else {
+        NA
+      },
+      linewidth = 0.2
+    ) +
+    # The reported value points down at the strip from above rather than being
+    # drawn across it. A marker in the strip would stand exactly where the
+    # square it is asking about stands, and hide the one thing the figure is
+    # for: whether there is a square there at all.
+    ggplot2::annotation_custom(marker_grob) +
+    # `clip = "off"` so the marker can sit above the strip rather than being cut
+    # by the top of the panel; the top margin is the marker's stack of lines,
+    # and the side margins leave room for a value at either end of the window.
+    ggplot2::scale_x_continuous(
+      breaks = if (show_labels) attainable else breaks_reportable,
+      labels = if (show_labels) label_value(attainable) else label_value,
+      # A narrow device may still not fit them all:
+      guide = ggplot2::guide_axis(check.overlap = TRUE)
+    ) +
+    ggplot2::coord_cartesian(
+      xlim = xlim,
+      ylim = ylim,
+      expand = FALSE,
+      clip = "off"
+    ) +
+    ggplot2::labs(x = x_label, y = NULL) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      aspect.ratio = aspect,
+      # The strip has no height to read, so an axis for it would only invite
+      # someone to look for one.
+      axis.text.y = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = 10)),
+      plot.margin = ggplot2::margin(
+        ceiling(stack_lines * fontsize * lineheight),
+        40,
+        6,
+        40
+      )
+    )
+}
+
+
+# Every value with `digits` decimal places from `from` to `to`. Rounded after
+# the sequence is built rather than trusting `seq()`: a step of 0.01 added a
+# hundred times over lands a little beside the two-decimal number it should be,
+# and these values go into a consistency test that checks them against `digits`.
+# Each is tested, so their number is checked first; it grows tenfold with each
+# decimal place. Only the whole window of `zoom = "wide"` can reach the limit.
+# `name` is `"x"` or `"sd"`, for the message:
+comb_values <- function(from, to, digits, name) {
+  # Rounded, as `from` and `to` are multiples of the step only up to noise,
+  # which put a window that fills the limit exactly a hair over it:
+  size <- round((to - from) * 10^digits) + 1
+  if (size > COMB_TEETH_MAX) {
+    limit <- format(COMB_TEETH_MAX, big.mark = ",", scientific = FALSE)
+    abort_in_export(
+      "Too many values to draw.",
+      "x" = "With `digits_{name} = {digits}`, the plot would test \\
+      {format(size, big.mark = ',', scientific = FALSE)} values, more than \\
+      {limit}.",
+      "i" = "Each decimal place multiplies them by 10. `zoom = \"close\"` or \\
+      `\"medium\"` tests fewer."
+    )
+  }
+  # Plus zero, which turns a negative zero, as rounding leaves of a step just
+  # below zero, into the zero it would otherwise be labeled "-0.00" as:
+  values <- from |>
+    seq(to, by = 10^-digits) |>
+    round(digits)
+  values + 0
+}
+
+
+# The values to draw, and which of them `test` admits: every value from `lower`
+# to `upper` under `zoom = "wide"` or, otherwise, the ones around `reported`,
+# so that it and the strip behind it stand out. These reach `COMB_ZOOM_STEPS`
+# values to either side. Under `"close"`, if `reported` is inconsistent, the
+# window doubles until the nearest attainable value is in view, and then keeps
+# three values beyond it. Only the nearest one: attainable percentages can be
+# dozens of values apart, and a window that reached the one on the other side
+# as well would shrink the squares and the strip to specks. Under `"medium"`,
+# it does reach the nearest attainable value other than `reported` on either
+# side, to show how far apart they are. It reaches no farther to either side
+# than the full window is wide, and holds no values outside of `limits`, the
+# ones that can be reported at all, nor more than `COMB_TEETH_MAX`.
+comb_window <- function(
+  reported,
+  consistent,
+  digits,
+  lower,
+  upper,
+  limits,
+  zoom,
+  test,
+  name
+) {
+  if (zoom == "wide") {
+    values <- comb_values(lower, upper, digits, name)
+    return(list(values = values, possible = test(values)))
+  }
+
+  # The search may go as far as the full window is wide, but test no more than
+  # `COMB_TEETH_MAX` values. A side cut short by a limit leaves the other side
+  # more of them:
+  step <- 10^-digits
+  steps_window <- max(ceiling((upper - lower) / step), 1)
+  room_near <- min(round(
+    c(reported - limits[1L], limits[2L] - reported) / step
+  ))
+  budget <- COMB_TEETH_MAX - 1
+  steps_fit <- if (2 * room_near >= budget) budget %/% 2 else budget - room_near
+  steps_max <- min(steps_window, steps_fit)
+  steps <- min(COMB_ZOOM_STEPS, steps_max)
+  is_medium <- zoom == "medium"
+
+  repeat {
+    values <- comb_values(
+      max(reported - steps * step, limits[1L]),
+      min(reported + steps * step, limits[2L]),
+      digits,
+      name
+    )
+    possible <- test(values)
+    index_reported <- which.min(abs(values - reported))
+    index_possible <- which(possible)
+    others <- index_possible[index_possible != index_reported]
+    left <- others[others < index_reported]
+    right <- others[others > index_reported]
+    # A side that ends at a limit has nothing more to show:
+    seen_left <- length(left) > 0L || values[1L] - step < limits[1L]
+    seen_right <- length(right) > 0L ||
+      values[length(values)] + step > limits[2L]
+    is_done <- if (is_medium) {
+      seen_left && seen_right
+    } else {
+      consistent || length(others) > 0L || (seen_left && seen_right)
+    }
+    if (is_done || steps >= steps_max) {
+      break
+    }
+    steps <- min(2 * steps, steps_max)
+  }
+
+  # The search ends after `COMB_TEETH_MAX` values even if the full window is
+  # wider, which may be before the nearest attainable value, as for a mean of
+  # three values with five decimal places. An empty row would look as if
+  # there were none, and a row without a neighbor under `"medium"` as if
+  # there were none on that side:
+  is_short <- if (is_medium) {
+    !(seen_left && seen_right)
+  } else {
+    !any(possible)
+  }
+  if (is_short && steps_max < steps_window) {
+    what <- if (any(possible)) {
+      "No other attainable value is close enough to draw on both sides."
+    } else {
+      "No attainable value is close enough to draw."
+    }
+    cli::cli_warn(c(
+      what,
+      "i" = "The plot looks up to {format(steps, big.mark = ',', \\
+      scientific = FALSE)} values away from the reported `{name}`, as far as \\
+      it can. There may be some beyond."
+    ))
+  }
+
+  if (is_medium || !consistent) {
+    reaches <- c(
+      index_reported - left[length(left)],
+      right[1L] - index_reported
+    )
+    reaches <- reaches[!is.na(reaches)]
+    reach <- if (length(reaches) == 0L) {
+      0L
+    } else if (is_medium) {
+      max(reaches)
+    } else {
+      min(reaches)
+    }
+    steps <- min(steps, max(min(COMB_ZOOM_STEPS, steps_max), reach + 3L))
+  }
+  keep <- abs(seq_along(values) - index_reported) <= steps
+  list(values = values[keep], possible = possible[keep])
+}
+
+
+# `n` and `items_averaged` are needed for the window before the test itself gets
+# to reject them, and an undecidable case has nothing to draw.
+check_decidable_n_items <- function(n, items_averaged, min_n) {
+  if (!is_decidable_n_items(n, items_averaged, min_n = min_n)) {
+    msg_n <- if (min_n > 1) ", and `n` must be at least {min_n}" else ""
+    abort_in_export(
+      paste0(
+        "`n` and `items_averaged` must be positive whole numbers",
+        msg_n,
+        "."
+      ),
+      "x" = "`n` is {n} and `items_averaged` is {items_averaged}.",
+      "i" = "Otherwise, the test can't be decided, so there is nothing to \\
+      draw."
+    )
+  }
+}
+
+
+# The window is built from the value and its decimal count; bad ones would fail
+# in `seq()` with an error that names neither argument. `name` is `"x"` or
+# `"sd"`.
+check_comb_value <- function(value, digits, name) {
+  name_digits <- paste0("digits_", name)
+  if (!is.finite(value)) {
+    abort_in_export(
+      "!" = "`{name}` must be a finite number.",
+      "x" = "It is `{value}`."
+    )
+  }
+  if (name == "sd" && value < 0) {
+    abort_in_export(
+      "!" = "`sd` can't be negative.",
+      "x" = "It is {value}."
+    )
+  }
+  if (
+    length(digits) != 1L ||
+      !is.numeric(digits) ||
+      is.na(digits) ||
+      !is_whole_number(digits) ||
+      digits < 0
+  ) {
+    abort_in_export(
+      "!" = "`{name_digits}` must be a single non-negative whole number.",
+      "x" = "It is `{deparse(digits)}`."
+    )
+  }
+}
+
+
+#' Visualize the means that GRIM admits
+#'
+#' @description `r lifecycle::badge("experimental")`
+#'
+#'   `grim_plot_line()` draws the GRIM test for a single value set as a
+#'   row of squares. Of all means (or percentages) that could have been
+#'   reported with `digits_x` decimal places, each square is one that a sample
+#'   of size `n` can have; the others are left out. The reported value is
+#'   marked above the row and labeled as consistent or inconsistent.
+#'
+#'   [`grim_plot_grid()`] shows many results at once; this function explains
+#'   one. [`grim_values()`] lists the unrounded means behind a reported one.
+#'
+#' @param x,n,digits_x,items_averaged,x_meaning,rounding,threshold,symmetric The
+#'   same as in [`grim()`], but `x`, `n`, `digits_x`, and `items_averaged`
+#'   must have length 1.
+#' @param data_type String. `"integer"` if the values are whole numbers,
+#'   as in [`grim()`]. There is no default, so that every call states
+#'   this assumption. `"continuous"` and `NA` are errors: if the data may
+#'   be continuous, there are no values to draw.
+#' @param zoom String. How much of the row to show: `"close"` (the default),
+#'   `"medium"`, or `"wide"`; see *Details*.
+#' @param color_con,color_incon Strings. Color of the marker, the strip behind
+#'   the squares, and the square at the reported value if it is consistent.
+#'   `color_con` applies if the value is consistent, `color_incon` if not.
+#'   Defaults are `"#0047ff"` and `"#ff2a00"`.
+#' @param color_attainable String. Color of the squares for attainable values
+#'   that were not reported, like the consistent cells of
+#'   [`grim_plot_grid()`]'s raster. Default is `"grey75"`.
+#'
+#' @details With `zoom = "close"`, the row shows 10 values on either side of
+#'   `x`, so that the marker and the strip behind it stand out. If `x` is
+#'   inconsistent, it widens until the nearest attainable value is in view,
+#'   but no farther than the row with `zoom = "wide"` is wide. It does not
+#'   widen further for the nearest one on the other side: attainable
+#'   percentages in particular can be dozens of values apart, so the squares
+#'   and the strip would shrink to specks.
+#'
+#'   With `zoom = "medium"`, the row widens until the nearest attainable value
+#'   other than `x` is in view on either side, whether `x` is consistent or
+#'   not, which shows how far apart the attainable values are. Again, it
+#'   widens no farther than the row with `zoom = "wide"`. Both settings test
+#'   at most 20,000 values, and warn if they stop short of an attainable value
+#'   for that reason.
+#'
+#'   Each attainable value is labeled below its square unless the squares are
+#'   too close together for that, as they mostly are with `zoom = "wide"`. Then
+#'   the axis has the usual breaks, and if `x` is inconsistent, the nearest
+#'   attainable values are labeled above the row.
+#'
+#'   With `zoom = "wide"`, the row runs from the whole number at or below `x` to
+#'   the next one up. With `items_averaged = 1`, about `n` of the values in
+#'   this unit are attainable, or all if `n` exceeds `10 ^ digits_x`. With
+#'   `x_meaning = "percentage"`, the unit is that of the proportion GRIM
+#'   tests, so the row runs from 0% to 100%, and about `n + 1` values are
+#'   attainable, or all if `n` exceeds `10 ^ (digits_x + 2)`. Squares too
+#'   narrow to be seen as such are drawn as ticks of the same height.
+#'
+#'   The strip behind the squares is the range of unrounded means that would
+#'   have been reported as `x`, from [`roundwork::unround()`]. The value is
+#'   consistent exactly if a square stands within the strip. Under methods
+#'   such as `"trunc"` or `"ceiling"`, one edge of the strip is not part of it,
+#'   so a square on that edge does not count.
+#'
+#' @return A ggplot object.
+#'
+#' @seealso [`grimmer_plot_line()`] for the same figure over standard
+#'   deviations.
+#'
+#' @export
+#'
+#' @examples
+#' # A mean of 5.19 is not consistent with a sample size of 28:
+#' # no square stands where the marker points.
+#' grim_plot_line(x = 5.19, n = 28, digits_x = 2, items_averaged = 1, data_type = "integer")
+#'
+#' # With `n = 26`, it is:
+#' grim_plot_line(x = 5.19, n = 26, digits_x = 2, items_averaged = 1, data_type = "integer")
+#'
+#' # The same for a percentage:
+#' grim_plot_line(
+#'   x = 67.4,
+#'   n = 40,
+#'   digits_x = 1,
+#'   items_averaged = 1,
+#'   data_type = "integer",
+#'   x_meaning = "percentage"
+#' )
+
+grim_plot_line <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  data_type,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  zoom = c("close", "medium", "wide"),
+  color_con = "#0047ff",
+  color_incon = "#ff2a00",
+  color_attainable = "grey75"
+) {
+  check_args_given(c("x", "n"))
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+  check_length(x, 1L)
+  check_length(n, 1L)
+  check_length(digits_x, 1L)
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+  check_length(items_averaged, 1L)
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+  check_data_type_whole(data_type, allow_na = FALSE)
+  # As in the test itself: a string is a mistake, not an undecidable value:
+  if (!is.numeric(n) && !is.na(n)) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !is.na(items_averaged)) {
+    check_type(items_averaged, c("double", "integer"))
+  }
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  is_percentage <- x_meaning == "percentage"
+  zoom <- arg_match_in_export(zoom, COMB_ZOOMS)
+  n <- round_whole(n)
+  items_averaged <- round_whole(items_averaged)
+  digits_x <- round_whole(digits_x)
+  check_newly_numeric(
+    x,
+    digits_x,
+    scale = rounding_scale(rounding, threshold, symmetric)
+  )
+  check_comb_value(x, digits_x, "x")
+  check_decidable_n_items(n, items_averaged, min_n = 1)
+
+  # The whole window is a unit of the tested value, which holds about `n`
+  # attainable ones: one around a mean, and 0 to 100 for a percentage, which is
+  # tested as a proportion. These are also the values a percentage can take:
+  limits <- if (is_percentage) {
+    c(min(0, floor(x)), max(100, ceiling(x)))
+  } else {
+    c(-Inf, Inf)
+  }
+  lower <- if (is_percentage) limits[1L] else floor(x)
+  upper <- if (is_percentage) limits[2L] else floor(x) + 1
+  test <- function(x) {
+    grim(
+      x = x,
+      n = n,
+      digits_x = digits_x,
+      items_averaged = items_averaged,
+      data_type = "integer",
+      x_meaning = x_meaning,
+      rounding = rounding,
+      threshold = threshold,
+      symmetric = symmetric
+    )
+  }
+
+  consistent <- test(x)
+  window <- comb_window(
+    reported = x,
+    consistent = consistent,
+    digits = digits_x,
+    lower = lower,
+    upper = upper,
+    limits = limits,
+    zoom = zoom,
+    test = test,
+    name = "x"
+  )
+
+  claim <- roundwork::unround(
+    x = x,
+    rounding = rounding,
+    threshold = threshold,
+    digits = digits_x,
+    symmetric = symmetric
+  )
+
+  plot_comb(
+    values = window$values,
+    possible = window$possible,
+    reported = x,
+    consistent = consistent,
+    label_value = function(value) {
+      value |>
+        formatC(format = "f", digits = digits_x) |>
+        paste0(if (is_percentage) "%")
+    },
+    claim = c(claim$lower[1L], claim$upper[1L]),
+    # fmt: skip
+    x_label = paste0(
+      if (is_percentage) "Percentage" else "Mean",
+      " (n = ", format(n, scientific = FALSE),
+      if (items_averaged != 1) {
+        paste(", items_averaged =", format(items_averaged, scientific = FALSE))
+      },
+      ")"
+    ),
+    color_verdict = if (consistent) color_con else color_incon,
+    color_attainable = color_attainable
+  )
+}

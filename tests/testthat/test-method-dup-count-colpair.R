@@ -1,10 +1,21 @@
-
 # Expected output ---------------------------------------------------------
 
 pigs4_exp <- tibble::tibble(
   term = c("count", "total_x", "total_y", "rate_x", "rate_y"),
-  mean = c(1.333333333333333259318, 5, 5, 0.2666666666666666629659, 0.2666666666666666629659),
-  sd = c(0.5773502691896257310589, 0, 0, 0.1154700538379251628651, 0.1154700538379251628651),
+  mean = c(
+    1.333333333333333259318,
+    5,
+    5,
+    0.2666666666666666629659,
+    0.2666666666666666629659
+  ),
+  sd = c(
+    0.5773502691896257310589,
+    0,
+    0,
+    0.1154700538379251628651,
+    0.1154700538379251628651
+  ),
   median = c(1, 5, 5, 0.2, 0.2),
   min = c(1, 5, 5, 0.2, 0.2),
   max = c(2, 5, 5, 0.4, 0.4),
@@ -12,13 +23,21 @@ pigs4_exp <- tibble::tibble(
   na_rate = numeric(5),
 )
 
+# `rate_y` is counted from the `y` side, so it differs from `rate_x` even
+# without `NA`s if values repeat within a column:
 iris_exp <- tibble::tibble(
   term = c("count", "total_x", "total_y", "rate_x", "rate_y"),
-  mean = c(25.4, 150, 150, 0.1693333333333333357018, 0.1693333333333333357018),
-  sd = c(41.22081459112077794771, 0, 0, 0.2748054306074718677877, 0.2748054306074718677877),
-  median = c(1.5, 150, 150, 0.01, 0.01),
+  mean = c(25.4, 150, 150, 0.1693333333333333357018, 0.1246666666666666617447),
+  sd = c(
+    41.22081459112077794771,
+    0,
+    0,
+    0.2748054306074718677877,
+    0.1881961152037357198896
+  ),
+  median = c(1.5, 150, 150, 0.01, 0.003333333333333333547283),
   min = c(0, 150, 150, 0, 0),
-  max = c(125, 150, 150, 0.8333333333333333703408, 0.8333333333333333703408),
+  max = c(125, 150, 150, 0.8333333333333333703408, 0.5133333333333333081683),
   na_count = numeric(5),
   na_rate = numeric(5),
 )
@@ -26,10 +45,19 @@ iris_exp <- tibble::tibble(
 mtcars_exp <- tibble::tibble(
   term = c("count", "total_x", "total_y", "rate_x", "rate_y"),
   mean = c(
-    2.472727272727272662678, 32, 32, 0.07727272727272727070869,
-    0.07727272727272727070869
+    2.472727272727272662678,
+    32,
+    32,
+    0.07727272727272727070869,
+    105 / 1760
   ),
-  sd = c(7.38079225260366467154, 0, 0, 0.2306497578938645209856, 0.2306497578938645209856),
+  sd = c(
+    7.38079225260366467154,
+    0,
+    0,
+    0.2306497578938645209856,
+    0.1711921121654756405839
+  ),
   median = c(0, 32, 32, 0, 0),
   min = c(0, 32, 32, 0, 0),
   max = rep(c(32, 1), 3:2),
@@ -41,7 +69,7 @@ mtcars_exp <- tibble::tibble(
 # Testing -----------------------------------------------------------------
 
 test_that("`audit()` for `duplicate_count_colpair()` works correctly", {
-  pigs4  %>% duplicate_count_colpair() %>% audit() %>% expect_equal(pigs4_exp)
-  iris   %>% duplicate_count_colpair() %>% audit() %>% expect_equal(iris_exp)
-  mtcars %>% duplicate_count_colpair() %>% audit() %>% expect_equal(mtcars_exp)
+  pigs4  |> duplicate_count_colpair() |> audit() |> expect_equal(pigs4_exp)
+  iris   |> duplicate_count_colpair() |> audit() |> expect_equal(iris_exp)
+  mtcars |> duplicate_count_colpair() |> audit() |> expect_equal(mtcars_exp)
 })

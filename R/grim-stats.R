@@ -1,42 +1,50 @@
-
 #' Possible GRIM inconsistencies
 #'
-#' @description These functions compute statistics related to GRIM-testing. In
-#'   general, `grim_probability()` is the most useful of them, and it is
-#'   responsible for the `probability` column in a data frame returned by
-#'   [`grim_map()`].
+#' @description These functions quantify how informative a GRIM test is for a
+#'   given sample size and number of decimal places:
 #'
-#'   - `grim_probability()` returns the probability that a reported mean or
-#'   percentage of integer data that is random except for the number of its
-#'   decimal places is inconsistent with the reported sample size. For example,
-#'   the mean 1.23 is treated like any other mean with two decimal places.
-#'   - `grim_ratio()` is equal to `grim_probability()` unless `grim_ratio()` is
-#'   negative, which can occur if the sample size is very large. Strictly
-#'   speaking, this is more informative than `grim_probability()`, but it is
-#'   harder to interpret.
-#'   - `grim_total()` returns the absolute number of GRIM-inconsistencies that
-#'   are possible given the mean or percentage's number of decimal places and
-#'   the corresponding sample size.
+#'   - `grim_exp_incon()` returns the probability that a mean or percentage
+#'   with `digits_x` random decimal digits is GRIM-inconsistent with `n`. It
+#'   is the `exp_incon` column of [`grim_map()`].
+#'   - `grim_total()` returns the number of such inconsistent values between
+#'   two whole numbers, out of `10^digits_x` (`10^(digits_x + 2)` with
+#'   `x_meaning = "percentage"`).
 #'
-#'   For discussion, see `vignette("grim")`, section *GRIM statistics*.
-
-#' @param x String (length 1). Mean or percentage value computed from data with
-#'   integer units, e.g., mean scores on a Likert scale or percentage of study
-#'   participants in some condition. It has to be string to capture any trailing
-#'   zeros.
-#' @param n Integer. Sample size corresponding to `x`.
-#' @param items Integer. Number of items composing the mean or percentage value
-#'   in question. Default is `1`.
-#' @param percent Logical. Set `percent` to `TRUE` if `x` is expressed as a
-#'   proportion of 100 rather than 1. The functions will then account for this
-#'   fact through increasing the decimal count by 2. Default is `FALSE`.
-
-#' @seealso [`grim()`] for the GRIM test itself; as well as [`grim_map()`] for
-#'   applying it to many cases at once.
+#'   See `vignette("grim-in-depth")`, section *GRIM statistics*.
 #'
-#' @return Integer or double. The number of possible GRIM inconsistencies, or
-#'   their probability for a random mean or percentage with a given number of
-#'   decimal places.
+#' @details `x`, `n`, `digits_x`, `items_averaged`, and `data_type` are
+#'   recycled to a common length by the tidyverse rules: an argument has
+#'   length 1 or the length of the longest.
+#'
+#' @param x Numeric. The mean or percentage. Only whether it is missing or
+#'   infinite matters; the argument mirrors [`grim()`].
+#' @param digits_x Integer. The number of decimal places in `x`, including
+#'   trailing zeros. There is no default, since a numeric value does not
+#'   keep them (`1.40` is `1.4`).
+#' @param n Integer. The sample size.
+#' @param items_averaged Integer. As in [`grim()`].
+#' @param data_type String. As in [`grim()`]. No default. For `"continuous"`
+#'   data, which GRIM can't find inconsistent, the result is 0, or `NA` where
+#'   [`grim()`] is `NA`.
+#' @param x_meaning String. `"mean"` (the default) or `"percentage"`, which
+#'   adds 2 to the decimal count, as in [`grim()`].
+#' @param rounding,threshold As in [`grim()`]. The count depends on the
+#'   method; `"even"` counts a tie on either bound as consistent, as [`grim()`]
+#'   does. [`grim_map()`] passes its own on.
+#'
+#' @inheritParams grim
+#'
+#' @seealso [`grim()`] and [`grim_map()`].
+#'
+#' @return Double. For integer data, `grim_exp_incon()` and `grim_total()`
+#'   return `NA` if `x` is missing or infinite, if `digits_x` is missing, or if
+#'   `n` or `items_averaged` is missing or not a positive whole number. These
+#'   include every case that [`grim()`] cannot decide, and some that it can: a
+#'   mean may pass whatever `n` is, but how many fail depends on it. For
+#'   continuous data, they return 0, or `NA` where [`grim()`] is `NA`. Under
+#'   `data_type = NA`, they return `NA` unless the count is 0. A count above
+#'   2^53, which only `digits_x` of 14 or more with `x_meaning = "percentage"`
+#'   can reach, is the nearest number a double can hold.
 #'
 #' @references Brown, N. J. L., & Heathers, J. A. J. (2017). The GRIM Test: A
 #'   Simple Technique Detects Numerous Anomalies in the Reporting of Results in
@@ -49,47 +57,101 @@
 #'
 #' @examples
 #' # Many value sets are inconsistent here:
-#' grim_probability(x = "83.29", n = 21)
-#' grim_total(x = "83.29", n = 21)
+#' grim_exp_incon(
+#'   x = 83.29,
+#'   n = 21,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
+#' grim_total(
+#'   x = 83.29,
+#'   n = 21,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
-#' # No sets are inconsistent in this case...
-#' grim_probability(x = "5.14", n = 83)
-#' grim_total(x = "5.14", n = 83)
+#' # None are in this case...
+#' grim_exp_incon(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
+#' grim_total(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
-#' # ... but most would be if `x` was a percentage:
-#' grim_probability(x = "5.14", n = 83, percent = TRUE)
-#' grim_total(x = "5.14", n = 83, percent = TRUE)
-
-
+#' # ...but most would be if `x` were a percentage:
+#' grim_exp_incon(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer",
+#'   x_meaning = "percentage"
+#' )
+#' grim_total(
+#'   x = 5.14,
+#'   n = 120,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer",
+#'   x_meaning = "percentage"
+#' )
 
 # Relative ----------------------------------------------------------------
 
-grim_probability <- function(x, n, items = 1, percent = FALSE) {
-  # Manual check (instead of calling `check_type()`) for performance; this
-  # function will run a great deal:
-  if (!is.character(x)) {
-    cli::cli_abort(c(
-      "!" = "`x` must be of type character.",
-      "x" = "It is {an_a_type(x)}."
-    ))
+grim_exp_incon <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  data_type,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  percent = deprecated()
+) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_exp_incon")
   }
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
-  out <- (p10 - n * items) / p10
-  dplyr::if_else(out < 0, 0, out)
-}
+  # R's own error would name an internal call:
+  if (missing(x)) {
+    abort_in_export("Need to specify {.arg x}.")
+  }
+  if (missing(n)) {
+    abort_in_export("Need to specify {.arg n}.")
+  }
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+  digits_x <- round_whole(digits_x)
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
 
+  out <- grim_total(
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items_averaged = items_averaged,
+    data_type = data_type,
+    x_meaning = x_meaning,
+    rounding = rounding,
+    threshold = threshold
+  )
 
+  if (x_meaning == "percentage") {
+    digits_x <- digits_x + 2L
+  }
 
-#' @rdname grim-stats
-#' @export
-grim_ratio <- function(x, n, items = 1, percent = FALSE) {
-  check_type(x, "character")
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
-  (p10 - n * items) / p10
+  # No inconsistent value is none of any number, even of an unknown one:
+  dplyr::if_else(out %in% 0, 0, out / 10^digits_x)
 }
 
 
@@ -97,39 +159,281 @@ grim_ratio <- function(x, n, items = 1, percent = FALSE) {
 
 #' @rdname grim-stats
 #' @export
-grim_total <- function(x, n, items = 1, percent = FALSE) {
-  check_type(x, "character")
-  digits <- decimal_places_scalar(x)
-  if (percent) digits <- digits + 2L
-  p10 <- 10 ^ digits
-  as.integer(p10 - (n * items))
+grim_total <- function(
+  x,
+  n,
+  digits_x,
+  items_averaged,
+  data_type,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  percent = deprecated()
+) {
+  if (lifecycle::is_present(percent)) {
+    stop_percent("grim_total")
+  }
+  # R's own error would name an internal call:
+  if (missing(x)) {
+    abort_in_export("Need to specify {.arg x}.")
+  }
+  if (missing(n)) {
+    abort_in_export("Need to specify {.arg n}.")
+  }
+  if (missing(digits_x)) {
+    error_digits_missing(x)
+  }
+
+  if (missing(items_averaged)) {
+    error_items_missing()
+  }
+
+  if (missing(data_type)) {
+    error_data_type_missing()
+  }
+
+  # As in `grim()`; an empty argument would empty the result:
+  for (name in c("x", "n", "digits_x", "items_averaged", "data_type")) {
+    if (is.null(get(name))) {
+      abort_in_export("{.arg {name}} must not be `NULL`.")
+    }
+  }
+
+  check_rounding_args(rounding, threshold)
+
+  # Tested as the whole numbers they are accepted as; see `round_whole()`:
+  n <- round_whole(n)
+  digits_x <- round_whole(digits_x)
+  items_averaged <- round_whole(items_averaged)
+
+  # As in `grim()`, a string is a mistake, but missing values are undecidable:
+  x_meaning <- arg_match_in_export(x_meaning, X_MEANINGS)
+  if (is.factor(data_type)) {
+    error_data_type_factor()
+  }
+  data_type_bad <- data_type[
+    !is.na(data_type) & !(is.character(data_type) & data_type %in% DATA_TYPES)
+  ]
+  if (length(data_type_bad) > 0L) {
+    data_type <- data_type_bad[[1L]]
+    arg_match_in_export(data_type, DATA_TYPES)
+  }
+  # A string `x` is how 0.6.1 took it:
+  check_not_factor(x, "x")
+  if (!is.numeric(x) && !all(is.na(x))) {
+    stop_string_number(
+      x,
+      "x",
+      name_last_export(),
+      sys.frame(index_last_export())
+    )
+  }
+  if (!is.numeric(n) && !all(is.na(n))) {
+    check_type(n, c("double", "integer"))
+  }
+  if (!is.numeric(items_averaged) && !all(is.na(items_averaged))) {
+    check_type(items_averaged, c("double", "integer"))
+  }
+
+  # As in `grim()`, which would reject a fractional `digits_x` or one outside
+  # of 0 to 15:
+  check_digits_whole(digits_x, "digits_x")
+  if (any(digits_x < 0 | digits_x > 15, na.rm = TRUE)) {
+    abort_in_export(
+      "`digits_x` must be whole numbers from 0 to 15.",
+      "x" = "It is {wrap_in_quotes_or_backticks(digits_x)}."
+    )
+  }
+
+  if (x_meaning == "percentage") {
+    digits_x <- digits_x + 2L
+  }
+
+  # Recycle as `grim()` does, so that a length mismatch is an error:
+  vals <- list(
+    x = x,
+    n = n,
+    digits_x = digits_x,
+    items_averaged = items_averaged,
+    data_type = data_type
+  )
+  length_out <- recycle_length_common(lengths(vals), names(vals))
+  x <- rep_len(x, length_out)
+  n <- rep_len(n, length_out)
+  digits_x <- rep_len(digits_x, length_out)
+  items_averaged <- rep_len(items_averaged, length_out)
+  data_type <- rep_len(data_type, length_out)
+
+  # Between two whole numbers, there are `10^digits_x` values that could be
+  # reported, such as 0.00, 0.01, ..., 0.99 with two decimal places. The means
+  # that the data can actually have are the multiples of
+  # `1 / (n * items_averaged)`.
+  n_values <- 10^digits_x
+  n_means <- as.numeric(n) * as.numeric(items_averaged)
+
+  # `NA` wherever `grim()` returns `NA`, so that the `exp_incon` column of
+  # `grim_map()` never shows a number next to an `NA` verdict, and in some cases
+  # that `grim()` decides, as with `x` missing: the count depends on it.
+  decidable <- is_decidable_n_items(n, items_averaged) &
+    is.finite(x) &
+    is.finite(n_values)
+
+  # From 2^52 on, `%%` below loses accuracy. No study has that many values, and
+  # `grim()` refuses far smaller ones:
+  too_large <- decidable & n_means >= 2^52
+  if (any(too_large)) {
+    abort_in_export(
+      "`n` is too large for an exact count.",
+      "x" = "`n * items_averaged` is about \
+      {format(n_means[too_large][[1L]], digits = 4L)}, but the count is \
+      exact only below 2^52, about 4.5e15."
+    )
+  }
+
+  # A reported value is consistent if at least one possible mean lies inside its
+  # rounding interval. With two decimal places and the default rounding, the
+  # interval around 0.53 runs from 0.525 to 0.535. Testing each value in turn
+  # would take too long with many decimal places, so the number of consistent
+  # values is worked out directly.
+  #
+  # To do so, measure all distances in steps of `1 / (n_means * n_values)`.
+  # Every reported value and every possible mean is then a whole number of steps
+  # away from zero, so the distance between the two is a whole number of steps
+  # as well. Those distances are all multiples of the greatest common divisor of
+  # `n_means` and `n_values`, called `div_common` below. The reported values
+  # fall into groups of `div_common` values each, and within a group they all
+  # have the same distances to the possible means, up to whole units. For each
+  # multiple of `div_common` that fits inside the rounding interval, one group
+  # is consistent. The number of consistent values is therefore `div_common`
+  # times the number of these multiples.
+  #
+  # The common divisor matters because of ties. With two decimal places and `n =
+  # 40`, the possible means are 0.025, 0.050, 0.075, and so on, so every other
+  # mean falls on a tie between two reported values. With `n = 30`, no mean
+  # does. Under `"up_or_down"`, a mean on a tie is consistent with the values on
+  # both sides of it, so `n = 40` has 60 consistent values, not the 40 that `n`
+  # alone would suggest. The common divisor is what tells the two cases apart:
+  # 20 for 40 and 100, but only 10 for 30 and 100.
+  #
+  # Base R has no greatest common divisor, so this is Euclid's algorithm,
+  # vectorized. Undecidable cases start from 1 so that the loop still ends;
+  # they are set to `NA` at the end. Its first step, `n_values %% n_means`, is
+  # taken digit by digit: from `10^16` on, `n_values` is beyond 2^53, where a
+  # double no longer holds every whole number.
+  div_common <- dplyr::if_else(decidable, n_means, 1)
+  digits_loop <- dplyr::if_else(decidable, digits_x, 0)
+  div_main <- 1 %% div_common
+  for (i in seq_len(max(digits_loop, 0))) {
+    div_main <- dplyr::if_else(
+      i <= digits_loop,
+      (div_main * 10) %% div_common,
+      div_main
+    )
+  }
+
+  while (any(div_main > 0)) {
+    unfinished <- div_main > 0
+    remainder <- div_common[unfinished] %% div_main[unfinished]
+    div_common[unfinished] <- div_main[unfinished]
+    div_main[unfinished] <- remainder
+  }
+
+  # The rounding interval comes from `bound_numerators()`, which is also where
+  # `grim()` gets it from. Only the number of decimal places should matter here,
+  # not the reported value itself, so the value 1 with no decimal places stands
+  # in for any value. Its bounds are 1 plus or minus some offset, stored as
+  # numerators over `bounds$denom`. Subtracting `bounds$denom` leaves the
+  # offsets. Multiplying them by `n_means` turns them into steps, and dividing
+  # by `div_common` counts them in multiples of the divisor.
+  bounds <- rethrow_in_export(
+    roundwork::bound_numerators(1, 0L, rounding, threshold, symmetric = FALSE)
+  )
+
+  # The floor or ceiling of `offset * n_means / (bounds$denom * div_common)`.
+  # Where the product passes 2^53, a double would round it, so those elements
+  # are recomputed exactly:
+  round_interval <- function(offset, up) {
+    ratio <- offset * n_means / (bounds$denom * div_common)
+    out <- if (up) ceiling(ratio) else floor(ratio)
+    for (i in which(decidable & abs(offset) * n_means >= 2^53)) {
+      exact <- floor_product_ratio(
+        abs(offset),
+        n_means[[i]],
+        bounds$denom * div_common[[i]]
+      )
+      floor_abs <- exact$floor
+      ceiling_abs <- exact$floor + !exact$exact
+      out[[i]] <- if (offset >= 0) {
+        if (up) ceiling_abs else floor_abs
+      } else {
+        if (up) -floor_abs else -ceiling_abs
+      }
+    }
+    out
+  }
+
+  offset_lower <- bounds$lower - bounds$denom
+  offset_upper <- bounds$upper - bounds$denom
+
+  # Some rounding methods include an end of their interval and others don't, so
+  # the first and last multiples inside it depend on the method.
+  multiple_first <- if (bounds$incl_lower) {
+    round_interval(offset_lower, up = TRUE)
+  } else {
+    round_interval(offset_lower, up = FALSE) + 1
+  }
+
+  multiple_last <- if (bounds$incl_upper) {
+    round_interval(offset_upper, up = FALSE)
+  } else {
+    round_interval(offset_upper, up = TRUE) - 1
+  }
+
+  n_multiples <- pmax(multiple_last - multiple_first + 1, 0)
+
+  # A double, not an integer: from `digits_x = 10` on (8 for percentages), the
+  # count can exceed `.Machine$integer.max`, and the type should not depend on
+  # the values. Doubles are exact for whole numbers up to 2^53; a
+  # count beyond is the nearest double, as documented.
+  #
+  # If the possible means lie closer together than the rounding interval is
+  # wide, every reported value is consistent. The subtraction then gives a
+  # negative number, which `pmax()` turns into 0.
+  n_incon <- pmax(
+    n_values - div_common * n_multiples,
+    0
+  )
+
+  n_incon[!decidable] <- NA_real_
+
+  # Continuous data can have any mean, unless they are no data at all, and a
+  # missing `data_type` might be continuous; see `test_data_type()`:
+  is_continuous <- data_type %in% "continuous"
+  n_incon[is_continuous] <- 0
+  n_incon[
+    is_continuous &
+      (!is_decidable_continuous(n, items_averaged) | is.infinite(x))
+  ] <- NA_real_
+  n_incon[is.na(data_type) & !n_incon %in% 0] <- NA_real_
+  n_incon
 }
 
 
-
-#' Upper bound for the GRIM ratio
+#' Deprecated name of `grim_exp_incon()`
 #'
 #' @description `r lifecycle::badge("deprecated")`
 #'
-#'   `grim_ratio_upper()` is deprecated because it no longer seems very
-#'   meaningful. It will be removed in a future version.
+#'   `grim_probability()` was renamed to [`grim_exp_incon()`] in scrutiny
+#'   1.0.0, which also requires `digits_x` and `data_type`, takes
+#'   `items_averaged` instead of `items` and `x_meaning` instead of `percent`,
+#'   and has a `rounding` argument.
 #'
-#'   See [`grim_probability()`] for a more interesting measure.
-#'
-#' @inheritParams grim-stats
+#' @param ... Passed on to [`grim_exp_incon()`].
 #'
 #' @keywords internal
-#'
-#' @return Numeric.
-#'
 #' @export
-grim_ratio_upper <- function(x, percent = FALSE) {
-  lifecycle::deprecate_warn(
-    when = "0.5.0",
-    what = "grim_ratio_upper()",
-    details = "It will be removed in a future version."
-  )
-  check_type(x, "character")
-  grim_ratio(x = x, n = 1, items = 1, percent = percent)
-}
 
+grim_probability <- function(...) {
+  lifecycle::deprecate_warn("1.0.0", "grim_probability()", "grim_exp_incon()")
+  grim_exp_incon(...)
+}

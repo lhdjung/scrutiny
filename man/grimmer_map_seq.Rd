@@ -2,106 +2,133 @@
 % Please edit documentation in R/grimmer-map-seq.R
 \name{grimmer_map_seq}
 \alias{grimmer_map_seq}
-\title{GRIMMER-testing with dispersed inputs}
+\title{GRIMMER-test values around the reported ones}
 \usage{
 grimmer_map_seq(
   data,
+  digits_x,
+  digits_sd,
   x = NULL,
   sd = NULL,
   n = NULL,
-  var = Inf,
+  ...,
+  items_averaged,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  var = c("x", "sd", "n"),
   dispersion = 1:5,
   out_min = "auto",
-  out_max = NULL,
+  out_max = "auto",
   include_reported = FALSE,
-  include_consistent = FALSE,
-  ...
+  include_consistent = FALSE
 )
 }
 \arguments{
 \item{data}{A data frame that \code{\link[=grimmer_map]{grimmer_map()}} could take.}
 
-\item{x, sd, n}{Optionally, specify these arguments as column names in \code{data}.}
+\item{digits_x, digits_sd}{Integer. The number of decimal places in \code{x} and
+\code{sd}, including trailing zeros. There are no defaults, since a numeric
+value does not keep them (\code{1.40} is \code{1.4}). Either a single number for the
+whole column or one number per row of \code{data}. If left out, they are taken
+from \code{digits_x} and \code{digits_sd} columns of \code{data}. They also set the step
+sizes for dispersing \code{x} and \code{sd}.}
 
-\item{var}{String. Names of the columns that will be dispersed. Default is
+\item{x, sd, n}{Optionally, the names of the columns in \code{data} that contain
+these values, if they differ from the defaults.}
+
+\item{...}{These dots must be empty. Every argument after them must be
+named in full.}
+
+\item{items_averaged}{Integer. As in \code{\link[=grimmer_map]{grimmer_map()}}: the number of items
+averaged into each score, given as an argument or as a column of \code{data}.
+There is no default.}
+
+\item{data_type}{String. As in \code{\link[=grim]{grim()}}: \code{"integer"} or \code{"continuous"}.
+Like \code{items_averaged}, give it as an argument or as a
+column of \code{data}; there is no default. It is returned as a column.}
+
+\item{rounding, threshold, symmetric, sd_meaning}{Passed on to
+\code{\link[=grimmer]{grimmer()}}, whose section \emph{Defaults} explains the defaults.}
+
+\item{var}{String. The variables to disperse. Default is
 \code{c("x", "sd", "n")}.}
 
-\item{dispersion}{Numeric. Sequence with steps up and down from the \code{var}
-inputs. It will be adjusted to these values' decimal levels. For example,
-with a reported \code{8.34}, the step size is \code{0.01}. Default is \code{1:5}, for five
-steps up and down.}
+\item{dispersion}{Numeric. Steps up and down from the reported values, in
+units of the last decimal place. Default is \code{1:5}.}
 
-\item{out_min, out_max}{If specified, output will be restricted so that it's
-not below \code{out_min} or above \code{out_max}. Defaults are \code{"auto"} for
-\code{out_min}, i.e., a minimum of one decimal unit above zero; and \code{NULL} for
-\code{out_max}, i.e., no maximum.}
+\item{out_min, out_max}{Limits on the dispersed values. Both default to
+\code{"auto"}, which keeps \code{n} at 2 or above (1 under \code{sd_meaning = "sd_pop"} or \code{"sd_sample_or_pop"}) and \code{sd} at 0 or above, and leaves \code{x}
+unbounded. A number applies to every dispersed variable, and \code{NULL}
+removes the limit.}
 
 \item{include_reported}{Logical. Should the reported values themselves be
-included in the sequences originating from them? Default is \code{FALSE} because
-this might be redundant and bias the results.}
+part of the sequences? Default is \code{FALSE}.}
 
-\item{include_consistent}{Logical. Should the function also process
-consistent cases (from among those reported), not just inconsistent ones?
-Default is \code{FALSE} because the focus should be on clarifying
-inconsistencies.}
-
-\item{...}{Arguments passed down to \code{\link[=grimmer_map]{grimmer_map()}}.}
+\item{include_consistent}{Logical. Should consistent value sets be dispersed
+as well, not just inconsistent ones? Default is \code{FALSE}.}
 }
 \value{
-A tibble (data frame) with detailed test results. See
-\code{\link[=grimmer_map]{grimmer_map()}} for an explanation of the \code{reason} column.
+A tibble with the columns of \code{\link[=grimmer_map]{grimmer_map()}} output plus
+\code{diff_var}, \code{case}, and \code{var}, as in \code{\link[=grim_map_seq]{grim_map_seq()}}. As there, the
+other columns of \code{data} are dropped.
 }
 \description{
-\code{grimmer_map_seq()} performs GRIMMER-testing with values
-surrounding the input values. This provides an easy and powerful way to
-assess whether small errors in computing or reporting may be responsible
-for GRIMMER inconsistencies in published statistics.
+\code{grimmer_map_seq()} varies the reported means, standard
+deviations, and sample sizes a few steps up and down and GRIMMER-tests
+each resulting value set. This shows whether a small error in reporting or
+computing could explain an inconsistency.
 
-Call \code{\link[=audit_seq]{audit_seq()}} on the results for summary statistics.
+Call \code{\link[=audit]{audit()}} on the output for summary statistics.
 }
-\section{Summaries with \code{\link[=audit_seq]{audit_seq()}}}{
- You can call \code{\link[=audit_seq]{audit_seq()}}
-following \code{grimmer_map_seq()}. It will return a data frame with these
-columns:
+\section{Summaries with \code{\link[=audit]{audit()}}}{
+ \code{audit()} on
+\code{grimmer_map_seq()} output returns a tibble with one row per case and
+these columns:
 \itemize{
-\item \code{x}, \code{sd}, and \code{n} are the original inputs,
-tested for \code{consistency} here.
-\item \code{hits_total} is the total number of GRIMMER-consistent value sets
-found within the specified \code{dispersion} range.
-\item \code{hits_x} is the number of GRIMMER-consistent value sets
-found by varying \code{x}.
-\item Accordingly with \code{sd} and \code{hits_sd} as well as \code{n} and \code{hits_n}.
-\item (Note that any consistent reported cases will be counted by the
-\verb{hits_*} columns if both \code{include_reported} and \code{include_consistent} are
-set to \code{TRUE}.)
-\item \code{diff_x} reports the absolute difference between \code{x} and the next
-consistent dispersed value (in dispersion steps, not the actual numeric
-difference). \code{diff_x_up} and \code{diff_x_down} report the difference to the
-next higher or lower consistent value, respectively.
-\item \code{diff_sd}, \code{diff_sd_up}, and \code{diff_sd_down} do the same for \code{sd}.
-\item Likewise with \code{diff_n}, \code{diff_n_up}, and \code{diff_n_down}.
+\item \code{x}, \code{sd}, and \code{n}: the reported values, with \code{items_averaged},
+\code{data_type}, and their \code{consistency}.
+\item \code{hits_total}: the number of GRIMMER-consistent value sets found within
+the \code{dispersion} range.
+\item \code{hits_x}, \code{hits_sd}, \code{hits_n}: the number found by varying \code{x}, \code{sd},
+and \code{n}, respectively. If both \code{include_reported} and \code{include_consistent}
+are \code{TRUE}, a consistent reported value set is counted as well: once per
+variable here, and once in \code{hits_total}.
+\item \code{diff_x}: the distance from \code{x} to the nearest consistent dispersed
+value, in dispersion steps. \code{diff_x_up} and \code{diff_x_down} are the signed
+steps to the nearest consistent value above and below (\verb{_down} is
+negative).
+\item \code{diff_sd}, \code{diff_sd_up}, \code{diff_sd_down}: the same for \code{sd}.
+\item \code{diff_n}, \code{diff_n_up}, \code{diff_n_down}: the same for \code{n}.
 }
 
-Call \code{\link[=audit]{audit()}} following \code{\link[=audit_seq]{audit_seq()}} to summarize results even
-further. It's mostly self-explaining, but \code{na_count} and \code{na_rate} are the
-number and rate of times that a difference could not be computed because of
-a lack of corresponding hits within the \code{dispersion} range.
+A count or distance is \code{NA} if it depends on a dispersed value set whose
+consistency is \code{NA}, on a variable whose reported value is missing, which
+is not dispersed, or on rows removed from the output, as by \code{filter()}.
+
+Call \code{audit()} again on that summary to summarize these columns further.
+\code{na_count} and \code{na_rate} there count the cases without a consistent value
+within the \code{dispersion} range, and those that a missing value leaves
+unknown.
 }
 
 \examples{
-# `grimmer_map_seq()` can take any input
-# that `grimmer_map()` can take:
+# `grimmer_map_seq()` takes the same input as `grimmer_map()`:
 pigs5
 
-# All the results:
-out <- pigs5 \%>\%
-  dplyr::slice(1:3) \%>\%
-  grimmer_map_seq(include_consistent = TRUE)
-
+out <- grimmer_map_seq(
+  pigs5,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer",
+  include_consistent = TRUE
+)
 out
 
-# Case-wise summaries with `audit_seq()`
-# can be more important than the raw results:
-out \%>\%
-  audit_seq()
+# Case-wise summaries:
+out |>
+  audit()
 }

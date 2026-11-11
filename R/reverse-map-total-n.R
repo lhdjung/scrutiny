@@ -1,98 +1,117 @@
-
-#' Reverse the `*_map_total_n()` process
+#' Reconstruct the input of a total-n mapper
 #'
-#' @description `reverse_map_total_n()` takes the output of a function created
-#'   by [`function_map_total_n()`] and reconstructs the original data frame.
+#' @description `reverse_map_total_n()` takes the output of a function made by
+#'   [`function_map_total_n()`] and reconstructs the reported columns of the
+#'   data frame it was called on. [`audit()`] builds on it for total-n output.
 #'
-#'   See [`audit_total_n()`], which takes `reverse_map_total_n()` as a basis.
+#' @param data Data frame with the `"scrutiny_map_total_n"` class.
 #'
-#' @param data Data frame that inherits the `"scr_map_total_n"` class.
-#'
-#' @return The reconstructed tibble (data frame) which a factory-made
-#'   `*_map_total_n()` function took as its `data` argument.
+#' @return A tibble with the reported columns, such as `x1`, `x2`, and `n`,
+#'   one row per case.
 #'
 #' @export
 #'
 #' @examples
-#' # Originally reported summary data...
 #' df <- tibble::tribble(
-#'   ~x1,    ~x2,   ~n,
-#'   "3.43", "5.28", 90,
-#'   "2.97", "4.42", 103
+#'   ~x1,  ~x2,  ~n,
+#'   3.43, 5.28, 90,
+#'   2.97, 4.42, 103
 #' )
-#' df
 #'
-#' # ...GRIM-tested with dispersed `n` values...
-#' out <- grim_map_total_n(df)
-#' out
+#' out <- grim_map_total_n(
+#'   df,
+#'   digits_x = 2,
+#'   items_averaged = 1,
+#'   data_type = "integer"
+#' )
 #'
-#' # ...and faithfully reconstructed:
 #' reverse_map_total_n(out)
 
-
 reverse_map_total_n <- function(data) {
-
-  if (!inherits(data, "scr_map_total_n")) {
-    cli::cli_abort(c(
+  if (!inherits(data, "scrutiny_map_total_n")) {
+    abort_in_export(
       "!" = "`data` must be the output of \\
       a function like `grim_map_total_n()`.",
       "x" = "It isn't.",
       "i" = "Such functions were created by `function_map_total_n()`."
-    ))
+    )
   }
 
-  # Take the first row of each original-`n` block:
-  data_reduced <- data %>%
-    dplyr::group_by(case) %>%
-    dplyr::slice(1:2)
+  # The statistics reported for both groups, as recorded by the mapper. They
+  # need not all come before `n`, which a custom basic mapper may put anywhere:
+  colnames_reported <- attr(data, "scrutiny", exact = TRUE)$reported
+  if (is.null(colnames_reported)) {
+    abort_lost_settings()
+  }
 
-  n_was_even <- data_reduced %>%
-    dplyr::summarise(n_sum = sum(n)) %>%
-    dplyr::pull(n_sum) %>%
-    rep(each = 2L) %>%
-    is_even()
+  check_cols_needed(data, c(colnames_reported, "n", "n_change", "case", "dir"))
 
-  # Negate the evenness and convert the results from logical to numeric, which
-  # returns `0` as a correction for even original `n` values because they don't
-  # need to be corrected, and `1` for odd original `n` values, because these
-  # ones do need a correction:
-  n_was_odd <- as.numeric(!n_was_even)
+  # So that the cases come out in the order 1, 2, ..., 10, not 1, 10, 2:
+  data$case <- case_as_number(data$case)
 
-  data_reduced <- data_reduced %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-      n_was_odd, .after = n,
-      n = (2 * n) - n_was_odd
+  # The group sizes come in pairs: consecutive rows of the same case and
+  # direction with the same absolute `n_change`. All pairs of a case add up to
+  # the same total. Removed or reordered rows break this, and taking the first
+  # two rows of a case would then silently pair group sizes from different
+  # steps:
+  first <- seq(1L, by = 2L, length.out = nrow(data) %/% 2L)
+  second <- first + 1L
+  # As a double, since two group sizes in the integer range may sum beyond it:
+  sums <- as.double(data$n[first]) + data$n[second]
+  pairs_broken <-
+    nrow(data) %% 2L != 0L ||
+    any(
+      data$case[first] != data$case[second] |
+        data$dir[first] != data$dir[second] |
+        abs(data$n_change[first]) != abs(data$n_change[second]) |
+        sums != stats::ave(sums, data$case[first], FUN = function(x) x[1L])
     )
+  if (pairs_broken) {
+    abort_in_export(
+      "`data` must hold the mapper's output in full and in order.",
+      "x" = "Some rows have been removed or reordered.",
+      "i" = "Each pair of consecutive rows is one split of the total."
+    )
+  }
+  # A pair is a step of one case in one direction; the step is the first
+  # group's `n_change`. Both rows of a step of 0 may be the same:
+  check_rows_unique(data[first, ], c("case", "dir", "n_change"))
+
+  # The two group sizes in any pair add up to the reported total, so the first
+  # pair of each case will do:
+  data_reduced <- data |>
+    dplyr::group_by(case) |>
+    dplyr::slice(1:2) |>
+    dplyr::ungroup()
 
   nrow_data_reduced <- nrow(data_reduced)
 
-  locations1 <- seq(from = 1, to = nrow_data_reduced - 1L, by = 2)
-  locations2 <- seq(from = 2, to = nrow_data_reduced,      by = 2)
+  # `length.out` rather than `to`, which fails for 0-row output:
+  locations1 <- seq(from = 1, by = 2, length.out = nrow_data_reduced %/% 2)
+  locations2 <- locations1 + 1
 
-  data1 <- data_reduced %>% dplyr::slice(locations1)
-  data2 <- data_reduced %>% dplyr::slice(locations2)
-
-  # Number of columns before `n` (i.e., the columns with hypothetical values
-  # dispersed from the reported statistics):
-  ncol_before_n <- match("n", colnames(data)) - 1L
-
-  colnames_reported <- colnames(data_reduced)[1L:ncol_before_n]
+  # A `"forth"` pair has the first group's values in its first row, but a
+  # `"back"` pair has them in its second: the mapper swaps the groups for that
+  # direction. If the first pair of a case is a back pair, as after
+  # `filter(dir == "back")`, the rows change places:
+  is_back <- data_reduced$dir[locations1] == "back"
+  data1 <- data_reduced[dplyr::if_else(is_back, locations2, locations1), ]
+  data2 <- data_reduced[dplyr::if_else(is_back, locations1, locations2), ]
 
   data_reported_1 <- data1[, colnames_reported]
   data_reported_2 <- data2[, colnames_reported]
 
-  n <- data2$n
+  # As a double, as above, but an integer again where it fits:
+  n <- as_integer_if_lossless(as.double(data1$n) + data2$n)
 
   colnames(data_reported_1) <- paste0(colnames_reported, "1")
   colnames(data_reported_2) <- paste0(colnames_reported, "2")
 
-  colnames_in_order <- colnames_reported %>%
-    rep(each = 2L) %>%
+  colnames_in_order <- colnames_reported |>
+    rep(each = 2L) |>
     paste0(c("1", "2"))
 
-  dplyr::bind_cols(data_reported_1, data_reported_2) %>%
-    dplyr::relocate(all_of(colnames_in_order)) %>%
+  dplyr::bind_cols(data_reported_1, data_reported_2) |>
+    dplyr::relocate(all_of(colnames_in_order)) |>
     dplyr::mutate(n)
 }
-
