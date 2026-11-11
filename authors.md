@@ -11,7 +11,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/lhdjung/scrutiny/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/lhdjung/scrutiny/blob/v1.0.0/DESCRIPTION)
 
 Jung L (2026). *scrutiny: Error Detection in Science*. R package version
 1.0.0, <https://lhdjung.github.io/scrutiny/>.
