@@ -1,21 +1,26 @@
-# Absorb key arguments from the user's call
+# Rename key columns according to the key arguments
 
-If `insert_key_args()` is called in the exit area of a function factory
-(i.e., after the part that produces the factory-made function),
-`absorb_key_args()` must be called in the main part. Unlike the former,
-it transforms `data`, not `fun`, and should be reassigned to `data`.
+**\[superseded\]**
+
+`absorb_key_args()` is superseded by
+[`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md),
+whose mappers rename key columns themselves.
+
+Call it in a handwritten mapper. If a key argument such as `x` names a
+column of `data`, it renames that column to the key argument's name, so
+that the rest of the mapper finds it.
 
 ## Usage
 
 ``` r
-absorb_key_args(data, reported, key_cols_call)
+absorb_key_args(data, reported, key_cols_call = NULL)
 ```
 
 ## Arguments
 
 - data:
 
-  User-supplied data frame.
+  Data frame passed to the mapper.
 
 - reported:
 
@@ -23,24 +28,22 @@ absorb_key_args(data, reported, key_cols_call)
 
 - key_cols_call:
 
-  User-provided arguments named after one or more key columns.
+  Optionally, a named character vector that maps key argument names to
+  the columns of `data` that they refer to, such as `c(x = "mean")`. By
+  default, it is read from the key arguments of the calling mapper.
 
 ## Value
 
-Data frame `data`, possibly with one or more columns renamed. Remember
-reassigning the value to `data`!
-
-## Details
-
-It renames key columns that have non-standard names, following
-user-supplied directions via the arguments automatically inserted below
-the function.
+`data`, possibly with columns renamed. Reassign the result to `data`.
 
 ## Examples
 
 ``` r
-# Not really a meaningful example -- need to use
-# the function in very specific places
-data <- grim_map(pigs1)
-data <- absorb_key_args(data, c("x", "n"))
+df <- tibble::tibble(mean = c(5.19, 4.56), n = c(28, 30))
+absorb_key_args(df, c("x", "n"), key_cols_call = c(x = "mean"))
+#> # A tibble: 2 × 2
+#>       x     n
+#>   <dbl> <dbl>
+#> 1  5.19    28
+#> 2  4.56    30
 ```

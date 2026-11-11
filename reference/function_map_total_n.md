@@ -1,26 +1,28 @@
 # Create new `*_map_total_n()` functions
 
-`function_map_total_n()` is the engine that powers functions such as
-[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md).
-It creates new, "factory-made" functions for consistency tests such as
-GRIM or GRIMMER. The new functions take reported summary statistics
-(e.g., means) and apply those tests in cases where only a total sample
-size is known, not group sizes.
-
-This works by making
+`function_map_total_n()` creates a total-n mapper from a basic mapper
+such as
+[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md):
+a function for two groups whose statistics are reported with the total
+sample size but without the group sizes, as
+[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)
+is. It uses
 [`disperse_total()`](https://lhdjung.github.io/scrutiny/reference/disperse.md)
-create multiple pairs of hypothetical group sizes, all of which add up
-to the reported total. There need to be exactly two groups.
+to create pairs of hypothetical group sizes that add up to the total,
+and tests the reported statistics against each pair.
 
-For background and more examples, see the [total-n mapper
-section](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#total-n-mapper)
-of *Consistency tests in depth*.
+See
+[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
+section *Total-n mapper*.
+
+`function_map_total_n()` is a developer tool: it may change in a minor
+release, with a NEWS entry.
 
 ## Usage
 
 ``` r
 function_map_total_n(
-  .fun,
+  .fn,
   .reported,
   .name_test,
   .name_key_result = "consistency",
@@ -29,55 +31,52 @@ function_map_total_n(
   .n_min = 1L,
   .n_max = NULL,
   .constant = NULL,
-  .constant_index = NULL,
   ...
 )
 ```
 
 ## Arguments
 
-- .fun:
+- .fn:
 
-  Function such as
+  A basic mapper function such as
   [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md),
-  or one made by
-  [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md):
-  It will be used to test columns in a data frame for consistency. Test
-  results are logical and need to be contained in a column called
-  `consistency` that is added to the input data frame. This modified
-  data frame is then returned by `.fun`.
+  typically made by
+  [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md).
+  It must return its input data frame with a logical column named by
+  `.name_key_result` added.
 
 - .reported:
 
-  String. Names of the columns containing group-specific statistics that
-  were reported alongside the total sample size(s). They will be tested
-  for consistency with the hypothetical group sizes. Examples are `"x"`
-  for GRIM and `c("x", "sd")` for DEBIT. In the data frame with reported
-  group statistics that the manufactured function takes as an input,
-  each will need to fan out like `"x1"`, `"x2"`, `"sd1"`, and `"sd2"`.
+  String. Names of the group-specific statistics reported alongside the
+  total, such as `"x"` for GRIM and `c("x", "sd")` for DEBIT. In the
+  input of the factory-made function, each appears as two columns with
+  the suffixes `1` and `2`, such as `x1` and `x2`.
 
 - .name_test:
 
-  String (length 1). The name of the consistency test, such as `"GRIM"`,
-  to be optionally shown in a message when using the manufactured
-  function.
+  String (length 1). Plain-text name of the test, such as `"GRIM"`, for
+  messages and the output's class.
 
 - .name_key_result:
 
-  (Experimental) Optionally, a single string that will be the name of
-  the key result column in the output. Default is `"consistency"`.
+  (Experimental) String (length 1). Name of the key result column.
+  Default is `"consistency"`. Must be the value that `.fn` was created
+  with.
 
 - .name_class:
 
-  String. If specified, the tibbles returned by the manufactured
-  function will inherit this string as an S3 class. Default is `NULL`,
-  i.e., no extra class.
+  String. Optionally, one or more classes to add to the output. Default
+  is `NULL`.
 
-- .dispersion, .n_min, .n_max, .constant, .constant_index:
+- .dispersion, .n_min, .n_max, .constant:
 
-  Arguments passed down to
+  Passed on to
   [`disperse_total()`](https://lhdjung.github.io/scrutiny/reference/disperse.md),
-  using defaults from there.
+  with the defaults from there. `.n_min` may also be a function of the
+  settings of `.fn`, as a named list, that returns the default `n_min`
+  for a call; the factory-made function's `n_min` then defaults to
+  `NULL`, which stands for that value.
 
 - ...:
 
@@ -89,51 +88,37 @@ A function such as these:
 
 |  |  |  |
 |----|----|----|
-| **Manufactured function** | **Reported statistics** | **Test vignette** |
-| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | `"x"` | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md) |
-| [`grimmer_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.md) | `"x"`, `"sd"` | [`vignette("grimmer")`](https://lhdjung.github.io/scrutiny/articles/grimmer.md) |
+| **Factory-made function** | **Reported statistics** | **Test vignette** |
+| [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md) | `"x"` | [`vignette("grim-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grim-in-depth.md) |
+| [`grimmer_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_total_n.md) | `"x"`, `"sd"` | [`vignette("grimmer-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grimmer-in-depth.md) |
 | [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md) | `"x"`, `"sd"` | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md) |
 
-The factory-made function will also have dots, `...`, to pass arguments
-down to `.fun`, i.e., the basic mapper function.
+The settings of `.fn`, i.e., its arguments after `...`, such as
+`rounding`, are arguments of this function as well, with the same
+defaults. So are its helper arguments, such as `items_averaged`. Its
+`...` pass any other arguments on to `.fn`, which is only of use for a
+`.fn` without `...` of its own.
 
 ## Details
 
-If functions created by `function_map_total_n()` are exported from other
-packages, they should be written as if they were created with [purrr
+To export a factory-made function from another package, follow the
+[purrr FAQ on
 adverbs](https://purrr.tidyverse.org/reference/faq-adverbs-export.html);
-see explanations there, and examples in the [export
-section](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export)
-of *Consistency tests in depth*.
-
-This function is a so-called function factory: It produces other
-functions, such as
-[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md).
-More specifically, it is a function operator because it also takes
-functions as inputs, such as
-[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
-See Wickham (2019), ch. 10-11.
+see
+[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
+section *Context and export*.
 
 ## Conventions
 
-The name of a function returned by `function_map_total_n()` should
-mechanically follow from that of the input function. For example,
+Name the factory-made function after `.fn` with `_total_n` appended, as
+in
 [`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)
-derives from
+from
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
-This pattern fits best if the input function itself is named after the
-test it performs on a data frame, followed by `_map`:
-[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)
-applies GRIM,
-[`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)
-applies GRIMMER, etc.
-
-Much the same is true for the classes of data frames returned by the
-manufactured function via the `.name_class` argument of
-`function_map_total_n()`. It should be the function's own name preceded
-by the name of the package that contains it, or by an acronym of that
-package's name. Therefore, some existing classes are
-`scr_grim_map_total_n` and `scr_grimmer_map_total_n`.
+The output has the classes `"scrutiny_map_total_n"` and
+`"scrutiny_{tolower(.name_test)}_map_total_n"`. Prefix any class you add
+via `.name_class` with your package's name, as in
+`"mypkg_schlim_map_total_n"`.
 
 ## References
 
@@ -141,9 +126,6 @@ Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It Light
 or Dark? Recalling Moral Behavior Changes Perception of Brightness.
 *Psychological Science*, 32(12), 2042–2043.
 https://journals.sagepub.com/doi/10.1177/09567976211058727
-
-Wickham, H. (2019). *Advanced R* (Second Edition). CRC Press/Taylor and
-Francis Group. https://adv-r.hadley.nz/index.html
 
 ## See also
 
@@ -154,7 +136,7 @@ Francis Group. https://adv-r.hadley.nz/index.html
 ``` r
 # Function definition of `grim_map_total_n()`:
 grim_map_total_n <- function_map_total_n(
-  .fun = grim_map,
+  .fn = grim_map,
   .reported = "x",
   .name_test = "GRIM"
 )

@@ -1,44 +1,52 @@
-# Check that a mapper's input has correct column names
+# Check that a mapper's input has the right column names
 
-When called within a consistency test mapper function,
-`check_mapper_input_colnames()` makes sure that the input data frame has
-correct column names:
+**\[superseded\]**
 
-- They include all the key columns corresponding to the test applied by
-  the mapper.
+`check_mapper_input_colnames()` is superseded by
+[`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md),
+whose mappers check their input columns themselves.
 
-- They don't already include `"consistency"`.
-
-If either check fails, the function throws an informative error.
+Call it in a handwritten mapper. It errors if `data` lacks a key column,
+or if it already has a column named like the key result column
+(`"consistency"` by default).
 
 ## Usage
 
 ``` r
-check_mapper_input_colnames(data, reported, name_test)
+check_mapper_input_colnames(
+  data,
+  reported,
+  name_test,
+  name_key_result = "consistency"
+)
 ```
 
 ## Arguments
 
 - data:
 
-  Data frame. Input to the mapper function.
+  Data frame. Input to the mapper.
 
 - reported:
 
-  String vector of the "key" column names that `data` must have, such as
+  String. Names of the key columns that `data` must have, such as
   `c("x", "n")` for
   [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
 
 - name_test:
 
-  String (length 1). Short, plain-text name of the consistency test that
-  the mapper function applies, such as `"GRIM"`.
+  String (length 1). Plain-text name of the test, such as `"GRIM"`, for
+  the error message.
+
+- name_key_result:
+
+  String (length 1). Name of the result column that the mapper adds.
+  Default is `"consistency"`.
 
 ## Value
 
-No return value. Might throw an error.
+No return value; might throw an error.
 
 ## See also
 
-[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
-for context and the "key columns" terminology.
+[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md).

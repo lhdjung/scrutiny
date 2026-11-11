@@ -1,14 +1,10 @@
 # Split columns by parentheses, brackets, braces, or similar
 
-Summary statistics are often presented like `"2.65 (0.27)"`. When
-working with tables copied into R, it can be tedious to separate values
-before and inside parentheses. `split_by_parens()` does this
-automatically.
-
-By default, it operates on all columns. Output can optionally be pivoted
-into a longer format by setting `transform` to `TRUE`.
-
-Choose separators other than parentheses with the `sep` argument.
+Summary statistics are often reported like `"2.65 (0.27)"`.
+`split_by_parens()` splits such columns into the part before the
+parentheses and the part inside them. By default, it splits every column
+that contains the delimiters. Set `transform` to `TRUE` to pivot the
+result into a longer format.
 
 ## Usage
 
@@ -16,13 +12,14 @@ Choose separators other than parentheses with the `sep` argument.
 split_by_parens(
   data,
   cols = everything(),
-  check_sep = TRUE,
+  check_delim = TRUE,
   keep = FALSE,
   transform = FALSE,
-  sep = "parens",
+  delim = "parens",
   end1 = "x",
   end2 = "sd",
-  ...
+  check_sep = deprecated(),
+  sep = deprecated()
 )
 ```
 
@@ -30,68 +27,66 @@ split_by_parens(
 
 - data:
 
-  Data frame.
+  Data frame or matrix.
 
 - cols:
 
-  Select columns from `data` using
+  Columns to split, selected with
   [tidyselect](https://tidyselect.r-lib.org/reference/language.html).
-  Default is `everything()`, which selects all columns that pass
-  `check_sep`.
+  Default is `everything()`, restricted by `check_delim`.
 
-- check_sep:
+- check_delim:
 
-  Logical. If `TRUE` (the default), columns are excluded if they don't
-  contain the `sep` elements.
+  Logical. If `TRUE` (the default), columns whose values do not all
+  contain the delimiters are skipped. Missing values, blank strings,
+  `"NA"`, and `"NaN"` don't count. If `cols` is given, each column
+  skipped causes a warning. Under `check_delim = FALSE`, so does each
+  column split although it lacks the delimiters, unless all its values
+  are missing.
 
 - keep:
 
-  Logical. If set to `TRUE`, the originally selected columns that were
-  split by the function also appear in the output. Default is `FALSE`.
+  Logical. Should the original columns be kept? Default is `FALSE`.
 
 - transform:
 
-  Logical. If set to `TRUE`, the output will be pivoted to be better
-  suitable for typical follow-up tasks. Default is `FALSE`.
+  Logical. Should the output be pivoted into a longer format, with one
+  column per part and an `.origin` column naming the source? Default is
+  `FALSE`. Requires `keep = FALSE` and every column to be split.
 
-- sep:
+- delim:
 
-  String. What to split by. Either `"parens"`, `"brackets"`, or
-  `"braces"`; or a length-2 vector of custom separators (see Examples).
-  Default is `"parens"`.
+  String. The pair of delimiters around the second part: `"parens"` (the
+  default), `"brackets"`, or `"braces"`, or two custom strings, matched
+  literally.
 
 - end1, end2:
 
-  Strings. Endings of the two column names that result from splitting a
-  column. Default is `"x"` for `end1` and `"sd"` for `end2`.
+  Strings. Suffixes of the two columns that a split column produces.
+  Defaults are `"x"` and `"sd"`.
 
-- ...:
+- check_sep, sep:
 
-  These dots must be empty.
+  **\[deprecated\]** The old names of `check_delim` and `delim`.
 
 ## Value
 
-Data frame.
+An ungrouped data frame: a tibble unless `data` is a plain data frame
+and `transform` is `FALSE`.
 
 ## See also
 
 - [`before_parens()`](https://lhdjung.github.io/scrutiny/reference/parens-extractors.md)
   and
   [`inside_parens()`](https://lhdjung.github.io/scrutiny/reference/parens-extractors.md)
-  take a string vector and extract values from the respective position.
+  for the two parts of a string vector.
 
-- [`dplyr::across()`](https://dplyr.tidyverse.org/reference/across.html)
-  powers the application of the two above functions within
-  `split_by_parens()`, including the creation of new columns.
-
-- [`tidyr::separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html)
-  is a more general function, but it does not recognize closing elements
-  such as closed parentheses.
+- [`tidyr::separate_wider_delim()`](https://tidyr.tidyverse.org/reference/separate_wider_delim.html),
+  which is more general but does not recognize closing delimiters.
 
 ## Examples
 
 ``` r
-# Call `split_by_parens()` on data like these:
 df1 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 (0.21)",    "0.19 (0.13)",
@@ -100,8 +95,7 @@ df1 <- tibble::tribble(
   "0.15 (0.35)",    "0.57 (0.16)",
 )
 
-# Basic usage:
-df1 %>%
+df1 |>
   split_by_parens()
 #> # A tibble: 4 × 4
 #>   drone_x drone_sd selfpilot_x selfpilot_sd
@@ -111,8 +105,8 @@ df1 %>%
 #> 3 0.62    0.16     0.50        0.11        
 #> 4 0.15    0.35     0.57        0.16        
 
-# Name specific columns with `cols` to only split those:
-df1 %>%
+# Only some columns:
+df1 |>
   split_by_parens(cols = drone)
 #> # A tibble: 4 × 3
 #>   drone_x drone_sd selfpilot  
@@ -122,9 +116,8 @@ df1 %>%
 #> 3 0.62    0.16     0.50 (0.11)
 #> 4 0.15    0.35     0.57 (0.16)
 
-# Pivot the data into a longer format
-# by setting `transform` to `TRUE`:
-df1 %>%
+# Longer format:
+df1 |>
   split_by_parens(transform = TRUE)
 #> # A tibble: 8 × 3
 #>   .origin   x     sd   
@@ -138,9 +131,8 @@ df1 %>%
 #> 7 selfpilot 0.50  0.11 
 #> 8 selfpilot 0.57  0.16 
 
-# Choose different column names or
-# name suffixes with `end1` and `end2`:
-df1 %>%
+# Other suffixes:
+df1 |>
   split_by_parens(end1 = "beta", end2 = "se")
 #> # A tibble: 4 × 4
 #>   drone_beta drone_se selfpilot_beta selfpilot_se
@@ -150,63 +142,32 @@ df1 %>%
 #> 3 0.62       0.16     0.50           0.11        
 #> 4 0.15       0.35     0.57           0.16        
 
-df1 %>%
-  split_by_parens(
-    transform = TRUE,
-    end1 = "beta", end2 = "se"
-  )
-#> # A tibble: 8 × 3
-#>   .origin   beta  se   
-#>   <chr>     <chr> <chr>
-#> 1 drone     0.09  0.21 
-#> 2 drone     0.19  0.28 
-#> 3 drone     0.62  0.16 
-#> 4 drone     0.15  0.35 
-#> 5 selfpilot 0.19  0.13 
-#> 6 selfpilot 0.53  0.10 
-#> 7 selfpilot 0.50  0.11 
-#> 8 selfpilot 0.57  0.16 
-
-# With a different separator...
+# Other delimiters:
 df2 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 [0.21]",    "0.19 [0.13]",
   "0.19 [0.28]",    "0.53 [0.10]",
-  "0.62 [0.16]",    "0.50 [0.11]",
-  "0.15 [0.35]",    "0.57 [0.16]",
 )
 
-# ... specify `sep`:
-df2 %>%
-  split_by_parens(sep = "brackets")
-#> # A tibble: 4 × 4
+df2 |>
+  split_by_parens(delim = "brackets")
+#> # A tibble: 2 × 4
 #>   drone_x drone_sd selfpilot_x selfpilot_sd
 #>   <chr>   <chr>    <chr>       <chr>       
 #> 1 0.09    0.21     0.19        0.13        
 #> 2 0.19    0.28     0.53        0.10        
-#> 3 0.62    0.16     0.50        0.11        
-#> 4 0.15    0.35     0.57        0.16        
 
-# (Accordingly with `{}` and `"braces"`.)
-
-# If the separator is yet a different one...
 df3 <- tibble::tribble(
   ~drone,           ~selfpilot,
   "0.09 <0.21>",    "0.19 <0.13>",
   "0.19 <0.28>",    "0.53 <0.10>",
-  "0.62 <0.16>",    "0.50 <0.11>",
-  "0.15 <0.35>",    "0.57 <0.16>",
 )
 
-# ... `sep` should be a length-2 vector
-# that contains the separating elements:
-df3 %>%
-  split_by_parens(sep = c("<", ">"))
-#> # A tibble: 4 × 4
+df3 |>
+  split_by_parens(delim = c("<", ">"))
+#> # A tibble: 2 × 4
 #>   drone_x drone_sd selfpilot_x selfpilot_sd
 #>   <chr>   <chr>    <chr>       <chr>       
 #> 1 0.09    0.21     0.19        0.13        
 #> 2 0.19    0.28     0.53        0.10        
-#> 3 0.62    0.16     0.50        0.11        
-#> 4 0.15    0.35     0.57        0.16        
 ```

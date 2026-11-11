@@ -1,14 +1,14 @@
 # Count duplicate values
 
-`duplicate_count()` returns a frequency table. When searching a data
-frame, it includes values from all columns for each frequency count.
+`duplicate_count()` returns a frequency table of the values in a vector
+or data frame. For a data frame, it pools the values of all columns and
+records which columns each value appears in.
 
-This function is a blunt tool designed for initial data checking. It is
-not too informative if many values have few characters each.
+This is a blunt tool for initial checks. If many values have few
+characters each, duplicates occur by chance and mean little.
 
-For summary statistics, call
-[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md) on
-the results.
+Call [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+on the output for summary statistics.
 
 ## Usage
 
@@ -20,62 +20,54 @@ duplicate_count(x, ignore = NULL, locations_type = c("character", "list"))
 
 - x:
 
-  Vector or data frame.
+  Vector, matrix, or data frame. Missing values are not counted, nor are
+  blank strings, `"NA"`, and `"NaN"`, which count as missing.
 
 - ignore:
 
-  Optionally, a vector of values that should not be counted.
+  Optionally, a vector of values not to count.
 
 - locations_type:
 
-  String. One of `"character"` or `"list"`. With `"list"`, each
-  `locations` value is a vector of column names, which is better for
-  further programming. By default (`"character"`), the column names are
-  pasted into a string, which is more readable.
+  String. `"character"` (the default) pastes the column names in
+  `locations` into one string; `"list"` keeps them as a vector per
+  value, which is better for programming.
 
 ## Value
 
-If `x` is a data frame or another named vector, a tibble with four
-columns. If `x` isn't named, only the first two columns appear:
+A tibble with these columns, or only the first two if `x` is not named:
 
-- `value`: All the values from `x`.
+- `value`: the distinct values of `x`.
 
-- `frequency`: Absolute frequency of each value in `x`, in descending
-  order.
+- `frequency`: how often each occurs, in descending order.
 
-- `locations`: Names of all columns from `x` in which `value` appears.
+- `locations`: the names of the columns of `x` in which `value` appears.
 
-- `locations_n`: Number of columns named in `locations`.
+- `locations_n`: the number of such columns.
 
-The tibble has the `scr_dup_count` class, which is recognized by the
-[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-generic.
+The tibble has the class `scrutiny_dup_count`, which is recognized by
+[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md).
 
 ## Summaries with [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
 
-There is an S3 method for the
-[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-generic, so you can call
-[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-following `duplicate_count()`. It returns a tibble with summary
-statistics for the two numeric columns, `frequency` and `locations_n`
-(or, if `x` isn't named, only for `frequency`).
+[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md) on
+`duplicate_count()` output returns summary statistics for `frequency`
+and `locations_n` (or `frequency` alone if `x` is not named).
 
 ## See also
 
 - [`duplicate_count_colpair()`](https://lhdjung.github.io/scrutiny/reference/duplicate_count_colpair.md)
-  to check each combination of columns for duplicates.
+  for duplicates between pairs of columns.
 
 - [`duplicate_tally()`](https://lhdjung.github.io/scrutiny/reference/duplicate_tally.md)
-  to show instances of a value next to each instance.
+  for counts next to each value.
 
-- `janitor::get_dupes()` to search for duplicate rows.
+- `janitor::get_dupes()` for duplicate rows.
 
 ## Examples
 
 ``` r
-# Count duplicate values...
-iris %>%
+iris |>
   duplicate_count()
 #> # A tibble: 77 × 4
 #>    value      frequency locations                  locations_n
@@ -92,18 +84,17 @@ iris %>%
 #> 10 5                 14 Sepal.Length, Petal.Length           2
 #> # ℹ 67 more rows
 
-# ...and compute summaries:
-iris %>%
-  duplicate_count() %>%
+iris |>
+  duplicate_count() |>
   audit()
 #> # A tibble: 2 × 8
 #>   term         mean    sd median   min   max na_count na_rate
-#>   <chr>       <dbl> <dbl>  <dbl> <dbl> <dbl>    <dbl>   <dbl>
+#>   <chr>       <dbl> <dbl>  <int> <int> <int>    <int>   <dbl>
 #> 1 frequency    9.74 9.92       7     1    50        0       0
 #> 2 locations_n  1.64 0.511      2     1     3        0       0
 
-# Any values can be ignored:
-iris %>%
+# Ignore some values:
+iris |>
   duplicate_count(ignore = c("setosa", "versicolor", "virginica"))
 #> # A tibble: 74 × 4
 #>    value frequency locations                  locations_n

@@ -1,9 +1,9 @@
 # Means, SDs, and sample sizes for GRIMMER-testing
 
 A fictional dataset with means, standard deviations (SDs), and sample
-sizes of flying pigs. It can be used to demonstrate the functionality of
+sizes of flying pigs. For demonstrating
 [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)
-and functions building up on it.
+and functions built on it.
 
 ## Usage
 
@@ -17,23 +17,20 @@ A tibble (data frame) with 12 rows and 3 columns. The columns are:
 
 - x:
 
-  String. Means.
+  Numeric. Means.
 
 - sd:
 
-  String. Standard deviations.
+  Numeric. Standard deviations.
 
 - n:
 
   Numeric. Sample sizes.
 
-## Value
-
-A tibble (data frame).
-
 ## See also
 
-`pigs1` for (only) GRIM-testing the same means as here,
+[`pigs1`](https://lhdjung.github.io/scrutiny/reference/pigs1.md) for
+GRIM-testing the same means, with other sample sizes,
 [`pigs2`](https://lhdjung.github.io/scrutiny/reference/pigs2.md) for
 GRIM-testing percentages instead of means,
 [`pigs3`](https://lhdjung.github.io/scrutiny/reference/pigs3.md) for

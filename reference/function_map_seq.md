@@ -1,26 +1,26 @@
 # Create new `*_map_seq()` functions
 
-`function_map_seq()` is the engine that powers functions such as
-[`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md).
-It creates new, "factory-made" functions that apply consistency tests
-such as GRIM or GRIMMER to sequences of specified variables. The
-sequences are centered around the reported values of those variables.
+`function_map_seq()` creates a sequence mapper from a basic mapper such
+as
+[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md):
+a function that varies the reported values a few steps up and down and
+tests each resulting value set, as
+[`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md)
+does. By default, only inconsistent value sets are dispersed.
 
-By default, only inconsistent values are dispersed from and tested. This
-provides an easy and powerful way to assess whether small errors in
-computing or reporting may be responsible for inconsistencies in
-published statistics.
+See
+[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
+section *Sequence mapper*.
 
-For background and more examples, see the [sequence mapper
-section](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#sequence-mapper)
-of *Consistency tests in depth*.
+`function_map_seq()` is a developer tool: it may change in a minor
+release, with a NEWS entry.
 
 ## Usage
 
 ``` r
 function_map_seq(
-  .fun,
-  .var = Inf,
+  .fn,
+  .var = .reported,
   .reported,
   .name_test,
   .name_key_result = "consistency",
@@ -28,7 +28,8 @@ function_map_seq(
   .args_disabled = NULL,
   .dispersion = 1:5,
   .out_min = "auto",
-  .out_max = NULL,
+  .out_max = "auto",
+  .var_bounds = NULL,
   .include_reported = FALSE,
   .include_consistent = FALSE,
   ...
@@ -37,75 +38,78 @@ function_map_seq(
 
 ## Arguments
 
-- .fun:
+- .fn:
 
-  Function such as
+  A basic mapper function such as
   [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md),
-  or one made by
-  [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md):
-  It will be used to test columns in a data frame for consistency. Test
-  results are logical and need to be contained in a column called
-  `"consistency"` that is added to the input data frame. This modified
-  data frame is then returned by `.fun`.
+  typically made by
+  [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md).
+  It must return its input data frame with a logical column named by
+  `.name_key_result` added.
 
 - .var:
 
-  String. Variables that will be dispersed by the manufactured function.
-  Defaults to `.reported`.
+  String. The variables that the factory-made function disperses by
+  default. Defaults to `.reported`.
 
 - .reported:
 
-  String. All variables the manufactured function can disperse in
-  principle.
+  String. All variables the factory-made function can disperse.
 
 - .name_test:
 
-  String (length 1). The name of the consistency test, such as `"GRIM"`,
-  to be optionally shown in a message when using the manufactured
-  function.
+  String (length 1). Plain-text name of the test, such as `"GRIM"`, for
+  messages and the output's class.
 
 - .name_key_result:
 
-  (Experimental) Optionally, a single string that will be the name of
-  the key result column in the output. Default is `"consistency"`.
+  (Experimental) String (length 1). Name of the key result column.
+  Default is `"consistency"`. Must be the value that `.fn` was created
+  with.
 
 - .name_class:
 
-  String. If specified, the tibbles returned by the manufactured
-  function will inherit this string as an S3 class. Default is `NULL`,
-  i.e., no extra class.
+  String. Optionally, one or more classes to add to the output. Default
+  is `NULL`.
 
 - .args_disabled:
 
-  String. Optionally, names of the basic `*_map()` function's arguments.
-  These arguments will throw an error if specified when calling the
-  factory-made function.
+  String. Optionally, names of arguments of `.fn` that the factory-made
+  function should reject.
 
 - .dispersion:
 
-  Numeric. Sequence with steps up and down from the reported values. It
-  will be adjusted to these values' decimal level. For example, with a
-  reported `8.34`, the step size is `0.01`. Default is `1:5`, for five
-  steps up and down.
+  Numeric. Steps up and down from the reported values, in units of the
+  last decimal place. Default is `1:5`.
 
 - .out_min, .out_max:
 
-  If specified when calling a factory-made function, output will be
-  restricted so that it's not below `.out_min` or above `.out_max`.
-  Defaults are `"auto"` for `.out_min`, i.e., a minimum of one decimal
-  unit above zero; and `NULL` for `.out_max`, i.e., no maximum.
+  Limits on the dispersed values. A number applies to every dispersed
+  variable, and `NULL` removes the limit. Default is `"auto"`, which
+  takes the limit from `.var_bounds`.
+
+- .var_bounds:
+
+  Named list, or `NULL` (the default). Each element is named after a
+  variable in `.reported` and is a numeric vector of its least and
+  greatest possible value, with `NA` for an unbounded side, such as
+  `list(n = c(1, NA), sd = c(0, NA))`. A variable not named here is
+  unbounded, except for `n`, which always has a minimum of 1. For a
+  bound that depends on a setting, an element may also be a function
+  that takes the settings `.fn` recorded for its call, as a named list
+  such as `list(sd_meaning = "sd_sample")`, and returns such a vector.
+  The bounds only keep impossible values, such as a sample size of 0,
+  from being tested. They have no bearing on consistency.
 
 - .include_reported:
 
-  Logical. Should the reported values themselves be included in the
-  sequences originating from them? Default is `FALSE` because this might
-  be redundant and bias the results.
+  Logical. Should the reported values themselves be part of the
+  sequences? Default is `FALSE`.
 
 - .include_consistent:
 
-  Logical. Should the function also process consistent cases (from among
-  those reported), not just inconsistent ones? Default is `FALSE`
-  because the focus should be on clarifying inconsistencies.
+  Logical. Should consistent value sets be dispersed as well? Default is
+  `FALSE`.
 
 - ...:
 
@@ -113,75 +117,54 @@ function_map_seq(
 
 ## Value
 
-A function such as those below. ("Testable statistics" are variables
-that can be selected via `var`, and are then varied. All variables
-except for those in parentheses are selected by default.)
+A function such as these:
 
 |  |  |  |
 |----|----|----|
-| **Manufactured function** | **Testable statistics** | **Test vignette** |
-| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md) | `"x"`, `"n"`, (`"items"`) | [`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md) |
-| [`grimmer_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.md) | `"x"`, `"sd"`, `"n"`, (`"items"`) | [`vignette("grimmer")`](https://lhdjung.github.io/scrutiny/articles/grimmer.md) |
+| **Factory-made function** | **Dispersed variables** | **Test vignette** |
+| [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md) | `"x"`, `"n"` | [`vignette("grim-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grim-in-depth.md) |
+| [`grimmer_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map_seq.md) | `"x"`, `"sd"`, `"n"` | [`vignette("grimmer-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grimmer-in-depth.md) |
 | [`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md) | `"x"`, `"sd"`, `"n"` | [`vignette("debit")`](https://lhdjung.github.io/scrutiny/articles/debit.md) |
 
-The factory-made function will also have dots, `...`, to pass arguments
-down to `.fun`, i.e., the basic mapper function such as
-[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
+The settings of `.fn`, i.e., its arguments after `...`, such as
+`rounding`, are arguments of this function as well, with the same
+defaults. So are its helper arguments, such as `items_averaged`. Its
+`...` pass any other arguments on to `.fn`, which is only of use for a
+`.fn` without `...` of its own.
 
 ## Details
 
-All arguments of `function_map_seq()` set the defaults for the arguments
-in the manufactured function. They can still be specified differently
-when calling the latter.
+The arguments of `function_map_seq()` set the defaults of the
+corresponding arguments of the factory-made function, which can be
+overridden in each call.
 
-If functions created this way are exported from other packages, they
-should be written as if they were created with [purrr
+Each variable in `var` is dispersed around its own reported value while
+the others stay as reported.
+
+To export a factory-made function from another package, follow the
+[purrr FAQ on
 adverbs](https://purrr.tidyverse.org/reference/faq-adverbs-export.html);
-see explanations there, and examples in the [export
-section](https://lhdjung.github.io/scrutiny/articles/consistency-tests.html#context-and-export)
-of *Consistency tests in depth*.
-
-This function is a so-called function factory: It produces other
-functions, such as
-[`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md).
-More specifically, it is a function operator because it also takes
-functions as inputs, such as
-[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
-See Wickham (2019, ch. 10-11).
+see
+[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
+section *Context and export*.
 
 ## Conventions
 
-The name of a function returned by `function_map_seq()` should
-mechanically follow from that of the input function. For example,
+Name the factory-made function after `.fn` with `_seq` appended, as in
 [`grim_map_seq()`](https://lhdjung.github.io/scrutiny/reference/grim_map_seq.md)
-derives from
+from
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
-This pattern fits best if the input function itself is named after the
-test it performs on a data frame, followed by `_map`:
-[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)
-applies GRIM,
-[`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)
-applies GRIMMER, etc.
-
-Much the same is true for the classes of data frames returned by the
-manufactured function via the `.name_class` argument of
-`function_map_seq()`. It should be the function's own name preceded by
-the name of the package that contains it, or by an acronym of that
-package's name. Therefore, some existing classes are `scr_grim_map_seq`
-and `scr_grimmer_map_seq`.
-
-## References
-
-Wickham, H. (2019). *Advanced R* (Second Edition). CRC Press/Taylor and
-Francis Group. https://adv-r.hadley.nz/index.html
+The output has the classes `"scrutiny_map_seq"` and
+`"scrutiny_{tolower(.name_test)}_map_seq"`. Prefix any class you add via
+`.name_class` with your package's name, as in `"mypkg_schlim_map_seq"`.
 
 ## Examples
 
 ``` r
 # Function definition of `grim_map_seq()`:
 grim_map_seq <- function_map_seq(
-  .fun = grim_map,
+  .fn = grim_map,
   .reported = c("x", "n"),
-  .name_test = "GRIM",
+  .name_test = "GRIM"
 )
 ```

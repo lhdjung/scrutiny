@@ -1,95 +1,64 @@
 # Count decimal places
 
-`decimal_places()` counts the decimal places in a numeric vector, or in
-a string vector that can be coerced to numeric.
-
-`decimal_places_scalar()` is much faster but only takes a single input.
-It is useful as a helper within other single-case functions.
+`decimal_places()` counts the decimal places of numbers, or of numbers
+written as strings.
 
 ## Usage
 
 ``` r
-decimal_places(x, sep = "\\.")
-
-decimal_places_scalar(x, sep = "\\.")
+decimal_places(x, sep = ".")
 ```
 
 ## Arguments
 
 - x:
 
-  Numeric (or string that can be coerced to numeric). Object with
-  decimal places to count.
+  Numeric, or strings that contain numbers.
 
 - sep:
 
-  Substring that separates the mantissa from the integer part. Default
-  is `"\\."`, which renders a decimal point.
+  String. The separator between the integer part and the decimal places,
+  matched literally. Default is `"."`. Only applies to strings; numbers
+  are always written with a point.
 
 ## Value
 
-Integer. Number of decimal places in `x`.
+Integer. The number of decimal places of each element of `x`.
 
 ## Details
 
-Decimal places in numeric values can't be counted accurately if the
-number has 15 or more characters in total, including the integer part
-and the decimal point. A possible solutions is to enter the number as a
-string to count all digits. (Converting to string is not sufficient –
-those numbers need to be *entered* in quotes.)
+The function counts the run of digits after the first `sep`, after
+trimming whitespace and applying any exponent: `"5.30%"` has two decimal
+places, `"1e-5"` has five, and `"1..5"` has none. Missing and non-finite
+values have `NA` decimal places, as do the string `"NA"`, a blank
+string, and strings that
+[`as.numeric()`](https://rdrr.io/r/base/numeric.html) reads as an
+infinity or `NaN`.
 
-The functions ignore any whitespace at the end of a string, so they
-won't mistake spaces for decimal places.
+Numeric values with more than 15 significant digits cannot be counted
+accurately; enter such numbers as strings.
 
 ## Trailing zeros
 
-If trailing zeros matter, don't convert numeric values to strings: In
-numeric values, any trailing zeros have already been dropped, and any
-information about them was lost (e.g., `3.70` returns `3.7`). Enter
-those values as strings instead, such as `"3.70"` instead of `3.70`.
-However, you can restore lost trailing zeros with
-[`restore_zeros()`](https://lhdjung.github.io/scrutiny/reference/restore_zeros.md)
-if the original number of decimal places is known.
-
-If you need to enter many such values as strings, consider using
-[`tibble::tribble()`](https://tibble.tidyverse.org/reference/tribble.html)
-and drawing quotation marks around all values in a `tribble()` column at
-once via RStudio's multiple cursors.
-
-## See also
-
-[`decimal_places_df()`](https://lhdjung.github.io/scrutiny/reference/decimal_places_df.md),
-which applies `decimal_places()` to all numeric-like columns in a data
-frame.
+A numeric value has lost its trailing zeros: `3.70` is stored as `3.7`
+and has one decimal place. If trailing zeros matter, count them while
+the values are still strings, such as `"3.70"`, and give the counts to
+the tests as `digits_x` or `digits_sd`, as in
+`dplyr::mutate(data, digits_x = decimal_places(x), x = as.numeric(x))`.
 
 ## Examples
 
 ``` r
-# `decimal_places()` works on both numeric values
-# and strings...
 decimal_places(x = 2.851)
 #> [1] 3
 decimal_places(x = "2.851")
 #> [1] 3
 
-# ... but trailing zeros are only counted within
-# strings:
+# Trailing zeros are only counted in strings:
 decimal_places(x = c(7.3900, "7.3900"))
 #> [1] 2 4
 
-# This doesn't apply to non-trailing zeros; these
-# behave just like any other digit would:
-decimal_places(x = c(4.08, "4.08"))
-#> [1] 2 2
-
-# Whitespace at the end of a string is not counted:
+# Whitespace at the end of a string is ignored:
 decimal_places(x = "6.0     ")
 #> [1] 1
-
-# `decimal_places_scalar()` is much faster,
-# but only works with a single number or string:
-decimal_places_scalar(x = 8.13)
-#> [1] 2
-decimal_places_scalar(x = "5.024")
-#> [1] 3
 ```

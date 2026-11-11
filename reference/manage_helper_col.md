@@ -1,49 +1,62 @@
-# Helper column operations
+# Manage a helper column
 
-If your consistency test mapper function supports helper columns, call
-`manage_helper_col()` internally; once for every such column. It will
-check whether a helper column is compatible with its eponymous argument,
-i.e., if the argument was not specified by the user but has its default
-value.
+**\[superseded\]**
 
-By default (`affix = TRUE`), the function will add the column to the
-mapper's input data frame. It returns the input data frame, so reassign
-its output to that variable.
-
-All of this only works in mapper functions that were "handwritten" using
-`function()`, as opposed to those produced by
+`manage_helper_col()` is superseded by the `.cols_helper` argument of
 [`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md).
-See
-[`vignette("consistency-tests-in-depth")`](https://lhdjung.github.io/scrutiny/articles/consistency-tests-in-depth.md),
-section *Writing mappers manually*.
+
+A helper column is a column of a mapper's input that is not itself
+tested but enters the test, such as `items_averaged` in
+[`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
+It can be given either as a column of `data` or as an argument of the
+same name. `manage_helper_col()` checks that the two don't disagree if
+both are given and, by default, adds the argument's value to `data` as a
+column if `data` has none.
+
+Mappers made by
+[`function_map()`](https://lhdjung.github.io/scrutiny/reference/function_map.md)
+call it for every `.cols_helper` argument. Call it yourself in a
+handwritten mapper, once per helper column, and reassign the result to
+`data`.
 
 ## Usage
 
 ``` r
-manage_helper_col(data, var_arg, default, affix = TRUE)
+manage_helper_col(
+  data,
+  arg,
+  default,
+  add_col = TRUE,
+  var_arg = deprecated(),
+  affix = deprecated()
+)
 ```
 
 ## Arguments
 
 - data:
 
-  The data frame that is the mapper function's first argument.
+  The mapper's input data frame.
 
-- var_arg:
+- arg:
 
-  The argument to the mapper function that has the same name as the
-  helper column you want to manage.
+  The mapper argument named like the helper column.
 
 - default:
 
-  The default for the argument that was specified in `var_arg`.
+  The default of that argument. Leave it out if the argument has none,
+  like `items_averaged`: `data` is then returned unchanged if the
+  argument is missing, and the test function reports that.
 
-- affix:
+- add_col:
 
-  Logical (length 1). If `data` doesn't include the helper column
-  already, should `var_arg` be added to `data`, bearing its proper name?
+  Logical. If `data` has no such column, should one be added from `arg`?
   Default is `TRUE`.
+
+- var_arg, affix:
+
+  **\[deprecated\]** The old names of `arg` and `add_col`.
 
 ## Value
 
-`data`, possibly modified (see `affix` argument).
+`data`, possibly with the helper column added.

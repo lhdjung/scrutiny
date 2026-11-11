@@ -1,4 +1,4 @@
 # License
 
-    YEAR: 2024
+    YEAR: 2024-2026
     COPYRIGHT HOLDER: scrutiny authors

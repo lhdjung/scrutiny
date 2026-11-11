@@ -1,12 +1,11 @@
-# Reverse the `*_map_seq()` process
+# Reconstruct the input of a sequence mapper
 
-`reverse_map_seq()` takes the output of a function created by
+`reverse_map_seq()` takes the output of a function made by
 [`function_map_seq()`](https://lhdjung.github.io/scrutiny/reference/function_map_seq.md)
-and reconstructs the original data frame.
-
-See
-[`audit_seq()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md),
-which takes `reverse_map_seq()` as a basis.
+and reconstructs the tested columns of the cases it dispersed, without
+`digits_*`.
+[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+builds on it for sequence output.
 
 ## Usage
 
@@ -18,52 +17,54 @@ reverse_map_seq(data)
 
 - data:
 
-  Data frame that inherits the `"scr_map_seq"` class.
+  Data frame with the `"scrutiny_map_seq"` class.
 
 ## Value
 
-The reconstructed tibble (data frame) which a factory-made `*_map_seq()`
-function took as its `data` argument.
+A tibble with the tested columns, one row per case in `data`.
 
 ## Examples
 
 ``` r
-# Originally reported summary data...
 pigs1
 #> # A tibble: 12 × 2
-#>    x         n
-#>    <chr> <dbl>
-#>  1 7.22     32
-#>  2 4.74     25
-#>  3 5.23     29
-#>  4 2.57     24
-#>  5 6.77     27
-#>  6 2.68     28
-#>  7 7.01     29
-#>  8 7.38     26
-#>  9 3.14     27
-#> 10 6.89     31
-#> 11 5.00     25
-#> 12 0.24     28
+#>        x     n
+#>    <dbl> <dbl>
+#>  1  7.22    32
+#>  2  4.74    25
+#>  3  5.23    29
+#>  4  2.57    24
+#>  5  6.77    27
+#>  6  2.68    28
+#>  7  7.01    29
+#>  8  7.38    26
+#>  9  3.14    27
+#> 10  6.89    31
+#> 11  5       25
+#> 12  0.24    28
 
-# ...GRIM-tested with varying inputs...
-out <- grim_map_seq(pigs1, include_consistent = TRUE)
+out <- grim_map_seq(
+  pigs1,
+  digits_x = 2,
+  items_averaged = 1,
+  data_type = "integer",
+  include_consistent = TRUE
+)
 
-# ...and faithfully reconstructed:
 reverse_map_seq(out)
-#> # A tibble: 12 × 2
-#>    x         n
-#>    <chr> <int>
-#>  1 7.22     32
-#>  2 4.74     25
-#>  3 5.23     29
-#>  4 2.57     24
-#>  5 6.77     27
-#>  6 2.68     28
-#>  7 7.01     29
-#>  8 7.38     26
-#>  9 3.14     27
-#> 10 6.89     31
-#> 11 5.00     25
-#> 12 0.24     28
+#> # A tibble: 12 × 4
+#>        x     n items_averaged data_type
+#>    <dbl> <int>          <int> <chr>    
+#>  1  7.22    32              1 integer  
+#>  2  4.74    25              1 integer  
+#>  3  5.23    29              1 integer  
+#>  4  2.57    24              1 integer  
+#>  5  6.77    27              1 integer  
+#>  6  2.68    28              1 integer  
+#>  7  7.01    29              1 integer  
+#>  8  7.38    26              1 integer  
+#>  9  3.14    27              1 integer  
+#> 10  6.89    31              1 integer  
+#> 11  5       25              1 integer  
+#> 12  0.24    28              1 integer  
 ```

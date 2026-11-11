@@ -3,17 +3,17 @@ pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   consistency-tests-in-depth: consistency-tests-in-depth.html
-  consistency-tests-simple: consistency-tests-simple.html
   debit: debit.html
-  devtools: devtools.html
   duplicates: duplicates.html
+  grim-in-depth: grim-in-depth.html
   grim: grim.html
+  grimmer-in-depth: grimmer-in-depth.html
   grimmer: grimmer.html
+  percentages-and-sums: percentages-and-sums.html
   related: related.html
-  rounding-in-depth: rounding-in-depth.html
-  rounding-options: rounding-options.html
+  technical-notes: technical-notes.html
   wrangling: wrangling.html
-last_built: 2026-07-31T15:00Z
+last_built: 2026-11-11T10:50Z
 urls:
   reference: https://lhdjung.github.io/scrutiny/reference
   article: https://lhdjung.github.io/scrutiny/articles

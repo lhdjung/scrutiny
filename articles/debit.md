@@ -1,438 +1,411 @@
 # DEBIT
 
-``` r
-
-library(scrutiny)
-```
-
 The descriptive binary test, or DEBIT, checks whether the reported mean,
-sample standard deviation (SD), and sample size of binary data are
-mutually consistent (Heathers and Brown 2019). Like GRIM, it tests if a
-given set of summary data can describe the same distribution.
+sample SD, and sample size of binary data are mutually consistent
+(Heathers and Brown 2019). In binary data, the mean determines the SD:
+if $`k`$ of $`n`$ values are 1, the mean is $`k / n`$, and the sample SD
+follows from $`k`$ and $`n`$. DEBIT checks whether there is any $`k`$
+for which both the mean and the SD would be reported as the given
+values.
 
-This vignette covers scrutiny’s implementation of DEBIT:
+DEBIT is a narrow method: it applies only to binary data, such as yes/no
+answers or the share of participants in some category. That is why this
+vignette covers everything at once, unlike the basics and in-depth
+vignettes for GRIM and GRIMMER.
 
-1.  The basic, single-case
-    [`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md)
-    function.
-2.  A specialized mapping function,
-    [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md).
-3.  The
-    [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-    method for summarizing
-    [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)’s
-    results.
-4.  Finally, the visualization function
-    [`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md).
-
-### DEBIT basics
-
-Consider these summary data for a binary distribution: a mean of 0.35,
-an SD of 0.18, and a sample size of 20. To test their consistency, run
-this:
+### Single cases: `debit()`
 
 ``` r
 
-debit(x = "0.35", sd = "0.18", n = 20)
-#>  0.35 
-#> FALSE
+debit(x = 0.35, sd = 0.18, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
+#> [1] FALSE
 ```
 
 As in [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md),
-the mean needs to be a string. (The same is true for the SD.) That is
-because strings preserve trailing zeros, which can be crucial for DEBIT.
-Numeric values don’t, and even converting them to strings won’t help. A
-workaround for larger numbers of such values,
-[`restore_zeros()`](https://lhdjung.github.io/scrutiny/reference/restore_zeros.md),
-is discussed in the *Data wrangling* vignette.
+the numbers of decimal places must be given, because numeric values lose
+trailing zeros. So must `data_type`, which is `"integer"` for the binary
+values 0 and 1; see
+[`vignette("grim")`](https://lhdjung.github.io/scrutiny/articles/grim.md).
+The SD is taken to be a sample SD; for a population SD, which divides by
+$`n`$ rather than $`n - 1`$, set `sd_meaning = "sd_pop"`, as in
+[`vignette("grimmer-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grimmer-in-depth.md).
 
-Note that the SD is always assumed to be the sample SD, not the
-population SD. In some rare cases, this might possibly explain apparent
-inconsistencies.
+By default (`formula = "exact"`), DEBIT only considers means that `n`
+binary values can have, that is, `k / n` for a whole number `k`. The
+original formulation treats the mean as continuous, so it accepts some
+SDs that no binary sample of size `n` can have. `formula = "mean_n"`
+reproduces it.
 
-[`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md) has
-some further arguments, but all of them can be used from within
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md).
-Since
+### Many cases: `debit_map()`
+
 [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
-is the more useful function in practice, the other arguments will be
-discussed in that context.
-
-### Testing multiple cases
-
-#### Working with `debit_map()`
-
-If you want to test more than a handful of cases, the recommended way is
-to enter them into a data frame and to run
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
-on the data frame. Below are the example data from Heathers and Brown’s
-(2019) Table 1. A useful way to enter such data is to copy them from a
-PDF file and paste them into
-[`tibble::tribble()`](https://tibble.tidyverse.org/reference/tribble.html),
-which is available via scrutiny:
+tests every row of a data frame. These example data are made up:
 
 ``` r
 
 flying_pigs <- tibble::tibble(
-    x  = runif(5, 0.2, 1) %>% round(2) %>% restore_zeros(),
-    sd = runif(5, 0, 0.3) %>% round(2) %>% restore_zeros(),
-    n = 1000
+  x = c(0.4, 0.62, 0.95, 0.38, 0.96),
+  sd = c(0.49, 0.49, 0.22, 0.29, 0.20),
+  n = 1000,
 )
 
-
-flying_pigs
-#> # A tibble: 5 × 3
-#>   x     sd        n
-#>   <chr> <chr> <dbl>
-#> 1 0.26  0.14   1000
-#> 2 0.87  0.15   1000
-#> 3 0.68  0.09   1000
-#> 4 0.33  0.22   1000
-#> 5 0.21  0.23   1000
+flying_pigs |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
+#> # A tibble: 5 × 7
+#> # DEBIT: default settings
+#>       x    sd     n data_type digits_x digits_sd consistency
+#>   <dbl> <dbl> <int> <chr>        <int>     <int> <lgl>      
+#> 1  0.4   0.49  1000 integer          2         2 TRUE       
+#> 2  0.62  0.49  1000 integer          2         2 TRUE       
+#> 3  0.95  0.22  1000 integer          2         2 TRUE       
+#> 4  0.38  0.29  1000 integer          2         2 FALSE      
+#> 5  0.96  0.2   1000 integer          2         2 TRUE
 ```
 
-Now, simply run
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
-on that data frame:
+With `show_rec = TRUE`, the output also has the reconstructed values:
+the rounding bounds of `sd` and `x` (`sd_incl_lower` and `sd_incl_upper`
+say whether the bounds of `sd` are included), and `sum_lower` and
+`sum_upper`, the smallest and largest numbers of ones whose mean would
+be reported as `x`. `pigs3` is an example dataset that comes with
+scrutiny:
 
 ``` r
 
-flying_pigs %>% 
-  debit_map()
-#> # A tibble: 5 × 11
-#>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-#>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-#> 1 0.26  0.14   1000 FALSE       up_or_down    0.135 TRUE             0.145
-#> 2 0.87  0.15   1000 FALSE       up_or_down    0.145 TRUE             0.155
-#> 3 0.68  0.09   1000 FALSE       up_or_down    0.085 TRUE             0.095
-#> 4 0.33  0.22   1000 FALSE       up_or_down    0.215 TRUE             0.225
-#> 5 0.21  0.23   1000 FALSE       up_or_down    0.225 TRUE             0.235
-#> # ℹ 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
-```
-
-The `x`, `sd`, and `n` columns are the same as in the input. The main
-result, `consistency`, is the DEBIT consistency of the former three
-columns.
-
-``` r
-
-pigs3  # data saved within the package
+pigs3
 #> # A tibble: 7 × 3
-#>   x     sd        n
-#>   <chr> <chr> <dbl>
-#> 1 0.53  0.50   1683
-#> 2 0.44  0.50   1683
-#> 3 0.77  0.42   1683
-#> 4 0.19  0.35   1683
-#> 5 0.34  0.47   1683
-#> 6 0.93  0.25   1683
-#> 7 0.12  0.33   1683
+#>       x    sd     n
+#>   <dbl> <dbl> <dbl>
+#> 1  0.53  0.5   1683
+#> 2  0.44  0.5   1683
+#> 3  0.77  0.42  1683
+#> 4  0.19  0.35  1683
+#> 5  0.34  0.47  1683
+#> 6  0.93  0.25  1683
+#> 7  0.12  0.33  1683
 
-pigs3 %>% 
-  debit_map()
-#> # A tibble: 7 × 11
-#>   x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-#>   <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-#> 1 0.53  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 2 0.44  0.50   1683 TRUE        up_or_down    0.495 TRUE             0.505
-#> 3 0.77  0.42   1683 TRUE        up_or_down    0.415 TRUE             0.425
-#> 4 0.19  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#> 5 0.34  0.47   1683 TRUE        up_or_down    0.465 TRUE             0.475
-#> 6 0.93  0.25   1683 TRUE        up_or_down    0.245 TRUE             0.255
-#> 7 0.12  0.33   1683 TRUE        up_or_down    0.325 TRUE             0.335
-#> # ℹ 3 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer", show_rec = TRUE)
+#> # A tibble: 7 × 15
+#> # DEBIT: show_rec = TRUE
+#>       x    sd     n data_type digits_x digits_sd consistency sd_lower
+#>   <dbl> <dbl> <int> <chr>        <int>     <int> <lgl>          <dbl>
+#> 1  0.53  0.5   1683 integer          2         2 TRUE           0.495
+#> 2  0.44  0.5   1683 integer          2         2 TRUE           0.495
+#> 3  0.77  0.42  1683 integer          2         2 TRUE           0.415
+#> 4  0.19  0.35  1683 integer          2         2 FALSE          0.345
+#> 5  0.34  0.47  1683 integer          2         2 TRUE           0.465
+#> 6  0.93  0.25  1683 integer          2         2 TRUE           0.245
+#> 7  0.12  0.33  1683 integer          2         2 TRUE           0.325
+#> # ℹ 7 more variables: sd_incl_lower <lgl>, sd_upper <dbl>, sd_incl_upper <lgl>,
+#> #   x_lower <dbl>, x_upper <dbl>, sum_lower <dbl>, sum_upper <dbl>
 ```
 
-DEBIT only makes sense with binary means and SDs. Both
-[`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md) and
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
-check if the inputs are such data, and fail if they are not:
+DEBIT applies to binary data only, so `x` and `sd` must lie between 0
+and 1:
 
 ``` r
 
-pigs5  # no binary means / SDs!
-#> # A tibble: 12 × 3
-#>    x     sd        n
-#>    <chr> <chr> <dbl>
-#>  1 7.22  5.30     38
-#>  2 4.74  6.55     31
-#>  3 5.23  2.55     35
-#>  4 2.57  2.57     30
-#>  5 6.77  2.18     33
-#>  6 2.68  2.59     34
-#>  7 7.01  6.68     35
-#>  8 7.38  3.65     32
-#>  9 3.14  5.32     33
-#> 10 6.89  4.18     37
-#> 11 5.00  2.18     31
-#> 12 0.24  6.43     34
-
-pigs5 %>% 
-  debit_map()
-#> Error in `check_debit_inputs()`:
+pigs5 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer")
+#> Error in `debit_map()`:
 #> ! DEBIT only works with binary summary data.
 #> ! Binary mean (`x`) values must range from 0 to 1.
-#> ✖ 11 out of 12 `x` values are not in that range, starting with 7.22, 4.74, and
-#>   5.23.
+#> ✖ `x` is 7.22.
 ```
 
-Compared to
+Unlike
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md),
 [`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
-is more straightforward. There is no percentage conversion or accounting
-for multiple scale items. The same is true when comparing the basic
-[`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md) and
-[`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md)
-functions. However, both implementations tap scrutiny’s arsenal of
-rounding procedures, so that is discussed next.
+has no `x_meaning` or `items_averaged` argument, since neither applies
+to binary data. It takes the same rounding arguments; see
+[`vignette("rounding-options", package = "roundwork")`](https://lhdjung.github.io/roundwork/articles/rounding-options.html).
 
-### Summarizing results with `audit()`
+### Explaining consistency results
 
-Following up on a call to
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md),
-the generic function
-[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-summarizes test results:
+[`explain_print()`](https://lhdjung.github.io/scrutiny/reference/explain_print.md)
+explains the results of
+[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)
+step by step, as for GRIM and GRIMMER. Here is the inconsistent value
+set from `pigs3`:
 
 ``` r
 
-pigs3 %>% 
-  debit_map() %>% 
-  audit()
-#> # A tibble: 1 × 6
-#>   incons_cases all_cases incons_rate mean_x mean_sd distinct_n
-#>          <int>     <int>       <dbl>  <dbl>   <dbl>      <int>
-#> 1            1         7       0.143  0.474   0.403          1
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+  dplyr::filter(!consistency) |>
+  explain_print()
+#> DEBIT test: x = 0.19, sd = 0.35, n = 1683, data_type = "integer"
+#> 
+#> DEBIT is about binary data, where every value is 0 or 1. The mean is then the
+#> share of ones, and the SD follows from the number of ones and the sample size.
+#> 
+#> The mean was reported as 0.19, with 2 decimal places. Before rounding (assuming
+#> either rounding up from 5 or down from 5), it could have been anything from
+#> 0.185 to 0.195.
+#> 
+#> With 1683 values, the mean is the number of ones divided by 1683, so that
+#> number must be from 0.185 * 1683 = 311.355 to 0.195 * 1683 = 328.185. It has to
+#> be an integer, so it can be anything from 312 to 328.
+#> 
+#> The SD was reported as 0.35, with 2 decimal places. Before rounding, it could
+#> have been anything from 0.345 to 0.355.
+#> 
+#> With k ones among 1683 values, the SD is sqrt(k * (1683 - k) / (1683 * 1682)).
+#> Even the smallest of these SDs, for k = 312, is
+#> sqrt(312 * 1371 / 2830806) = 0.3887, which is above that range.
+#> 
+#> ==> Inconsistent
 ```
 
-These columns are —
+[`explain_map()`](https://lhdjung.github.io/scrutiny/reference/explain_map.md)
+adds the explanations as an `explanation` column instead, and
+[`debit_explain()`](https://lhdjung.github.io/scrutiny/reference/debit_explain.md)
+explains a single value set. Only the default `formula = "exact"` can be
+explained.
 
-1.  `incons_cases`: number of inconsistent value sets.
-2.  `all_cases`: total number of value sets.
-3.  `incons_rate`: proportion of DEBIT-inconsistent value sets.
-4.  `mean_x`: average of binary distribution means.
-5.  `mean_sd`: average of binary distribution standard deviations.
-6.  `distinct_n`: number of different sample sizes.
+### Single value sets in detail
 
-### Visualizing results with `debit_plot()`
-
-There is a specialized visualization function for DEBIT results,
-[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md).
-Only run it on
-[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md)’s
-output. It will fail otherwise.
+[`debit_values()`](https://lhdjung.github.io/scrutiny/reference/debit_values.md)
+lists the samples behind a value set: each number of ones whose mean and
+SD would be reported as the given ones. Seven ones among 20 values have
+a mean of 0.35 and an SD of 0.49:
 
 ``` r
 
-# Determine plot theme for the remaining session:
-ggplot2::theme_minimal(base_size = 12) %>% 
-  ggplot2::theme_set()
-
-pigs3 %>% 
-  debit_map() %>% 
-  debit_plot()
+debit_values(x = 0.35, sd = 0.49, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
+#> # A tibble: 1 × 5
+#>    case     x     sd     n   sum
+#>   <int> <dbl>  <dbl> <int> <dbl>
+#> 1     1  0.35 0.4894    20     7
 ```
 
-![](debit_files/figure-html/unnamed-chunk-8-1.png)
-
-DEBIT-consistent value pairs are blue, inconsistent ones red. The black
-arc is the DEBIT line: Given the sample size, the pairs of mean and SD
-values are DEBIT-consistent if and only if they cross this line. More
-precisely, the inner boxes must cross the line — the outer boxes are
-just pointers to the inner ones, in case these are poorly visible. They
-have no inherent meaning.
-
-Except for the colors, inner boxes must look exactly like they do here:
-Their sizes and shapes are completely determined by the mean and SD
-values. Since inner boxes cannot be enlarged at will, outer boxes might
-be helpful to spot them at first glance.
-
-However, if outer boxes are not desired, they can be turned off like
-this:
+An SD of 0.41 with the same mean is inconsistent, so
+[`debit_values()`](https://lhdjung.github.io/scrutiny/reference/debit_values.md)
+would return no rows.
+[`debit_closest()`](https://lhdjung.github.io/scrutiny/reference/debit_values.md)
+returns the sample whose SD is closest to the reported one instead:
 
 ``` r
 
-pigs3 %>% 
-  debit_map() %>% 
-  debit_plot(show_outer_boxes = FALSE)
+debit_closest(x = 0.35, sd = 0.41, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
+#> # A tibble: 1 × 5
+#>    case     x     sd     n   sum
+#>   <int> <dbl>  <dbl> <int> <dbl>
+#> 1     1  0.35 0.4894    20     7
+```
+
+Only seven ones give a mean of 0.35 here, so the closest SD is the same
+0.49 as above, far from the reported 0.41.
+
+[`debit_plot_line()`](https://lhdjung.github.io/scrutiny/reference/debit_plot_line.md)
+draws the SDs that `n` binary values with the reported mean can have,
+around the reported SD:
+
+``` r
+
+debit_plot_line(x = 0.35, sd = 0.41, n = 20, digits_x = 2, digits_sd = 2, data_type = "integer")
 ```
 
 ![](debit_files/figure-html/unnamed-chunk-9-1.png)
 
-Color settings and other ggplot2-typical options are available via
-arguments, as are settings handed down to
-[`ggrepel::geom_text_repel()`](https://ggrepel.slowkow.com/reference/geom_text_repel.html),
-which creates the labels. For more, see
-[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md)’s
-documentation.
-
-### Testing numeric sequences with `debit_map_seq()`
-
-DEBIT analysts might be interested in a mean or percentage value’s
-numeric neighborhood. Suppose you found DEBIT inconsistencies, as in out
-example `pigs3` data. You might wonder whether they are due to small
-reporting or computing errors.
-
-Use
-[`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md)
-to use DEBIT for the values surrounding the reported means, SDs, and
-sample sizes:
+[`sd_binary_groups()`](https://lhdjung.github.io/scrutiny/reference/sd-binary.md)
+computes the SD of binary data from the numbers of zeros and ones, and
+[`sd_binary_mean_n()`](https://lhdjung.github.io/scrutiny/reference/sd-binary.md)
+from the mean and the sample size:
 
 ``` r
 
-out_seq1 <- debit_map_seq(pigs3)
+sd_binary_groups(group_0 = 13, group_1 = 7)
+#> [1] 0.4893605
+sd_binary_mean_n(x = 0.35, n = 20)
+#> [1] 0.4893605
+```
+
+Both take `sd_meaning`, as
+[`debit()`](https://lhdjung.github.io/scrutiny/reference/debit.md) does,
+for a population SD or a standard error.
+
+### Summaries with `audit()`
+
+``` r
+
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+  audit()
+#> # A tibble: 1 × 6
+#>   all_cases incon_cases emp_incon mean_x mean_sd distinct_n
+#>       <int>       <int>     <dbl>  <dbl>   <dbl>      <int>
+#> 1         7           1    0.1429 0.4743  0.4029          1
+```
+
+- `all_cases`, `incon_cases`, `emp_incon`: the total number of value
+  sets, the number of inconsistent ones, and their ratio.
+- `mean_x`, `mean_sd`: the means of the reported means and SDs.
+- `distinct_n`: the number of distinct sample sizes.
+
+### Visualization with `debit_plot()`
+
+[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md)
+takes the output of
+[`debit_map()`](https://lhdjung.github.io/scrutiny/reference/debit_map.md).
+It needs the ggrepel package for its labels.
+
+``` r
+
+# `theme_set()` applies to all later plots in the session:
+ggplot2::theme_minimal(base_size = 12) |>
+  ggplot2::theme_set()
+
+pigs3 |>
+  debit_map(digits_x = 2, digits_sd = 2, data_type = "integer") |>
+  debit_plot()
+```
+
+![](debit_files/figure-html/unnamed-chunk-12-1.png)
+
+The arc is the DEBIT line: the SD of binary data as a function of their
+mean, for the given sample size. The points on it are the means that `n`
+binary values can have. Each value set is a rectangle spanning the
+rounding bounds of its mean and SD, drawn over a point at the reported
+values in case the rectangle is too small to see. Under
+`formula = "exact"`, a value set is consistent if one of the points lies
+inside its rectangle. Consistent sets are blue, inconsistent ones red;
+see
+[`?debit_plot`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md)
+for other colors. If `n` varies, the lines for the smallest and largest
+`n` are drawn and the band between them is shaded.
+
+### Values around the reported ones: `debit_map_seq()`
+
+[`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md)
+varies `x`, `sd`, and `n` around the reported values and tests each
+result:
+
+``` r
+
+out_seq1 <- debit_map_seq(pigs3, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_seq1
-#> # A tibble: 30 × 14
-#>    x     sd        n consistency rounding   sd_lower sd_incl_lower sd_upper
-#>    <chr> <chr> <int> <lgl>       <chr>         <dbl> <lgl>            <dbl>
-#>  1 0.14  0.35   1683 TRUE        up_or_down    0.345 TRUE             0.355
-#>  2 0.15  0.35   1683 TRUE        up_or_down    0.345 TRUE             0.355
-#>  3 0.16  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  4 0.17  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  5 0.18  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  6 0.20  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  7 0.21  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  8 0.22  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#>  9 0.23  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
-#> 10 0.24  0.35   1683 FALSE       up_or_down    0.345 TRUE             0.355
+#> # A tibble: 30 × 10
+#> # DEBIT: default settings
+#>        x    sd     n data_type digits_x digits_sd consistency diff_var  case
+#>    <dbl> <dbl> <int> <chr>        <int>     <int> <lgl>          <int> <int>
+#>  1  0.14  0.35  1683 integer          2         2 TRUE              -5     4
+#>  2  0.15  0.35  1683 integer          2         2 TRUE              -4     4
+#>  3  0.16  0.35  1683 integer          2         2 FALSE             -3     4
+#>  4  0.17  0.35  1683 integer          2         2 FALSE             -2     4
+#>  5  0.18  0.35  1683 integer          2         2 FALSE             -1     4
+#>  6  0.2   0.35  1683 integer          2         2 FALSE              1     4
+#>  7  0.21  0.35  1683 integer          2         2 FALSE              2     4
+#>  8  0.22  0.35  1683 integer          2         2 FALSE              3     4
+#>  9  0.23  0.35  1683 integer          2         2 FALSE              4     4
+#> 10  0.24  0.35  1683 integer          2         2 FALSE              5     4
 #> # ℹ 20 more rows
-#> # ℹ 6 more variables: sd_incl_upper <lgl>, x_lower <dbl>, x_upper <dbl>,
-#> #   diff_var <int>, case <int>, var <chr>
+#> # ℹ 1 more variable: var <chr>
+
+audit(out_seq1)
+#> # A tibble: 1 × 18
+#>       x    sd     n data_type consistency hits_total hits_x hits_sd hits_n
+#>   <dbl> <dbl> <int> <chr>     <lgl>            <int>  <int>   <int>  <int>
+#> 1  0.19  0.35  1683 integer   FALSE                4      2       2      0
+#> # ℹ 9 more variables: diff_x <int>, diff_x_up <int>, diff_x_down <int>,
+#> #   diff_sd <int>, diff_sd_up <int>, diff_sd_down <int>, diff_n <int>,
+#> #   diff_n_up <int>, diff_n_down <int>
 ```
 
-#### Summaries with `audit_seq()`
-
-As this output is a little unwieldy, run
-[`audit_seq()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-on the results:
+As for GRIM and GRIMMER, the `hits_*` columns count the consistent value
+sets found, and the `diff_*` columns give the distance to the nearest
+one in dispersion steps. `include_consistent = TRUE` disperses the
+consistent value sets as well:
 
 ``` r
 
-audit_seq(out_seq1)
-#> # A tibble: 1 × 17
-#>   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x
-#>   <chr> <chr> <int> <lgl>            <int>  <int>   <int>  <int>  <int>
-#> 1 0.19  0.35   1683 FALSE                4      2       2      0      4
-#> # ℹ 8 more variables: diff_x_up <int>, diff_x_down <int>, diff_sd <int>,
-#> #   diff_sd_up <int>, diff_sd_down <int>, diff_n <int>, diff_n_up <int>,
-#> #   diff_n_down <int>
+out_seq2 <- debit_map_seq(
+  pigs3,
+  digits_x = 2,
+  digits_sd = 2,
+  data_type = "integer",
+  dispersion = 1:7,
+  include_consistent = TRUE
+)
+audit(out_seq2)
+#> # A tibble: 7 × 18
+#>       x    sd     n data_type consistency hits_total hits_x hits_sd hits_n
+#>   <dbl> <dbl> <int> <chr>     <lgl>            <int>  <int>   <int>  <int>
+#> 1  0.53  0.5   1683 integer   TRUE                25     11       0     14
+#> 2  0.44  0.5   1683 integer   TRUE                22      8       0     14
+#> 3  0.77  0.42  1683 integer   TRUE                16      2       0     14
+#> 4  0.19  0.35  1683 integer   FALSE                4      2       2      0
+#> 5  0.34  0.47  1683 integer   TRUE                17      2       1     14
+#> 6  0.93  0.25  1683 integer   TRUE                16      1       1     14
+#> 7  0.12  0.33  1683 integer   TRUE                16      1       1     14
+#> # ℹ 9 more variables: diff_x <int>, diff_x_up <int>, diff_x_down <int>,
+#> #   diff_sd <int>, diff_sd_up <int>, diff_sd_down <int>, diff_n <int>,
+#> #   diff_n_up <int>, diff_n_down <int>
 ```
 
-Here is what the output columns mean:
+[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md)
+accepts this output, but the dispersed value sets overlap into a cross
+around each case, and their labels crowd each other out.
 
-- `x`, `sd`, and `n` are the original inputs, reconstructed and tested
-  for `consistency` here.
+### Unknown group sizes: `debit_map_total_n()`
 
-- The `hits_*` columns display is the number of DEBIT-consistent value
-  combinations found within the specified `dispersion` range; either in
-  total or by varying individual parameters.
-
-- `diff_x` reports the absolute difference between `x` and the next
-  consistent dispersed value (in dispersion steps, not the actual
-  numeric difference). `diff_x_up` and `diff_x_down` report the
-  difference to the next higher or lower consistent value, respectively.
-
-- Accordingly with the `diff_sd*` and `diff_n*` columns.
-
-The default for `dispersion` is `1:5`, for five steps up and down. When
-the `dispersion` sequence gets longer, the number of hits tends to
-increase:
-
-``` r
-
-out_seq2 <- debit_map_seq(pigs3, dispersion = 1:7, include_consistent = TRUE)
-audit_seq(out_seq2)
-#> # A tibble: 7 × 17
-#>   x     sd        n consistency hits_total hits_x hits_sd hits_n diff_x
-#>   <chr> <chr> <int> <lgl>            <int>  <int>   <int>  <int>  <int>
-#> 1 0.53  0.50   1683 TRUE                25     11       0     14      1
-#> 2 0.44  0.50   1683 TRUE                22      8       0     14      1
-#> 3 0.77  0.42   1683 TRUE                16      2       0     14      1
-#> 4 0.19  0.35   1683 FALSE                4      2       2      0      4
-#> 5 0.34  0.47   1683 TRUE                17      2       1     14      1
-#> 6 0.93  0.25   1683 TRUE                16      2       1     14      1
-#> 7 0.12  0.33   1683 TRUE                16      1       1     14      1
-#> # ℹ 8 more variables: diff_x_up <int>, diff_x_down <int>, diff_sd <int>,
-#> #   diff_sd_up <int>, diff_sd_down <int>, diff_n <int>, diff_n_up <int>,
-#> #   diff_n_down <int>
-```
-
-#### Visualizing DEBIT-checked sequences
-
-Although it is possible in principle to visualize results of
-[`debit_map_seq()`](https://lhdjung.github.io/scrutiny/reference/debit_map_seq.md)
-using
-[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md),
-it’s not recommended because the results don’t currently look great.
-This issue might be fixed in a future version of
-[`debit_plot()`](https://lhdjung.github.io/scrutiny/reference/debit_plot.md).
-
-### Handling unknown group sizes with `debit_map_total_n()`
-
-#### Problems from underreporting
-
-Unfortunately, some studies that report group averages don’t report the
-corresponding group sizes — only a total sample size. This makes any
-direct use of DEBIT impossible because only `x` and `sd` values are
-known, not `n` values. All that is feasible here in terms of DEBIT is to
-take a number around half the total sample size, go up and down from it,
-and check which *hypothetical* group sizes are consistent with the
-reported group means and SDs.
+If only the total sample size of two groups is known,
 [`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md)
-semi-automates this process, motivated by a recent GRIM analysis (Bauer
-and Francis 2021).
-
-Here is an example:
+tests hypothetical splits of it, as
+[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)
+does; see
+[`vignette("grim-in-depth")`](https://lhdjung.github.io/scrutiny/articles/grim-in-depth.md)
+for a case study.
 
 ``` r
 
-out_total_n <- tibble::tribble(
-  ~x1,     ~x2,   ~sd1,   ~sd2,  ~n,
-  "0.30", "0.28", "0.17", "0.10", 70,
-  "0.41", "0.39", "0.09", "0.15", 65
+flying_pigs2 <- tibble::tribble(
+  ~x1  , ~x2  , ~sd1 , ~sd2 , ~n ,
+  0.30 , 0.27 , 0.47 , 0.45 , 70 ,
+  0.43 , 0.34 , 0.50 , 0.48 , 65
 )
 
-out_total_n <- debit_map_total_n(out_total_n)
+out_total_n <- debit_map_total_n(flying_pigs2, digits_x = 2, digits_sd = 2, data_type = "integer")
 out_total_n
-#> # A tibble: 48 × 15
-#>    x     sd        n n_change consistency both_consistent rounding   sd_lower
-#>    <chr> <chr> <int>    <int> <lgl>       <lgl>           <chr>         <dbl>
-#>  1 0.30  0.17     35        0 FALSE       FALSE           up_or_down    0.165
-#>  2 0.28  0.10     35        0 FALSE       FALSE           up_or_down    0.095
-#>  3 0.30  0.17     34       -1 FALSE       FALSE           up_or_down    0.165
-#>  4 0.28  0.10     36        1 FALSE       FALSE           up_or_down    0.095
-#>  5 0.30  0.17     33       -2 FALSE       FALSE           up_or_down    0.165
-#>  6 0.28  0.10     37        2 FALSE       FALSE           up_or_down    0.095
-#>  7 0.30  0.17     32       -3 FALSE       FALSE           up_or_down    0.165
-#>  8 0.28  0.10     38        3 FALSE       FALSE           up_or_down    0.095
-#>  9 0.30  0.17     31       -4 FALSE       FALSE           up_or_down    0.165
-#> 10 0.28  0.10     39        4 FALSE       FALSE           up_or_down    0.095
-#> # ℹ 38 more rows
-#> # ℹ 7 more variables: sd_incl_lower <lgl>, sd_upper <dbl>, sd_incl_upper <lgl>,
-#> #   x_lower <dbl>, x_upper <dbl>, case <int>, dir <fct>
+#> # A tibble: 46 × 11
+#> # DEBIT: default settings
+#>        x    sd     n n_change data_type digits_x digits_sd consistency
+#>    <dbl> <dbl> <int>    <int> <chr>        <int>     <int> <lgl>      
+#>  1  0.3   0.47    35        0 integer          2         2 FALSE      
+#>  2  0.27  0.45    35        0 integer          2         2 FALSE      
+#>  3  0.3   0.47    34       -1 integer          2         2 FALSE      
+#>  4  0.27  0.45    36        1 integer          2         2 FALSE      
+#>  5  0.3   0.47    33       -2 integer          2         2 TRUE       
+#>  6  0.27  0.45    37        2 integer          2         2 TRUE       
+#>  7  0.3   0.47    32       -3 integer          2         2 FALSE      
+#>  8  0.27  0.45    38        3 integer          2         2 FALSE      
+#>  9  0.3   0.47    31       -4 integer          2         2 FALSE      
+#> 10  0.27  0.45    39        4 integer          2         2 FALSE      
+#> # ℹ 36 more rows
+#> # ℹ 3 more variables: both_consistent <lgl>, case <int>, dir <fct>
 
-audit_total_n(out_total_n)
+audit(out_total_n)
 #> # A tibble: 2 × 10
-#>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total
-#>   <chr> <chr> <chr> <chr> <int>      <int>      <int>     <int>           <int>
-#> 1 0.30  0.28  0.17  0.10     70          0          0         0              12
-#> 2 0.41  0.39  0.09  0.15     65          0          0         0              12
+#>      x1    x2   sd1   sd2     n hits_total hits_forth hits_back scenarios_total
+#>   <dbl> <dbl> <dbl> <dbl> <int>      <int>      <int>     <int>           <int>
+#> 1  0.3   0.27  0.47  0.45    70          2          2         0              11
+#> 2  0.43  0.34  0.5   0.48    65          1          1         0              12
 #> # ℹ 1 more variable: hit_rate <dbl>
 ```
 
-See the GRIM vignette, section *Handling unknown group sizes with
-[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)*,
-for a more comprehensive case study. It uses
-[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md),
-which is the same as
-[`debit_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/debit_map_total_n.md)
-but only for GRIM.
+### Interpreting results
+
+An inconsistency means that an assumption of the test is false or that a
+number was reported incorrectly, often for a benign reason. What to rule
+out before drawing conclusions is discussed in [the section on
+interpreting GRIM
+results](https://trustworthyresear.ch/chapters/granularity_methods.html#sec-grim-interpreting)
+of Hussey (2026). The same reasoning applies to DEBIT.
 
 ## References
 
-Bauer, Patricia J., and Gregory Francis. 2021. “Expression of Concern:
-Is It Light or Dark? Recalling Moral Behavior Changes Perception of
-Brightness.” *Psychological Science* 32 (12): 2042–43.
-
 Heathers, James A. J., and Nicholas J. L. Brown. 2019. *DEBIT: A Simple
 Consistency Test For Binary Data*. <https://osf.io/5vb3u/>.
+
+Hussey, Ian. 2026. *Trustworthiness Assessment and Forensic
+Meta-Science*. <https://doi.org/10.5281/zenodo.23056120>.

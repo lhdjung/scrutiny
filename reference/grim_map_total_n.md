@@ -1,39 +1,35 @@
-# GRIM-testing with hypothetical group sizes
+# GRIM-test with hypothetical group sizes
 
-When reporting group means, some published studies only report the total
-sample size but no group sizes corresponding to each mean. However,
-group sizes are crucial for GRIM-testing.
+Some studies report group means but only the total sample size, not the
+group sizes. For two groups, `grim_map_total_n()` tests hypothetical
+splits of the total: it starts from an even split, moves one participant
+at a time from one group to the other, and GRIM-tests both means against
+both group sizes, in both pairings.
 
-In the two-groups case, `grim_map_total_n()` helps in these ways:
-
-- It creates hypothetical group sizes. With an even total sample size,
-  it incrementally moves up and down from half the total sample size.
-  For example, with a total sample size of 40, it starts at 20, goes on
-  to 19 and 21, then to 18 and 22, etc. With odd sample sizes, it starts
-  from the two integers around half.
-
-- It GRIM-tests all of these values together with the group means.
-
-- It reports all the scenarios in which both "dispersed" hypothetical
-  group sizes are GRIM-consistent with the group means.
-
-All of this works with one or more total sample sizes at a time. Call
-[`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-for summary statistics.
+Call [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+on the output for summary statistics.
 
 ## Usage
 
 ``` r
 grim_map_total_n(
   data,
+  digits_x,
   x1 = NULL,
   x2 = NULL,
+  n = NULL,
+  ...,
+  items_averaged,
+  data_type,
+  x_meaning = c("mean", "percentage"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
+  show_rec = FALSE,
   dispersion = 0:5,
   n_min = 1L,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL,
-  ...
+  constant = NULL
 )
 ```
 
@@ -41,21 +37,78 @@ grim_map_total_n(
 
 - data:
 
-  Data frame with string columns `x1` and `x2`, and numeric column `n`.
-  The first two are group mean or percentage values with unknown group
-  sizes, and `n` is the total sample size. It is not very important
-  whether a value is in `x1` or in `x2` because, after the first round
-  of tests, the function switches roles between `x1` and `x2`, and
-  reports the outcomes both ways.
+  Data frame with numeric columns `x1`, `x2`, and `n`: the two group
+  means (or percentages) and the total sample size. Which mean is `x1`
+  does not matter, since both pairings with the group sizes are tested.
 
-- x1, x2:
+- digits_x:
 
-  Optionally, specify these arguments as column names in `data`.
+  Integer. The number of decimal places in `x1` and `x2`, including
+  trailing zeros. There is no default, since a numeric value does not
+  keep them (`1.40` is `1.4`). Either a single number for both groups,
+  or two numbers, one for `x1` and one for `x2`, which apply to every
+  row of `data`. If left out, it is taken from a `digits_x` column of
+  `data`, with one number per row for both groups. If the decimal places
+  differ both by group and by row, call the function on each set of rows
+  separately and
+  [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+  each output.
+
+- x1, x2, n:
+
+  Optionally, the names of the columns in `data` that contain these
+  values, if they differ from the defaults.
+
+- ...:
+
+  These dots must be empty. Every argument after them must be named in
+  full.
+
+- items_averaged:
+
+  Integer. As in
+  [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md): the
+  number of items averaged into each score, not the number of scale
+  points. Give it as an argument or as a column of `data`; there is no
+  default. It is returned as a column.
+
+- data_type:
+
+  String. As in
+  [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md):
+  `"integer"` or `"continuous"`. Like `items_averaged`, give it as an
+  argument or as a column of `data`; there is no default. It is returned
+  as a column.
+
+- x_meaning:
+
+  String. What the `x` values are: `"mean"` (the default) or
+  `"percentage"`. Percentages are divided by 100 and tested with two
+  more decimal places. It applies to the whole call, so test a table
+  that mixes means and percentages in parts, as in the examples of
+  [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
+  The parts record different settings, so they can't be combined with
+  [`dplyr::bind_rows()`](https://dplyr.tidyverse.org/reference/bind_rows.html).
+  See *Defaults* in
+  [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md).
+
+- rounding, threshold, symmetric:
+
+  Passed on to
+  [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md),
+  whose section *Defaults* explains the defaults.
+
+- show_rec:
+
+  Logical. If `TRUE`, the reconstructed numbers are returned as columns;
+  see *Reconstructed numbers* in
+  [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
+  Default is `FALSE`.
 
 - dispersion:
 
-  Numeric. Steps up and down from half the `n` values. Default is `0:5`,
-  i.e., half `n` itself followed by five steps up and down.
+  Numeric. Steps up and down from half the total `n`. Default is `0:5`,
+  i.e., the even split and five steps away from it.
 
 - n_min:
 
@@ -67,73 +120,65 @@ grim_map_total_n(
 
 - constant:
 
-  Optionally, add a length-2 vector or a list of length-2 vectors (such
-  as a data frame with exactly two rows) to accompany the pairs of
-  dispersed values. Default is `NULL`, i.e., no constant values.
-
-- constant_index:
-
-  Integer (length 1). Index of `constant` or the first `constant` column
-  in the output tibble. If `NULL` (the default), `constant` will go to
-  the right of `n_change`.
-
-- ...:
-
-  Arguments passed down to
-  [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
+  Optionally, values that belong to the two groups, such as their
+  labels: a length-2 vector for the groups of `x1` and `x2`, or a list
+  of such vectors. Each becomes a column, as in
+  [`disperse_total()`](https://lhdjung.github.io/scrutiny/reference/disperse.md),
+  and its values stay with their groups in both directions. Default is
+  `NULL`.
 
 ## Value
 
 A tibble with these columns:
 
-- `x`, the group-wise reported input statistic, is repeated in row
-  pairs.
+- `x`: the reported means, in pairs of rows.
 
-- `n` is dispersed from half the input `n`, with `n_change` tracking the
-  differences.
+- `n`: the hypothetical group sizes, with `n_change` recording the steps
+  from half the total.
 
-- `both_consistent` flags scenarios where both reported `x` values are
-  consistent with the hypothetical `n` values.
+- `both_consistent`: whether both means of a pair are consistent with
+  their hypothetical group sizes.
 
-- `case` corresponds to the row numbers of the input data frame.
+- `case`: the row number in `data`.
 
-- `dir` is `"forth"` in the first half of rows and `"back"` in the
-  second half. `"forth"` means that `x2` from the input is paired with
-  the larger dispersed `n`, whereas `"back"` means that `x1` is paired
-  with the larger dispersed `n`.
+- `dir`: `"forth"` where `x2` is paired with the larger group size,
+  `"back"` where `x1` is. The split of an even total into two equal
+  groups is the same scenario either way, so it appears under `"forth"`
+  only.
 
-- Other columns from
+- The other columns of
   [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md)
-  are preserved.
+  output, and the other columns of `data`.
 
-## Summaries with [`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
+## Summaries with [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
 
-You can call
-[`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-following up on `grim_map_total_n()` to get a tibble with summary
-statistics. It will have these columns:
+[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md) on
+`grim_map_total_n()` output returns a tibble with one row per case and
+these columns:
 
-- `x1`, `x2`, and `n` are the original inputs.
+- `x1`, `x2`, and `n`: the reported values.
 
-- `hits_total` is the number of scenarios in which both `x1` and `x2`
-  are GRIM-consistent. It is the sum of `hits_forth` and `hits_back`
-  below.
+- `hits_total`: the number of scenarios in which both groups are
+  GRIM-consistent, summing `hits_forth` and `hits_back`.
 
-- `hits_forth` is the number of both-consistent cases that result from
-  pairing `x2` with the larger dispersed `n` value.
+- `hits_forth`: the number of such scenarios with `x2` paired with the
+  larger group.
 
-- `hits_back` is the same, except `x1` is paired with the larger
-  dispersed `n` value.
+- `hits_back`: the same with `x1` paired with the larger group.
 
-- `scenarios_total` is the total number of test scenarios, whether or
-  not both `x1` and `x2` are GRIM-consistent.
+- `scenarios_total`: the number of scenarios tested, each a split of `n`
+  with one pairing of groups and statistics, leaving out those that
+  could not be decided.
 
-- `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
+- `hit_rate`: `hits_total / scenarios_total`, or `NA` if no scenario
+  could be decided.
+
+A count is `NA` if it depends on a scenario that could not be decided,
+or on rows removed from the output, as by
+[`filter()`](https://rdrr.io/r/stats/filter.html).
 
 Call [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
-following
-[`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-to summarize results even further.
+again on that summary to summarize these columns further.
 
 ## References
 
@@ -150,64 +195,59 @@ Psychology. *Social Psychological and Personality Science*, 8(4),
 ## See also
 
 [`function_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.md),
-which created the present function using
+which created this function from
 [`grim_map()`](https://lhdjung.github.io/scrutiny/reference/grim_map.md).
 
 ## Examples
 
 ``` r
-# Run `grim_map_total_n()` on data like these:
 df <- tibble::tribble(
-  ~x1,    ~x2,   ~n,
-  "3.43", "5.28", 90,
-  "2.97", "4.42", 103
+  ~x1,  ~x2,  ~n,
+  3.43, 5.28, 90,
+  2.97, 4.42, 103
 )
-df
-#> # A tibble: 2 × 3
-#>   x1    x2        n
-#>   <chr> <chr> <dbl>
-#> 1 3.43  5.28     90
-#> 2 2.97  4.42    103
 
-grim_map_total_n(df)
-#> # A tibble: 48 × 8
-#>    x         n n_change consistency both_consistent probability  case dir  
-#>    <chr> <int>    <int> <lgl>       <lgl>                 <dbl> <int> <fct>
-#>  1 3.43     45        0 FALSE       FALSE                  0.55     1 forth
-#>  2 5.28     45        0 FALSE       FALSE                  0.55     1 forth
-#>  3 3.43     44       -1 TRUE        TRUE                   0.56     1 forth
-#>  4 5.28     46        1 TRUE        TRUE                   0.54     1 forth
-#>  5 3.43     43       -2 FALSE       FALSE                  0.57     1 forth
-#>  6 5.28     47        2 TRUE        FALSE                  0.53     1 forth
-#>  7 3.43     42       -3 TRUE        FALSE                  0.58     1 forth
-#>  8 5.28     48        3 FALSE       FALSE                  0.52     1 forth
-#>  9 3.43     41       -4 FALSE       FALSE                  0.59     1 forth
-#> 10 5.28     49        4 FALSE       FALSE                  0.51     1 forth
-#> # ℹ 38 more rows
+grim_map_total_n(df, digits_x = 2, items_averaged = 1, data_type = "integer")
+#> # A tibble: 46 × 11
+#> # GRIM: default settings
+#>        x     n n_change items_averaged data_type digits_x consistency
+#>    <dbl> <int>    <int>          <int> <chr>        <int> <lgl>      
+#>  1  3.43    45        0              1 integer          2 FALSE      
+#>  2  5.28    45        0              1 integer          2 FALSE      
+#>  3  3.43    44       -1              1 integer          2 TRUE       
+#>  4  5.28    46        1              1 integer          2 TRUE       
+#>  5  3.43    43       -2              1 integer          2 FALSE      
+#>  6  5.28    47        2              1 integer          2 TRUE       
+#>  7  3.43    42       -3              1 integer          2 TRUE       
+#>  8  5.28    48        3              1 integer          2 FALSE      
+#>  9  3.43    41       -4              1 integer          2 FALSE      
+#> 10  5.28    49        4              1 integer          2 FALSE      
+#> # ℹ 36 more rows
+#> # ℹ 4 more variables: both_consistent <lgl>, exp_incon <dbl>, case <int>,
+#> #   dir <fct>
 
-# `audit_total_n()` summaries can be more important than
-# the detailed results themselves.
-# The `hits_total` column shows all scenarios in
-# which both divergent `n` values are GRIM-consistent
-# with the `x*` values when paired with them both ways:
-df %>%
-  grim_map_total_n() %>%
-  audit_total_n()
+# `hits_total` counts the splits in which both means are consistent:
+df |>
+  grim_map_total_n(digits_x = 2, items_averaged = 1, data_type = "integer") |>
+  audit()
 #> # A tibble: 2 × 8
-#>   x1    x2        n hits_total hits_forth hits_back scenarios_total hit_rate
-#>   <chr> <chr> <int>      <int>      <int>     <int>           <int>    <dbl>
-#> 1 3.43  5.28     90          3          2         1              12     0.25
-#> 2 2.97  4.42    103          0          0         0              12     0   
+#>      x1    x2     n hits_total hits_forth hits_back scenarios_total hit_rate
+#>   <dbl> <dbl> <int>      <int>      <int>     <int>           <int>    <dbl>
+#> 1  3.43  5.28    90          3          2         1              11    0.273
+#> 2  2.97  4.42   103          0          0         0              12    0    
 
-# By default (`dispersion = 0:5`), the function goes
-# five steps up and down from `n`. If this sequence
-# gets longer, the number of hits tends to increase:
-df %>%
-  grim_map_total_n(dispersion = 0:10) %>%
-  audit_total_n()
+# More steps away from the even split tend to find more hits:
+df |>
+  grim_map_total_n(
+    digits_x = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 0:10
+  ) |>
+  audit()
 #> # A tibble: 2 × 8
-#>   x1    x2        n hits_total hits_forth hits_back scenarios_total hit_rate
-#>   <chr> <chr> <int>      <int>      <int>     <int>           <int>    <dbl>
-#> 1 3.43  5.28     90          6          3         3              22   0.273 
-#> 2 2.97  4.42    103          2          0         2              22   0.0909
+#>      x1    x2     n hits_total hits_forth hits_back scenarios_total hit_rate
+#>   <dbl> <dbl> <int>      <int>      <int>     <int>           <int>    <dbl>
+#> 1  3.43  5.28    90          6          3         3              21   0.286 
+#> 2  2.97  4.42   103          2          0         2              22   0.0909
 ```

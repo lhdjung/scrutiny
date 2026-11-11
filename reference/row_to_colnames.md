@@ -1,10 +1,9 @@
 # Turn row values into column names
 
-Data frames sometimes have wrong column names, while the correct column
-names are stored in one or more rows in the data frame itself. To remedy
-this issue, call `row_to_colnames()` on the data frame: It replaces the
-column names by the values of the specified rows (by default, only the
-first one). These rows are then dropped by default.
+Tables extracted from PDFs, e.g. with tabulapdf, sometimes have their
+column names in the first row (or rows) and nondescript names above.
+`row_to_colnames()` replaces the column names by the values of those
+rows and drops the rows.
 
 ## Usage
 
@@ -20,37 +19,34 @@ row_to_colnames(data, row = 1L, collapse = " ", drop = TRUE)
 
 - row:
 
-  Integer. Position of the rows (one or more) that jointly contain the
-  correct column names. Default is `1`.
+  Integer. Position of the row or rows that contain the column names.
+  Default is `1`.
 
 - collapse:
 
-  String. If the length of `row` is greater than 1, each new column name
-  will be that many row values pasted together. `collapse`, then, is the
-  substring between two former row values in the final column names.
-  Default is `" "` (a space).
+  String. Separator between the values of several rows. Default is
+  `" "`.
 
 - drop:
 
-  Logical. If `TRUE` (the default), the rows specified with `row` are
-  removed.
+  Logical. Should the rows be removed? Default is `TRUE`.
 
 ## Value
 
-A tibble (data frame).
+`data` with new column names, as a data frame of the same class, or a
+tibble if `data` was a matrix.
 
 ## Details
 
-If multiple rows are specified, the row values for each individual
-column are pasted together. Some special characters might then be
-missing.
-
-This function might be useful when importing tables from PDF, e.g. with
-[tabulizer](https://cran.r-project.org/package=tabulizer). In R, these
-data frames (converted from matrices) do sometimes have the issue
-described above.
+With several rows, their values are pasted together per column. Missing
+values, blank strings, `"NA"`, and `"NaN"` are skipped, and whitespace
+around a value is trimmed; if all of a column's values in these rows are
+missing or blank, it keeps its name. The new names must be unique: a
+header that repeats, as in "M, SD, M, SD", is an error unless a second
+row tells the columns apart. A label that spans several columns, such as
+a group name above "M, SD", is often only in the first of them; repeat
+it in each one first.
 
 ## See also
 
-`unheadr::mash_colnames()`, a more sophisticated solution to the same
-problem.
+`unheadr::mash_colnames()`, a more general solution to the same problem.

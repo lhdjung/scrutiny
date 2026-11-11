@@ -1,41 +1,37 @@
-# GRIMMER-testing with hypothetical group sizes
+# GRIMMER-test with hypothetical group sizes
 
-When reporting group means, some published studies only report the total
-sample size but no group sizes corresponding to each mean. However,
-group sizes are crucial for GRIMMER-testing.
+Some studies report group means and standard deviations but only the
+total sample size, not the group sizes. For two groups,
+`grimmer_map_total_n()` tests hypothetical splits of the total, as
+[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md)
+does.
 
-In the two-groups case, `grimmer_map_total_n()` helps in these ways:
-
-- It creates hypothetical group sizes. With an even total sample size,
-  it incrementally moves up and down from half the total sample size.
-  For example, with a total sample size of 40, it starts at 20, goes on
-  to 19 and 21, then to 18 and 22, etc. With odd sample sizes, it starts
-  from the two integers around half.
-
-- It GRIMMER-tests all of these values together with the group means.
-
-- It reports all the scenarios in which both "dispersed" hypothetical
-  group sizes are GRIMMER-consistent with the group means.
-
-All of this works with one or more total sample sizes at a time. Call
-[`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-for summary statistics.
+Call [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+on the output for summary statistics.
 
 ## Usage
 
 ``` r
 grimmer_map_total_n(
   data,
+  digits_x,
+  digits_sd,
   x1 = NULL,
   x2 = NULL,
   sd1 = NULL,
   sd2 = NULL,
+  n = NULL,
+  ...,
+  items_averaged,
+  data_type,
+  sd_meaning = c("sd_sample", "sd_pop", "sd_sample_or_pop", "se"),
+  rounding = "up_or_down",
+  threshold = 5,
+  symmetric = FALSE,
   dispersion = 0:5,
-  n_min = 1L,
+  n_min = NULL,
   n_max = NULL,
-  constant = NULL,
-  constant_index = NULL,
-  ...
+  constant = NULL
 )
 ```
 
@@ -43,27 +39,65 @@ grimmer_map_total_n(
 
 - data:
 
-  Data frame with string columns `x1`, `x2`, `sd1`, and `sd2`, as well
-  as numeric column `n`. The first two are reported group means. `sd1`
-  and `sd2` are reported group SDs. `n` is the reported total sample
-  size. It is not very important whether a value is in `x1` or in `x2`
-  because, after the first round of tests, the function switches roles
-  between `x1` and `x2`, and reports the outcomes both ways. The same
-  applies to `sd1` and `sd2`. However, do make sure the `x*` and `sd*`
-  values are paired accurately, as reported.
+  Data frame with numeric columns `x1`, `x2`, `sd1`, `sd2`, and `n`: the
+  two group means, the two group SDs, and the total sample size. Which
+  group is 1 does not matter, since both pairings with the group sizes
+  are tested, but `x1` must belong with `sd1` and `x2` with `sd2`.
 
-- x1, x2, sd1, sd2:
+- digits_x, digits_sd:
 
-  Optionally, specify these arguments as column names in `data`.
+  Integer. The number of decimal places in the means and SDs, including
+  trailing zeros. There are no defaults, since a numeric value does not
+  keep them (`1.40` is `1.4`). Either a single number for both groups,
+  or two numbers, one per group, which apply to every row of `data`. If
+  left out, they are taken from `digits_x` and `digits_sd` columns of
+  `data`, with one number per row for both groups. If the decimal places
+  differ both by group and by row, call the function on each set of rows
+  separately and
+  [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+  each output.
+
+- x1, x2, sd1, sd2, n:
+
+  Optionally, the names of the columns in `data` that contain these
+  values, if they differ from the defaults.
+
+- ...:
+
+  These dots must be empty. Every argument after them must be named in
+  full.
+
+- items_averaged:
+
+  Integer. As in
+  [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md):
+  the number of items averaged into each score, given as an argument or
+  as a column of `data`. There is no default.
+
+- data_type:
+
+  String. As in
+  [`grim()`](https://lhdjung.github.io/scrutiny/reference/grim.md):
+  `"integer"` or `"continuous"`. Like `items_averaged`, give it as an
+  argument or as a column of `data`; there is no default. It is returned
+  as a column.
+
+- rounding, threshold, symmetric, sd_meaning:
+
+  Passed on to
+  [`grimmer()`](https://lhdjung.github.io/scrutiny/reference/grimmer.md),
+  whose section *Defaults* explains the defaults.
 
 - dispersion:
 
-  Numeric. Steps up and down from half the `n` values. Default is `0:5`,
-  i.e., half `n` itself followed by five steps up and down.
+  Numeric. Steps up and down from half the total `n`. Default is `0:5`,
+  i.e., the even split and five steps away from it.
 
 - n_min:
 
-  Numeric. Minimal group size. Default is 1.
+  Numeric. Minimal group size. Default is `NULL`: 2 under
+  `sd_meaning = "sd_sample"` or `"se"`, which divide by `n - 1`, and 1
+  under `"sd_pop"` or `"sd_sample_or_pop"`.
 
 - n_max:
 
@@ -71,76 +105,55 @@ grimmer_map_total_n(
 
 - constant:
 
-  Optionally, add a length-2 vector or a list of length-2 vectors (such
-  as a data frame with exactly two rows) to accompany the pairs of
-  dispersed values. Default is `NULL`, i.e., no constant values.
-
-- constant_index:
-
-  Integer (length 1). Index of `constant` or the first `constant` column
-  in the output tibble. If `NULL` (the default), `constant` will go to
-  the right of `n_change`.
-
-- ...:
-
-  Arguments passed down to
-  [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md).
+  Optionally, values that belong to the two groups, such as their
+  labels: a length-2 vector for the groups of `x1` and `x2`, or a list
+  of such vectors. Each becomes a column, as in
+  [`disperse_total()`](https://lhdjung.github.io/scrutiny/reference/disperse.md),
+  and its values stay with their groups in both directions. Default is
+  `NULL`.
 
 ## Value
 
-A tibble with these columns:
+A tibble like that of
+[`grim_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/grim_map_total_n.md),
+with `x` and `sd` columns for the reported values, `dir` recording which
+group is paired with the larger group size (the equal split of an even
+total appears under `"forth"` only), the other columns of
+[`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)
+output, and the other columns of `data`.
 
-- `x`, the group-wise reported input statistic, is repeated in row
-  pairs.
+## Summaries with [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
 
-- `n` is dispersed from half the input `n`, with `n_change` tracking the
-  differences.
+[`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md) on
+`grimmer_map_total_n()` output returns a tibble with one row per case
+and these columns:
 
-- `both_consistent` flags scenarios where both reported `x` values are
-  consistent with the hypothetical `n` values.
+- `x1`, `x2`, `sd1`, `sd2`, and `n`: the reported values.
 
-- `case` corresponds to the row numbers of the input data frame.
+- `hits_total`: the number of scenarios in which both groups are
+  GRIMMER-consistent, summing `hits_forth` and `hits_back`.
 
-- `dir` is `"forth"` in the first half of rows and `"back"` in the
-  second half. `"forth"` means that `x2` from the input is paired with
-  the larger dispersed `n`, whereas `"back"` means that `x1` is paired
-  with the larger dispersed `n`.
+- `hits_forth`: the number of such scenarios with `x2` and `sd2` paired
+  with the larger group.
 
-- Other columns from
-  [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md)
-  are preserved. See there for an explanation of the `reason` column.
+- `hits_back`: the same with `x1` and `sd1` paired with the larger
+  group.
 
-## Summaries with [`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
+- `scenarios_total`: the number of scenarios tested, each a split of `n`
+  with one pairing of groups and statistics, leaving out those that
+  could not be decided.
 
-You can call
-[`audit_total_n()`](https://lhdjung.github.io/scrutiny/reference/audit-special.md)
-following up on `grimmer_map_total_n()` to get a tibble with summary
-statistics. It will have these columns:
+- `hit_rate`: `hits_total / scenarios_total`, or `NA` if no scenario
+  could be decided.
 
-- `x1`, `x2`, `sd1`, `sd2`, and `n` are the original inputs.
+A count is `NA` if it depends on a scenario that could not be decided,
+or on rows removed from the output, as by
+[`filter()`](https://rdrr.io/r/stats/filter.html).
 
-- `hits_total` is the number of scenarios in which all of `x1`, `x2`,
-  `sd1`, and `sd2` are GRIMMER-consistent. It is the sum of `hits_forth`
-  and `hits_back` below.
-
-- `hits_forth` is the number of both-consistent cases that result from
-  pairing `x2` and `sd2` with the larger dispersed `n` value.
-
-- `hits_back` is the same, except `x1` and `sd1` are paired with the
-  larger dispersed `n` value.
-
-- `scenarios_total` is the total number of test scenarios, whether or
-  not both `x1` and `sd1` as well as `x2` and `sd2` are
-  GRIMMER-consistent.
-
-- `hit_rate` is the ratio of `hits_total` to `scenarios_total`.
+Call [`audit()`](https://lhdjung.github.io/scrutiny/reference/audit.md)
+again on that summary to summarize these columns further.
 
 ## References
-
-Bauer, P. J., & Francis, G. (2021). Expression of Concern: Is It Light
-or Dark? Recalling Moral Behavior Changes Perception of Brightness.
-*Psychological Science*, 32(12), 2042–2043.
-https://journals.sagepub.com/doi/10.1177/09567976211058727
 
 Allard, A. (2018). Analytic-GRIMMER: a new way of testing the
 possibility of standard deviations.
@@ -154,1354 +167,73 @@ https://journals.sagepub.com/doi/10.1177/09567976211058727
 ## See also
 
 [`function_map_total_n()`](https://lhdjung.github.io/scrutiny/reference/function_map_total_n.md),
-which created the present function using
+which created this function from
 [`grimmer_map()`](https://lhdjung.github.io/scrutiny/reference/grimmer_map.md).
 
 ## Examples
 
 ``` r
-# Run `grimmer_map_total_n()` on data like these:
 df <- tibble::tribble(
-  ~x1,    ~x2,    ~sd1,   ~sd2,   ~n,
-  "3.43", "5.28", "1.09", "2.12", 70,
-  "2.97", "4.42", "0.43", "1.65", 65
+  ~x1,  ~x2,  ~sd1, ~sd2, ~n,
+  3.43, 5.28, 1.09, 2.12, 70,
+  2.97, 4.42, 0.43, 1.65, 65
 )
-df
-#> # A tibble: 2 × 5
-#>   x1    x2    sd1   sd2       n
-#>   <chr> <chr> <chr> <chr> <dbl>
-#> 1 3.43  5.28  1.09  2.12     70
-#> 2 2.97  4.42  0.43  1.65     65
 
-grimmer_map_total_n(df)
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> # A tibble: 48 × 9
-#>    x     sd        n n_change consistency both_consistent reason      case dir  
-#>    <chr> <chr> <int>    <int> <lgl>       <lgl>           <chr>      <int> <fct>
-#>  1 3.43  1.09     35        0 TRUE        FALSE           Passed all     1 forth
-#>  2 5.28  2.12     35        0 FALSE       FALSE           GRIM inco…     1 forth
-#>  3 3.43  1.09     34       -1 FALSE       FALSE           GRIM inco…     1 forth
-#>  4 5.28  2.12     36        1 TRUE        FALSE           Passed all     1 forth
-#>  5 3.43  1.09     33       -2 FALSE       FALSE           GRIM inco…     1 forth
-#>  6 5.28  2.12     37        2 FALSE       FALSE           GRIM inco…     1 forth
-#>  7 3.43  1.09     32       -3 FALSE       FALSE           GRIM inco…     1 forth
-#>  8 5.28  2.12     38        3 FALSE       FALSE           GRIM inco…     1 forth
-#>  9 3.43  1.09     31       -4 FALSE       FALSE           GRIM inco…     1 forth
-#> 10 5.28  2.12     39        4 FALSE       FALSE           GRIMMER i…     1 forth
-#> # ℹ 38 more rows
+grimmer_map_total_n(
+  df,
+  digits_x = 2,
+  digits_sd = 2,
+  items_averaged = 1,
+  data_type = "integer"
+)
+#> # A tibble: 46 × 13
+#> # GRIMMER: default settings
+#>        x    sd     n n_change items_averaged data_type digits_x digits_sd
+#>    <dbl> <dbl> <int>    <int>          <int> <chr>        <int>     <int>
+#>  1  3.43  1.09    35        0              1 integer          2         2
+#>  2  5.28  2.12    35        0              1 integer          2         2
+#>  3  3.43  1.09    34       -1              1 integer          2         2
+#>  4  5.28  2.12    36        1              1 integer          2         2
+#>  5  3.43  1.09    33       -2              1 integer          2         2
+#>  6  5.28  2.12    37        2              1 integer          2         2
+#>  7  3.43  1.09    32       -3              1 integer          2         2
+#>  8  5.28  2.12    38        3              1 integer          2         2
+#>  9  3.43  1.09    31       -4              1 integer          2         2
+#> 10  5.28  2.12    39        4              1 integer          2         2
+#> # ℹ 36 more rows
+#> # ℹ 5 more variables: consistency <lgl>, both_consistent <lgl>, reason <chr>,
+#> #   case <int>, dir <fct>
 
-# `audit_total_n()` summaries can be more important than
-# the detailed results themselves.
-# The `hits_total` column shows all scenarios in
-# which both divergent `n` values are GRIMMER-consistent
-# with the `x*` values when paired with them both ways:
-df %>%
-  grimmer_map_total_n() %>%
-  audit_total_n()
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
+# `hits_total` counts the splits in which both groups are consistent:
+df |>
+  grimmer_map_total_n(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer"
+  ) |>
+  audit()
 #> # A tibble: 2 × 10
-#>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total
-#>   <chr> <chr> <chr> <chr> <int>      <int>      <int>     <int>           <int>
-#> 1 3.43  5.28  1.09  2.12     70          0          0         0              12
-#> 2 2.97  4.42  0.43  1.65     65          0          0         0              12
+#>      x1    x2   sd1   sd2     n hits_total hits_forth hits_back scenarios_total
+#>   <dbl> <dbl> <dbl> <dbl> <int>      <int>      <int>     <int>           <int>
+#> 1  3.43  5.28  1.09  2.12    70          0          0         0              11
+#> 2  2.97  4.42  0.43  1.65    65          0          0         0              12
 #> # ℹ 1 more variable: hit_rate <dbl>
 
-# By default (`dispersion = 0:5`), the function goes
-# five steps up and down from `n`. If this sequence
-# gets longer, the number of hits tends to increase:
-df %>%
-  grimmer_map_total_n(dispersion = 0:10) %>%
-  audit_total_n()
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
-#> Warning: False-positive GRIMMER results possible.
-#> ! I became aware of a bug in the `grimmer*()` functions.
-#> ✖ GRIMMER's test 3 can flag consistent values as inconsistent.
-#> ✖ For now, please use `show_reason = TRUE` and interpret results of test 3 with
-#>   care. (The first two tests and GRIM are not affected.)
-#> ℹ The next version of scrutiny will provide a fix. Many apologies.
-#> ℹ For more information, see <https://github.com/lhdjung/scrutiny/issues/80>
+# More steps away from the even split tend to find more hits:
+df |>
+  grimmer_map_total_n(
+    digits_x = 2,
+    digits_sd = 2,
+    items_averaged = 1,
+    data_type = "integer",
+    dispersion = 0:10
+  ) |>
+  audit()
 #> # A tibble: 2 × 10
-#>   x1    x2    sd1   sd2       n hits_total hits_forth hits_back scenarios_total
-#>   <chr> <chr> <chr> <chr> <int>      <int>      <int>     <int>           <int>
-#> 1 3.43  5.28  1.09  2.12     70          0          0         0              22
-#> 2 2.97  4.42  0.43  1.65     65          1          0         1              22
+#>      x1    x2   sd1   sd2     n hits_total hits_forth hits_back scenarios_total
+#>   <dbl> <dbl> <dbl> <dbl> <int>      <int>      <int>     <int>           <int>
+#> 1  3.43  5.28  1.09  2.12    70          0          0         0              21
+#> 2  2.97  4.42  0.43  1.65    65          1          0         1              22
 #> # ℹ 1 more variable: hit_rate <dbl>
 ```
